@@ -1,0 +1,17 @@
+{
+	"folders":
+	[
+		{
+			"follow_symlinks": true,
+			"path": "."
+		}
+	],
+    "SublimeLinter": {
+        "linters": {
+            "elixirc": {
+                "pa": ["${project}/_build/dev/lib/phoenix/ebin",
+                	   "${project}/_build/dev/lib/ecto/ebin"]
+            }
+        }
+    }
+}

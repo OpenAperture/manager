@@ -1,0 +1,617 @@
+{
+	"auto_complete":
+	{
+		"selected_items":
+		[
+			[
+				"project",
+				"project_omelette_manager"
+			],
+			[
+				"redir",
+				"redirectUri"
+			],
+			[
+				"redirect",
+				"redirectUri"
+			],
+			[
+				"CloudOSBuildServerProduct",
+				"CloudOSBuildServerProductsMock"
+			],
+			[
+				"source",
+				"source_repo"
+			],
+			[
+				"execute",
+				"executeDeploymentPlan"
+			],
+			[
+				"cloudosBuildServerProd",
+				"cloudOSBuildServerProductDeployments"
+			],
+			[
+				"scaff",
+				"scaffold_options"
+			],
+			[
+				"cloudosBuildser",
+				"cloudOSBuildServerProducts"
+			],
+			[
+				"cloudos",
+				"cloudos_docker_scaffold"
+			],
+			[
+				"get",
+				"get_env	get_env/0"
+			],
+			[
+				"post",
+				"post_url"
+			],
+			[
+				"current",
+				"current_number"
+			],
+			[
+				"__",
+				"__MODULE__"
+			],
+			[
+				"exit",
+				"exit	exit/1"
+			],
+			[
+				"_",
+				"__struct__	__struct__/0"
+			],
+			[
+				"end",
+				"end"
+			],
+			[
+				"j",
+				"json_str"
+			],
+			[
+				"workflow",
+				"workflow_id"
+			],
+			[
+				"error",
+				"error_info"
+			],
+			[
+				"format",
+				"format_json"
+			],
+			[
+				"Json",
+				"JSON"
+			],
+			[
+				"send_c",
+				"send_cobs_get_request"
+			],
+			[
+				"check",
+				"check_until_complete"
+			],
+			[
+				"status",
+				"status_type"
+			],
+			[
+				"build",
+				"build_or_deploy"
+			],
+			[
+				"workfl",
+				"workflow_id"
+			],
+			[
+				"exit_w",
+				"exit_with_success"
+			],
+			[
+				"auth",
+				"auth_token"
+			],
+			[
+				"deployments",
+				"deployments"
+			],
+			[
+				"send",
+				"send_cobs_request_2"
+			]
+		]
+	},
+	"buffers":
+	[
+		{
+			"file": "config/config.exs",
+			"settings":
+			{
+				"buffer_size": 899,
+				"line_ending": "Windows"
+			}
+		},
+		{
+			"file": "project_omelette.sublime-project",
+			"settings":
+			{
+				"buffer_size": 296,
+				"line_ending": "Unix"
+			}
+		},
+		{
+			"file": "lib/project_omelette_manager/repo.ex",
+			"settings":
+			{
+				"buffer_size": 1419,
+				"line_ending": "Windows"
+			}
+		}
+	],
+	"build_system": "",
+	"command_palette":
+	{
+		"height": 392.0,
+		"selected_items":
+		[
+			[
+				"Package Control: ",
+				"Package Control: Install Package"
+			],
+			[
+				"Package Control: remove",
+				"Package Control: Remove Package"
+			],
+			[
+				"package",
+				"Package Control: Install Package"
+			],
+			[
+				"Package Control: instal",
+				"Package Control: Install Package"
+			],
+			[
+				"Package Control: install",
+				"Package Control: Install Package"
+			],
+			[
+				"install",
+				"Package Control: Install Package"
+			],
+			[
+				"insta",
+				"Package Control: Install Package"
+			]
+		],
+		"width": 416.0
+	},
+	"console":
+	{
+		"height": 242.0,
+		"history":
+		[
+			"Package Control: Install Package",
+			"import urllib.request,os,hashlib; h = '2deb499853c4371624f5a07e27c334aa' + 'bf8c4e67d14fb0525ba4f89698a6d7e1'; pf = 'Package Control.sublime-package'; ipp = sublime.installed_packages_path(); urllib.request.install_opener( urllib.request.build_opener( urllib.request.ProxyHandler()) ); by = urllib.request.urlopen( 'http://packagecontrol.io/' + pf.replace(' ', '%20')).read(); dh = hashlib.sha256(by).hexdigest(); print('Error validating download (got %s instead of %s), please try manual install' % (dh, h)) if dh != h else open(os.path.join( ipp, pf), 'wb' ).write(by)"
+		]
+	},
+	"distraction_free":
+	{
+		"menu_visible": true,
+		"show_minimap": false,
+		"show_open_files": false,
+		"show_tabs": false,
+		"side_bar_visible": false,
+		"status_bar_visible": false
+	},
+	"expanded_folders":
+	[
+		"/C/Users/binmic/git/project_omelette_manager",
+		"/C/Users/binmic/git/project_omelette_manager/_build",
+		"/C/Users/binmic/git/project_omelette_manager/_build/dev",
+		"/C/Users/binmic/git/project_omelette_manager/_build/dev/lib",
+		"/C/Users/binmic/git/project_omelette_manager/config",
+		"/C/Users/binmic/git/project_omelette_manager/lib",
+		"/C/Users/binmic/git/project_omelette_manager/lib/project_omelette_manager"
+	],
+	"file_history":
+	[
+		"/C/Users/binmic/git/project_omelette_manager/sftp-config.json",
+		"/C/Users/binmic/git/project_omelette_manager/lib/project_omelette_manager/repo.ex",
+		"/C/Users/binmic/git/project_omelette_manager/project_omelette.sublime-project",
+		"/C/Users/binmic/git/project_omelette_manager/mix.exs",
+		"/C/Users/binmic/git/project_omelette_manager/config/config.exs",
+		"/C/Users/binmic/git/cloudos_build_server/config/config.exs",
+		"/C/Users/binmic/git/cloudos_build_server/sftp-config.json",
+		"/C/Users/binmic/git/cloudos_build_server/deps/fleet_api/mix.exs",
+		"/C/Users/binmic/git/cloudos_build_server/lib/cloudos_build_server/repo.ex",
+		"/C/Users/binmic/git/cloudos_build_server/mix.exs",
+		"/C/Users/binmic/git/cloudos_build_server/test/controllers/products/product_clusters_controller_test.exs",
+		"/c/Users/binmic/git/cloudos_build_server/web/router.ex",
+		"/c/Users/binmic/git/cloudos_build_server/web/controllers/products/product_environmental_variables_controller.ex",
+		"/C/Users/binmic/git/cloudos_build_server/web/controllers/products/product_clusters_controller.ex",
+		"/C/Users/binmic/git/cloudos_build_server/deps/phoenix/lib/phoenix/router.ex",
+		"/C/Users/binmic/git/cloudos_build_server/lib/cloudos_build_server/servers/notifications/hipchat_server.ex",
+		"/C/Users/binmic/git/cloudos_build_server/deps/ecto/mix.exs",
+		"/c/Users/binmic/git/cloudos_build_server/deps/phoenix/lib/phoenix/router.ex",
+		"/C/Users/binmic/git/cloudos_build_server/cobs.sublime-project",
+		"/C/Users/binmic/git/cloudos_build_server/lib/cloudos_build_server/topics/docker_topic.ex",
+		"/C/Users/binmic/git/cloudos_build_server/lib/cloudos_build_server/db/models/etcd_cluster.ex",
+		"/C/Users/binmic/git/cloudos_build_server/lib/cloudos_build_server/db/models/product_deployment_plan_step.ex",
+		"/C/Users/binmic/git/cloudos_build_server/lib/cloudos_build_server/db/queries/product.ex",
+		"/C/Users/binmic/git/cloudos_build_server/lib/cloudos_build_server/db/queries/product_cluster.ex",
+		"/C/Users/binmic/git/cloudos_build_server/lib/cloudos_build_server/db/queries/product_component.ex",
+		"/C/Users/binmic/git/cloudos_build_server/lib/cloudos_build_server/db/queries/product_deployment.ex",
+		"/C/Users/binmic/git/cloudos_build_server/lib/cloudos_build_server/db/queries/product_deployment_plan.ex",
+		"/C/Users/binmic/git/cloudos_build_server/lib/cloudos_build_server/db/queries/product_deployment_plan_step.ex",
+		"/C/Users/binmic/git/cloudos_build_server/lib/cloudos_build_server/db/queries/product_environment.ex",
+		"/C/Users/binmic/git/cloudos_build_server/lib/cloudos_build_server/servers/cloudos/cloudos_build_server.ex",
+		"/C/Users/binmic/git/cloudos_build_server/lib/cloudos_build_server/agents/fleet/systemd_unit.ex",
+		"/C/Users/binmic/git/cloudos_build_server/lib/cloudos_build_server/agents/notifications/hipchat_room.ex",
+		"/C/Users/binmic/git/cloudos_build_server/lib/cloudos_build_server/agents/cloudos_router.ex",
+		"/C/Users/binmic/git/cloudos_build_server/lib/cloudos_build_server/servers/products/deployments/steps/build_deploy_server.ex",
+		"/C/Users/binmic/git/cloudos_build_server/lib/cloudos_build_server/servers/products/deployments/deploy_plan_common.ex",
+		"/C/Users/binmic/git/cloudos_build_server/lib/cloudos_build_server/servers/products/deployments/deploy_plan_server.ex",
+		"/C/Users/binmic/git/cloudos_build_server/lib/cloudos_build_server/servers/build_server_mgr.ex",
+		"/C/Users/binmic/git/cloudos_build_server/lib/cloudos_build_server/servers/cloudos/cloudos_workflow_server.ex",
+		"/C/Users/binmic/git/cloudos_build_server/lib/cloudos_build_server/servers/cloudos/cloudos_workflow_notification_server.ex",
+		"/C/Users/binmic/git/cloudos_build_server/lib/cloudos_build_server/servers/cloudos/cloudos_deploy_server.ex",
+		"/C/Users/binmic/git/cloudos_build_server/lib/cloudos_build_server/servers/cloudos/cloudos_config_server.ex",
+		"/C/Users/binmic/git/cloudos_build_server/web/controllers/products/product_deployment_plan_steps_controller.ex",
+		"/C/Users/binmic/git/cloudos_build_server/lib/cloudos_build_server/db/models/product_cluster.ex",
+		"/C/Users/binmic/git/cloudos_build_server/web/controllers/products/product_components_controller.ex",
+		"/C/Users/binmic/git/cloudos_build_server/web/controllers/products/product_deployment_plans_controller.ex",
+		"/C/Users/binmic/git/cloudos_build_server/web/controllers/products/product_deployments.ex",
+		"/C/Users/binmic/git/cloudos_build_server/web/controllers/products/product_environmental_variables_controller.ex",
+		"/C/Users/binmic/git/cloudos_build_server/web/controllers/cloudos_controller.ex",
+		"/C/Users/binmic/git/cloudos_build_server/web/controllers/default_error_handler_controller.ex",
+		"/C/Users/binmic/git/cloudos_build_server/web/controllers/etcd_cluster_controller.ex",
+		"/C/Users/binmic/git/cloudos_build_server/web/controllers/substatus_controller.ex",
+		"/C/Users/binmic/AppData/Roaming/Sublime Text 3/Packages/User/SublimeLinter.sublime-settings",
+		"/C/Users/binmic/git/cloudos_build_server/deps/phoenix/lib/phoenix/controller.ex",
+		"/C/Users/binmic/git/cloudos_build_server/.sublime-project",
+		"/C/Users/binmic/git/cloudos-ui/app/js/controllers/auth-ctrl.js",
+		"/C/Users/binmic/git/cloudos-ui/app/js/app.js",
+		"/C/Users/binmic/git/cloudos-ui/app/views/getting-started/start.html",
+		"/C/Users/binmic/git/cloudos-ui/app/js/services/auth/google-oauth-service.js",
+		"/C/Users/binmic/git/cloudos-ui/app/views/products-launch.html",
+		"/C/Users/binmic/git/cloudos-ui/app/includes/left-panel.html",
+		"/C/Users/binmic/git/cloudos-ui/test/unit/services/mock/google-oauth-service.js",
+		"/C/Users/binmic/git/cloudos-ui/app/js/controllers/products-launch-ctrl.js",
+		"/C/Users/binmic/git/cloudos-ui/app/js/services/cloudos_build_server/product-deployments.js",
+		"/C/Users/binmic/git/cloudos-ui/test/unit/controllers/products-launch-ctrl_spec.js",
+		"/C/Users/binmic/git/cloudos-ui/app/js/services/cloudos_build_server/products.js",
+		"/C/Users/binmic/git/cloudos-ui/test/unit/services/mock/product-deployments.js",
+		"/C/Users/binmic/git/cloudos-ui/test/unit/services/mock/product-launch-ctrl.js",
+		"/C/Users/binmic/git/cloudos-ui/test/unit/services/mock/product-environments.js",
+		"/C/Users/binmic/git/cloudos-ui/test/unit/services/cloudos_build_server/product-deployments_spec.js",
+		"/C/Users/binmic/git/cloudos-ui/output/docs/product-deployment-plans.js.html",
+		"/C/Users/binmic/git/cloudos-ui/app/js/directives/product-deployment-plans/product-deployment-plans.js",
+		"/C/Users/binmic/AppData/Roaming/Sublime Text 3/Packages/JSLint/JSLint.sublime-settings",
+		"/C/Users/binmic/git/cloudos-ui/assets/SmartAdmin/UNMINIFIED_JS/plugin/bootstrap-timepicker/bootstrap-timepicker.js",
+		"/C/Users/binmic/git/cloudos-ui/node_modules/grunt-contrib-cssmin/node_modules/maxmin/node_modules/gzip-size/node_modules/browserify-zlib/test/test-zlib-random-byte-pipes.js",
+		"/C/Users/binmic/git/cloudos-ui/node_modules/grunt-cloudfront/node_modules/aws-sdk/node_modules/xmlbuilder/node_modules/lodash/internal/baseIsMatch.js",
+		"/C/Users/binmic/git/cloudos-ui/node_modules/bower/node_modules/insight/node_modules/inquirer/node_modules/rx/src/core/linq/observable/publish.js",
+		"/C/Users/binmic/git/cloudos-ui/node_modules/grunt-contrib-less/node_modules/less/test/less/errors/import-subfolder1.less",
+		"/C/Users/binmic/git/cloudos-ui/node_modules/grunt/internal-tasks/subgrunt.js",
+		"/C/Users/binmic/git/cloudos-ui/node_modules/grunt-contrib-concat/node_modules/source-map/build/suffix-utils.jsm",
+		"/C/Users/binmic/git/cloudos-ui/secrets.json",
+		"/C/Users/binmic/git/cloudos-ui/package.json",
+		"/C/Users/binmic/git/cloudos_build_server/lib/cloudos_build_server/agents/products/cloudos_docker_scaffold/GitUtil.ex",
+		"/C/Users/binmic/git/cloudos_docker_scaffold/config/config.exs",
+		"/C/Users/binmic/git/cloudos_docker_scaffold/priv/stacks/ruby21/install.sh",
+		"/c/Users/binmic/git/cobs_deployer/deps/httpoison/lib/httpoison.ex",
+		"/C/Users/binmic/git/cloudos_docker_scaffold/lib/cloudos_docker_scaffold.ex",
+		"/C/Users/binmic/git/cloudos_docker_scaffold/priv/common/__NAME__@.service.eex",
+		"/C/Users/binmic/git/cloudos_docker_scaffold/priv/stacks/ruby21/secrets.yml",
+		"/C/Users/binmic/git/cloudos_docker_scaffold/priv/common/Dockerfile.eex",
+		"/C/Users/binmic/git/cloudos_build_server/lib/cloudos_build_server/agents/fleet/etcd_cluster.ex",
+		"/c/Users/binmic/git/cloudos_build_server/deps/fleet_api/lib/fleet_api/unit_state.ex",
+		"/C/Users/binmic/git/cloudos_build_server/deps/fleet_api/lib/fleet_api/resource.ex",
+		"/C/Users/binmic/git/cloudos_build_server/web/router.ex",
+		"/c/Users/binmic/git/cloudos_build_server/deps/phoenix/lib/phoenix/controller.ex",
+		"/c/Users/binmic/git/cloudos-router/deps/cowboy/src/cowboy.erl",
+		"/C/Users/binmic/git/elixir_sequence/test/elixir_sequence_test.exs",
+		"/C/Users/binmic/git/elixir_sequence/_build/dev/lib/elixir_sequence/ebin/elixir_sequence.app",
+		"/C/Users/binmic/git/elixir_sequence/lib/sequence/Server.ex",
+		"/C/Users/binmic/git/cloudos-router/deps/poolboy/src/poolboy.app.src",
+		"/c/Users/binmic/git/cobs_deployer/deps/json/lib/json.ex",
+		"/C/Users/binmic/git/cobs_deployer/lib/cobs_deployer/util.ex",
+		"/C/Users/binmic/git/cobs_deployer/mix.exs",
+		"/C/Users/binmic/git/cobs_deployer/lib/cobs_deployer.ex",
+		"/C/Users/binmic/git/cobs_deployer/lib/cobs/util.ex",
+		"/C/Users/binmic/git/cobs_deployer/lib/docker.ex",
+		"/C/Users/binmic/AppData/Roaming/Sublime Text 3/Packages/User/Plain text.sublime-settings"
+	],
+	"find":
+	{
+		"height": 26.0
+	},
+	"find_in_files":
+	{
+		"height": 90.0,
+		"where_history":
+		[
+			"<open folders>",
+			""
+		]
+	},
+	"find_state":
+	{
+		"case_sensitive": false,
+		"find_history":
+		[
+			"defmodule CloudosBuildServer.Repo",
+			"CloudosBuildServer.Repo",
+			"cloudos_build_server_repo",
+			"EtcdCluster",
+			"CloudosBuildServer.Controllers.ProductClustersController",
+			"Controllers.ProductClustersControllerTest",
+			"(Controllers.ProductClustersControllerTest",
+			"{:poolboy,",
+			":poolboy",
+			"\"test\"",
+			"test product3",
+			"\"test plan\"",
+			"test product2",
+			"ProductCluster",
+			"Postgrex.Error",
+			"Phoenix.Controller",
+			"delete",
+			"resolveLoginRedirectUri",
+			"authorization-failed",
+			"/login",
+			"googleLogin",
+			"cloudOSGoogleOauthService",
+			"resolveLoginRedirectUri",
+			"application",
+			"deploy your application",
+			"application",
+			"CloudOS Overview",
+			"CloudOSBuildServerClustersMock",
+			"associateClusters",
+			"cloudOSBuildServerProducts.associateClusters",
+			"cluster",
+			"cloudOSBuildServerProductEnvironmentsMock",
+			"cloudOSBuildServerDeploymentsProvider",
+			"push.default",
+			"git config",
+			"createPlanSteps",
+			"productVariables",
+			"productLaunchPromiseTracker",
+			"\"location\"",
+			"{:poolboy",
+			"internal_server_error",
+			"create_github_repo",
+			"temp_dir",
+			"temp_dir2",
+			"ENV[",
+			"commit_hash",
+			"get_oauth_token",
+			"execute_journal_request",
+			"fleetctl-journal.sh.eex",
+			"get_units_state",
+			"EtcdClusterController",
+			"/clusters/",
+			":router",
+			"end",
+			"cat version",
+			"poolboy",
+			"cat VERSION",
+			"Logger",
+			"Logger.info",
+			"Logger.error"
+		],
+		"highlight": true,
+		"in_selection": false,
+		"preserve_case": false,
+		"regex": false,
+		"replace_history":
+		[
+			"create_github_docker_repo",
+			"temporary_dir",
+			"temporary_dir2",
+			"IO.puts"
+		],
+		"reverse": false,
+		"show_context": true,
+		"use_buffer2": true,
+		"whole_word": false,
+		"wrap": true
+	},
+	"groups":
+	[
+		{
+			"selected": 1,
+			"sheets":
+			[
+				{
+					"buffer": 0,
+					"file": "config/config.exs",
+					"semi_transient": false,
+					"settings":
+					{
+						"buffer_size": 899,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								631,
+								631
+							]
+						],
+						"settings":
+						{
+							"incomplete_sync": null,
+							"remote_loading": false,
+							"synced": false,
+							"syntax": "Packages/Elixir/Syntaxes/Elixir.tmLanguage"
+						},
+						"translation.x": 0.0,
+						"translation.y": 0.0,
+						"zoom_level": 1.0
+					},
+					"stack_index": 1,
+					"type": "text"
+				},
+				{
+					"buffer": 1,
+					"file": "project_omelette.sublime-project",
+					"semi_transient": false,
+					"settings":
+					{
+						"buffer_size": 296,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								0,
+								0
+							]
+						],
+						"settings":
+						{
+							"incomplete_sync": null,
+							"remote_loading": false,
+							"synced": false,
+							"syntax": "Packages/JavaScript/JSON.tmLanguage",
+							"tab_size": 4,
+							"translate_tabs_to_spaces": true
+						},
+						"translation.x": 0.0,
+						"translation.y": 0.0,
+						"zoom_level": 1.0
+					},
+					"stack_index": 0,
+					"type": "text"
+				},
+				{
+					"buffer": 2,
+					"file": "lib/project_omelette_manager/repo.ex",
+					"semi_transient": false,
+					"settings":
+					{
+						"buffer_size": 1419,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								680,
+								680
+							]
+						],
+						"settings":
+						{
+							"incomplete_sync": null,
+							"remote_loading": false,
+							"synced": false,
+							"syntax": "Packages/Elixir/Syntaxes/Elixir.tmLanguage",
+							"tab_size": 2,
+							"translate_tabs_to_spaces": true
+						},
+						"translation.x": 0.0,
+						"translation.y": 0.0,
+						"zoom_level": 1.0
+					},
+					"stack_index": 2,
+					"type": "text"
+				}
+			]
+		}
+	],
+	"incremental_find":
+	{
+		"height": 26.0
+	},
+	"input":
+	{
+		"height": 31.0
+	},
+	"layout":
+	{
+		"cells":
+		[
+			[
+				0,
+				0,
+				1,
+				1
+			]
+		],
+		"cols":
+		[
+			0.0,
+			1.0
+		],
+		"rows":
+		[
+			0.0,
+			1.0
+		]
+	},
+	"menu_visible": true,
+	"output.find_results":
+	{
+		"height": 0.0
+	},
+	"output.sftp":
+	{
+		"height": 427.0
+	},
+	"project": "project_omelette.sublime-project",
+	"replace":
+	{
+		"height": 48.0
+	},
+	"save_all_on_build": true,
+	"select_file":
+	{
+		"height": 0.0,
+		"selected_items":
+		[
+		],
+		"width": 0.0
+	},
+	"select_project":
+	{
+		"height": 500.0,
+		"selected_items":
+		[
+		],
+		"width": 380.0
+	},
+	"select_symbol":
+	{
+		"height": 392.0,
+		"selected_items":
+		[
+		],
+		"width": 768.0
+	},
+	"selected_group": 0,
+	"settings":
+	{
+	},
+	"show_minimap": true,
+	"show_open_files": false,
+	"show_tabs": true,
+	"side_bar_visible": true,
+	"side_bar_width": 427.0,
+	"status_bar_visible": true,
+	"template_settings":
+	{
+	}
+}
