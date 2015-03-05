@@ -2,3 +2,5 @@
 /deps
 erl_crash.dump
 *.ez
+sftp-config.json
+project_omelette.sublime-workspace
