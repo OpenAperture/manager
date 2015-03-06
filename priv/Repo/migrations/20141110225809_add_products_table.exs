@@ -3,7 +3,7 @@ defmodule ProjectOmeletteManager.Repo.Migrations.AddProductsTable do
 
   def change do
     create table(:products) do
-      add :name, :string, null: false, unique: true
+      add :name, :string, null: false
       timestamps
     end
     create index(:products, [:name], unique: true)

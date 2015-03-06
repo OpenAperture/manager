@@ -3,7 +3,7 @@ defmodule ProjectOmeletteManager.Repo.Migrations.AddEtcdClustersTable do
 
   def change do
     create table(:etcd_clusters) do
-      add :etcd_token, :string, null: false, unique: true
+      add :etcd_token, :string, null: false
       add :hosting_provider, :string, size: 1024
       add :hosting_provider_region, :string, size: 1024
       timestamps
