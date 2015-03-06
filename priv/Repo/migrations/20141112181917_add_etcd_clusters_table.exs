@@ -1,17 +1,13 @@
 defmodule ProjectOmeletteManager.Repo.Migrations.AddEtcdClustersTable do
   use Ecto.Migration
 
-  def up do
-    """
-    CREATE TABLE etcd_clusters (
-      id          SERIAL,
-      etcd_token  varchar(140) UNIQUE NOT NULL,
-      created_at  timestamp,
-      updated_at  timestamp)
-    """
-  end
-
-  def down do
-    "DROP TABLE etcd_clusters"
+  def change do
+    create table(:etcd_clusters) do
+      add :etcd_token, :string, null: false, unique: true
+      add :hosting_provider, :string, size: 1024
+      add :hosting_provider_region, :string, size: 1024
+      timestamps
+    end
+    create index(:etcd_clusters, [:etcd_token], unique: true)
   end
 end

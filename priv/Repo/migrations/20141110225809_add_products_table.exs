@@ -1,17 +1,11 @@
 defmodule ProjectOmeletteManager.Repo.Migrations.AddProductsTable do
   use Ecto.Migration
 
-  def up do
-    """
-    CREATE TABLE products (
-      id           SERIAL,
-      name         varchar(128) UNIQUE NOT NULL,
-      created_at   timestamp,
-      updated_at   timestamp)
-    """
-  end
-
-  def down do
-    "DROP TABLE products"
+  def change do
+    create table(:products) do
+      add :name, :string, null: false, unique: true
+      timestamps
+    end
+    create index(:products, [:name], unique: true)
   end
 end

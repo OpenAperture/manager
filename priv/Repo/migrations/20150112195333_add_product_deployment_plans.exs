@@ -1,22 +1,12 @@
 defmodule ProjectOmeletteManager.Repo.Migrations.AddProductDeploymentPlans do
   use Ecto.Migration
 
-  def up do
-    ["""
-    CREATE TABLE product_deployment_plans (
-      id                      SERIAL PRIMARY KEY,
-      product_id              integer NOT NULL REFERENCES products,
-			name                    varchar(1024) NOT NULL,
-      created_at              timestamp,
-      updated_at              timestamp
-    )
-    """,
-    "CREATE INDEX pdeployplans_product_idx ON product_deployment_plans(product_id)"
-  ]
-  end
-
-  def down do
-    ["DROP INDEX pdeployplans_product_idx",
-     "DROP TABLE product_deployment_plans"]
+  def change do
+    create table(:product_deployment_plans) do
+      add :product_id, references(:products), null: false
+      add :name, :string, null: false, size: 1024
+      timestamps
+    end
+    create index(:product_deployment_plans, [:product_id])
   end
 end

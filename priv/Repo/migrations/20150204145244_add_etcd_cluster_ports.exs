@@ -1,27 +1,15 @@
 defmodule ProjectOmeletteManager.Repo.Migrations.AddEtcdClusterPorts do
   use Ecto.Migration
 
-  def up do
-    ["""
-    CREATE TABLE etcd_cluster_ports (
-      id                      		SERIAL PRIMARY KEY,
-      etcd_cluster_id 						integer NOT NULL REFERENCES etcd_clusters,
-      product_component_id    		integer NOT NULL REFERENCES product_components,
-      port								    		integer,
-      created_at              		timestamp,
-      updated_at              		timestamp
-    )
-    """,
-    "CREATE INDEX etcdport_cluster_idx ON etcd_cluster_ports(etcd_cluster_id)",
-    "CREATE INDEX etcdport_comp_idx ON etcd_cluster_ports(product_component_id)",
-    "CREATE INDEX etcdport_clusterports_idx ON etcd_cluster_ports(etcd_cluster_id, port)",
-  ]
-  end
-
-  def down do
-    ["DROP INDEX etcdport_cluster_idx",
-     "DROP INDEX etcdport_comp_idx",
-     "DROP INDEX etcdport_clusterports_idx",
-     "DROP TABLE etcd_cluster_ports"]
+  def change do
+    create table(:etcd_cluster_ports) do
+      add :etcd_cluster_id, references(:etcd_clusters), null: false
+      add :product_component_id, references(:product_components), null: false
+      add :port, :integer
+      timestamps
+    end
+    create index(:etcd_cluster_ports, [:etcd_cluster_id])
+    create index(:etcd_cluster_ports, [:product_component_id])
+    create index(:etcd_cluster_ports, [:etcd_cluster_id, :port])
   end
 end

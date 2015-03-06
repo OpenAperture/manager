@@ -1,28 +1,18 @@
 defmodule ProjectOmeletteManager.Repo.Migrations.AddProductDeploymentSteps do
   use Ecto.Migration
 
-  def up do
-    ["""
-    CREATE TABLE product_deployment_steps (
-      id                      				 	SERIAL PRIMARY KEY,
-      product_deployment_id 					 	integer NOT NULL REFERENCES product_deployments,
-      product_deployment_plan_step_id  	integer,
-      product_deployment_plan_step_type varchar(1024),
-      duration													varchar(1024),
-      successful												boolean,
-			execution_options									text,
-			output														text,
-			sequence											  	integer,
-      created_at              					timestamp,
-      updated_at              					timestamp
-    )
-    """,
-    "CREATE INDEX pdeploysteps_deploy_idx ON product_deployment_steps(product_deployment_id)",
-  ]
-  end
-
-  def down do
-    ["DROP INDEX pdeploysteps_deploy_idx",
-     "DROP TABLE product_deployment_steps"]
+  def change do
+    create table(:product_deployment_steps) do
+      add :product_deployment_id, references(:product_deployments), null: false
+      add :product_deployment_plan_step_id, :integer
+      add :product_deployment_plan_step_type, :string, size: 1024
+      add :duration, :string, size: 1024
+      add :successful, :boolean
+      add :execution_options, :text
+      add :output, :text
+      add :sequence, :integer
+      timestamps
+    end
+    create index(:product_deployment_steps, [:product_deployment_id])
   end
 end

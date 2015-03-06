@@ -1,23 +1,26 @@
 defmodule ProjectOmeletteManager.Repo.Migrations.AddWorkflowsTable do
   use Ecto.Migration
 
-  def up do
-    """
-    CREATE TABLE workflows (
-      id        uuid  UNIQUE  NOT NULL PRIMARY KEY,
-      app_name  varchar(64)   NOT NULL,
-      repo_url  varchar(128),
-      branch    varchar(256),
-      vendor    varchar(64),
-      status    varchar(64)   NOT NULL,
-
-      created_at timestamp,
-      updated_at timestamp
-    )
-    """
-  end
-
-  def down do
-    "DROP TABLE workflows"
+  def change do
+    create table(:workflows, primary_key: false) do
+      add :id, :uuid, primary_key: true
+      add :deployment_repo, :string, size: 128
+      add :deployment_repo_git_ref, :string, size: 256
+      add :source_repo, :string, size: 128
+      add :source_repo_git_ref, :string, size: 256
+      add :source_commit_hash, :string, size: 256
+      add :milestones, :text
+      add :current_step, :string, size: 128
+      add :elapsed_step_time, :string, size: 128
+      add :elapsed_workflow_time, :string, size: 128
+      add :workflow_duration, :string, size: 128
+      add :workflow_step_durations, :text
+      add :workflow_error, :boolean
+      add :workflow_completed, :boolean
+      add :event_log, :text
+      add :app_name, :string, size: 64
+      timestamps
+    end
+    create index(:workflows, [:deployment_repo])
   end
 end
