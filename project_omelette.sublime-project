@@ -1,16 +1,18 @@
 {
-	"folders":
-	[
-		{
-			"follow_symlinks": true,
-			"path": "."
-		}
-	],
+  "folders":
+  [
+    {
+      "follow_symlinks": true,
+      "path": "."
+    }
+  ],
     "SublimeLinter": {
         "linters": {
             "elixirc": {
                 "pa": ["${project}/_build/dev/lib/phoenix/ebin",
-                	   "${project}/_build/dev/lib/ecto/ebin"]
+                       "${project}/_build/dev/lib/ecto/ebin",
+                       "${project}/_build/dev/lib/timex/ebin",
+                       "${project}/_build/dev/lib/project_omelette_manager/ebin"]
             }
         }
     }

@@ -15,7 +15,7 @@ defmodule ProjectOmeletteManager.Mixfile do
   # Type `mix help compile.app` for more information
   def application do
     [mod: {ProjectOmeletteManager, []},
-     applications: [:phoenix, :cowboy, :logger]]
+     applications: [:phoenix, :cowboy, :logger, :ecto]]
   end
 
   # Specifies your project dependencies
@@ -25,6 +25,8 @@ defmodule ProjectOmeletteManager.Mixfile do
     [{:phoenix, "~> 0.9.0"},
      {:cowboy, "~> 1.0"},
      {:ecto, "~> 0.9.0"},
+     {:uuid, "~> 0.1.5" },
+     {:timex, "~> 0.13.3"},
      {:postgrex, "~> 0.8.0"}]
   end
 end
