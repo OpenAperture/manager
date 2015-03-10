@@ -25,6 +25,7 @@ defmodule ProjectOmeletteManager.DB.Models.ProductCluster do
     belongs_to :product,                Product
     belongs_to :etcd_cluster,           EtcdCluster
     field :primary_ind,                :boolean
+    timestamps
   end
   
 

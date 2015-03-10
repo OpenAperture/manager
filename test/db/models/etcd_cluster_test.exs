@@ -11,19 +11,17 @@ defmodule DB.Models.EtcdCluster.Test do
   end
 
   test "etcd tokens must be unique" do
-    etcd_cluster1 = EtcdCluster.new(%{:etcd_token => "abc123"})
-    Repo.insert(etcd_cluster1)
+    etcd_cluster1 = %EtcdCluster{:etcd_token => "abc123"}
+    EtcdCluster.vinsert(etcd_cluster1)
 
     assert_raise Postgrex.Error,
                  "ERROR (unique_violation): duplicate key value violates unique constraint \"etcd_clusters_etcd_token_index\"",
-                 fn -> Repo.insert(etcd_cluster1) end
+                 fn -> EtcdCluster.vinsert(etcd_cluster1) end
   end
 
   test "etcd_clusters etcd_token is required" do
-    etcd_cluster = EtcdCluster.new(%{:id => 1})
-    result = EtcdCluster.changeset(etcd_cluster)
-
-    assert !result.valid?
-    assert Keyword.has_key?(result.errors, :etcd_token)
+    {status, errors} = EtcdCluster.vinsert(%EtcdCluster{:id => 1})
+    assert status == :error
+    assert Keyword.has_key?(errors, :etcd_token)
   end
 end

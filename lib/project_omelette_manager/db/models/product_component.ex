@@ -10,7 +10,7 @@
 # License::   n/a
 #
 defmodule ProjectOmeletteManager.DB.Models.ProductComponent do
-  @required_fields [:product_component_id, :name, :type]
+  @required_fields [:product_id, :name, :type]
   @optional_fields []
   @member_of_fields [{:type, ~w(web_server db)}]
   use ProjectOmeletteManager.DB.Models.BaseModel

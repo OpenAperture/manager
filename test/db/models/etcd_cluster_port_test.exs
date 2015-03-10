@@ -16,19 +16,19 @@ defmodule DB.Models.EtcdClusterPort.Test do
     end
   end
 
-  test "validate - fail to create cluster_port with missing values", context do
-    cluster_port = EtcdClusterPort.new()
-    assert !cluster_port.valid?
-    assert Keyword.has_key?(cluster_port.errors, :etcd_cluster_id)
-    assert Keyword.has_key?(cluster_port.errors, :product_component_id)
-    assert Keyword.has_key?(cluster_port.errors, :port)
+  test "validate - fail to create cluster_port with missing values" do
+    {status, errors} = EtcdClusterPort.vinsert(%EtcdClusterPort{})
+    assert status == :error
+    assert Keyword.has_key?(errors, :etcd_cluster_id)
+    assert Keyword.has_key?(errors, :product_component_id)
+    assert Keyword.has_key?(errors, :port)
   end
 
-  test "validate - success", context do
-    cluster = Repo.vinsert(%EtcdCluster{etcd_token: "123abc"})
+  test "validate - success" do
+    {:ok, cluster} = EtcdCluster.vinsert(%EtcdCluster{etcd_token: "123abc"})
 
-    product = Repo.vinsert(%Product{name: "test product"})
-    component = Repo.vinsert(%ProductComponent{product_id: product.id, type: "crazy junk", name: "woah now"})
+    {:ok, product} = Product.vinsert(%Product{name: "test product"})
+    {:ok, component} = ProductComponent.vinsert(%ProductComponent{product_id: product.id, type: "crazy junk", name: "woah now"})
 
     cluster_port = %EtcdClusterPort{
       etcd_cluster_id: cluster.id,
@@ -36,24 +36,24 @@ defmodule DB.Models.EtcdClusterPort.Test do
       port: 12345
     }
 
-    result = EtcdClusterPort.validate(cluster_port)
-    assert result == nil
+    {status, _result} = EtcdClusterPort.vinsert(cluster_port)
+    assert status == :ok
   end
 
-  # test "insert - success", context do
-  #   cluster = Repo.insert(%EtcdCluster{etcd_token: "123abc"})
+  test "insert - success" do
+    {:ok, cluster} = EtcdCluster.vinsert(%EtcdCluster{etcd_token: "123abc"})
 
-  #   product = Repo.insert(%Product{name: "test product"})
-  #   component = Repo.insert(%ProductComponent{product_id: product.id, type: "crazy junk", name: "woah now"})
+    {:ok, product} = Product.vinsert(%Product{name: "test product"})
+    {:ok, component} = ProductComponent.vinsert(%ProductComponent{product_id: product.id, type: "crazy junk", name: "woah now"})
 
-  #   cluster_port = %EtcdClusterPort{
-  #     etcd_cluster_id: cluster.id,
-  #     product_component_id: component.id,
-  #     port: 12345
-  #   }
+    cluster_port = %EtcdClusterPort{
+      etcd_cluster_id: cluster.id,
+      product_component_id: component.id,
+      port: 12345
+    }
 
-  #   result = Repo.insert(cluster_port)
-  #   assert result != nil
-  #   assert result.id != nil
-  # end  
+    {status, result} = EtcdClusterPort.vinsert(cluster_port)
+    assert status == :ok
+    assert result.id != nil
+  end  
 end
