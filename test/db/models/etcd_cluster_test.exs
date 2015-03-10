@@ -24,6 +24,6 @@ defmodule DB.Models.EtcdCluster.Test do
     result = EtcdCluster.changeset(etcd_cluster)
 
     assert !result.valid?
-    assert [etcd_token: :required] = result.model.errors
+    assert Keyword.has_key?(result.errors, :etcd_token)
   end
 end

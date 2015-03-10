@@ -18,15 +18,10 @@ defmodule DB.Models.EtcdClusterPort.Test do
 
   test "validate - fail to create cluster_port with missing values", context do
     cluster_port = EtcdClusterPort.new()
-
-    IO.inspect cluster_port
     assert !cluster_port.valid?
-    assert [etcd_cluster_id: :required] = cluster_port.model.errors
-
-    # assert map_size(result) != 0
-    # assert Map.has_key?(result, :etcd_cluster_id)
-    # assert Map.has_key?(result, :product_component_id)
-    # assert Map.has_key?(result, :port)
+    assert Keyword.has_key?(cluster_port.errors, :etcd_cluster_id)
+    assert Keyword.has_key?(cluster_port.errors, :product_component_id)
+    assert Keyword.has_key?(cluster_port.errors, :port)
   end
 
   # test "validate - success", context do
