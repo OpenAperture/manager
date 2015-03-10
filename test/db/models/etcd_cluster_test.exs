@@ -23,7 +23,7 @@ defmodule DB.Models.EtcdCluster.Test do
     etcd_cluster = EtcdCluster.new(%{:id => 1})
     result = EtcdCluster.changeset(etcd_cluster)
 
-    IO.inspect result
     assert !result.valid?
+    assert [etcd_token: :required] = result.model.errors
   end
 end

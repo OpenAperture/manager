@@ -5,7 +5,7 @@ defmodule ProjectOmeletteManager.DB.Models.BaseModel do
 	  	use Ecto.Model
 		
       def new(params \\ nil) do
-        changeset(%__MODULE__{}, params)
+        changeset(struct(__MODULE__), params)
       end
 
   		def changeset(model_or_changeset, params \\ nil) do
