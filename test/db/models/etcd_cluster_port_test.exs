@@ -24,21 +24,21 @@ defmodule DB.Models.EtcdClusterPort.Test do
     assert Keyword.has_key?(cluster_port.errors, :port)
   end
 
-  # test "validate - success", context do
-  #   cluster = Repo.insert(%EtcdCluster{etcd_token: "123abc"})
+  test "validate - success", context do
+    cluster = Repo.vinsert(%EtcdCluster{etcd_token: "123abc"})
 
-  #   product = Repo.insert(%Product{name: "test product"})
-  #   component = Repo.insert(%ProductComponent{product_id: product.id, type: "crazy junk", name: "woah now"})
+    product = Repo.vinsert(%Product{name: "test product"})
+    component = Repo.vinsert(%ProductComponent{product_id: product.id, type: "crazy junk", name: "woah now"})
 
-  #   cluster_port = %EtcdClusterPort{
-  #     etcd_cluster_id: cluster.id,
-  #     product_component_id: component.id,
-  #     port: 12345
-  #   }
+    cluster_port = %EtcdClusterPort{
+      etcd_cluster_id: cluster.id,
+      product_component_id: component.id,
+      port: 12345
+    }
 
-  #   result = EtcdClusterPort.validate(cluster_port)
-  #   assert result == nil
-  # end
+    result = EtcdClusterPort.validate(cluster_port)
+    assert result == nil
+  end
 
   # test "insert - success", context do
   #   cluster = Repo.insert(%EtcdCluster{etcd_token: "123abc"})
