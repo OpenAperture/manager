@@ -8,21 +8,21 @@ defmodule DB.Queries.ProductCluster.Test do
   alias ProjectOmeletteManager.DB.Queries.ProductCluster, as: PCQuery
 
   setup_all _context do
-    product = Repo.insert(%Product{name: "test product"})
-    etcd_cluster = Repo.insert(%EtcdCluster{etcd_token: "abc123"})
-    product_cluster = Repo.insert(%ProductCluster{product_id: product.id, etcd_cluster_id: etcd_cluster.id})
+    {:ok, product} = Product.vinsert(%{name: "test product"})
+    {:ok, etcd_cluster} = EtcdCluster.vinsert(%{etcd_token: "abc123"})
+    {:ok, _product_cluster} = ProductCluster.vinsert(%{product_id: product.id, etcd_cluster_id: etcd_cluster.id})
 
-    product2 = Repo.insert(%Product{name: "test product2"})
-    etcd_cluster2 = Repo.insert(%EtcdCluster{etcd_token: "bcd234"})
-    etcd_cluster3 = Repo.insert(%EtcdCluster{etcd_token: "zyx987"})
-    product_cluster2 = Repo.insert(%ProductCluster{product_id: product2.id, etcd_cluster_id: etcd_cluster2.id})
-    product_cluster2 = Repo.insert(%ProductCluster{product_id: product2.id, etcd_cluster_id: etcd_cluster3.id})
+    {:ok, product2} = Product.vinsert(%{name: "test product2"})
+    {:ok, etcd_cluster2} = EtcdCluster.vinsert(%{etcd_token: "bcd234"})
+    {:ok, etcd_cluster3} = EtcdCluster.vinsert(%{etcd_token: "zyx987"})
+    {:ok, _product_cluster2} = ProductCluster.vinsert(%{product_id: product2.id, etcd_cluster_id: etcd_cluster2.id})
+    {:ok, _product_cluster2} = ProductCluster.vinsert(%{product_id: product2.id, etcd_cluster_id: etcd_cluster3.id})
 
-    product3 = Repo.insert(%Product{name: "test product3"})
-    product4 = Repo.insert(%Product{name: "test product4"})
-    etcd_cluster4 = Repo.insert(%EtcdCluster{etcd_token: "#{UUID.uuid1()}"})
-    product_cluster3 = Repo.insert(%ProductCluster{product_id: product3.id, etcd_cluster_id: etcd_cluster4.id})
-    product_cluster4 = Repo.insert(%ProductCluster{product_id: product4.id, etcd_cluster_id: etcd_cluster4.id})
+    {:ok, product3} = Product.vinsert(%{name: "test product3"})
+    {:ok, product4} = Product.vinsert(%{name: "test product4"})
+    {:ok, etcd_cluster4} = EtcdCluster.vinsert(%{etcd_token: "#{UUID.uuid1()}"})
+    {:ok, _product_cluster3} = ProductCluster.vinsert(%{product_id: product3.id, etcd_cluster_id: etcd_cluster4.id})
+    {:ok, _product_cluster4} = ProductCluster.vinsert(%{product_id: product4.id, etcd_cluster_id: etcd_cluster4.id})
 
     on_exit _context, fn ->
       Repo.delete_all(ProductCluster)

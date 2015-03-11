@@ -5,6 +5,7 @@ defmodule ProjectOmeletteManager.Repo.Migrations.AddProductComponentOptions do
     create table(:product_component_options) do
       add :product_component_id, references(:product_components), null: false
       add :name, :string, null: false, size: 1024
+      add :value, :text
       add :type, :text
       timestamps
     end

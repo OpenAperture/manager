@@ -1,6 +1,7 @@
 defmodule ProjectOmeletteManager.DB.Queries.EtcdCluster do
   import Ecto.Query
 
+  alias ProjectOmeletteManager.Repo
   alias ProjectOmeletteManager.DB.Models.EtcdCluster
 
   @doc """
@@ -11,7 +12,7 @@ defmodule ProjectOmeletteManager.DB.Queries.EtcdCluster do
   @spec get_by_etcd_token(term) :: EtcdCluster.t | nil
   def get_by_etcd_token(etcd_token) do
     query = from cluster in EtcdCluster,
-            where: fragment("downcase(?) == downcase(?)", cluster.etcd_token, ^etcd_token),
+            where: fragment("lower(?) = lower(?)", cluster.etcd_token, ^etcd_token),
             select: cluster
 
     case Repo.all(query) do
