@@ -1,5 +1,6 @@
 defmodule DB.Models.Product.Test do
   use ExUnit.Case
+  import Ecto.Query
 
   alias ProjectOmeletteManager.DB.Models.Product
   alias ProjectOmeletteManager.Repo
@@ -50,7 +51,7 @@ defmodule DB.Models.Product.Test do
     {:ok, product} = Product.vinsert(%{name: "test product"})
 
     {:ok, var1} = ProductEnvironmentalVariable.vinsert(%{product_id: product.id, name: "var1", value: "value1"})
-    {:ok, var2} = ProductEnvironmentalVariable.vinsert(%ProductEnvironmentalVariable{product_id: product.id, name: "var2", value: "value2"})
+    {:ok, var2} = ProductEnvironmentalVariable.vinsert(%{product_id: product.id, name: "var2", value: "value2"})
 
     [product] = Repo.all(from p in Product,
                          where: p.id == ^product.id,
