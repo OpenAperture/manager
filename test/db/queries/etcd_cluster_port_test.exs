@@ -19,18 +19,18 @@ defmodule DB.Queries.EtcdClusterPort.Test do
   end
 
   test "get_ports_by_cluster - success" do
-    cluster = Repo.insert(%EtcdCluster{etcd_token: "123abc"})
+    {:ok, cluster} = EtcdCluster.vinsert(%{etcd_token: "123abc"})
 
-    product = Repo.insert(%Product{name: "test product"})
-    component = Repo.insert(%ProductComponent{product_id: product.id, type: "crazy junk", name: "woah now"})
+    {:ok, product} = Product.vinsert(%{name: "test product"})
+    {:ok, component} = ProductComponent.vinsert(%{product_id: product.id, type: "web_server", name: "woah now"})
 
-    cluster_port = %EtcdClusterPort{
+    cluster_port_values = %{
       etcd_cluster_id: cluster.id,
       product_component_id: component.id,
       port: 12345
     }
 
-    cluster_port = Repo.insert(cluster_port)
+    {:ok, cluster_port} = EtcdClusterPort.vinsert(cluster_port_values)
     results = Repo.all(EtcdClusterQuery.get_ports_by_cluster(cluster.id))
     assert results != nil
     assert length(results) == 1
@@ -44,18 +44,18 @@ defmodule DB.Queries.EtcdClusterPort.Test do
   end
 
   test "get_ports_by_component - success" do
-    cluster = Repo.insert(%EtcdCluster{etcd_token: "123abc"})
+    {:ok, cluster} = EtcdCluster.vinsert(%{etcd_token: "123abc"})
 
-    product = Repo.insert(%Product{name: "test product"})
-    component = Repo.insert(%ProductComponent{product_id: product.id, type: "crazy junk", name: "woah now"})
+    {:ok, product} = Product.vinsert(%{name: "test product"})
+    {:ok, component} = ProductComponent.vinsert(%{product_id: product.id, type: "web_server", name: "woah now"})
 
-    cluster_port = %EtcdClusterPort{
+    cluster_port_values = %{
       etcd_cluster_id: cluster.id,
       product_component_id: component.id,
       port: 12345
     }
 
-    cluster_port = Repo.insert(cluster_port)
+    {:ok, cluster_port} = EtcdClusterPort.vinsert(cluster_port_values)
     results = Repo.all(EtcdClusterQuery.get_ports_by_component(component.id))
     assert results != nil
     assert length(results) == 1

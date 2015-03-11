@@ -8,7 +8,7 @@ defmodule DB.Models.ProductCluster.Test do
 
   setup _context do
     {:ok, product} = Product.vinsert(%{name: "test product"})
-    {:ok, etcd_cluster} = EtcdCluster.vinsert(%EtcdCluster{etcd_token: "abc123"})
+    {:ok, etcd_cluster} = EtcdCluster.vinsert(%{etcd_token: "abc123"})
 
     {:ok, product2} = Product.vinsert(%{name: "test product2"})
     {:ok, etcd_cluster2} = EtcdCluster.vinsert(%{etcd_token: "bcd234"})
