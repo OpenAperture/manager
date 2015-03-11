@@ -6,8 +6,8 @@ defmodule DB.Models.ProductDeploymentPlan.Test do
   alias ProjectOmeletteManager.DB.Models.ProductDeploymentPlan
 
   setup _context do
-    product = Repo.insert(%Product{name: "test plan"})
-    product2 = Repo.insert(%Product{name: "test plan2"})
+    {:ok, product} = Product.vinsert(%{name: "test plan"})
+    {:ok, product2} = Product.vinsert(%{name: "test plan2"})
 
     on_exit _context, fn ->
       Repo.delete_all(ProductDeploymentPlan)
@@ -17,32 +17,21 @@ defmodule DB.Models.ProductDeploymentPlan.Test do
     {:ok, [product: product, product2: product2]}
   end
 
-  test "validate - fail to create plan with missing values", context do
-    plan   = %ProductDeploymentPlan{}
-    result = ProductDeploymentPlan.validate(plan)
+  test "validate - fail to create plan with missing values" do
+    {status, errors} = ProductDeploymentPlan.vinsert(%{})
 
-    assert map_size(result)    != 0
-    assert result[:product_id] != nil
-    assert result[:name]       != nil
-  end
-
-  test "validate - fail to create plan with missing name", context do
-    plan   = %ProductDeploymentPlan{product_id: context[:product].id, }
-    result = ProductDeploymentPlan.validate(plan)
-
-    assert map_size(result) != 0
-    assert result[:name] != nil
+    assert status == :error
+    assert Keyword.has_key?(errors, :product_id)
+    assert Keyword.has_key?(errors, :name)
   end
 
   test "validate - create plan", context do
-    plan   = %ProductDeploymentPlan{product_id: context[:product].id, name: "test plan"}
-    result = ProductDeploymentPlan.validate(plan)
-
-    assert is_nil(result)
+    {status, _plan} = ProductDeploymentPlan.vinsert(%{product_id: context[:product].id, name: "test plan"})
+    assert status == :ok
   end
 
   test "create plan", context do
-    plan = Repo.insert(%ProductDeploymentPlan{product_id: context[:product].id, name: "test plan"})
+    {:ok, plan} = ProductDeploymentPlan.vinsert(%{product_id: context[:product].id, name: "test plan"})
     retrieved = Repo.get(ProductDeploymentPlan, plan.id)
 
     assert retrieved == plan

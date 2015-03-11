@@ -12,7 +12,7 @@
 defmodule ProjectOmeletteManager.DB.Models.ProductComponent do
   @required_fields [:product_id, :name, :type]
   @optional_fields []
-  @member_of_fields [{:type, ~w(web_server db)}]
+  @member_of_fields [{:type, ["web_server", "db"]}]
   use ProjectOmeletteManager.DB.Models.BaseModel
 
   alias ProjectOmeletteManager.DB.Models

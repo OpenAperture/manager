@@ -10,10 +10,10 @@ defmodule DB.Models.ProductDeploymentPlanStep.Test do
 
 
   setup _context do
-    product = Repo.insert(%Product{name: "test plan"})
-    product2 = Repo.insert(%Product{name: "test plan2"})
+    {:ok, product} = Product.vinsert(%{name: "test plan"})
+    {:ok, product2} = Product.vinsert(%{name: "test plan2"})
 
-    plan = Repo.insert(%ProductDeploymentPlan{product_id: product.id, name: "test plan"})
+    {:ok, plan} = ProductDeploymentPlan.vinsert(%{product_id: product.id, name: "test plan"})
 
     on_exit _context, fn ->
       Repo.delete_all(ProductDeploymentPlanStep)
@@ -25,40 +25,28 @@ defmodule DB.Models.ProductDeploymentPlanStep.Test do
   end
 
   test "validate - fail to create plan with missing values", context do
-    step   = %ProductDeploymentPlanStep{}
-    result = ProductDeploymentPlanStep.validate(step)
+    {status, errors} = ProductDeploymentPlanStep.vinsert(%{})
 
-    assert map_size(result)
-    assert result[:product_deployment_plan_id] != nil
-    assert result[:type] != nil
-  end
-
-  test "validate - fail to create plan with missing type", context do
-    step   = %ProductDeploymentPlanStep{product_deployment_plan_id: context[:plan].id }
-    result = ProductDeploymentPlanStep.validate(step)
-
-    assert map_size(result)
-    assert result[:type] != nil
+    assert status == :error
+    assert Keyword.has_key?(errors, :product_deployment_plan_id)
+    assert Keyword.has_key?(errors, :type)
   end
 
   test "validate - fail to create plan with invalid type", context do
-    step = %ProductDeploymentPlanStep{product_deployment_plan_id: context[:plan].id, type: "junk" }
+    {status, errors} = ProductDeploymentPlanStep.vinsert(%{product_deployment_plan_id: context[:plan].id, type: "junk" })
 
-    result = ProductDeploymentPlanStep.validate(step)
-    assert map_size(result) != 0
-    assert result[:type] != nil
+    assert status == :error
+    assert Keyword.has_key?(errors, :type)
   end
 
   test "validate - create plan", context do
-    step = %ProductDeploymentPlanStep{product_deployment_plan_id: context[:plan].id, type: "build_component"}
+    {status, _step} = ProductDeploymentPlanStep.vinsert(%{product_deployment_plan_id: context[:plan].id, type: "build_component"})
 
-    result = ProductDeploymentPlanStep.validate(step)
-    IO.inspect(result)
-    assert is_nil(result)
+    assert status == :ok
   end
 
   test "create plan", context do
-    step = Repo.insert(%ProductDeploymentPlanStep{product_deployment_plan_id: context[:plan].id, type: "build_component"})
+    {status, step} = ProductDeploymentPlanStep.vinsert(%{product_deployment_plan_id: context[:plan].id, type: "build_component"})
 
     retrieved = Repo.get(ProductDeploymentPlanStep, step.id)
     assert retrieved == step
@@ -73,7 +61,7 @@ defmodule DB.Models.ProductDeploymentPlanStep.Test do
   end
 
   test "to_hierarchy - single node", context do
-    root_step = Repo.insert(%ProductDeploymentPlanStep{product_deployment_plan_id: context[:plan].id, type: "build_component"})
+    {:ok, root_step} = ProductDeploymentPlanStep.vinsert(%{product_deployment_plan_id: context[:plan].id, type: "build_component"})
 
     returned_root_node = ProductDeploymentPlanStep.to_hierarchy([root_step], true)
     assert returned_root_node[:id] == root_step.id
@@ -84,10 +72,10 @@ defmodule DB.Models.ProductDeploymentPlanStep.Test do
   end
 
   test "to_hierarchy - one-level multi-node", context do
-    success_node = Repo.insert(%ProductDeploymentPlanStep{product_deployment_plan_id: context[:plan].id, type: "build_component"})
-    failure_node = Repo.insert(%ProductDeploymentPlanStep{product_deployment_plan_id: context[:plan].id, type: "build_component"})
+    {:ok, success_node} = ProductDeploymentPlanStep.vinsert(%{product_deployment_plan_id: context[:plan].id, type: "build_component"})
+    {:ok, failure_node} = ProductDeploymentPlanStep.vinsert(%{product_deployment_plan_id: context[:plan].id, type: "build_component"})
 
-    root_step = Repo.insert(%ProductDeploymentPlanStep{
+    {:ok, root_step} = ProductDeploymentPlanStep.vinsert(%{
       product_deployment_plan_id: context[:plan].id,
       type: "build_component",
       on_success_step_id: success_node.id,
@@ -107,33 +95,33 @@ defmodule DB.Models.ProductDeploymentPlanStep.Test do
   end
 
   test "to_hierarchy - multi-node", context do
-    lvl3 = Repo.insert(%ProductDeploymentPlanStep{
+    {:ok, lvl3} = ProductDeploymentPlanStep.vinsert(%{
       product_deployment_plan_id: context[:plan].id,
       type: "deploy_component"
     })
 
-    lvl2_fail_2 = Repo.insert(%ProductDeploymentPlanStep{product_deployment_plan_id: context[:plan].id, type: "component_script"})
-    lvl2_fail = Repo.insert(%ProductDeploymentPlanStep{
+    {:ok, lvl2_fail_2} = ProductDeploymentPlanStep.vinsert(%{product_deployment_plan_id: context[:plan].id, type: "component_script"})
+    {:ok, lvl2_fail} = ProductDeploymentPlanStep.vinsert(%{
       product_deployment_plan_id: context[:plan].id,
       type: "deploy_component",
       on_failure_step_id: lvl2_fail_2.id
     })
 
-    lvl2 = Repo.insert(%ProductDeploymentPlanStep{
+    {:ok, lvl2} = ProductDeploymentPlanStep.vinsert(%{
       product_deployment_plan_id: context[:plan].id,
       type: "build_deploy_component",
       on_success_step_id: lvl3.id,
       on_failure_step_id: lvl2_fail.id
     })
 
-    lvl1 = Repo.insert(%ProductDeploymentPlanStep{
+    {:ok, lvl1} = ProductDeploymentPlanStep.vinsert(%{
       product_deployment_plan_id: context[:plan].id,
       type: "build_deploy_component",
       on_success_step_id: lvl2.id
     })
 
-    root_fail = Repo.insert(%ProductDeploymentPlanStep{product_deployment_plan_id: context[:plan].id, type: "build_component"})
-    root_step = Repo.insert(%ProductDeploymentPlanStep{
+    {:ok, root_fail} = ProductDeploymentPlanStep.vinsert(%{product_deployment_plan_id: context[:plan].id, type: "build_component"})
+    {:ok, root_step} = ProductDeploymentPlanStep.vinsert(%{
       product_deployment_plan_id: context[:plan].id,
       type: "build_component",
       on_success_step_id: lvl1.id,
@@ -186,7 +174,7 @@ defmodule DB.Models.ProductDeploymentPlanStep.Test do
   end
 
   test "flatten_hierarchy - single node", context do
-    root_step = Repo.insert(%ProductDeploymentPlanStep{product_deployment_plan_id: context[:plan].id, type: "build_component"})
+    {:ok, root_step} = ProductDeploymentPlanStep.vinsert(%{product_deployment_plan_id: context[:plan].id, type: "build_component"})
 
     returned_root_node = ProductDeploymentPlanStep.to_hierarchy([root_step], true)
     returned_steps = ProductDeploymentPlanStep.flatten_hierarchy(returned_root_node)
@@ -196,10 +184,10 @@ defmodule DB.Models.ProductDeploymentPlanStep.Test do
   end
 
   test "flatten_hierarchy - one-level multi-node", context do
-    success_node = Repo.insert(%ProductDeploymentPlanStep{product_deployment_plan_id: context[:plan].id, type: "build_component"})
-    failure_node = Repo.insert(%ProductDeploymentPlanStep{product_deployment_plan_id: context[:plan].id, type: "build_component"})
+    {:ok, success_node} = ProductDeploymentPlanStep.vinsert(%{product_deployment_plan_id: context[:plan].id, type: "build_component"})
+    {:ok, failure_node} = ProductDeploymentPlanStep.vinsert(%{product_deployment_plan_id: context[:plan].id, type: "build_component"})
 
-    root_step = Repo.insert(%ProductDeploymentPlanStep{
+    {:ok, root_step} = ProductDeploymentPlanStep.vinsert(%{
       product_deployment_plan_id: context[:plan].id,
       type: "build_component",
       on_success_step_id: success_node.id,
@@ -221,33 +209,33 @@ defmodule DB.Models.ProductDeploymentPlanStep.Test do
   end
 
   test "flatten_hierarchy - multi-node", context do
-    lvl3 = Repo.insert(%ProductDeploymentPlanStep{
+    {:ok, lvl3} = ProductDeploymentPlanStep.vinsert(%{
       product_deployment_plan_id: context[:plan].id,
       type: "deploy_component"
     })
 
-    lvl2_fail_2 = Repo.insert(%ProductDeploymentPlanStep{product_deployment_plan_id: context[:plan].id, type: "component_script"})
-    lvl2_fail = Repo.insert(%ProductDeploymentPlanStep{
+    {:ok, lvl2_fail_2} = ProductDeploymentPlanStep.vinsert(%{product_deployment_plan_id: context[:plan].id, type: "component_script"})
+    {:ok, lvl2_fail} = ProductDeploymentPlanStep.vinsert(%{
       product_deployment_plan_id: context[:plan].id,
       type: "deploy_component",
       on_failure_step_id: lvl2_fail_2.id
     })
 
-    lvl2 = Repo.insert(%ProductDeploymentPlanStep{
+    {:ok, lvl2} = ProductDeploymentPlanStep.vinsert(%{
       product_deployment_plan_id: context[:plan].id,
       type: "build_deploy_component",
       on_success_step_id: lvl3.id,
       on_failure_step_id: lvl2_fail.id
     })
 
-    lvl1 = Repo.insert(%ProductDeploymentPlanStep{
+    {:ok, lvl1} = ProductDeploymentPlanStep.vinsert(%{
       product_deployment_plan_id: context[:plan].id,
       type: "build_deploy_component",
       on_success_step_id: lvl2.id
     })
 
-    root_fail = Repo.insert(%ProductDeploymentPlanStep{product_deployment_plan_id: context[:plan].id, type: "build_component"})
-    root_step = Repo.insert(%ProductDeploymentPlanStep{
+    {:ok, root_fail} = ProductDeploymentPlanStep.vinsert(%{product_deployment_plan_id: context[:plan].id, type: "build_component"})
+    {:ok, root_step} = ProductDeploymentPlanStep.vinsert(%{
       product_deployment_plan_id: context[:plan].id,
       type: "build_component",
       on_success_step_id: lvl1.id,
