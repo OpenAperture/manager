@@ -11,7 +11,7 @@ defmodule ProjectOmeletteManager do
       supervisor(ProjectOmeletteManager.Endpoint, []),
       # Here you could define other workers and supervisors as children
       # worker(ProjectOmeletteManager.Worker, [arg1, arg2, arg3]),
-      worker(ProjectOmeletteManager.Supervisors.Repos, []),
+      worker(ProjectOmeletteManager.Repo, []),
     ]
 
     # See http://elixir-lang.org/docs/stable/elixir/Supervisor.html
