@@ -38,7 +38,7 @@ defmodule DB.Models.ProductEnvironmentalVariable.Test do
     var = %{product_id: context[:product].id, product_environment_id: 92378234, name: "test name", value: "test value"}
 
     assert_raise Postgrex.Error,
-                 "ERROR (23503): insert or update on table \"product_environmental_variables\" violates foreign key constraint \"product_environmental_variables_product_environment_id_fkey\"",
+                 "ERROR (foreign_key_violation): insert or update on table \"product_environmental_variables\" violates foreign key constraint \"product_environmental_variables_product_environment_id_fkey\"",
                  fn -> PEV.vinsert(var) end
   end
 
@@ -58,7 +58,7 @@ defmodule DB.Models.ProductEnvironmentalVariable.Test do
     PEV.vinsert(var)
 
     assert_raise Postgrex.Error,
-                 "ERROR (unique_violation): duplicate key value violates unique constraint \"pev_prod_id_name_prod_env_null_idx\"",
+                 "ERROR (unique_violation): duplicate key value violates unique constraint \"product_environmental_variables_product_id_product_environment_\"",
                  fn -> PEV.vinsert(var) end
   end
 
@@ -77,10 +77,7 @@ defmodule DB.Models.ProductEnvironmentalVariable.Test do
   end
 
   test "successful creation with an environment", context do
-    var = %{product_id: context[:product].id, product_environment_id: context[:product_environment].id, name: "Test name", value: "Test value"}
-
-    {:ok, new_env_var} = PEV.vinsert(var)
-
+    {:ok, new_env_var} = PEV.vinsert(%{product_id: context[:product].id, product_environment_id: context[:product_environment].id, name: "Test name", value: "Test value"})
     retrieved_var = Repo.get(PEV, new_env_var.id)
 
     assert retrieved_var == new_env_var

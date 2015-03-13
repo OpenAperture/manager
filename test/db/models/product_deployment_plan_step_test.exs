@@ -3,7 +3,6 @@ defmodule DB.Models.ProductDeploymentPlanStep.Test do
 
   alias ProjectOmeletteManager.Repo
   alias ProjectOmeletteManager.DB.Models.Product
-  alias ProjectOmeletteManager.DB.Models.ProductComponent
   alias ProjectOmeletteManager.DB.Models.ProductDeploymentPlan
   alias ProjectOmeletteManager.DB.Models.ProductDeploymentPlanStep
   alias ProjectOmeletteManager.DB.Queries.ProductDeploymentPlanStep, as: PDPSQuery
@@ -24,7 +23,7 @@ defmodule DB.Models.ProductDeploymentPlanStep.Test do
     {:ok, [product: product, product2: product2, plan: plan]}
   end
 
-  test "validate - fail to create plan with missing values", context do
+  test "validate - fail to create plan with missing values" do
     {status, errors} = ProductDeploymentPlanStep.vinsert(%{})
 
     assert status == :error
@@ -46,7 +45,7 @@ defmodule DB.Models.ProductDeploymentPlanStep.Test do
   end
 
   test "create plan", context do
-    {status, step} = ProductDeploymentPlanStep.vinsert(%{product_deployment_plan_id: context[:plan].id, type: "build_component"})
+    {:ok, step} = ProductDeploymentPlanStep.vinsert(%{product_deployment_plan_id: context[:plan].id, type: "build_component"})
 
     retrieved = Repo.get(ProductDeploymentPlanStep, step.id)
     assert retrieved == step
@@ -56,7 +55,7 @@ defmodule DB.Models.ProductDeploymentPlanStep.Test do
   #================================
   #to_hierarchy tests
 
-  test "to_hierarchy - invalid input", context do
+  test "to_hierarchy - invalid input" do
     assert ProductDeploymentPlanStep.to_hierarchy(nil, true) == nil
   end
 
@@ -169,7 +168,7 @@ defmodule DB.Models.ProductDeploymentPlanStep.Test do
   #================================
   #flatten_hierarchy tests
 
-  test "flatten_hierarchy - invalid input", context do
+  test "flatten_hierarchy - invalid input" do
     assert ProductDeploymentPlanStep.flatten_hierarchy(nil) == nil
   end
 

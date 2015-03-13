@@ -23,30 +23,30 @@ defmodule DB.Queries.ProductDeploymentPlan.Test do
   #==============================
   # get_steps_for_plan tests
 
-  test "get_steps_for_plan- no steps", context do
-    product = Repo.insert(%Product{name: "#{UUID.uuid1()}"})
-    plan = Repo.insert(%ProductDeploymentPlan{product_id: product.id, name: "#{UUID.uuid1()}"})
+  test "get_steps_for_plan- no steps" do
+    {:ok, product} = Product.vinsert(%{name: "#{UUID.uuid1()}"})
+    {:ok, plan} = ProductDeploymentPlan.vinsert(%{product_id: product.id, name: "#{UUID.uuid1()}"})
 
     returned_steps = Repo.all(PDPSQuery.get_steps_for_plan(plan.id))
     assert length(returned_steps) == 0
   end
 
-  test "get_steps_for_plan- one step", context do
-    product = Repo.insert(%Product{name: "#{UUID.uuid1()}"})
-    plan = Repo.insert(%ProductDeploymentPlan{product_id: product.id, name: "#{UUID.uuid1()}"})
-    step = Repo.insert(%ProductDeploymentPlanStep{product_deployment_plan_id: plan.id, type: "build_component"})
+  test "get_steps_for_plan- one step" do
+    {:ok, product} = Product.vinsert(%{name: "#{UUID.uuid1()}"})
+    {:ok, plan} = ProductDeploymentPlan.vinsert(%{product_id: product.id, name: "#{UUID.uuid1()}"})
+    {:ok, step} = ProductDeploymentPlanStep.vinsert(%{product_deployment_plan_id: plan.id, type: "build_component"})
 
     returned_steps = Repo.all(PDPSQuery.get_steps_for_plan(plan.id))
     assert length(returned_steps) == 1
-    returned_step = hd(returned_steps)
+    returned_step = List.first(returned_steps)
     assert returned_step.id == step.id
   end
 
-  test "get_steps_for_plan- multiple steps", context do
-    product = Repo.insert(%Product{name: "#{UUID.uuid1()}"})
-    plan = Repo.insert(%ProductDeploymentPlan{product_id: product.id, name: "#{UUID.uuid1()}"})
-    step = Repo.insert(%ProductDeploymentPlanStep{product_deployment_plan_id: plan.id, type: "build_component"})
-    step2 = Repo.insert(%ProductDeploymentPlanStep{product_deployment_plan_id: plan.id, type: "deploy_component"})
+  test "get_steps_for_plan- multiple steps" do
+    {:ok, product} = Product.vinsert(%{name: "#{UUID.uuid1()}"})
+    {:ok, plan} = ProductDeploymentPlan.vinsert(%{product_id: product.id, name: "#{UUID.uuid1()}"})
+    {:ok, step} = ProductDeploymentPlanStep.vinsert(%{product_deployment_plan_id: plan.id, type: "build_component"})
+    {:ok, step2} = ProductDeploymentPlanStep.vinsert(%{product_deployment_plan_id: plan.id, type: "deploy_component"})
 
     returned_steps = Repo.all(PDPSQuery.get_steps_for_plan(plan.id))
     assert length(returned_steps) == 2
@@ -57,11 +57,11 @@ defmodule DB.Queries.ProductDeploymentPlan.Test do
     assert length(list_results) == 0
   end
 
-  test "get_steps_for_plan- one step with one option", context do
-    product = Repo.insert(%Product{name: "#{UUID.uuid1()}"})
-    plan = Repo.insert(%ProductDeploymentPlan{product_id: product.id, name: "#{UUID.uuid1()}"})
-    step = Repo.insert(%ProductDeploymentPlanStep{product_deployment_plan_id: plan.id, type: "build_component"})
-    step_option = Repo.insert(%ProductDeploymentPlanStepOption{product_deployment_plan_step_id: step.id, name: "#{UUID.uuid1()}", value: "something cool"})
+  test "get_steps_for_plan- one step with one option" do
+    {:ok, product} = Product.vinsert(%{name: "#{UUID.uuid1()}"})
+    {:ok, plan} = ProductDeploymentPlan.vinsert(%{product_id: product.id, name: "#{UUID.uuid1()}"})
+    {:ok, step} = ProductDeploymentPlanStep.vinsert(%{product_deployment_plan_id: plan.id, type: "build_component"})
+    {:ok, step_option} = ProductDeploymentPlanStepOption.vinsert(%{product_deployment_plan_step_id: step.id, name: "#{UUID.uuid1()}", value: "something cool"})
 
     returned_steps = Repo.all(PDPSQuery.get_steps_for_plan(plan.id))
     assert length(returned_steps) == 1
@@ -72,7 +72,7 @@ defmodule DB.Queries.ProductDeploymentPlan.Test do
       returned_step = Map.from_struct(raw_step)
       assert returned_step != nil
 
-      returned_options = raw_step.product_deployment_plan_step_options.all
+      returned_options = raw_step.product_deployment_plan_step_options
       assert returned_options != nil
 
       if (returned_step[:id] == step.id) do
@@ -86,24 +86,24 @@ defmodule DB.Queries.ProductDeploymentPlan.Test do
     assert length(list_results) == 0
   end
 
-  test "get_steps_for_plan- multiple steps with multiple options", context do
-    product = Repo.insert(%Product{name: "#{UUID.uuid1()}"})
-    plan = Repo.insert(%ProductDeploymentPlan{product_id: product.id, name: "#{UUID.uuid1()}"})
-    step = Repo.insert(%ProductDeploymentPlanStep{product_deployment_plan_id: plan.id, type: "build_component"})
-    step_option = Repo.insert(%ProductDeploymentPlanStepOption{product_deployment_plan_step_id: step.id, name: "#{UUID.uuid1()}", value: "something cool"})
-    step_option2 = Repo.insert(%ProductDeploymentPlanStepOption{product_deployment_plan_step_id: step.id, name: "#{UUID.uuid1()}", value: "something cool"})
+  test "get_steps_for_plan- multiple steps with multiple options" do
+    {:ok, product} = Product.vinsert(%{name: "#{UUID.uuid1()}"})
+    {:ok, plan} = ProductDeploymentPlan.vinsert(%{product_id: product.id, name: "#{UUID.uuid1()}"})
+    {:ok, step} = ProductDeploymentPlanStep.vinsert(%{product_deployment_plan_id: plan.id, type: "build_component"})
+    {:ok, step_option} = ProductDeploymentPlanStepOption.vinsert(%{product_deployment_plan_step_id: step.id, name: "#{UUID.uuid1()}", value: "something cool"})
+    {:ok, step_option2} = ProductDeploymentPlanStepOption.vinsert(%{product_deployment_plan_step_id: step.id, name: "#{UUID.uuid1()}", value: "something cool"})
 
-    step2 = Repo.insert(%ProductDeploymentPlanStep{product_deployment_plan_id: plan.id, type: "build_component"})
-    step_option3 = Repo.insert(%ProductDeploymentPlanStepOption{product_deployment_plan_step_id: step2.id, name: "#{UUID.uuid1()}", value: "something cool"})
-    step_option4 = Repo.insert(%ProductDeploymentPlanStepOption{product_deployment_plan_step_id: step2.id, name: "#{UUID.uuid1()}", value: "something cool"})
+    {:ok, step2} = ProductDeploymentPlanStep.vinsert(%{product_deployment_plan_id: plan.id, type: "build_component"})
+    {:ok, step_option3} = ProductDeploymentPlanStepOption.vinsert(%{product_deployment_plan_step_id: step2.id, name: "#{UUID.uuid1()}", value: "something cool"})
+    {:ok, step_option4} = ProductDeploymentPlanStepOption.vinsert(%{product_deployment_plan_step_id: step2.id, name: "#{UUID.uuid1()}", value: "something cool"})
 
-    step3 = Repo.insert(%ProductDeploymentPlanStep{product_deployment_plan_id: plan.id, type: "build_component"})
-    step_option5 = Repo.insert(%ProductDeploymentPlanStepOption{product_deployment_plan_step_id: step3.id, name: "#{UUID.uuid1()}", value: "something cool"})
-    step_option6 = Repo.insert(%ProductDeploymentPlanStepOption{product_deployment_plan_step_id: step3.id, name: "#{UUID.uuid1()}", value: "something cool"})
+    {:ok, step3} = ProductDeploymentPlanStep.vinsert(%{product_deployment_plan_id: plan.id, type: "build_component"})
+    {:ok, step_option5} = ProductDeploymentPlanStepOption.vinsert(%{product_deployment_plan_step_id: step3.id, name: "#{UUID.uuid1()}", value: "something cool"})
+    {:ok, step_option6} = ProductDeploymentPlanStepOption.vinsert(%{product_deployment_plan_step_id: step3.id, name: "#{UUID.uuid1()}", value: "something cool"})
 
-    step4 = Repo.insert(%ProductDeploymentPlanStep{product_deployment_plan_id: plan.id, type: "build_component"})
-    step_option7 = Repo.insert(%ProductDeploymentPlanStepOption{product_deployment_plan_step_id: step4.id, name: "#{UUID.uuid1()}", value: "something cool"})
-    step_option8 = Repo.insert(%ProductDeploymentPlanStepOption{product_deployment_plan_step_id: step4.id, name: "#{UUID.uuid1()}", value: "something cool"})
+    {:ok, step4} = ProductDeploymentPlanStep.vinsert(%{product_deployment_plan_id: plan.id, type: "build_component"})
+    {:ok, step_option7} = ProductDeploymentPlanStepOption.vinsert(%{product_deployment_plan_step_id: step4.id, name: "#{UUID.uuid1()}", value: "something cool"})
+    {:ok, step_option8} = ProductDeploymentPlanStepOption.vinsert(%{product_deployment_plan_step_id: step4.id, name: "#{UUID.uuid1()}", value: "something cool"})
 
 
     returned_options = Repo.all(PDPSQuery.get_steps_for_plan(plan.id))
@@ -115,7 +115,7 @@ defmodule DB.Queries.ProductDeploymentPlan.Test do
       returned_option = Map.from_struct(raw_option)
       assert returned_option != nil
 
-      returned_options = raw_option.product_deployment_plan_step_options.all
+      returned_options = raw_option.product_deployment_plan_step_options
       assert returned_options != nil
 
       if (returned_option[:id] == step.id) do

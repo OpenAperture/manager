@@ -8,39 +8,39 @@ defmodule DB.Queries.ProductEnvironmentalVariable.Test do
   alias ProjectOmeletteManager.DB.Models.ProductEnvironment
 
   setup_all _context do
-    product = Repo.insert(%Product{name: "ProductEnvironmentalVariableQueriesTest"})
-    product2 = Repo.insert(%Product{name: "ProductEnvironmentalVariableQueriesTest2"})
-    env_testing = Repo.insert(%ProductEnvironment{product_id: product.id, name: "testing"})
-    env_staging = Repo.insert(%ProductEnvironment{product_id: product.id, name: "staging"})
+    {:ok, product} = Product.vinsert(%{name: "ProductEnvironmentalVariableQueriesTest"})
+    {:ok, product2} = Product.vinsert(%{name: "ProductEnvironmentalVariableQueriesTest2"})
+    {:ok, env_testing} = ProductEnvironment.vinsert(%{product_id: product.id, name: "testing"})
+    {:ok, env_staging} = ProductEnvironment.vinsert(%{product_id: product.id, name: "staging"})
 
     # Set up "global" variables
-    Repo.insert(%PEV{product_id: product.id, name: "A", value: "global"})
-    Repo.insert(%PEV{product_id: product.id, name: "B", value: "global"})
-    Repo.insert(%PEV{product_id: product.id, name: "C", value: "global"})
+    PEV.vinsert(%{product_id: product.id, name: "A", value: "global"})
+    PEV.vinsert(%{product_id: product.id, name: "B", value: "global"})
+    PEV.vinsert(%{product_id: product.id, name: "C", value: "global"})
 
     # Set up environment "testing" variables
-    Repo.insert(%PEV{product_id: product.id, product_environment_id: env_testing.id, name: "A", value: "testing"})
-    Repo.insert(%PEV{product_id: product.id, product_environment_id: env_testing.id, name: "B", value: "testing"})
+    PEV.vinsert(%{product_id: product.id, product_environment_id: env_testing.id, name: "A", value: "testing"})
+    PEV.vinsert(%{product_id: product.id, product_environment_id: env_testing.id, name: "B", value: "testing"})
     
     # This is a variable that is not set "globally"
-    Repo.insert(%PEV{product_id: product.id, product_environment_id: env_testing.id, name: "D", value: "testing"})
+    PEV.vinsert(%{product_id: product.id, product_environment_id: env_testing.id, name: "D", value: "testing"})
 
     # This is a variable that is **only** set for the "testing" environment
-    Repo.insert(%PEV{product_id: product.id, product_environment_id: env_testing.id, name: "E", value: "testing"})
+    PEV.vinsert(%{product_id: product.id, product_environment_id: env_testing.id, name: "E", value: "testing"})
 
     # Set up environment "staging" variables
-    Repo.insert(%PEV{product_id: product.id, product_environment_id: env_staging.id, name: "A", value: "staging"})
-    Repo.insert(%PEV{product_id: product.id, product_environment_id: env_staging.id, name: "B", value: "staging"})
+    PEV.vinsert(%{product_id: product.id, product_environment_id: env_staging.id, name: "A", value: "staging"})
+    PEV.vinsert(%{product_id: product.id, product_environment_id: env_staging.id, name: "B", value: "staging"})
 
     # This is a variable that is not set "globally"
-    Repo.insert(%PEV{product_id: product.id, product_environment_id: env_staging.id, name: "D", value: "staging"})
+    PEV.vinsert(%{product_id: product.id, product_environment_id: env_staging.id, name: "D", value: "staging"})
 
     # This is a variable that is **only** set for the "staging" environment
-    Repo.insert(%PEV{product_id: product.id, product_environment_id: env_staging.id, name: "F", value: "staging"})
+    PEV.vinsert(%{product_id: product.id, product_environment_id: env_staging.id, name: "F", value: "staging"})
 
     # Create some vars for product2 to verify filtering by product
-    Repo.insert(%PEV{product_id: product2.id, name: "A", value: "global"})
-    Repo.insert(%PEV{product_id: product2.id, name: "B", value: "global"})
+    PEV.vinsert(%{product_id: product2.id, name: "A", value: "global"})
+    PEV.vinsert(%{product_id: product2.id, name: "B", value: "global"})
 
     on_exit _context, fn ->
       Repo.delete_all(PEV)
@@ -88,7 +88,5 @@ defmodule DB.Queries.ProductEnvironmentalVariable.Test do
     results = Repo.all(PEVQuery.find_by_product_name_variable_name(context[:product].name, "A"))
 
     assert length(results) == 3
-
-    values = Enum
   end
 end

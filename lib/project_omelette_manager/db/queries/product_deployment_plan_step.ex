@@ -31,7 +31,7 @@ defmodule ProjectOmeletteManager.DB.Queries.ProductDeploymentPlanStep do
     from pdps in ProductDeploymentPlanStep,
     	where: pdps.product_deployment_plan_id == ^product_deployment_plan_id,
       left_join: pspso in assoc(pdps, :product_deployment_plan_step_options),
-      select: {pdps, pspso}      
+      preload: [product_deployment_plan_step_options: pspso]
   end
 
   @doc """

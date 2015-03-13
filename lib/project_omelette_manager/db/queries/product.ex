@@ -4,7 +4,7 @@ defmodule ProjectOmeletteManager.DB.Queries.Product do
 
   def get_by_name(name) do
     from p in Product,
-      where: fragment("downcase(?) == downcase(?)", p.name, ^name),
+      where: fragment("lower(?) = lower(?)", p.name, ^name),
       select: p
   end
 end

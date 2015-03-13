@@ -12,8 +12,7 @@ defmodule DB.Queries.Product.Test do
   end
 
   test "get product by name" do
-    product = %Product{name: "test"}
-    product = Repo.insert(product)
+    {:ok, product} = Product.vinsert(%{name: "test"})
 
     query = ProductQuery.get_by_name("test")
     [result] = Repo.all(query)
@@ -22,9 +21,8 @@ defmodule DB.Queries.Product.Test do
   end
 
   test "get product by name with non-existant name" do
-    product = %Product{name: "test"}
-    product = Repo.insert(product)
-
+    {:ok, _product} = Product.vinsert(%{name: "test"})
+    
     query = ProductQuery.get_by_name("some dumbbad name")
 
     assert Repo.all(query) == []

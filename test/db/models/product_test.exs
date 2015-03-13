@@ -33,8 +33,8 @@ defmodule DB.Models.Product.Test do
   test "retrieve associated product environments" do
     {:ok, product} = Product.vinsert(%{name: "test product"})
 
-    {:ok, env1} = ProductEnvironment.vinsert(%{product_id: product.id, name: "test1"})
-    {:ok, env2} = ProductEnvironment.vinsert(%{product_id: product.id, name: "test2"})
+    {:ok, _env1} = ProductEnvironment.vinsert(%{product_id: product.id, name: "test1"})
+    {:ok, _env2} = ProductEnvironment.vinsert(%{product_id: product.id, name: "test2"})
 
     # Repo.get doesn't support preload(yet), so we need to do
     # a Repo.all call.
@@ -42,9 +42,7 @@ defmodule DB.Models.Product.Test do
                          where: p.id == ^product.id,
                          preload: :environments)
 
-    assert product.environments.loaded?
-
-    assert length(product.environments.all) == 2
+    assert length(product.environments) == 2
   end
 
   test "retrieve associated product environmental variables" do
@@ -57,8 +55,7 @@ defmodule DB.Models.Product.Test do
                          where: p.id == ^product.id,
                          preload: :environmental_variables)
 
-    assert product.environmental_variables.loaded?
-    assert length(product.environmental_variables.all) == 2
+    assert length(product.environmental_variables) == 2
 
     Repo.delete(var1)
     Repo.delete(var2)

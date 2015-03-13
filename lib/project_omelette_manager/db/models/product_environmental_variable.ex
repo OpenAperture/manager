@@ -1,6 +1,6 @@
 defmodule ProjectOmeletteManager.DB.Models.ProductEnvironmentalVariable do
   @required_fields [:product_id, :name]
-  @optional_fields [:value]
+  @optional_fields [:product_environment_id, :value]
   @member_of_fields []
   use ProjectOmeletteManager.DB.Models.BaseModel
 

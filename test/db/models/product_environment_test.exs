@@ -59,7 +59,7 @@ defmodule DB.Models.ProductEnvironment.Test do
                        where: env.id == ^pe.id,
                        preload: :product)
 
-    assert loaded_env.product.get == product
+    assert loaded_env.product == product
   end
 
   test "retrieve associated product environmental variables", context do
@@ -73,8 +73,7 @@ defmodule DB.Models.ProductEnvironment.Test do
                                      where: pe.id == ^product_environment.id,
                                      preload: :environmental_variables)
 
-    assert product_environment.environmental_variables.loaded?
-    assert length(product_environment.environmental_variables.all) == 2
+    assert length(product_environment.environmental_variables) == 2
 
     Repo.delete(var1)
     Repo.delete(var2)

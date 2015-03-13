@@ -30,7 +30,7 @@ defmodule ProjectOmeletteManager.DB.Queries.ProductComponent do
     from pc in ProductComponent,
     	where: pc.product_id == ^product_id,
     	left_join: pco in assoc(pc, :product_component_options),
-      select: {pc, pco}
+      preload: [product_component_options: pco]
   end
 
   @doc """
@@ -51,6 +51,6 @@ defmodule ProjectOmeletteManager.DB.Queries.ProductComponent do
     from pc in ProductComponent,
       where: pc.product_id == ^product_id and pc.name == ^component_name,
       left_join: pco in assoc(pc, :product_component_options),
-      select: {pc, pco}
+      preload: [product_component_options: pco]
   end  
 end

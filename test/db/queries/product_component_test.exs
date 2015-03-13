@@ -34,7 +34,7 @@ defmodule DB.Queries.ProductComponent.Test do
 
     returned_components = Repo.all(PCQuery.get_components_for_product(product.id))
     assert length(returned_components) == 1
-    returned_component = hd(returned_components)
+    returned_component = List.first(returned_components)
     assert returned_component.id == component.id
   end
 
@@ -59,14 +59,13 @@ defmodule DB.Queries.ProductComponent.Test do
 
     returned_components = Repo.all(PCQuery.get_components_for_product(product.id))
     assert length(returned_components) == 1
-    returned_component = hd(returned_components)
+    returned_component = List.first(returned_components)
     assert returned_component != nil
 
     list_results = Enum.reduce returned_components, [component.id], fn(raw_component, remaining_components) -> 
       returned_component = Map.from_struct(raw_component)
       assert returned_component != nil
-
-      returned_options = raw_component.product_component_options.all
+      returned_options = raw_component.product_component_options
       assert returned_options != nil
 
       if (returned_component[:id] == component.id) do
@@ -102,14 +101,14 @@ defmodule DB.Queries.ProductComponent.Test do
 
     returned_components = Repo.all(PCQuery.get_components_for_product(product.id))
     assert length(returned_components) == 4
-    returned_component = hd(returned_components)
+    returned_component = List.first(returned_components)
     assert returned_component != nil
 
     list_results = Enum.reduce returned_components, [component.id, component2.id, component3.id, component4.id], fn(raw_component, remaining_components) -> 
       returned_component = Map.from_struct(raw_component)
       assert returned_component != nil
 
-      returned_options = raw_component.product_component_options.all
+      returned_options = raw_component.product_component_options
       assert returned_options != nil
 
       if (returned_component[:id] == component.id) do
