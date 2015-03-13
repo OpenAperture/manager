@@ -2,7 +2,6 @@ defmodule ProjectOmeletteManager.EtcdClusterController.Test do
   use ExUnit.Case
   use Plug.Test
   use ProjectOmeletteManager.Test.ConnHelper
-  import ProjectOmeletteManager.EtcdClusterController
 
   alias ProjectOmeletteManager.Repo
   alias ProjectOmeletteManager.DB.Models.EtcdCluster
