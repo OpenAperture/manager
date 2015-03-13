@@ -7,8 +7,8 @@ defmodule DB.Models.ProductEnvironmentalVariable.Test do
   alias ProjectOmeletteManager.Repo
 
   setup _context do
-    {:ok, product} = Product.vinsert(%{name: "ProductEnvironmentalVariablesModelTest"})
-    {:ok, env} = ProductEnvironment.vinsert(%{product_id: product.id, name: "test environment"})
+    product = Product.new(%{name: "ProductEnvironmentalVariablesModelTest"}) |> Repo.insert
+    env = ProductEnvironment.new(%{product_id: product.id, name: "test environment"}) |> Repo.insert
 
     on_exit _context, fn ->
       Repo.delete_all(PEV)
@@ -20,17 +20,17 @@ defmodule DB.Models.ProductEnvironmentalVariable.Test do
   end
 
   test "missing values fails validation" do
-    {status, errors} = PEV.vinsert(%{})
+    changeset = PEV.new(%{})
     
-    assert status == :error
-    assert Keyword.has_key?(errors, :product_id)
-    assert Keyword.has_key?(errors, :name)
+    refute changeset.valid?
+    assert Keyword.has_key?(changeset.errors, :product_id)
+    assert Keyword.has_key?(changeset.errors, :name)
   end
 
   test "bad product_id fails insert" do
     assert_raise Postgrex.Error,
                  "ERROR (foreign_key_violation): insert or update on table \"product_environmental_variables\" violates foreign key constraint \"product_environmental_variables_product_id_fkey\"",
-                 fn -> PEV.vinsert(%{product_id: 98123784, name: "test name", value: "test value"}) end
+                 fn -> PEV.new(%{product_id: 98123784, name: "test name", value: "test value"}) |> Repo.insert end
 
   end
 
@@ -39,33 +39,33 @@ defmodule DB.Models.ProductEnvironmentalVariable.Test do
 
     assert_raise Postgrex.Error,
                  "ERROR (foreign_key_violation): insert or update on table \"product_environmental_variables\" violates foreign key constraint \"product_environmental_variables_product_environment_id_fkey\"",
-                 fn -> PEV.vinsert(var) end
+                 fn -> PEV.new(var) |> Repo.insert end
   end
 
   test "product_id, environment_id, and variable name must be unique - null environment", context do
     var = %{product_id: context[:product].id, name: "test name", value: "test value"}
 
-    PEV.vinsert(var)
+    PEV.new(var) |> Repo.insert
 
     assert_raise Postgrex.Error,
                  "ERROR (unique_violation): duplicate key value violates unique constraint \"pev_prod_id_name_prod_env_null_idx\"",
-                 fn -> PEV.vinsert(var) end
+                 fn -> PEV.new(var) |> Repo.insert end
   end
 
   test "product_id, environment_id, and variable name must be unique", context do
     var = %{product_id: context[:product].id, product_environment_id: context[:product_environment].id, name: "test name", value: "test value"}
 
-    PEV.vinsert(var)
+    PEV.new(var) |> Repo.insert
 
     assert_raise Postgrex.Error,
                  "ERROR (unique_violation): duplicate key value violates unique constraint \"product_environmental_variables_product_id_product_environment_\"",
-                 fn -> PEV.vinsert(var) end
+                 fn -> PEV.new(var) |> Repo.insert end
   end
 
   test "successful creation with no environment", context do
     var = %{product_id: context[:product].id, name: "Test name", value: "Test value"}
 
-    {:ok, new_env_var} = PEV.vinsert(var)
+    new_env_var = PEV.new(var) |> Repo.insert
 
     retrieved_var = Repo.get(PEV, new_env_var.id)
 
@@ -77,7 +77,7 @@ defmodule DB.Models.ProductEnvironmentalVariable.Test do
   end
 
   test "successful creation with an environment", context do
-    {:ok, new_env_var} = PEV.vinsert(%{product_id: context[:product].id, product_environment_id: context[:product_environment].id, name: "Test name", value: "Test value"})
+    new_env_var = PEV.new(%{product_id: context[:product].id, product_environment_id: context[:product_environment].id, name: "Test name", value: "Test value"}) |> Repo.insert
     retrieved_var = Repo.get(PEV, new_env_var.id)
 
     assert retrieved_var == new_env_var

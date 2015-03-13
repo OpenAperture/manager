@@ -8,39 +8,39 @@ defmodule DB.Queries.ProductEnvironmentalVariable.Test do
   alias ProjectOmeletteManager.DB.Models.ProductEnvironment
 
   setup_all _context do
-    {:ok, product} = Product.vinsert(%{name: "ProductEnvironmentalVariableQueriesTest"})
-    {:ok, product2} = Product.vinsert(%{name: "ProductEnvironmentalVariableQueriesTest2"})
-    {:ok, env_testing} = ProductEnvironment.vinsert(%{product_id: product.id, name: "testing"})
-    {:ok, env_staging} = ProductEnvironment.vinsert(%{product_id: product.id, name: "staging"})
+    product = Product.new(%{name: "ProductEnvironmentalVariableQueriesTest"}) |> Repo.insert
+    product2 = Product.new(%{name: "ProductEnvironmentalVariableQueriesTest2"}) |> Repo.insert
+    env_testing = ProductEnvironment.new(%{product_id: product.id, name: "testing"}) |> Repo.insert
+    env_staging = ProductEnvironment.new(%{product_id: product.id, name: "staging"}) |> Repo.insert
 
     # Set up "global" variables
-    PEV.vinsert(%{product_id: product.id, name: "A", value: "global"})
-    PEV.vinsert(%{product_id: product.id, name: "B", value: "global"})
-    PEV.vinsert(%{product_id: product.id, name: "C", value: "global"})
+    PEV.new(%{product_id: product.id, name: "A", value: "global"}) |> Repo.insert
+    PEV.new(%{product_id: product.id, name: "B", value: "global"}) |> Repo.insert
+    PEV.new(%{product_id: product.id, name: "C", value: "global"}) |> Repo.insert
 
     # Set up environment "testing" variables
-    PEV.vinsert(%{product_id: product.id, product_environment_id: env_testing.id, name: "A", value: "testing"})
-    PEV.vinsert(%{product_id: product.id, product_environment_id: env_testing.id, name: "B", value: "testing"})
+    PEV.new(%{product_id: product.id, product_environment_id: env_testing.id, name: "A", value: "testing"}) |> Repo.insert
+    PEV.new(%{product_id: product.id, product_environment_id: env_testing.id, name: "B", value: "testing"}) |> Repo.insert
     
     # This is a variable that is not set "globally"
-    PEV.vinsert(%{product_id: product.id, product_environment_id: env_testing.id, name: "D", value: "testing"})
+    PEV.new(%{product_id: product.id, product_environment_id: env_testing.id, name: "D", value: "testing"}) |> Repo.insert
 
     # This is a variable that is **only** set for the "testing" environment
-    PEV.vinsert(%{product_id: product.id, product_environment_id: env_testing.id, name: "E", value: "testing"})
+    PEV.new(%{product_id: product.id, product_environment_id: env_testing.id, name: "E", value: "testing"}) |> Repo.insert
 
     # Set up environment "staging" variables
-    PEV.vinsert(%{product_id: product.id, product_environment_id: env_staging.id, name: "A", value: "staging"})
-    PEV.vinsert(%{product_id: product.id, product_environment_id: env_staging.id, name: "B", value: "staging"})
+    PEV.new(%{product_id: product.id, product_environment_id: env_staging.id, name: "A", value: "staging"}) |> Repo.insert
+    PEV.new(%{product_id: product.id, product_environment_id: env_staging.id, name: "B", value: "staging"}) |> Repo.insert
 
     # This is a variable that is not set "globally"
-    PEV.vinsert(%{product_id: product.id, product_environment_id: env_staging.id, name: "D", value: "staging"})
+    PEV.new(%{product_id: product.id, product_environment_id: env_staging.id, name: "D", value: "staging"}) |> Repo.insert
 
     # This is a variable that is **only** set for the "staging" environment
-    PEV.vinsert(%{product_id: product.id, product_environment_id: env_staging.id, name: "F", value: "staging"})
+    PEV.new(%{product_id: product.id, product_environment_id: env_staging.id, name: "F", value: "staging"}) |> Repo.insert
 
     # Create some vars for product2 to verify filtering by product
-    PEV.vinsert(%{product_id: product2.id, name: "A", value: "global"})
-    PEV.vinsert(%{product_id: product2.id, name: "B", value: "global"})
+    PEV.new(%{product_id: product2.id, name: "A", value: "global"}) |> Repo.insert
+    PEV.new(%{product_id: product2.id, name: "B", value: "global"}) |> Repo.insert
 
     on_exit _context, fn ->
       Repo.delete_all(PEV)

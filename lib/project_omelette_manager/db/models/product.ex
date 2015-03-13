@@ -1,7 +1,6 @@
 defmodule ProjectOmeletteManager.DB.Models.Product do
   @required_fields [:name]
   @optional_fields []
-  @member_of_fields []
   use ProjectOmeletteManager.DB.Models.BaseModel
 
   alias ProjectOmeletteManager.DB.Models
@@ -13,5 +12,9 @@ defmodule ProjectOmeletteManager.DB.Models.Product do
     has_many :product_clusters,        Models.ProductCluster
     has_many :product_components,      Models.ProductComponent
     timestamps
+  end
+
+  defp validate_changes(model_or_changeset, params) do
+    cast(model_or_changeset,  params, @required_fields, @optional_fields)
   end
 end

@@ -16,25 +16,25 @@ defmodule DB.Models.Product.Test do
 
   test "product names must be unique" do
     product1 = %{name: "test"}
-    Product.vinsert(product1)
+    Product.new(product1) |> Repo.insert
 
     assert_raise Postgrex.Error,
                  "ERROR (unique_violation): duplicate key value violates unique constraint \"products_name_index\"",
-                 fn -> Product.vinsert(product1) end
+                 fn -> Product.new(product1) |> Repo.insert end
   end
 
   test "product name is required" do
-    {status, errors} = Product.vinsert(%{id: 1})
+    changeset = Product.new(%{id: 1})
 
-    assert status == :error
-    assert Keyword.has_key?(errors, :name)
+    refute changeset.valid?
+    assert Keyword.has_key?(changeset.errors, :name)
   end
 
   test "retrieve associated product environments" do
-    {:ok, product} = Product.vinsert(%{name: "test product"})
+    product = Product.new(%{name: "test product"}) |> Repo.insert
 
-    {:ok, _env1} = ProductEnvironment.vinsert(%{product_id: product.id, name: "test1"})
-    {:ok, _env2} = ProductEnvironment.vinsert(%{product_id: product.id, name: "test2"})
+    _env1 = ProductEnvironment.new(%{product_id: product.id, name: "test1"}) |> Repo.insert
+    _env2 = ProductEnvironment.new(%{product_id: product.id, name: "test2"}) |> Repo.insert
 
     # Repo.get doesn't support preload(yet), so we need to do
     # a Repo.all call.
@@ -46,10 +46,10 @@ defmodule DB.Models.Product.Test do
   end
 
   test "retrieve associated product environmental variables" do
-    {:ok, product} = Product.vinsert(%{name: "test product"})
+    product = Product.new(%{name: "test product"}) |> Repo.insert
 
-    {:ok, var1} = ProductEnvironmentalVariable.vinsert(%{product_id: product.id, name: "var1", value: "value1"})
-    {:ok, var2} = ProductEnvironmentalVariable.vinsert(%{product_id: product.id, name: "var2", value: "value2"})
+    var1 = ProductEnvironmentalVariable.new(%{product_id: product.id, name: "var1", value: "value1"}) |> Repo.insert
+    var2 = ProductEnvironmentalVariable.new(%{product_id: product.id, name: "var2", value: "value2"}) |> Repo.insert
 
     [product] = Repo.all(from p in Product,
                          where: p.id == ^product.id,

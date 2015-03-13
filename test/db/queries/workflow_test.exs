@@ -24,10 +24,10 @@ defmodule DB.Queries.Workflow.Test do
   #   lookback_time = :calendar.gregorian_seconds_to_datetime(now_secs-(25*60*60))
   #   then = from_erl(lookback_time)
 
-  #   {:ok, _workflow_old} = Workflow.vinsert(%{id: workflow_old_id, inserted_at: then})
+  #   _workflow_old = Workflow.new(%{id: workflow_old_id, inserted_at: then}) |> Repo.insert
 
   #   workflow_id = ("#{UUID.uuid1()}" |> UUID.info)[:binary]
-  #   {:ok, _workflow} = Workflow.vinsert(%{id: workflow_id, inserted_at: Ecto.DateTime.utc()})
+  #   _workflow = Workflow.new(%{id: workflow_id, inserted_at: Ecto.DateTime.utc()}) |> Repo.insert
 
   #   results = Repo.all(WorkflowQuery.get_workflows(24))
   #   assert results != nil
@@ -42,7 +42,7 @@ defmodule DB.Queries.Workflow.Test do
   #   lookback_time = :calendar.gregorian_seconds_to_datetime(now_secs-(25*60*60))
   #   then = from_erl(lookback_time)
 
-  #   {:ok, _workflow_old} = Workflow.vinsert(%{id: workflow_old_id, inserted_at: then})
+  #   _workflow_old = Workflow.new(%{id: workflow_old_id, inserted_at: then}) |> Repo.insert
 
   #   results = Repo.all(WorkflowQuery.get_workflows(24))
   #   assert results != nil
@@ -57,10 +57,10 @@ defmodule DB.Queries.Workflow.Test do
     lookback_time = :calendar.gregorian_seconds_to_datetime(now_secs-(25*60*60))
     then = from_erl(lookback_time)
 
-    {:ok, _workflow_old} = Workflow.vinsert(%{id: workflow_old_id, inserted_at: then})
+    _workflow_old = Workflow.new(%{id: workflow_old_id, inserted_at: then}) |> Repo.insert
 
     workflow_id = ("#{UUID.uuid1()}" |> UUID.info)[:binary]
-    {:ok, _workflow} = Workflow.vinsert(%{id: workflow_id, inserted_at: Ecto.DateTime.utc()})
+    _workflow = Workflow.new(%{id: workflow_id, inserted_at: Ecto.DateTime.utc()}) |> Repo.insert
 
     results = Repo.all(WorkflowQuery.get_workflows(0))
     assert results != nil
@@ -76,10 +76,10 @@ defmodule DB.Queries.Workflow.Test do
 
   test "get_workflows_by_deployment_repo - last 24 hours only current deploy repo" do
     workflow_old_id = ("#{UUID.uuid1()}" |> UUID.info)[:binary]
-    {:ok, _workflow_old} = Workflow.vinsert(%{id: workflow_old_id, deployment_repo: "bad-news-bears", inserted_at: Ecto.DateTime.utc()})
+    _workflow_old = Workflow.new(%{id: workflow_old_id, deployment_repo: "bad-news-bears", inserted_at: Ecto.DateTime.utc()}) |> Repo.insert
 
     workflow_id = ("#{UUID.uuid1()}" |> UUID.info)[:binary]
-    {:ok, _workflow} = Workflow.vinsert(%{id: workflow_id, deployment_repo: "Perceptive-Cloud/myapp", inserted_at: Ecto.DateTime.utc()})
+    _workflow = Workflow.new(%{id: workflow_id, deployment_repo: "Perceptive-Cloud/myapp", inserted_at: Ecto.DateTime.utc()}) |> Repo.insert
 
     results = Repo.all(WorkflowQuery.get_workflows_by_deployment_repo("Perceptive-Cloud/myapp", 24))
     assert results != nil
@@ -94,10 +94,10 @@ defmodule DB.Queries.Workflow.Test do
   #   lookback_time = :calendar.gregorian_seconds_to_datetime(now_secs-(25*60*60))
   #   then = from_erl(lookback_time)
 
-  #   {:ok, _workflow_old} = Workflow.vinsert(%{id: workflow_old_id, deployment_repo: "Perceptive-Cloud/myapp", inserted_at: then})
+  #   _workflow_old = Workflow.new(%{id: workflow_old_id, deployment_repo: "Perceptive-Cloud/myapp", inserted_at: then}) |> Repo.insert
 
   #   workflow_id = ("#{UUID.uuid1()}" |> UUID.info)[:binary]
-  #   {:ok, _workflow} = Workflow.vinsert(%{id: workflow_id, deployment_repo: "Perceptive-Cloud/myapp", inserted_at: Ecto.DateTime.utc()})
+  #   _workflow = Workflow.new(%{id: workflow_id, deployment_repo: "Perceptive-Cloud/myapp", inserted_at: Ecto.DateTime.utc()}) |> Repo.insert
 
   #   results = Repo.all(WorkflowQuery.get_workflows_by_deployment_repo("Perceptive-Cloud/myapp", 24))
   #   assert results != nil
@@ -112,7 +112,7 @@ defmodule DB.Queries.Workflow.Test do
   #   lookback_time = :calendar.gregorian_seconds_to_datetime(now_secs-(25*60*60))
   #   then = from_erl(lookback_time)
 
-  #   {:ok, _workflow_old} = Workflow.vinsert(%{id: workflow_old_id, deployment_repo: "Perceptive-Cloud/myapp", inserted_at: then})
+  #   _workflow_old = Workflow.new(%{id: workflow_old_id, deployment_repo: "Perceptive-Cloud/myapp", inserted_at: then}) |> Repo.insert
 
   #   results = Repo.all(WorkflowQuery.get_workflows_by_deployment_repo("Perceptive-Cloud/myapp", 24))
   #   assert results != nil
@@ -126,10 +126,10 @@ defmodule DB.Queries.Workflow.Test do
     lookback_time = :calendar.gregorian_seconds_to_datetime(now_secs-(25*60*60))
     then = from_erl(lookback_time)
 
-    {:ok, _workflow_old} = Workflow.vinsert(%{id: workflow_old_id, deployment_repo: "Perceptive-Cloud/myapp", inserted_at: then})
+    _workflow_old = Workflow.new(%{id: workflow_old_id, deployment_repo: "Perceptive-Cloud/myapp", inserted_at: then}) |> Repo.insert
 
     workflow_id = ("#{UUID.uuid1()}" |> UUID.info)[:binary]
-    {:ok, _workflow} = Workflow.vinsert(%{id: workflow_id, deployment_repo: "Perceptive-Cloud/myapp", inserted_at: Ecto.DateTime.utc()})
+    _workflow = Workflow.new(%{id: workflow_id, deployment_repo: "Perceptive-Cloud/myapp", inserted_at: Ecto.DateTime.utc()}) |> Repo.insert
 
     results = Repo.all(WorkflowQuery.get_workflows_by_deployment_repo("Perceptive-Cloud/myapp"))
     assert results != nil

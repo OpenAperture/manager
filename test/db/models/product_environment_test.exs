@@ -9,7 +9,7 @@ defmodule DB.Models.ProductEnvironment.Test do
   alias ProjectOmeletteManager.DB.Models.ProductEnvironmentalVariable
 
   setup _context do
-    {:ok, product} = Product.vinsert(%{name: "ProductEnvironmentsModelsTest"})
+    product = Product.new(%{name: "ProductEnvironmentsModelsTest"}) |> Repo.insert
 
     on_exit _context, fn ->
       Repo.delete_all(ProductEnvironment)
@@ -20,33 +20,33 @@ defmodule DB.Models.ProductEnvironment.Test do
   end
 
   test "missing values fail validation" do
-    {status, errors} = ProductEnvironment.vinsert(%{})
+    changeset = ProductEnvironment.new(%{})
     
-    assert status == :error
-    assert Keyword.has_key?(errors, :product_id)
-    assert Keyword.has_key?(errors, :name)
+    refute changeset.valid?
+    assert Keyword.has_key?(changeset.errors, :product_id)
+    assert Keyword.has_key?(changeset.errors, :name)
   end
 
   test "bad product_id fails insert" do
     
     assert_raise Postgrex.Error,
                  "ERROR (foreign_key_violation): insert or update on table \"product_environments\" violates foreign key constraint \"product_environments_product_id_fkey\"",
-                 fn -> ProductEnvironment.vinsert(%{product_id: 98237834, name: "test"}) end
+                 fn -> ProductEnvironment.new(%{product_id: 98237834, name: "test"}) |> Repo.insert end
   end
 
   test "product_id and environment name combo must be unique", context do
     product = context[:product]
     env_vars = %{product_id: product.id, name: "test"}
-    {:ok, _env} = ProductEnvironment.vinsert(env_vars)
+    _env = ProductEnvironment.new(env_vars) |> Repo.insert
     assert_raise Postgrex.Error,
                  "ERROR (unique_violation): duplicate key value violates unique constraint \"product_environments_product_id_name_index\"",
-                 fn -> ProductEnvironment.vinsert(env_vars) end
+                 fn -> ProductEnvironment.new(env_vars) |> Repo.insert end
   end
 
   test "belongs_to Product association", context do
     product = context[:product]
     
-    {:ok, pe} = ProductEnvironment.vinsert(%{product_id: product.id, name: "test"})
+    pe = ProductEnvironment.new(%{product_id: product.id, name: "test"}) |> Repo.insert
 
     assert pe.product_id == product.id
     assert pe.name == "test"
@@ -64,10 +64,10 @@ defmodule DB.Models.ProductEnvironment.Test do
 
   test "retrieve associated product environmental variables", context do
     product = context[:product]
-    {:ok, product_environment} = ProductEnvironment.vinsert(%{product_id: product.id, name: "variable test"})
+    product_environment = ProductEnvironment.new(%{product_id: product.id, name: "variable test"}) |> Repo.insert
 
-    {:ok, var1} = ProductEnvironmentalVariable.vinsert(%{product_id: product.id, product_environment_id: product_environment.id, name: "A", value: "test"})
-    {:ok, var2} = ProductEnvironmentalVariable.vinsert(%{product_id: product.id, product_environment_id: product_environment.id, name: "B", value: "test"})
+    var1 = ProductEnvironmentalVariable.new(%{product_id: product.id, product_environment_id: product_environment.id, name: "A", value: "test"}) |> Repo.insert
+    var2 = ProductEnvironmentalVariable.new(%{product_id: product.id, product_environment_id: product_environment.id, name: "B", value: "test"}) |> Repo.insert
 
     [product_environment] = Repo.all(from pe in ProductEnvironment,
                                      where: pe.id == ^product_environment.id,

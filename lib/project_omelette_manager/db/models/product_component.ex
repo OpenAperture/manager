@@ -12,7 +12,6 @@
 defmodule ProjectOmeletteManager.DB.Models.ProductComponent do
   @required_fields [:product_id, :name, :type]
   @optional_fields []
-  @member_of_fields [{:type, ["web_server", "db"]}]
   use ProjectOmeletteManager.DB.Models.BaseModel
 
   alias ProjectOmeletteManager.DB.Models
@@ -23,6 +22,11 @@ defmodule ProjectOmeletteManager.DB.Models.ProductComponent do
     field :name,                         :string
     field :type,                         :string
     timestamps
+  end
+
+  defp validate_changes(model_or_changeset, params) do
+    cast(model_or_changeset,  params, @required_fields, @optional_fields)
+      |> validate_inclusion(:type, ["web_server", "db"])
   end
 
 end

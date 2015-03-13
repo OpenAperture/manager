@@ -14,7 +14,7 @@ defmodule DB.Queries.ProductComponent.Test do
       Repo.delete_all(Product)
     end
 
-    #{:ok, [product: product, product2: product2, cluster: etcd_cluster, etcd_cluster2: etcd_cluster2, etcd_cluster3: etcd_cluster3, etcd_cluster4: etcd_cluster4]}
+    #[product: product, product2: product2, cluster: etcd_cluster, etcd_cluster2: etcd_cluster2, etcd_cluster3: etcd_cluster3, etcd_cluster4: etcd_cluster4]}
     {:ok, []}
   end
 
@@ -22,15 +22,15 @@ defmodule DB.Queries.ProductComponent.Test do
   # get_components_for_product tests
 
   test "get_components_for_product- no components" do
-    {:ok, product} = Product.vinsert(%{name: "#{UUID.uuid1()}"})
+    product = Product.new(%{name: "#{UUID.uuid1()}"}) |> Repo.insert
     
     returned_components = Repo.all(PCQuery.get_components_for_product(product.id))
     assert length(returned_components) == 0
   end
 
   test "get_components_for_product- one component with no options" do
-    {:ok, product} = Product.vinsert(%{name: "#{UUID.uuid1()}"})
-    {:ok, component} = ProductComponent.vinsert(%{product_id: product.id, name: "#{UUID.uuid1()}", type: "web_server"})
+    product = Product.new(%{name: "#{UUID.uuid1()}"}) |> Repo.insert
+    component = ProductComponent.new(%{product_id: product.id, name: "#{UUID.uuid1()}", type: "web_server"}) |> Repo.insert
 
     returned_components = Repo.all(PCQuery.get_components_for_product(product.id))
     assert length(returned_components) == 1
@@ -39,9 +39,9 @@ defmodule DB.Queries.ProductComponent.Test do
   end
 
   test "get_components_for_product- multiple component with no options" do
-    {:ok, product} = Product.vinsert(%{name: "#{UUID.uuid1()}"})
-    {:ok, component} = ProductComponent.vinsert(%{product_id: product.id, name: "#{UUID.uuid1()}", type: "web_server"})
-    {:ok, component2} = ProductComponent.vinsert(%{product_id: product.id, name: "#{UUID.uuid1()}", type: "web_server"})
+    product = Product.new(%{name: "#{UUID.uuid1()}"}) |> Repo.insert
+    component = ProductComponent.new(%{product_id: product.id, name: "#{UUID.uuid1()}", type: "web_server"}) |> Repo.insert
+    component2 = ProductComponent.new(%{product_id: product.id, name: "#{UUID.uuid1()}", type: "web_server"}) |> Repo.insert
 
     returned_components = Repo.all(PCQuery.get_components_for_product(product.id))
     assert length(returned_components) == 2
@@ -53,9 +53,9 @@ defmodule DB.Queries.ProductComponent.Test do
   end
 
   test "get_components_for_product- one component with one options" do
-    {:ok, product} = Product.vinsert(%{name: "#{UUID.uuid1()}"})
-    {:ok, component} = ProductComponent.vinsert(%{product_id: product.id, name: "#{UUID.uuid1()}", type: "web_server"})
-    {:ok, component_option} = ProductComponentOption.vinsert(%{product_component_id: component.id, name: "#{UUID.uuid1()}", value: "something cool"})
+    product = Product.new(%{name: "#{UUID.uuid1()}"}) |> Repo.insert
+    component = ProductComponent.new(%{product_id: product.id, name: "#{UUID.uuid1()}", type: "web_server"}) |> Repo.insert
+    component_option = ProductComponentOption.new(%{product_component_id: component.id, name: "#{UUID.uuid1()}", value: "something cool"}) |> Repo.insert
 
     returned_components = Repo.all(PCQuery.get_components_for_product(product.id))
     assert length(returned_components) == 1
@@ -80,23 +80,23 @@ defmodule DB.Queries.ProductComponent.Test do
   end
 
   test "get_components_for_product- multiple component with multiple options" do
-    {:ok, product} = Product.vinsert(%{name: "#{UUID.uuid1()}"})
-    {:ok, component} = ProductComponent.vinsert(%{product_id: product.id, name: "#{UUID.uuid1()}", type: "web_server"})
-    {:ok, component_option} = ProductComponentOption.vinsert(%{product_component_id: component.id, name: "#{UUID.uuid1()}", value: "something cool"})
-    {:ok, component_option2} = ProductComponentOption.vinsert(%{product_component_id: component.id, name: "#{UUID.uuid1()}", value: "something cool"})
+    product = Product.new(%{name: "#{UUID.uuid1()}"}) |> Repo.insert
+    component = ProductComponent.new(%{product_id: product.id, name: "#{UUID.uuid1()}", type: "web_server"}) |> Repo.insert
+    component_option = ProductComponentOption.new(%{product_component_id: component.id, name: "#{UUID.uuid1()}", value: "something cool"}) |> Repo.insert
+    component_option2 = ProductComponentOption.new(%{product_component_id: component.id, name: "#{UUID.uuid1()}", value: "something cool"}) |> Repo.insert
 
-    {:ok, component2} = ProductComponent.vinsert(%{product_id: product.id, name: "#{UUID.uuid1()}", type: "web_server"})
-    {:ok, component_option3} = ProductComponentOption.vinsert(%{product_component_id: component2.id, name: "#{UUID.uuid1()}", value: "something cool"})
-    {:ok, component_option4} = ProductComponentOption.vinsert(%{product_component_id: component2.id, name: "#{UUID.uuid1()}", value: "something cool"})
+    component2 = ProductComponent.new(%{product_id: product.id, name: "#{UUID.uuid1()}", type: "web_server"}) |> Repo.insert
+    component_option3 = ProductComponentOption.new(%{product_component_id: component2.id, name: "#{UUID.uuid1()}", value: "something cool"}) |> Repo.insert
+    component_option4 = ProductComponentOption.new(%{product_component_id: component2.id, name: "#{UUID.uuid1()}", value: "something cool"}) |> Repo.insert
 
-    {:ok, _product2} = Product.vinsert(%{name: "#{UUID.uuid1()}"})
-    {:ok, component3} = ProductComponent.vinsert(%{product_id: product.id, name: "#{UUID.uuid1()}", type: "web_server"})
-    {:ok, component_option5} = ProductComponentOption.vinsert(%{product_component_id: component3.id, name: "#{UUID.uuid1()}", value: "something cool"})
-    {:ok, component_option6} = ProductComponentOption.vinsert(%{product_component_id: component3.id, name: "#{UUID.uuid1()}", value: "something cool"})
+    _product2 = Product.new(%{name: "#{UUID.uuid1()}"}) |> Repo.insert
+    component3 = ProductComponent.new(%{product_id: product.id, name: "#{UUID.uuid1()}", type: "web_server"}) |> Repo.insert
+    component_option5 = ProductComponentOption.new(%{product_component_id: component3.id, name: "#{UUID.uuid1()}", value: "something cool"}) |> Repo.insert
+    component_option6 = ProductComponentOption.new(%{product_component_id: component3.id, name: "#{UUID.uuid1()}", value: "something cool"}) |> Repo.insert
 
-    {:ok, component4} = ProductComponent.vinsert(%{product_id: product.id, name: "#{UUID.uuid1()}", type: "web_server"})
-    {:ok, component_option7} = ProductComponentOption.vinsert(%{product_component_id: component4.id, name: "#{UUID.uuid1()}", value: "something cool"})
-    {:ok, component_option8} = ProductComponentOption.vinsert(%{product_component_id: component4.id, name: "#{UUID.uuid1()}", value: "something cool"})
+    component4 = ProductComponent.new(%{product_id: product.id, name: "#{UUID.uuid1()}", type: "web_server"}) |> Repo.insert
+    component_option7 = ProductComponentOption.new(%{product_component_id: component4.id, name: "#{UUID.uuid1()}", value: "something cool"}) |> Repo.insert
+    component_option8 = ProductComponentOption.new(%{product_component_id: component4.id, name: "#{UUID.uuid1()}", value: "something cool"}) |> Repo.insert
 
 
     returned_components = Repo.all(PCQuery.get_components_for_product(product.id))

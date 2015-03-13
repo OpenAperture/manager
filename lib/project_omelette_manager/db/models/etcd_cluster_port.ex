@@ -12,7 +12,6 @@
 defmodule ProjectOmeletteManager.DB.Models.EtcdClusterPort do
   @required_fields [:etcd_cluster_id, :product_component_id, :port]
   @optional_fields []
-  @member_of_fields []
   use ProjectOmeletteManager.DB.Models.BaseModel
 
 
@@ -24,6 +23,9 @@ defmodule ProjectOmeletteManager.DB.Models.EtcdClusterPort do
     belongs_to :product_component,  ProductComponent
     field :port,                    :integer
     timestamps
+  end
+  defp validate_changes(model_or_changeset, params) do
+    cast(model_or_changeset,  params, @required_fields, @optional_fields)
   end
 
 end

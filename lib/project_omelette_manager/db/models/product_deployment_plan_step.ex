@@ -14,7 +14,6 @@ require Logger
 defmodule ProjectOmeletteManager.DB.Models.ProductDeploymentPlanStep do
   @required_fields [:product_deployment_plan_id, :type]
   @optional_fields [:on_success_step_id, :on_failure_step_id]
-  @member_of_fields [{:type, ~w(build_component deploy_component build_deploy_component component_script deploy_script execute_plan)}]
   use ProjectOmeletteManager.DB.Models.BaseModel
 
   alias ProjectOmeletteManager.DB.Models
@@ -27,6 +26,11 @@ defmodule ProjectOmeletteManager.DB.Models.ProductDeploymentPlanStep do
     field :on_success_step_id,                      :integer
     field :on_failure_step_id,                      :integer
     timestamps
+  end
+
+  defp validate_changes(model_or_changeset, params) do
+    cast(model_or_changeset,  params, @required_fields, @optional_fields)
+      |> validate_inclusion(:type, ~w(build_component deploy_component build_deploy_component component_script deploy_script execute_plan))
   end
 
   @doc """

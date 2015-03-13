@@ -3,7 +3,6 @@ require Logger
 defmodule ProjectOmeletteManager.DB.Models.EtcdCluster do
   @required_fields [:etcd_token]
   @optional_fields [:hosting_provider, :hosting_provider_region]
-  @member_of_fields []
   use ProjectOmeletteManager.DB.Models.BaseModel
 
   alias ProjectOmeletteManager.DB.Models.EtcdClusterPort
@@ -20,19 +19,23 @@ defmodule ProjectOmeletteManager.DB.Models.EtcdCluster do
     timestamps
   end
 
+  defp validate_changes(model_or_changeset, params) do
+    cast(model_or_changeset,  params, @required_fields, @optional_fields)
+  end
+
   def allocate_ports(etcd_cluster, component, port_idx, etcd_ports) do
     if port_idx == 0 do
       etcd_ports
     else
       next_port = ProjectOmeletteManager.DB.Models.EtcdCluster.next_available_port(etcd_cluster)
 
-      etcd_port = Repo.insert(%EtcdClusterPort{
+      etcd_port = EtcdClusterPort.new(%{
         etcd_cluster_id: etcd_cluster.id,
         product_component_id: component.id,
         port: next_port,
         inserted_at: Ecto.DateTime.utc,
         updated_at: Ecto.DateTime.utc
-      })
+      }) |> Repo.insert
 
       allocate_ports(etcd_cluster, component, port_idx-1, etcd_ports ++ [etcd_port])
     end

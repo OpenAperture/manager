@@ -6,8 +6,8 @@ defmodule DB.Models.ProductDeploymentPlan.Test do
   alias ProjectOmeletteManager.DB.Models.ProductDeploymentPlan
 
   setup _context do
-    {:ok, product} = Product.vinsert(%{name: "test plan"})
-    {:ok, product2} = Product.vinsert(%{name: "test plan2"})
+    product = Product.new(%{name: "test plan"}) |> Repo.insert
+    product2 = Product.new(%{name: "test plan2"}) |> Repo.insert
 
     on_exit _context, fn ->
       Repo.delete_all(ProductDeploymentPlan)
@@ -18,20 +18,20 @@ defmodule DB.Models.ProductDeploymentPlan.Test do
   end
 
   test "validate - fail to create plan with missing values" do
-    {status, errors} = ProductDeploymentPlan.vinsert(%{})
+    changeset = ProductDeploymentPlan.new(%{})
 
-    assert status == :error
-    assert Keyword.has_key?(errors, :product_id)
-    assert Keyword.has_key?(errors, :name)
+    refute changeset.valid?
+    assert Keyword.has_key?(changeset.errors, :product_id)
+    assert Keyword.has_key?(changeset.errors, :name)
   end
 
   test "validate - create plan", context do
-    {status, _plan} = ProductDeploymentPlan.vinsert(%{product_id: context[:product].id, name: "test plan"})
-    assert status == :ok
+    plan = ProductDeploymentPlan.new(%{product_id: context[:product].id, name: "test plan"}) |> Repo.insert
+    assert plan != nil
   end
 
   test "create plan", context do
-    {:ok, plan} = ProductDeploymentPlan.vinsert(%{product_id: context[:product].id, name: "test plan"})
+    plan = ProductDeploymentPlan.new(%{product_id: context[:product].id, name: "test plan"}) |> Repo.insert
     retrieved = Repo.get(ProductDeploymentPlan, plan.id)
 
     assert retrieved == plan

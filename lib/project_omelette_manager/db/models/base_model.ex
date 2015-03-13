@@ -3,27 +3,15 @@ defmodule ProjectOmeletteManager.DB.Models.BaseModel do
   defmacro __using__(_opts) do
     quote do
       use Ecto.Model
+      use Behaviour
 
-      def changeset(model_or_changeset, params \\ %{}) do
-        model_or_changeset
-          |> cast(params, @required_fields, @optional_fields)
-          |> validate_member_of(params, @member_of_fields)
+      def new(params) do
+        validate_changes(struct(__MODULE__), params)
       end
 
-      defp validate_member_of(model_or_changeset, params, []), do: model_or_changeset
-      defp validate_member_of(model_or_changeset, params, [{member_of_field, allowed_values} | tail]) do
-        model_or_changeset
-          |> validate_inclusion(member_of_field, allowed_values)
-          |> validate_member_of(params, tail)
-      end
+      @doc "validates changes for insert or update"
+      defcallback validate_changes(Ecto.Model.t | Ecto.Changeset.t, %{binary => term} | %{atom => term} | nil) :: Ecto.Changeset.t
 
-      def vinsert(params) do
-        my_changeset = changeset(struct(__MODULE__), params)
-        case my_changeset.valid? do
-          true ->  {:ok, ProjectOmeletteManager.Repo.insert(my_changeset)}
-          false -> {:error, my_changeset.errors}
-        end
-      end
     end
   end
 end

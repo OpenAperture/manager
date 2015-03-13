@@ -6,9 +6,9 @@ defmodule DB.Models.ProductComponent.Test do
   alias ProjectOmeletteManager.DB.Models.ProductComponent
 
   setup _context do
-    {:ok, product} = Product.vinsert(%{name: "test product"})
+    product = Product.new(%{name: "test product"}) |> Repo.insert
 
-    {:ok, product2} = Product.vinsert(%{name: "test product2"})
+    product2 = Product.new(%{name: "test product2"}) |> Repo.insert
 
     on_exit _context, fn ->
       Repo.delete_all(ProductComponent)
@@ -19,26 +19,26 @@ defmodule DB.Models.ProductComponent.Test do
   end
 
   test "validate - fail to create component with missing values" do
-    {status, errors} = ProductComponent.vinsert(%{})
-    assert status == :error
-    assert Keyword.has_key?(errors, :product_id)
-    assert Keyword.has_key?(errors, :type)
-    assert Keyword.has_key?(errors, :name)
+    changeset = ProductComponent.new(%{})
+    refute changeset.valid?
+    assert Keyword.has_key?(changeset.errors, :product_id)
+    assert Keyword.has_key?(changeset.errors, :type)
+    assert Keyword.has_key?(changeset.errors, :name)
   end
 
   test "validate - fail to create component with invalid type", context do
-    {status, errors} = ProductComponent.vinsert(%{product_id: context[:product].id, type: "crazy junk", name: "woah now"})
-    assert status == :error
-    assert Keyword.has_key?(errors, :type)
+    changeset = ProductComponent.new(%{product_id: context[:product].id, type: "crazy junk", name: "woah now"})
+    refute changeset.valid?
+    assert Keyword.has_key?(changeset.errors, :type)
   end
 
   test "validate - create component", context do
-    {status, _component} = ProductComponent.vinsert(%{product_id: context[:product].id, type: "web_server", name: "test component"})
-    assert status == :ok
+    changeset = ProductComponent.new(%{product_id: context[:product].id, type: "web_server", name: "test component"})
+    assert changeset.valid?
   end
 
   test "create component", context do
-    {:ok, component} = ProductComponent.vinsert(%{product_id: context[:product].id, type: "web_server", name: "test component"})
+    component = ProductComponent.new(%{product_id: context[:product].id, type: "web_server", name: "test component"}) |> Repo.insert
 
     retrieved = Repo.get(ProductComponent, component.id)
     assert retrieved == component

@@ -12,7 +12,7 @@ defmodule DB.Queries.EtcdCluster.Test do
   end
 
   test "get etcd_cluster by etcd_token" do
-    {:ok, cluster} = EtcdCluster.vinsert(%{etcd_token: "abc123"})
+    cluster = EtcdCluster.new(%{etcd_token: "abc123"}) |> Repo.insert
 
     result = EtcdClusterQuery.get_by_etcd_token("abc123")
 
@@ -20,7 +20,7 @@ defmodule DB.Queries.EtcdCluster.Test do
   end
 
   test "get etcd_cluster by non-existant etcd_token returns nil" do
-    {:ok, _cluster} = EtcdCluster.vinsert(%{etcd_token: "abc123"})
+    _cluster = EtcdCluster.new(%{etcd_token: "abc123"}) |> Repo.insert
 
     result = EtcdClusterQuery.get_by_etcd_token("some bad token")
 
@@ -28,7 +28,7 @@ defmodule DB.Queries.EtcdCluster.Test do
   end
 
   test "get etcd_cluster by id" do
-    {:ok, cluster_model} = EtcdCluster.vinsert(%{etcd_token: "abc123"})
+    cluster_model = EtcdCluster.new(%{etcd_token: "abc123"}) |> Repo.insert
 
     [result] = Repo.all(EtcdClusterQuery.get_by_id(Map.from_struct(cluster_model)[:id]))
     assert Map.from_struct(result)[:etcd_token] == "abc123"

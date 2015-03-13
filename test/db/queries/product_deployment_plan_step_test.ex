@@ -16,7 +16,7 @@ defmodule DB.Queries.ProductDeploymentPlan.Test do
       Repo.delete_all(Product)
     end
 
-    #{:ok, [product: product, product2: product2, cluster: etcd_cluster, etcd_cluster2: etcd_cluster2, etcd_cluster3: etcd_cluster3, etcd_cluster4: etcd_cluster4]}
+    #[product: product, product2: product2, cluster: etcd_cluster, etcd_cluster2: etcd_cluster2, etcd_cluster3: etcd_cluster3, etcd_cluster4: etcd_cluster4]}
     {:ok, []}
   end
 
@@ -24,17 +24,17 @@ defmodule DB.Queries.ProductDeploymentPlan.Test do
   # get_steps_for_plan tests
 
   test "get_steps_for_plan- no steps" do
-    {:ok, product} = Product.vinsert(%{name: "#{UUID.uuid1()}"})
-    {:ok, plan} = ProductDeploymentPlan.vinsert(%{product_id: product.id, name: "#{UUID.uuid1()}"})
+    product = Product.new(%{name: "#{UUID.uuid1()}"}) |> Repo.insert
+    plan = ProductDeploymentPlan.new(%{product_id: product.id, name: "#{UUID.uuid1()}"}) |> Repo.insert
 
     returned_steps = Repo.all(PDPSQuery.get_steps_for_plan(plan.id))
     assert length(returned_steps) == 0
   end
 
   test "get_steps_for_plan- one step" do
-    {:ok, product} = Product.vinsert(%{name: "#{UUID.uuid1()}"})
-    {:ok, plan} = ProductDeploymentPlan.vinsert(%{product_id: product.id, name: "#{UUID.uuid1()}"})
-    {:ok, step} = ProductDeploymentPlanStep.vinsert(%{product_deployment_plan_id: plan.id, type: "build_component"})
+    product = Product.new(%{name: "#{UUID.uuid1()}"}) |> Repo.insert
+    plan = ProductDeploymentPlan.new(%{product_id: product.id, name: "#{UUID.uuid1()}"}) |> Repo.insert
+    step = ProductDeploymentPlanStep.new(%{product_deployment_plan_id: plan.id, type: "build_component"}) |> Repo.insert
 
     returned_steps = Repo.all(PDPSQuery.get_steps_for_plan(plan.id))
     assert length(returned_steps) == 1
@@ -43,10 +43,10 @@ defmodule DB.Queries.ProductDeploymentPlan.Test do
   end
 
   test "get_steps_for_plan- multiple steps" do
-    {:ok, product} = Product.vinsert(%{name: "#{UUID.uuid1()}"})
-    {:ok, plan} = ProductDeploymentPlan.vinsert(%{product_id: product.id, name: "#{UUID.uuid1()}"})
-    {:ok, step} = ProductDeploymentPlanStep.vinsert(%{product_deployment_plan_id: plan.id, type: "build_component"})
-    {:ok, step2} = ProductDeploymentPlanStep.vinsert(%{product_deployment_plan_id: plan.id, type: "deploy_component"})
+    product = Product.new(%{name: "#{UUID.uuid1()}"}) |> Repo.insert
+    plan = ProductDeploymentPlan.new(%{product_id: product.id, name: "#{UUID.uuid1()}"}) |> Repo.insert
+    step = ProductDeploymentPlanStep.new(%{product_deployment_plan_id: plan.id, type: "build_component"}) |> Repo.insert
+    step2 = ProductDeploymentPlanStep.new(%{product_deployment_plan_id: plan.id, type: "deploy_component"}) |> Repo.insert
 
     returned_steps = Repo.all(PDPSQuery.get_steps_for_plan(plan.id))
     assert length(returned_steps) == 2
@@ -58,10 +58,10 @@ defmodule DB.Queries.ProductDeploymentPlan.Test do
   end
 
   test "get_steps_for_plan- one step with one option" do
-    {:ok, product} = Product.vinsert(%{name: "#{UUID.uuid1()}"})
-    {:ok, plan} = ProductDeploymentPlan.vinsert(%{product_id: product.id, name: "#{UUID.uuid1()}"})
-    {:ok, step} = ProductDeploymentPlanStep.vinsert(%{product_deployment_plan_id: plan.id, type: "build_component"})
-    {:ok, step_option} = ProductDeploymentPlanStepOption.vinsert(%{product_deployment_plan_step_id: step.id, name: "#{UUID.uuid1()}", value: "something cool"})
+    product = Product.new(%{name: "#{UUID.uuid1()}"}) |> Repo.insert
+    plan = ProductDeploymentPlan.new(%{product_id: product.id, name: "#{UUID.uuid1()}"}) |> Repo.insert
+    step = ProductDeploymentPlanStep.new(%{product_deployment_plan_id: plan.id, type: "build_component"}) |> Repo.insert
+    step_option = ProductDeploymentPlanStepOption.new(%{product_deployment_plan_step_id: step.id, name: "#{UUID.uuid1()}", value: "something cool"}) |> Repo.insert
 
     returned_steps = Repo.all(PDPSQuery.get_steps_for_plan(plan.id))
     assert length(returned_steps) == 1
@@ -87,23 +87,23 @@ defmodule DB.Queries.ProductDeploymentPlan.Test do
   end
 
   test "get_steps_for_plan- multiple steps with multiple options" do
-    {:ok, product} = Product.vinsert(%{name: "#{UUID.uuid1()}"})
-    {:ok, plan} = ProductDeploymentPlan.vinsert(%{product_id: product.id, name: "#{UUID.uuid1()}"})
-    {:ok, step} = ProductDeploymentPlanStep.vinsert(%{product_deployment_plan_id: plan.id, type: "build_component"})
-    {:ok, step_option} = ProductDeploymentPlanStepOption.vinsert(%{product_deployment_plan_step_id: step.id, name: "#{UUID.uuid1()}", value: "something cool"})
-    {:ok, step_option2} = ProductDeploymentPlanStepOption.vinsert(%{product_deployment_plan_step_id: step.id, name: "#{UUID.uuid1()}", value: "something cool"})
+    product = Product.new(%{name: "#{UUID.uuid1()}"}) |> Repo.insert
+    plan = ProductDeploymentPlan.new(%{product_id: product.id, name: "#{UUID.uuid1()}"}) |> Repo.insert
+    step = ProductDeploymentPlanStep.new(%{product_deployment_plan_id: plan.id, type: "build_component"}) |> Repo.insert
+    step_option = ProductDeploymentPlanStepOption.new(%{product_deployment_plan_step_id: step.id, name: "#{UUID.uuid1()}", value: "something cool"}) |> Repo.insert
+    step_option2 = ProductDeploymentPlanStepOption.new(%{product_deployment_plan_step_id: step.id, name: "#{UUID.uuid1()}", value: "something cool"}) |> Repo.insert
 
-    {:ok, step2} = ProductDeploymentPlanStep.vinsert(%{product_deployment_plan_id: plan.id, type: "build_component"})
-    {:ok, step_option3} = ProductDeploymentPlanStepOption.vinsert(%{product_deployment_plan_step_id: step2.id, name: "#{UUID.uuid1()}", value: "something cool"})
-    {:ok, step_option4} = ProductDeploymentPlanStepOption.vinsert(%{product_deployment_plan_step_id: step2.id, name: "#{UUID.uuid1()}", value: "something cool"})
+    step2 = ProductDeploymentPlanStep.new(%{product_deployment_plan_id: plan.id, type: "build_component"}) |> Repo.insert
+    step_option3 = ProductDeploymentPlanStepOption.new(%{product_deployment_plan_step_id: step2.id, name: "#{UUID.uuid1()}", value: "something cool"}) |> Repo.insert
+    step_option4 = ProductDeploymentPlanStepOption.new(%{product_deployment_plan_step_id: step2.id, name: "#{UUID.uuid1()}", value: "something cool"}) |> Repo.insert
 
-    {:ok, step3} = ProductDeploymentPlanStep.vinsert(%{product_deployment_plan_id: plan.id, type: "build_component"})
-    {:ok, step_option5} = ProductDeploymentPlanStepOption.vinsert(%{product_deployment_plan_step_id: step3.id, name: "#{UUID.uuid1()}", value: "something cool"})
-    {:ok, step_option6} = ProductDeploymentPlanStepOption.vinsert(%{product_deployment_plan_step_id: step3.id, name: "#{UUID.uuid1()}", value: "something cool"})
+    step3 = ProductDeploymentPlanStep.new(%{product_deployment_plan_id: plan.id, type: "build_component"}) |> Repo.insert
+    step_option5 = ProductDeploymentPlanStepOption.new(%{product_deployment_plan_step_id: step3.id, name: "#{UUID.uuid1()}", value: "something cool"}) |> Repo.insert
+    step_option6 = ProductDeploymentPlanStepOption.new(%{product_deployment_plan_step_id: step3.id, name: "#{UUID.uuid1()}", value: "something cool"}) |> Repo.insert
 
-    {:ok, step4} = ProductDeploymentPlanStep.vinsert(%{product_deployment_plan_id: plan.id, type: "build_component"})
-    {:ok, step_option7} = ProductDeploymentPlanStepOption.vinsert(%{product_deployment_plan_step_id: step4.id, name: "#{UUID.uuid1()}", value: "something cool"})
-    {:ok, step_option8} = ProductDeploymentPlanStepOption.vinsert(%{product_deployment_plan_step_id: step4.id, name: "#{UUID.uuid1()}", value: "something cool"})
+    step4 = ProductDeploymentPlanStep.new(%{product_deployment_plan_id: plan.id, type: "build_component"}) |> Repo.insert
+    step_option7 = ProductDeploymentPlanStepOption.new(%{product_deployment_plan_step_id: step4.id, name: "#{UUID.uuid1()}", value: "something cool"}) |> Repo.insert
+    step_option8 = ProductDeploymentPlanStepOption.new(%{product_deployment_plan_step_id: step4.id, name: "#{UUID.uuid1()}", value: "something cool"}) |> Repo.insert
 
 
     returned_options = Repo.all(PDPSQuery.get_steps_for_plan(plan.id))

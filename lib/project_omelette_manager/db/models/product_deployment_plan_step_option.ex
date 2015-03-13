@@ -12,7 +12,6 @@
 defmodule ProjectOmeletteManager.DB.Models.ProductDeploymentPlanStepOption do
   @required_fields [:product_deployment_plan_step_id, :name]
   @optional_fields [:value]
-  @member_of_fields []
   use ProjectOmeletteManager.DB.Models.BaseModel
 
   alias ProjectOmeletteManager.DB.Models.ProductDeploymentPlanStep
@@ -22,5 +21,9 @@ defmodule ProjectOmeletteManager.DB.Models.ProductDeploymentPlanStepOption do
     field :name,                                  :string
     field :value,                                 :string    
     timestamps
+  end
+
+  defp validate_changes(model_or_changeset, params) do
+    cast(model_or_changeset,  params, @required_fields, @optional_fields)
   end
 end

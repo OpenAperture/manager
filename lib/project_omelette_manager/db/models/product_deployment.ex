@@ -12,7 +12,6 @@
 defmodule ProjectOmeletteManager.DB.Models.ProductDeployment do
   @required_fields [:product_id, :product_deployment_plan_id]
   @optional_fields [:execution_options, :completed, :duration, :output]
-  @member_of_fields []
   use ProjectOmeletteManager.DB.Models.BaseModel
 
   alias ProjectOmeletteManager.DB.Models
@@ -27,6 +26,10 @@ defmodule ProjectOmeletteManager.DB.Models.ProductDeployment do
     field :duration,                      :string
     field :output,                        :string
     timestamps
+  end
+
+  defp validate_changes(model_or_changeset, params) do
+    cast(model_or_changeset,  params, @required_fields, @optional_fields)
   end
   
 end

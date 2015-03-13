@@ -16,7 +16,6 @@ defmodule ProjectOmeletteManager.DB.Models.Workflow do
   @optional_fields [:deployment_repo,:deployment_repo_git_ref,:source_repo,:source_repo_git_ref,:source_commit_hash,
                     :milestones,:current_step,:elapsed_step_time,:elapsed_workflow_time,:workflow_duration,
                     :workflow_step_durations,:workflow_error,:workflow_completed,:event_log]
-  @member_of_fields []
   use ProjectOmeletteManager.DB.Models.BaseModel
   use Timex
 
@@ -38,6 +37,10 @@ defmodule ProjectOmeletteManager.DB.Models.Workflow do
     field :workflow_completed,        :boolean
     field :event_log,                 :string
     timestamps
+  end
+
+  defp validate_changes(model_or_changeset, params) do
+    cast(model_or_changeset,  params, @required_fields, @optional_fields)
   end
   
   @workflow_sendable_fields [
