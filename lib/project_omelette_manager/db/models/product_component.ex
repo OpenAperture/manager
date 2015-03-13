@@ -24,7 +24,7 @@ defmodule ProjectOmeletteManager.DB.Models.ProductComponent do
     timestamps
   end
 
-  defp validate_changes(model_or_changeset, params) do
+  def validate_changes(model_or_changeset, params) do
     cast(model_or_changeset,  params, @required_fields, @optional_fields)
       |> validate_inclusion(:type, ["web_server", "db"])
   end

@@ -28,7 +28,7 @@ defmodule ProjectOmeletteManager.DB.Models.ProductDeploymentPlanStep do
     timestamps
   end
 
-  defp validate_changes(model_or_changeset, params) do
+  def validate_changes(model_or_changeset, params) do
     cast(model_or_changeset,  params, @required_fields, @optional_fields)
       |> validate_inclusion(:type, ~w(build_component deploy_component build_deploy_component component_script deploy_script execute_plan))
   end

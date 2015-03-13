@@ -14,7 +14,7 @@ defmodule ProjectOmeletteManager.DB.Models.Product do
     timestamps
   end
 
-  defp validate_changes(model_or_changeset, params) do
+  def validate_changes(model_or_changeset, params) do
     cast(model_or_changeset,  params, @required_fields, @optional_fields)
   end
 end
