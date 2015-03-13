@@ -9,7 +9,7 @@ defmodule ProjectOmeletteManager.Router do
   end
 
   pipeline :api do
-    plug :accepts, ~w(json)
+    plug :accepts, ["json"]
   end
 
   scope "/", ProjectOmeletteManager do
@@ -18,8 +18,18 @@ defmodule ProjectOmeletteManager.Router do
     get "/", PageController, :index
   end
 
-  # Other scopes may use custom stacks.
-  # scope "/api", ProjectOmeletteManager do
-  #   pipe_through :api
-  # end
+  scope "/clusters", ProjectOmeletteManager do
+    pipe_through :api
+
+    get "/", EtcdClusterController, :index
+    post "/", EtcdClusterController, :register
+
+    get "/:etcd_token", EtcdClusterController, :show
+    delete "/:etcd_token", EtcdClusterController, :destroy
+    get "/:etcd_token/products", EtcdClusterController, :products
+    get "/:etcd_token/machines", EtcdClusterController, :machines
+    get "/:etcd_token/units", EtcdClusterController, :units
+    get "/:etcd_token/state", EtcdClusterController, :units_state
+    get "/:etcd_token/machines/:machine_id/units/:unit_name/logs", EtcdClusterController, :unit_logs
+  end
 end

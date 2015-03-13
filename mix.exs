@@ -22,11 +22,12 @@ defmodule ProjectOmeletteManager.Mixfile do
   #
   # Type `mix help deps` for examples and options
   defp deps do
-    [{:phoenix, "~> 0.9.0"},
+    [{:phoenix, "~> 0.10.0"},
      {:cowboy, "~> 1.0"},
      {:ecto, "~> 0.9.0"},
      {:uuid, "~> 0.1.5" },
      {:timex, "~> 0.13.3"},
-     {:postgrex, "~> 0.8.0"}]
+     {:postgrex, "~> 0.8.0"},
+     {:meck, "0.8.2", only: :test}]
   end
 end

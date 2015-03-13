@@ -10,7 +10,8 @@ config :project_omelette_manager, ProjectOmeletteManager.Endpoint,
   url: [host: "localhost"],
   secret_key_base: "Ks/rsx+RENMwWd4jgh3crqd3EwKGY8Mdm22NTJbby6pf35CwP9RAlT+8oDJQ8+1f",
   debug_errors: false,
-  pubsub: [adapter: Phoenix.PubSub.PG2]
+  pubsub: [name: ProjectOmeletteManager.PubSub,
+           adapter: Phoenix.PubSub.PG2]
 
 config :project_omelette_manager, ProjectOmeletteManager.Repo,
   adapter: Ecto.Adapters.Postgres

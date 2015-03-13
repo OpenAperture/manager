@@ -1,5 +1,5 @@
 defmodule ProjectOmeletteManager.PageController do
-  use Phoenix.Controller
+  use ProjectOmeletteManager.Web, :controller
 
   plug :action
 

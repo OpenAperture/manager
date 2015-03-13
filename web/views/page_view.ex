@@ -1,3 +1,3 @@
 defmodule ProjectOmeletteManager.PageView do
-  use ProjectOmeletteManager.View
+  use ProjectOmeletteManager.Web, :view
 end
