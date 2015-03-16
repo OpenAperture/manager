@@ -4,7 +4,14 @@ config :project_omelette_manager, ProjectOmeletteManager.Endpoint,
   url: [host: "example.com"],
   http: [port: System.get_env("PORT")],
   secret_key_base: "Ks/rsx+RENMwWd4jgh3crqd3EwKGY8Mdm22NTJbby6pf35CwP9RAlT+8oDJQ8+1f"
-  
+
+config :project_omelette_manager, ProjectOmeletteManager.Repo,
+	database: System.get_env("CLOUDOS_MANAGER_DATABASE_NAME")       || "project_omelette_manager",
+	username: System.get_env("CLOUDOS_MANAGER_USER_NAME")      		|| "postgres",
+	password: System.get_env("CLOUDOS_MANAGER_PASSWORD")      		|| "postgres",
+    hostname: System.get_env("CLOUDOS_MANAGER_DATABASE_HOST")       || "localhost"
+
+
 # ## SSL Support
 #
 # To get SSL working, you will need to add the `https` key

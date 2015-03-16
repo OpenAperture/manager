@@ -10,4 +10,5 @@ config :logger, level: :warn
 config :project_omelette_manager, ProjectOmeletteManager.Repo,
 	database: System.get_env("CLOUDOS_MANAGER_DATABASE_NAME")       || "project_omelette_manager_test",
 	username: System.get_env("CLOUDOS_MANAGER_USER_NAME")      		|| "postgres",
-	password: System.get_env("CLOUDOS_MANAGER_PASSWORD")      		|| "postgres"
+	password: System.get_env("CLOUDOS_MANAGER_PASSWORD")      		|| "postgres",
+    hostname: System.get_env("CLOUDOS_MANAGER_DATABASE_HOST")       || "localhost"
