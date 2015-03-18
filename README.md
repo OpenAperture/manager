@@ -7,3 +7,7 @@ To start your new Phoenix application:
 2. Start Phoenix endpoint with `mix phoenix.server`
 
 Now you can visit `localhost:4000` from your browser.
+
+
+ssh-keygen -t rsa -b 1024 -C "Test Key"
+openssl rsa -in testing.pem -pubout

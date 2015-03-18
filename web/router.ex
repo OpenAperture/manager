@@ -32,4 +32,21 @@ defmodule ProjectOmeletteManager.Router do
     get "/:etcd_token/state", EtcdClusterController, :units_state
     get "/:etcd_token/machines/:machine_id/units/:unit_name/logs", EtcdClusterController, :unit_logs
   end
+
+  scope "/messaging", ProjectOmeletteManager do
+    pipe_through :api
+
+    scope "/brokers" do
+      get "/", MessagingBrokersController, :index
+      post "/", MessagingBrokersController, :create
+
+      get "/:id", MessagingBrokersController, :show
+      put "/:id", MessagingBrokersController, :update
+      delete "/:id", MessagingBrokersController, :destroy
+
+      get "/:id/connections", MessagingBrokersController, :get_connections
+      post "/:id/connections", MessagingBrokersController, :create_connection
+      delete "/:id/connections", MessagingBrokersController, :destroy_connections
+    end
+  end
 end

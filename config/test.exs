@@ -12,3 +12,8 @@ config :project_omelette_manager, ProjectOmeletteManager.Repo,
 	username: System.get_env("CLOUDOS_MANAGER_USER_NAME")      		|| "postgres",
 	password: System.get_env("CLOUDOS_MANAGER_PASSWORD")      		|| "postgres",
     hostname: System.get_env("CLOUDOS_MANAGER_DATABASE_HOST")       || "localhost"
+
+config :cloudos_messaging, 
+	private_key: "#{System.cwd!() <> "/priv/keys/testing.pem"}",
+	public_key: "#{System.cwd!() <> "/priv/keys/testing.pub"}",
+	keyname: "testing"

@@ -2,12 +2,12 @@ require Logger
 
 defmodule ProjectOmeletteManager.DB.Models.EtcdCluster do
   @required_fields [:etcd_token]
-  @optional_fields [:hosting_provider, :hosting_provider_region]
+  @optional_fields [:hosting_provider, :hosting_provider_region, :allow_docker_builds, :messaging_exchange_id]
   use ProjectOmeletteManager.DB.Models.BaseModel
 
   alias ProjectOmeletteManager.DB.Models.EtcdClusterPort
-  alias ProjectOmeletteManager.DB.Models.EtcdClusterPort
   alias ProjectOmeletteManager.DB.Queries.EtcdClusterPort, as: EctdPortQuery
+  alias ProjectOmeletteManager.DB.Models.MessagingExchange
 
   alias ProjectOmeletteManager.Repo
 
@@ -16,6 +16,8 @@ defmodule ProjectOmeletteManager.DB.Models.EtcdCluster do
     field :etcd_token               # defaults to type :string
     field :hosting_provider,        :string
     field :hosting_provider_region, :string
+    field :allow_docker_builds,     :boolean
+    belongs_to :messaging_exchange, MessagingExchange
     timestamps
   end
 
