@@ -225,7 +225,7 @@ defmodule ProjectOmeletteManager.SystemdUnit do
 
       if requested_host != nil do
         Logger.debug("Retrieving logs from host #{inspect requested_host}...")
-        result = execute_journal_request([requested_host], unit, true)        
+        result = execute_journal_request([requested_host], unit.fleet_unit, true)        
       end
     end
 
@@ -233,20 +233,20 @@ defmodule ProjectOmeletteManager.SystemdUnit do
       {:ok, stdout, stderr} -> {:ok, stdout, stderr}
       _ ->
         Logger.debug("Unable to retrieve logs using the unit's machineID, (#{inspect requested_host}), defaulting to all hosts in cluster #{etcd_token}...")
-        execute_journal_request(hosts, unit, true)
+        execute_journal_request(hosts, unit.fleet_unit, true)
     end
   end
 
   @doc """
   Execute a journal request against a list of hosts.
   """
-  @spec execute_journal_request([FleetApi.Machine.t], t, boolean) :: {:ok, String.t, String.t} | {:error, String.t, String.t}
-  def execute_journal_request([requested_host | remaining_hosts], unit, verify_result) do
+  @spec execute_journal_request([FleetApi.Machine.t], FleetApi.Unit.t, boolean) :: {:ok, String.t, String.t} | {:error, String.t, String.t}
+  def execute_journal_request([requested_host | remaining_hosts], fleet_unit, verify_result) do
     File.mkdir_p("/tmp/cloudos_build_server/systemd_unit")
     stdout_file = "/tmp/cloudos_build_server/systemd_unit/#{UUID.uuid1()}.log"
     stderr_file = "/tmp/cloudos_build_server/systemd_unit/#{UUID.uuid1()}.log"
 
-    journal_script = EEx.eval_file("#{System.cwd!()}/templates/fleetctl-journal.sh.eex", [host_ip: requested_host.primaryIP, unit_name: unit.fleet_unit.name, verify_result: verify_result])
+    journal_script = EEx.eval_file("#{System.cwd!()}/templates/fleetctl-journal.sh.eex", [host_ip: requested_host.primaryIP, unit_name: fleet_unit.name, verify_result: verify_result])
     journal_script_file = "/tmp/cloudos_build_server/systemd_unit/#{UUID.uuid1()}.sh"
     File.write!(journal_script_file, journal_script)
 
@@ -258,8 +258,8 @@ defmodule ProjectOmeletteManager.SystemdUnit do
         {stdout, 0} ->
           {:ok, read_output_file(stdout_file), read_output_file(stderr_file)}
         {stdout, return_status} ->
-          Logger.debug("Host #{requested_host.primaryIP} returned an error (#{return_status}) when looking for unit #{unit.fleet_unit.name}:\n#{read_output_file(stdout_file)}\n\n#{read_output_file(stderr_file)}")
-          execute_journal_request(remaining_hosts, unit, verify_result)
+          Logger.debug("Host #{requested_host.primaryIP} returned an error (#{return_status}) when looking for unit #{fleet_unit.name}:\n#{read_output_file(stdout_file)}\n\n#{read_output_file(stderr_file)}")
+          execute_journal_request(remaining_hosts, fleet_unit, verify_result)
       end
     after
       File.rm_rf(stdout_file)
@@ -268,9 +268,9 @@ defmodule ProjectOmeletteManager.SystemdUnit do
     end
   end
 
-  @spec execute_journal_request([], t, boolean) :: {:ok, String.t, String.t} | {:error, String.t, String.t}
-  def execute_journal_request([], unit, _) do
-    {:error, "Unable to find a host running service #{unit.fleet_unit.name}!", ""}
+  @spec execute_journal_request([], FleetApi.Unit.t, boolean) :: {:ok, String.t, String.t} | {:error, String.t, String.t}
+  def execute_journal_request([], fleet_unit, _) do
+    {:error, "Unable to find a host running service #{fleet_unit.name}!", ""}
   end
 
   # Check a file exists before trying to read it  
