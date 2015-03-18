@@ -1,399 +1,309 @@
-defmodule ProjectOmeletteManager.Systemd.Unit.Test do
+defmodule ProjectOmeletteManager.SystemdUnit.Test do
   use ExUnit.Case
 
-  import ProjectOmeletteManager.Systemd.Unit
+  import ProjectOmeletteManager.SystemdUnit
+  alias ProjectOmeletteManager.SystemdUnit
 
   setup do
-    # :meck.new(FleetApi.Unit)
+    :meck.new(File, [:unstick, :passthrough])
+    :meck.new(System, [:unstick, :passthrough])
+    :meck.new(EEx, [:unstick, :passthrough])
+
+    :meck.new(FleetApi)
+    :meck.new(FleetApi.Etcd)
 
     on_exit fn -> :meck.unload end
   end
 
   test "set_etcd_token success" do
-    unit_pid = create!(%{})
+    unit_pid = create!(%SystemdUnit{})
     assert :ok == set_etcd_token(unit_pid, "123abc")
   end
 
   test "set_assigned_port success" do
-    unit_pid = create!(%{})
+    unit_pid = create!(%SystemdUnit{})
 
     assert :ok == set_assigned_port(unit_pid, 45000)
   end
 
   test "get_assigned_port success" do
-    unit_pid = create!(%{})
+    unit_pid = create!(%SystemdUnit{})
     set_assigned_port(unit_pid, 45000)
 
     assert 45000 == get_assigned_port(unit_pid)
   end
 
-  # test "refresh success" do
-  #   :meck.new(FleetApi.Unit, [:passthrough])
-  #   unit_uuid = "#{UUID.uuid1()}"
-  #   :meck.expect(FleetApi.Unit, :get_unit!, fn token, unit_name -> Map.put(%{}, "name", unit_uuid) end)
+  test "refresh success" do
+    unit_uuid = "#{UUID.uuid1()}"
+    :meck.expect(FleetApi.Etcd, :start_link, 1, {:ok, :some_pid})
+    :meck.expect(FleetApi.Etcd, :get_unit, fn _, _ -> {:ok, %FleetApi.Unit{name: unit_uuid}} end)
 
-  #   unit = SystemdUnit.create!(%{})
-  #   SystemdUnit.refresh(unit)
-  #   assert SystemdUnit.get_unit_name(unit) == unit_uuid
-  # after
-  #   :meck.unload(FleetApi.Unit)   
-  # end
+    unit = create!(%SystemdUnit{})
+    refresh(unit)
+    assert get_unit_name(unit) == unit_uuid
+  end
 
-  # test "refresh failed - invalid data" do
-  #   :meck.new(FleetApi.Unit, [:passthrough])
-  #   unit_uuid = "#{UUID.uuid1()}"
-  #   :meck.expect(FleetApi.Unit, :get_unit!, fn token, unit_name -> %{} end)
+  test "refresh failed - invalid data" do
+    unit_uuid = "#{UUID.uuid1()}"
+    :meck.expect(FleetApi.Etcd, :start_link, 1, {:ok, :some_pid})
+    :meck.expect(FleetApi.Etcd, :get_unit, fn _, _ -> {:ok, %FleetApi.Unit{}} end)
 
-  #   unit = SystemdUnit.create!(%{"name" => unit_uuid})
-  #   SystemdUnit.refresh(unit)
-  #   assert SystemdUnit.get_unit_name(unit) == unit_uuid
-  # after
-  #   :meck.unload(FleetApi.Unit)   
-  # end
+    fleet_unit = %FleetApi.Unit{name: unit_uuid}
+    unit = create!(%SystemdUnit{fleet_unit: fleet_unit})
+    refresh(unit)
+    assert get_unit_name(unit) == unit_uuid
+  end
 
   test "refresh failure" do
-    unit_pid = create!(%{})
+    :meck.expect(FleetApi.Etcd, :start_link, 1, {:ok, :some_pid})
+    :meck.expect(FleetApi.Etcd, :get_unit, fn _, _ -> {:ok, %FleetApi.Unit{name: nil}} end)
+    unit_pid = create!(%SystemdUnit{})
 
     assert :error == refresh(unit_pid)
   end
 
   test "get_unit_name success" do
-    unit_pid = create!(%{"name" => "test name"})
+    fleet_unit = %FleetApi.Unit{name: "test name"}
+    unit_pid = create!(%SystemdUnit{fleet_unit: fleet_unit})
 
     assert "test name" == get_unit_name(unit_pid)
   end
 
   test "get_machine_id success" do
-    unit_pid = create!(%{"machineID" => "test machine id"})
+    fleet_unit = %FleetApi.Unit{machineID: "test machine id"}
+    unit_pid = create!(%SystemdUnit{fleet_unit: fleet_unit})
 
     assert "test machine id" == get_machine_id(unit_pid)
   end
 
   test "is_launched? success" do
-    unit_pid = create!(%{"currentState" => "launched"})
+    fleet_unit = %FleetApi.Unit{currentState: "launched"}
+    unit_pid = create!(%{fleet_unit: fleet_unit})
 
     assert is_launched?(unit_pid)
   end
 
   test "is_launched? -- not launched" do
-    unit_pid = create!(%{"currentState" => "inactive"})
+    fleet_unit = %FleetApi.Unit{currentState: "inactive"}
+    unit_pid = create!(%{fleet_unit: fleet_unit})
 
     assert {false, "inactive"} == is_launched?(unit_pid)
   end
 
-  # test "is_active? - error" do
-  #   :meck.new(FleetApi.UnitState, [:passthrough])
-  #   :meck.expect(FleetApi.UnitState, :list!, fn token -> raise "bad news bears" end)
+  test "is_active? - invalid response" do
+    :meck.expect(FleetApi.Etcd, :start_link, 1, {:ok, :some_pid})
+    :meck.expect(FleetApi.Etcd, :list_unit_states, fn _ -> {:ok, nil} end)
 
-  #   unit = SystemdUnit.create!(%{})
-  #   try do 
-  #     assert SystemdUnit.is_active?(unit)
-  #     assert true == false
-  #   rescue e in _ ->
-  #     assert e != nil
-  #   end
-  # after
-  #   :meck.unload(FleetApi.UnitState)   
-  # end
+    unit = create!(%SystemdUnit{})
+    assert is_active?(unit) == {false, nil, nil, nil}
+  end
 
-  # test "is_active? - invalid response" do
-  #   :meck.new(FleetApi.UnitState, [:passthrough])
-  #   :meck.expect(FleetApi.UnitState, :list!, fn token -> nil end)
+  test "is_active? - unit state missing" do
+    :meck.expect(FleetApi.Etcd, :start_link, 1, {:ok, :some_pid})
+    :meck.expect(FleetApi.Etcd, :list_unit_states, fn _ -> {:ok, []} end)
 
-  #   unit = SystemdUnit.create!(%{})
-  #   assert SystemdUnit.is_active?(unit) == {false, nil, nil, nil}
-  # after
-  #   :meck.unload(FleetApi.UnitState)   
-  # end
+    fleet_unit = %FleetApi.Unit{name: "test"}
+    unit = create!(%SystemdUnit{fleet_unit: fleet_unit})
+    assert is_active?(unit) == {false, nil, nil, nil}
+  end 
 
-  # test "is_active? - unit state missing" do
-  #   :meck.new(FleetApi.UnitState, [:passthrough])
-  #   :meck.expect(FleetApi.UnitState, :list!, fn token -> [] end)
+  test "is_active? - systemdActiveState inactive" do
+    unit_name = "#{UUID.uuid1()}"
+    state = %FleetApi.UnitState{
+      name: unit_name,
+      systemdActiveState: "inactive",
+      systemdLoadState: "loaded",
+      systemdSubState: "failed"
+    }
+    :meck.expect(FleetApi.Etcd, :start_link, 1, {:ok, :some_pid})
+    :meck.expect(FleetApi.Etcd, :list_unit_states, fn _ -> {:ok, [state]} end)
 
-  #   unit = SystemdUnit.create!(%{})
-  #   assert SystemdUnit.is_active?(unit) == {false, nil, nil, nil}
-  # after
-  #   :meck.unload(FleetApi.UnitState)   
-  # end 
+    fleet_unit = %FleetApi.Unit{name: unit_name}
+    unit = create!(%SystemdUnit{fleet_unit: fleet_unit})
+    assert is_active?(unit) == {false, "inactive", "loaded", "failed"}
+  end  
 
-  # test "is_active? - systemdActiveState inactive" do
-  #   :meck.new(FleetApi.UnitState, [:passthrough])
-  #   unit_name = "#{UUID.uuid1()}"
-  #   state = %{}
-  #   state = Map.put(state, "name", unit_name)
-  #   state = Map.put(state, "systemdActiveState", "inactive")
-  #   state = Map.put(state, "systemdLoadState", "loaded")
-  #   state = Map.put(state, "systemdSubState", "failed")
-  #   states = [state]
-  #   :meck.expect(FleetApi.UnitState, :list!, fn token -> states end)
+  test "is_active? - systemdActiveState active" do
+    unit_name = "#{UUID.uuid1()}"
+    state = %FleetApi.UnitState{
+      name: unit_name,
+      systemdActiveState: "active",
+      systemdLoadState: "loaded",
+      systemdSubState: "failed"
+    }
+    :meck.expect(FleetApi.Etcd, :start_link, 1, {:ok, :some_pid})
+    :meck.expect(FleetApi.Etcd, :list_unit_states, fn _ -> {:ok, [state]} end)
 
-  #   unit = SystemdUnit.create!(Map.put(%{}, "name", unit_name))
-  #   assert SystemdUnit.is_active?(unit) == {false, "inactive", "loaded", "failed"}
-  # after
-  #   :meck.unload(FleetApi.UnitState)   
-  # end  
+    fleet_unit = %FleetApi.Unit{name: unit_name}
+    unit = create!(%SystemdUnit{fleet_unit: fleet_unit})
+    assert is_active?(unit) == true
+  end 
 
-  # test "is_active? - systemdActiveState active" do
-  #   :meck.new(FleetApi.UnitState, [:passthrough])
-  #   unit_name = "#{UUID.uuid1()}"
-  #   state = %{}
-  #   state = Map.put(state, "name", unit_name)
-  #   state = Map.put(state, "systemdActiveState", "active")
-  #   state = Map.put(state, "systemdLoadState", "loaded")
-  #   state = Map.put(state, "systemdSubState", "running")
-  #   states = [state]
-  #   :meck.expect(FleetApi.UnitState, :list!, fn token -> states end)
+  test "spin_up_unit - unknown response" do
+    :meck.expect(FleetApi.Etcd, :start_link, 1, {:ok, :some_pid})
+    :meck.expect(FleetApi.Etcd, :set_unit, fn _, _, _ -> {:error, %FleetApi.Error{code: 500, message: "bad news bears"}} end)
 
-  #   unit = SystemdUnit.create!(Map.put(%{}, "name", unit_name))
-  #   assert SystemdUnit.is_active?(unit) == true
-  # after
-  #   :meck.unload(FleetApi.UnitState)   
-  # end 
+    fleet_unit = %FleetApi.Unit{name: "#{UUID.uuid1()}"}
+    unit = create!(%SystemdUnit{fleet_unit: fleet_unit})
+    assert spin_up_unit(unit) == false
+  end  
 
-  # test "spinup_unit - error" do
-  #   :meck.new(FleetApi.Unit, [:passthrough])
-  #   :meck.expect(FleetApi.Unit, :set_unit, fn unit, token -> raise "bad news bears" end)
+  test "spin_up_unit - success" do
+    :meck.expect(FleetApi.Etcd, :start_link, 1, {:ok, :some_pid})
+    :meck.expect(FleetApi.Etcd, :set_unit, fn _, _, _ -> :ok end)
 
-  #   unit = SystemdUnit.create!(%{})
-  #   try do 
-  #     assert SystemdUnit.spinup_unit(unit)
-  #     assert true == false
-  #   rescue e in _ ->
-  #     assert e != nil
-  #   end
-  # after
-  #   :meck.unload(FleetApi.Unit)   
-  # end
+    fleet_unit = %FleetApi.Unit{name: "#{UUID.uuid1()}"}
+    unit = create!(%SystemdUnit{fleet_unit: fleet_unit})
+    assert spin_up_unit(unit) == true
+  end   
 
-  # test "spinup_unit - unknown response" do
-  #   :meck.new(FleetApi.Unit, [:passthrough])
-  #   :meck.expect(FleetApi.Unit, :set_unit, fn unit, token, options -> %FleetApi.Response{status: 500, body: "bad news bears"} end)
+  test "tear_down_unit - unknown response" do
+    :meck.expect(FleetApi.Etcd, :start_link, 1, {:ok, :some_pid})
+    :meck.expect(FleetApi.Etcd, :delete_unit, fn _, _ -> {:error, %FleetApi.Error{code: 500, message: "bad news bears"}} end)
 
-  #   unit = SystemdUnit.create!(%{name: "#{UUID.uuid1()}"})
-  #   assert SystemdUnit.spinup_unit(unit) == false
-  # after
-  #   :meck.unload(FleetApi.Unit)   
-  # end  
+    fleet_unit = %FleetApi.Unit{name: "#{UUID.uuid1()}"}
+    unit = create!(%SystemdUnit{fleet_unit: fleet_unit})
+    assert tear_down_unit(unit) == :ok
+  end  
 
-  # test "spinup_unit - 204 response" do
-  #   :meck.new(FleetApi.Unit, [:passthrough])
-  #   :meck.expect(FleetApi.Unit, :set_unit, fn unit, token, options -> %FleetApi.Response{status: 204} end)
+  test "teardown_unit - 204 response" do
+    :meck.expect(FleetApi.Etcd, :start_link, 1, {:ok, :some_pid})
+    :meck.expect(FleetApi.Etcd, :delete_unit, fn _, _ -> :ok end)
+    :meck.expect(FleetApi.Etcd, :get_unit, fn _, _ -> {:error, %FleetApi.Error{code: 404}} end)
 
-  #   unit = SystemdUnit.create!(%{name: "#{UUID.uuid1()}"})
-  #   assert SystemdUnit.spinup_unit(unit) == true
-  # after
-  #   :meck.unload(FleetApi.Unit)   
-  # end   
+    unit_name = "#{UUID.uuid1()}"
+    state = %FleetApi.UnitState{
+      name: unit_name,
+      systemdActiveState: "active",
+      systemdLoadState: "loaded",
+      systemdSubState: "running"
+    }
+    :meck.expect(FleetApi.Etcd, :list_unit_states, fn _ -> {:ok, [state]} end)
 
-  # test "spinup_unit - 201 response" do
-  #   :meck.new(FleetApi.Unit, [:passthrough])
-  #   :meck.expect(FleetApi.Unit, :set_unit, fn unit, token, options -> %FleetApi.Response{status: 201} end)
+    fleet_unit = %FleetApi.Unit{name: "#{UUID.uuid1()}"}
+    unit = create!(%SystemdUnit{fleet_unit: fleet_unit})
+    assert tear_down_unit(unit) == :ok
+  end   
 
-  #   unit = SystemdUnit.create!(%{name: "#{UUID.uuid1()}"})
-  #   assert SystemdUnit.spinup_unit(unit) == true
-  # after
-  #   :meck.unload(FleetApi.Unit)   
-  # end 
+  test "teardown_unit - 201 response" do
+    :meck.expect(FleetApi.Etcd, :start_link, 1, {:ok, :some_pid})
+    :meck.expect(FleetApi.Etcd, :delete_unit, fn _, _ -> :ok end)
+    :meck.expect(FleetApi.Etcd, :get_unit, fn _, _ -> {:error, %FleetApi.Error{code: 404}} end)
 
-  # test "teardown_unit - error" do
-  #   :meck.new(FleetApi.Unit, [:passthrough])
-  #   :meck.expect(FleetApi.Unit, :delete_unit, fn unit, token -> raise "bad news bears" end)
+    unit_name = "#{UUID.uuid1()}"
+    state = %FleetApi.UnitState{
+      name: unit_name,
+      systemdActiveState: "active",
+      systemdLoadState: "loaded",
+      systemdSubState: "running"
+    }
+    :meck.expect(FleetApi.Etcd, :list_unit_states, fn _ -> {:ok, [state]} end)
 
-  #   unit = SystemdUnit.create!(%{})
-  #   try do 
-  #     assert SystemdUnit.teardown_unit(unit)
-  #     assert true == false
-  #   rescue e in _ ->
-  #     assert e != nil
-  #   end
-  # after
-  #   :meck.unload(FleetApi.Unit)   
-  # end
+    fleet_unit = %FleetApi.Unit{name: "#{UUID.uuid1()}"}
+    unit = create!(%SystemdUnit{fleet_unit: fleet_unit})
+    assert tear_down_unit(unit) == :ok
+  end  
 
-  # test "teardown_unit - unknown response" do
-  #   :meck.new(FleetApi.Unit, [:passthrough])
-  #   :meck.expect(FleetApi.Unit, :delete_unit, fn unit, token -> %FleetApi.Response{status: 500, body: "bad news bears"} end)
+  test "get_journal - no machineID and no hosts" do
+    :meck.expect(FleetApi.Etcd, :start_link, 1, {:ok, :some_pid})
+    :meck.expect(FleetApi.Etcd, :list_machines, fn _ -> {:ok, []} end)
 
-  #   unit = SystemdUnit.create!(%{name: "#{UUID.uuid1()}"})
-  #   assert SystemdUnit.teardown_unit(unit) == :ok
-  # after
-  #   :meck.unload(FleetApi.Unit)   
-  # end  
+    unit = create!(%SystemdUnit{})
+    {result, stdout, stderr} = get_journal(unit)
+    assert result == :error
+    assert stdout != nil
+    assert stderr != nil
+  end
 
-  # test "teardown_unit - 204 response" do
-  #   :meck.new(FleetApi.Unit, [:passthrough])
-  #   :meck.expect(FleetApi.Unit, :delete_unit, fn unit, token -> %FleetApi.Response{status: 204} end)
-  #   :meck.expect(FleetApi.Unit, :get_unit, fn unit, token -> %FleetApi.Response{status: 404} end)
-
-  #   :meck.new(FleetApi.UnitState, [:passthrough])
-  #   unit_name = "#{UUID.uuid1()}"
-  #   state = %{}
-  #   state = Map.put(state, "name", unit_name)
-  #   state = Map.put(state, "systemdActiveState", "active")
-  #   state = Map.put(state, "systemdLoadState", "loaded")
-  #   state = Map.put(state, "systemdSubState", "running")
-  #   states = [state]
-  #   :meck.expect(FleetApi.UnitState, :list!, fn token -> states end)
-
-  #   unit = SystemdUnit.create!(%{name: unit_name})
-  #   assert SystemdUnit.teardown_unit(unit) == :ok
-  # after
-  #   :meck.unload(FleetApi.Unit)   
-  #   :meck.unload(FleetApi.UnitState)   
-  # end   
-
-  # test "teardown_unit - 201 response" do
-  #   :meck.new(FleetApi.Unit, [:passthrough])
-  #   :meck.expect(FleetApi.Unit, :delete_unit, fn unit, token -> %FleetApi.Response{status: 201} end)
-  #   :meck.expect(FleetApi.Unit, :get_unit, fn unit, token -> %FleetApi.Response{status: 404} end)
-
-  #   :meck.new(FleetApi.UnitState, [:passthrough])
-  #   unit_name = "#{UUID.uuid1()}"
-  #   state = %{}
-  #   state = Map.put(state, "name", unit_name)
-  #   state = Map.put(state, "systemdActiveState", "active")
-  #   state = Map.put(state, "systemdLoadState", "loaded")
-  #   state = Map.put(state, "systemdSubState", "running")
-  #   states = [state]
-  #   :meck.expect(FleetApi.UnitState, :list!, fn token -> states end)    
-
-  #   unit = SystemdUnit.create!(%{name: unit_name})
-  #   assert SystemdUnit.teardown_unit(unit) == :ok
-  # after
-  #   :meck.unload(FleetApi.Unit)   
-  #   :meck.unload(FleetApi.UnitState)   
-  # end  
-
-  # test "get_journal - no machineID and no hosts" do
-  #   :meck.new(FleetApi.Machine, [:passthrough])
-  #   :meck.expect(FleetApi.Machine, :list!, fn token -> [] end)
-
-  #   unit = SystemdUnit.create!(%{})
-  #   {result, stdout, stderr} = SystemdUnit.get_journal(unit)
-  #   assert result == :error
-  #   assert stdout != nil
-  #   assert stderr != nil
-  # after
-  #   :meck.unload(FleetApi.Machine)
-  # end
-
-  # test "get_journal - no machineID and host success" do
-  #   :meck.new(File, [:unstick])
-  #   :meck.expect(File, :mkdir_p, fn path -> true end)
-  #   :meck.expect(File, :write!, fn path, contents -> true end)
-  #   :meck.expect(File, :rm_rf, fn path -> true end)
-  #   :meck.expect(File, :exists?, fn path -> false end)
+  test "get_journal - no machineID and host success" do
+    :meck.expect(File, :mkdir_p, fn _ -> true end)
+    :meck.expect(File, :write!, fn _, _ -> true end)
+    :meck.expect(File, :rm_rf, fn _ -> true end)
+    :meck.expect(File, :exists?, fn _ -> false end)
     
-  #   :meck.new(System, [:unstick])
-  #   :meck.expect(System, :cmd, fn cmd, opts, opts2 -> {"", 0} end)
-  #   :meck.expect(System, :cwd!, fn -> "" end)
+    :meck.expect(System, :cmd, fn _, _, _ -> {"", 0} end)
+    :meck.expect(System, :cwd!, fn -> "" end)
 
-  #   :meck.new(EEx, [:unstick])
-  #   :meck.expect(EEx, :eval_file, fn path, options -> "" end)
+    :meck.expect(EEx, :eval_file, fn _, _ -> "" end)
     
-  #   :meck.new(FleetApi.Machine, [:passthrough])
-  #   :meck.expect(FleetApi.Machine, :list!, fn token -> [%{}] end)
+    :meck.expect(FleetApi.Etcd, :start_link, 1, {:ok, :some_pid})
+    :meck.expect(FleetApi.Etcd, :list_machines, fn _ -> {:ok, [%FleetApi.Machine{}]} end)
 
-  #   unit = SystemdUnit.create!(%{})
-  #   {result, stdout, stderr} = SystemdUnit.get_journal(unit)
-  #   assert result == :ok
-  #   assert stdout != nil
-  #   assert stderr != nil
-  # after
-  #   :meck.unload(File)
-  #   :meck.unload(System)
-  #   :meck.unload(EEx)
-  #   :meck.unload(FleetApi.Machine)
-  # end  
+    unit = create!(%SystemdUnit{})
+    {result, stdout, stderr} = get_journal(unit)
+    assert result == :ok
+    assert stdout != nil
+    assert stderr != nil
+  end  
 
-  # test "get_journal - no machineID and host failure" do
-  #   :meck.new(File, [:unstick])
-  #   :meck.expect(File, :mkdir_p, fn path -> true end)
-  #   :meck.expect(File, :write!, fn path, contents -> true end)
-  #   :meck.expect(File, :rm_rf, fn path -> true end)
-  #   :meck.expect(File, :exists?, fn path -> false end)
+  test "get_journal - no machineID and host failure" do
+    :meck.expect(File, :mkdir_p, fn _ -> true end)
+    :meck.expect(File, :write!, fn _, _ -> true end)
+    :meck.expect(File, :rm_rf, fn _ -> true end)
+    :meck.expect(File, :exists?, fn _ -> false end)
     
-  #   :meck.new(System, [:unstick])
-  #   :meck.expect(System, :cmd, fn cmd, opts, opts2 -> {"", 128} end)
-  #   :meck.expect(System, :cwd!, fn -> "" end)
+    :meck.expect(System, :cmd, fn _, _, _ -> {"", 128} end)
+    :meck.expect(System, :cwd!, fn -> "" end)
 
-  #   :meck.new(EEx, [:unstick])
-  #   :meck.expect(EEx, :eval_file, fn path, options -> "" end)
+    :meck.expect(EEx, :eval_file, fn _, _ -> "" end)
     
-  #   :meck.new(FleetApi.Machine, [:passthrough])
-  #   :meck.expect(FleetApi.Machine, :list!, fn token -> [%{}] end)
+    :meck.expect(FleetApi.Etcd, :start_link, 1, {:ok, :some_pid})
+    :meck.expect(FleetApi.Etcd, :list_machines, fn _ -> {:ok, [%FleetApi.Machine{}]} end)
 
-  #   unit = SystemdUnit.create!(%{})
-  #   {result, stdout, stderr} = SystemdUnit.get_journal(unit)
-  #   assert result == :error
-  #   assert stdout != nil
-  #   assert stderr != nil
-  # after
-  #   :meck.unload(File)
-  #   :meck.unload(System)
-  #   :meck.unload(EEx)
-  #   :meck.unload(FleetApi.Machine)
-  # end   
+    unit = create!(%SystemdUnit{})
+    {result, stdout, stderr} = get_journal(unit)
+    assert result == :error
+    assert stdout != nil
+    assert stderr != nil
+  end   
 
-  # test "get_journal - machineID and host success" do
-  #   :meck.new(File, [:unstick])
-  #   :meck.expect(File, :mkdir_p, fn path -> true end)
-  #   :meck.expect(File, :write!, fn path, contents -> true end)
-  #   :meck.expect(File, :rm_rf, fn path -> true end)
-  #   :meck.expect(File, :exists?, fn path -> false end)
+  test "get_journal - machineID and host success" do
+    :meck.expect(File, :mkdir_p, fn _ -> true end)
+    :meck.expect(File, :write!, fn _, _ -> true end)
+    :meck.expect(File, :rm_rf, fn _ -> true end)
+    :meck.expect(File, :exists?, fn _ -> false end)
     
-  #   :meck.new(System, [:unstick])
-  #   :meck.expect(System, :cmd, fn cmd, opts, opts2 -> {"", 0} end)
-  #   :meck.expect(System, :cwd!, fn -> "" end)
+    :meck.expect(System, :cmd, fn _, _, _ -> {"", 0} end)
+    :meck.expect(System, :cwd!, fn -> "" end)
 
-  #   :meck.new(EEx, [:unstick])
-  #   :meck.expect(EEx, :eval_file, fn path, options -> "" end)
+    :meck.expect(EEx, :eval_file, fn _, _ -> "" end)
     
-  #   machine_id = "#{UUID.uuid1()}"
-  #   machine = Map.put(%{}, "id", machine_id)
-  #   :meck.new(FleetApi.Machine, [:passthrough])
-  #   :meck.expect(FleetApi.Machine, :list!, fn token -> [machine] end)
+    :meck.expect(FleetApi.Etcd, :start_link, 1, {:ok, :some_pid})
 
-  #   unit = SystemdUnit.create!(Map.put(%{}, "machineID", machine_id))
-  #   {result, stdout, stderr} = SystemdUnit.get_journal(unit)
-  #   assert result == :ok
-  #   assert stdout != nil
-  #   assert stderr != nil
-  # after
-  #   :meck.unload(File)
-  #   :meck.unload(System)
-  #   :meck.unload(EEx)
-  #   :meck.unload(FleetApi.Machine)
-  # end  
+    machine_id = "#{UUID.uuid1()}"
+    machine = %FleetApi.Machine{id: machine_id}
+    :meck.expect(FleetApi.Etcd, :list_machines, fn _ -> {:ok, [machine]} end)
 
-  # test "get_journal - machineID and host failure" do
-  #   :meck.new(File, [:unstick])
-  #   :meck.expect(File, :mkdir_p, fn path -> true end)
-  #   :meck.expect(File, :write!, fn path, contents -> true end)
-  #   :meck.expect(File, :rm_rf, fn path -> true end)
-  #   :meck.expect(File, :exists?, fn path -> false end)
+    fleet_unit = %FleetApi.Unit{machineID: machine_id}
+    unit = create!(%SystemdUnit{fleet_unit: fleet_unit})
+    {result, stdout, stderr} = get_journal(unit)
+    assert result == :ok
+    assert stdout != nil
+    assert stderr != nil
+  end  
+
+  test "get_journal - machineID and host failure" do
+    :meck.expect(File, :mkdir_p, fn _ -> true end)
+    :meck.expect(File, :write!, fn _, _ -> true end)
+    :meck.expect(File, :rm_rf, fn _ -> true end)
+    :meck.expect(File, :exists?, fn _ -> false end)
     
-  #   :meck.new(System, [:unstick])
-  #   :meck.expect(System, :cmd, fn cmd, opts, opts2 -> {"", 128} end)
-  #   :meck.expect(System, :cwd!, fn -> "" end)
+    :meck.expect(System, :cmd, fn _, _, _ -> {"", 128} end)
+    :meck.expect(System, :cwd!, fn -> "" end)
 
-  #   :meck.new(EEx, [:unstick])
-  #   :meck.expect(EEx, :eval_file, fn path, options -> "" end)
+    :meck.expect(EEx, :eval_file, fn _, _ -> "" end)
+
+    :meck.expect(FleetApi.Etcd, :start_link, 1, {:ok, :some_pid})
     
-  #   machine_id = "#{UUID.uuid1()}"
-  #   machine = Map.put(%{}, "id", machine_id)
-  #   :meck.new(FleetApi.Machine, [:passthrough])
-  #   :meck.expect(FleetApi.Machine, :list!, fn token -> [machine] end)
+    machine_id = "#{UUID.uuid1()}"
+    machine = %FleetApi.Machine{id: machine_id}
+    :meck.expect(FleetApi.Etcd, :list_machines, fn _ -> {:ok, [machine]} end)
 
-  #   unit = SystemdUnit.create!(Map.put(%{}, "machineID", machine_id))
-  #   {result, stdout, stderr} = SystemdUnit.get_journal(unit)
-  #   assert result == :error
-  #   assert stdout != nil
-  #   assert stderr != nil
-  # after
-  #   :meck.unload(File)
-  #   :meck.unload(System)
-  #   :meck.unload(EEx)
-  #   :meck.unload(FleetApi.Machine)
-  # end
+    fleet_unit = %FleetApi.Unit{machineID: machine_id}
+    unit = create!(%SystemdUnit{fleet_unit: fleet_unit})
+    {result, stdout, stderr} = get_journal(unit)
+    assert result == :error
+    assert stdout != nil
+    assert stderr != nil
+  end
 end
