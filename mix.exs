@@ -15,7 +15,7 @@ defmodule ProjectOmeletteManager.Mixfile do
   # Type `mix help compile.app` for more information
   def application do
     [mod: {ProjectOmeletteManager, []},
-     applications: [:phoenix, :cowboy, :logger, :ecto]]
+     applications: [:phoenix, :cowboy, :logger, :ecto, :fleet_api]]
   end
 
   # Specifies your project dependencies

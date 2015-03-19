@@ -1,8 +1,8 @@
 use Mix.Config
 
 config :project_omelette_manager, ProjectOmeletteManager.Endpoint,
-  url: [host: "example.com"],
-  http: [port: System.get_env("PORT")],
+  #url: [host: "example.com"],
+  http: [port: System.get_env("PORT") || 4000],
   secret_key_base: "Ks/rsx+RENMwWd4jgh3crqd3EwKGY8Mdm22NTJbby6pf35CwP9RAlT+8oDJQ8+1f"
 
 config :project_omelette_manager, ProjectOmeletteManager.Repo,
