@@ -210,10 +210,9 @@ defmodule ProjectOmeletteManager.Web.Controllers.MessagingExchangesController do
   """
   @spec create_broker_restriction(term, [any]) :: term
   def create_broker_restriction(conn, %{"id" => id, "messaging_broker_id" => messaging_broker_id} = _params) when messaging_broker_id != "" do
-    IO.puts("create_broker_restriction:  #{inspect id}")
     exchange = Repo.get(MessagingExchange, id)
     broker = Repo.get(MessagingBroker, messaging_broker_id)
-    IO.puts("exchange:  #{inspect exchange}")
+
     cond do
       exchange == nil -> resp(conn, :not_found, "")
       broker == nil -> resp(conn, :bad_request, "a valid messaging_broker_id is required")
@@ -276,8 +275,7 @@ defmodule ProjectOmeletteManager.Web.Controllers.MessagingExchangesController do
         exchange_brokers = Repo.all(query)
         cond do
           exchange_brokers == nil -> json conn, []
-          exchange_brokers != nil && length(exchange_brokers) == 1 ->
-            json conn, [FormatHelper.to_sendable(List.first(exchange_brokers), @sendable_exchange_broker_fields)]
+          exchange_brokers != nil && length(exchange_brokers) == 0 -> json conn, []
           true ->
             sendable_exchange_brokers = Enum.reduce exchange_brokers, [], fn (exchange_broker, sendable_exchange_brokers) ->
               sendable_exchange_brokers ++ [FormatHelper.to_sendable(exchange_broker, @sendable_exchange_broker_fields)]
@@ -307,6 +305,37 @@ defmodule ProjectOmeletteManager.Web.Controllers.MessagingExchangesController do
           Repo.delete_all(from(b in MessagingExchangeBroker, where: b.messaging_exchange_id == ^id))
         end)
         resp(conn, :no_content, "")
+    end
+  end
+
+  @doc """
+  GET /messaging/exchanges/:id/clusters - Retrieve EtcdClusters which have an associated MessagingExchange
+
+  ## Options
+  The `conn` option defines the underlying HTTP connection.
+  The `params` option defines an array of arguments.
+
+  ## Return Values
+
+  Underlying HTTP connection
+  """
+  @spec show_clusters(term, [any]) :: term
+  def show_clusters(conn, %{"id" => id}) do
+    case Repo.get(MessagingExchange, id) do
+      nil -> resp(conn, :not_found, "")
+      _exchange -> 
+        query = from c in EtcdCluster,
+          where: c.messaging_exchange_id == ^id,
+          select: c
+      case Repo.all(query) do
+        nil -> json conn, []
+        [] -> json conn, []
+        clusters -> 
+          sendable_clusters = Enum.reduce clusters, [], fn (cluster, sendable_clusters) ->
+            sendable_clusters ++ [Map.from_struct(cluster)]
+          end
+          json conn, sendable_clusters
+      end
     end
   end
 end

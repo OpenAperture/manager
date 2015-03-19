@@ -63,6 +63,8 @@ defmodule ProjectOmeletteManager.Router do
       get "/:id/brokers", MessagingExchangesController, :get_broker_restrictions
       post "/:id/brokers", MessagingExchangesController, :create_broker_restriction
       delete "/:id/brokers", MessagingExchangesController, :destroy_broker_restrictions
+
+      get "/:id/clusters", MessagingExchangesController, :show_clusters
     end
   end
 end

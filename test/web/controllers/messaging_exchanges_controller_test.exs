@@ -8,6 +8,7 @@ defmodule ProjectOmeletteManager.Web.Controllers.MessagingExchangesController.Te
   alias ProjectOmeletteManager.DB.Models.MessagingExchangeBroker
   alias ProjectOmeletteManager.Repo
   alias ProjectOmeletteManager.Router
+  alias ProjectOmeletteManager.DB.Models.EtcdCluster
 
   import Ecto.Query
 
@@ -15,6 +16,7 @@ defmodule ProjectOmeletteManager.Web.Controllers.MessagingExchangesController.Te
     on_exit fn -> 
       Repo.delete_all(MessagingExchangeBroker)
       Repo.delete_all(MessagingBroker)
+      Repo.delete_all(EtcdCluster)
       Repo.delete_all(MessagingExchange)
     end
   end
@@ -275,6 +277,42 @@ defmodule ProjectOmeletteManager.Web.Controllers.MessagingExchangesController.Te
 
   test "get_broker_restrictions - not found" do
     conn = call(Router, :delete, "/messaging/exchanges/1234567980/brokers", %{})
+    assert conn.status == 404
+  end
+
+  test "show_clusters - success" do
+    exchange = Repo.insert(MessagingExchange.new(%{name: "#{UUID.uuid1()}"}))
+    params = %{
+      etcd_token: "123abc",
+      messaging_exchange_id: exchange.id
+    }
+    cluster = Repo.insert(Ecto.Changeset.cast(%EtcdCluster{}, params, ~w(etcd_token), ~w(messaging_exchange_id)))
+
+    conn = call(Router, :get, "/messaging/exchanges/#{exchange.id}/clusters", %{})
+    assert conn.status == 200
+    body = Poison.decode!(conn.resp_body)
+    assert length(body) == 1
+    returned_cluster = List.first(body)
+    assert returned_cluster != nil
+    assert returned_cluster["id"] == cluster.id
+    assert returned_cluster["messaging_exchange_id"] == exchange.id
+  end
+
+  test "show_clusters - none associated" do
+    exchange = Repo.insert(MessagingExchange.new(%{name: "#{UUID.uuid1()}"}))
+    params = %{
+      etcd_token: "123abc",
+      messaging_exchange_id: exchange.id
+    }
+
+    conn = call(Router, :get, "/messaging/exchanges/#{exchange.id}/clusters", %{})
+    assert conn.status == 200
+    body = Poison.decode!(conn.resp_body)
+    assert length(body) == 0
+  end
+
+  test "show_clusters - not found" do
+    conn = call(Router, :get, "/messaging/exchanges/1234567980/clusters", %{})
     assert conn.status == 404
   end
 end
