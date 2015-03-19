@@ -6,6 +6,8 @@ defmodule ProjectOmeletteManager.EtcdClusterController do
   alias ProjectOmeletteManager.DB.Queries.EtcdCluster, as: EtcdClusterQuery
   alias ProjectOmeletteManager.DB.Queries.ProductCluster, as: ProductClusterQuery
 
+  alias FleetApi.Etcd, as: FleetApi
+
   import ProjectOmeletteManager.Router.Helpers
 
   # TODO: Add authentication
@@ -44,8 +46,7 @@ defmodule ProjectOmeletteManager.EtcdClusterController do
   Create a new Etcd Cluster instance.
   """
   def register(conn, params) do
-    cluster = %EtcdCluster{}
-              |> Ecto.Changeset.cast(params, ~w(etcd_token))
+    cluster = EtcdCluster.new(params)
 
     if cluster.valid? do
       try do
@@ -113,7 +114,8 @@ defmodule ProjectOmeletteManager.EtcdClusterController do
         conn
         |> resp :not_found, ""
       _cluster ->
-        hosts = FleetApi.Machine.list!(token)
+        {:ok, api_pid} = FleetApi.start_link(token)
+        {:ok, hosts} = FleetApi.list_machines(api_pid)
 
         if hosts == nil do
           conn
@@ -145,7 +147,8 @@ defmodule ProjectOmeletteManager.EtcdClusterController do
         conn
         |> resp :not_found, ""
       _cluster ->
-        units = FleetApi.Unit.list!(token)
+        {:ok, api_pid} = FleetApi.start_link(token)
+        {:ok, units} = FleetApi.list_units(api_pid)
 
         if units == nil do
           conn
@@ -177,7 +180,8 @@ defmodule ProjectOmeletteManager.EtcdClusterController do
         conn
         |> resp :not_found, ""
       _cluster ->
-        states = FleetApi.UnitState.list!(token)
+        {:ok, api_pid} = FleetApi.start_link(token)
+        {:ok, states} = FleetApi.list_unit_states(api_pid)
 
         if states == nil do
           conn
@@ -209,9 +213,9 @@ defmodule ProjectOmeletteManager.EtcdClusterController do
         conn
         |> resp :not_found, ""
       _cluster ->
-        hosts = FleetApi.Machine.list!(token)
-
-        units = FleetApi.Unit.list!(token)
+        {:ok, api_pid} = FleetApi.start_link(token)
+        {:ok, hosts} = FleetApi.list_machines(api_pid)
+        {:ok, units} = FleetApi.list_units(api_pid)
 
         case {hosts, units} do
           {nil, _} ->
@@ -223,8 +227,8 @@ defmodule ProjectOmeletteManager.EtcdClusterController do
             |> put_status(:internal_server_error)
             |> json %{error: "Unable to determine if units are available."}
           {hosts, units} ->
-            host = Enum.find(hosts, fn h -> String.contains?(h["id"], machine_id) end)
-            unit = Enum.find(units, fn u -> String.contains?(u["name"], unit_name) end)
+            host = Enum.find(hosts, fn h -> String.contains?(h.id, machine_id) end)
+            unit = Enum.find(units, fn u -> String.contains?(u.name, unit_name) end)
 
             case {host, unit} do
               {nil, _} ->
@@ -234,7 +238,7 @@ defmodule ProjectOmeletteManager.EtcdClusterController do
                 conn
                 |> resp :not_found, "Host #{machine_id} does not exist." 
               {host, unit} ->
-                case ProjectOmeletteManager.Systemd.Unit.execute_journal_request([host], unit, false) do
+                case ProjectOmeletteManager.SystemdUnit.execute_journal_request([host], unit, false) do
                   {:ok, output, error} ->
                     Logger.info "Output: #{output}"
                     Logger.info "Error: #{error}"

@@ -11,9 +11,7 @@ defmodule ProjectOmeletteManager.EtcdClusterController.Test do
 
   setup do
     :meck.new ProjectOmeletteManager.Repo
-    :meck.new FleetApi.Unit
-    :meck.new FleetApi.Machine
-    :meck.new FleetApi.UnitState
+    :meck.new FleetApi.Etcd
 
     on_exit fn -> :meck.unload end
   end
@@ -155,7 +153,8 @@ defmodule ProjectOmeletteManager.EtcdClusterController.Test do
   # # tests for machines
   test "get machines success" do
     :meck.expect(EtcdClusterQuery, :get_by_etcd_token, fn token -> %EtcdCluster{etcd_token: token} end)
-    :meck.expect(FleetApi.Machine, :list!, 1, [])
+    :meck.expect(FleetApi.Etcd, :start_link, 1, {:ok, :some_pid})
+    :meck.expect(FleetApi.Etcd, :list_machines, 1, {:ok, []})
 
     conn = call(Router, :get, "/clusters/some_etcd_token/machines")
 
@@ -172,7 +171,8 @@ defmodule ProjectOmeletteManager.EtcdClusterController.Test do
 
   test "get machines fail" do
     :meck.expect(EtcdClusterQuery, :get_by_etcd_token, fn token -> %EtcdCluster{etcd_token: token} end)
-    :meck.expect(FleetApi.Machine, :list!, 1, nil)
+    :meck.expect(FleetApi.Etcd, :start_link, 1, {:ok, :some_pid})
+    :meck.expect(FleetApi.Etcd, :list_machines, 1, {:ok, nil})
 
     conn = call(Router, :get, "/clusters/some_etcd_token/machines")
     assert conn.status == 500
@@ -182,7 +182,8 @@ defmodule ProjectOmeletteManager.EtcdClusterController.Test do
   # # tests for units
   test "get units success" do
     :meck.expect(EtcdClusterQuery, :get_by_etcd_token, fn token -> %EtcdCluster{etcd_token: token} end)
-    :meck.expect(FleetApi.Unit, :list!, 1, [])
+    :meck.expect(FleetApi.Etcd, :start_link, 1, {:ok, :some_pid})
+    :meck.expect(FleetApi.Etcd, :list_units, 1, {:ok, []})
 
     conn = call(Router, :get, "/clusters/some_etcd_token/units")
     assert conn.status == 200
@@ -198,7 +199,8 @@ defmodule ProjectOmeletteManager.EtcdClusterController.Test do
 
   test "get units fail" do
     :meck.expect(EtcdClusterQuery, :get_by_etcd_token, fn token -> %EtcdCluster{etcd_token: token} end)
-    :meck.expect(FleetApi.Unit, :list!, 1, nil)
+    :meck.expect(FleetApi.Etcd, :start_link, 1, {:ok, :some_pid})
+    :meck.expect(FleetApi.Etcd, :list_units, 1, {:ok, nil})
 
     conn = call(Router, :get, "/clusters/some_etcd_token/units")
     assert conn.status == 500
@@ -208,7 +210,8 @@ defmodule ProjectOmeletteManager.EtcdClusterController.Test do
   # # tests for units_state
   test "get units_state success" do
      :meck.expect(EtcdClusterQuery, :get_by_etcd_token, fn token -> %EtcdCluster{etcd_token: token} end)
-     :meck.expect(FleetApi.UnitState, :list!, 1, [])
+     :meck.expect(FleetApi.Etcd, :start_link, 1, {:ok, :some_pid})
+     :meck.expect(FleetApi.Etcd, :list_unit_states, 1, {:ok, []})
 
      conn = call(Router, :get, "/clusters/some_etcd_token/state")
      assert conn.status == 200
@@ -224,7 +227,8 @@ defmodule ProjectOmeletteManager.EtcdClusterController.Test do
 
   test "get units_state fail" do
     :meck.expect(EtcdClusterQuery, :get_by_etcd_token, fn token -> %EtcdCluster{etcd_token: token} end)
-    :meck.expect(FleetApi.UnitState, :list!, 1, nil)
+    :meck.expect(FleetApi.Etcd, :start_link, 1, {:ok, :some_pid})
+    :meck.expect(FleetApi.Etcd, :list_unit_states, 1, {:ok, nil})
 
     conn = call(Router, :get, "/clusters/some_etcd_token/state")
     assert conn.status == 500
@@ -234,9 +238,10 @@ defmodule ProjectOmeletteManager.EtcdClusterController.Test do
   # # tests for unit_logs
   test "get unit_logs success" do
     :meck.expect(EtcdClusterQuery, :get_by_etcd_token, fn token -> %EtcdCluster{etcd_token: token} end)
-    :meck.expect(FleetApi.Machine, :list!, 1, [%{"id" => "123"}])
-    :meck.expect(FleetApi.Unit, :list!, 1, [%{"name" => "test"}])
-    :meck.expect(ProjectOmeletteManager.Systemd.Unit, :execute_journal_request, 3, {:ok, "happy result", ""})
+    :meck.expect(FleetApi.Etcd, :start_link, 1, {:ok, :some_pid})
+    :meck.expect(FleetApi.Etcd, :list_machines, 1, {:ok, [%FleetApi.Machine{id: "123"}]})
+    :meck.expect(FleetApi.Etcd, :list_units, 1, {:ok, [%FleetApi.Unit{name: "test"}]})
+    :meck.expect(ProjectOmeletteManager.SystemdUnit, :execute_journal_request, 3, {:ok, "happy result", ""})
 
     conn = call(Router, :get, "/clusters/some_etcd_token/machines/123/units/test/logs")
     assert conn.status == 200
@@ -244,9 +249,10 @@ defmodule ProjectOmeletteManager.EtcdClusterController.Test do
 
   test "get unit_logs retrieve log error" do
     :meck.expect(EtcdClusterQuery, :get_by_etcd_token, fn token -> %EtcdCluster{etcd_token: token} end)
-    :meck.expect(FleetApi.Machine, :list!, 1, [%{"id" => "123"}])
-    :meck.expect(FleetApi.Unit, :list!, 1, [%{"name" => "test"}])
-    :meck.expect(ProjectOmeletteManager.Systemd.Unit, :execute_journal_request, 3, {:error, "bad news bears", ""})
+    :meck.expect(FleetApi.Etcd, :start_link, 1, {:ok, :some_pid})
+    :meck.expect(FleetApi.Etcd, :list_machines, 1, {:ok, [%FleetApi.Machine{id: "123"}]})
+    :meck.expect(FleetApi.Etcd, :list_units, 1, {:ok, [%FleetApi.Unit{name: "test"}]})
+    :meck.expect(ProjectOmeletteManager.SystemdUnit, :execute_journal_request, 3, {:error, "bad news bears", ""})
 
     conn = call(Router, :get, "/clusters/some_etcd_token/machines/123/units/test/logs")
     assert conn.status == 500
@@ -254,8 +260,9 @@ defmodule ProjectOmeletteManager.EtcdClusterController.Test do
 
   test "get unit_logs invalid host" do
     :meck.expect(EtcdClusterQuery, :get_by_etcd_token, fn token -> %EtcdCluster{etcd_token: token} end)
-    :meck.expect(FleetApi.Machine, :list!, 1, [])
-    :meck.expect(FleetApi.Unit, :list!, 1, [%{"name" => "test"}])
+    :meck.expect(FleetApi.Etcd, :start_link, 1, {:ok, :some_pid})
+    :meck.expect(FleetApi.Etcd, :list_machines, 1, {:ok, []})
+    :meck.expect(FleetApi.Etcd, :list_units, 1, {:ok, [%FleetApi.Unit{name: "test"}]})
 
     conn = call(Router, :get, "/clusters/some_etcd_token/machines/123/units/test/logs")
     assert conn.status == 404
@@ -263,8 +270,9 @@ defmodule ProjectOmeletteManager.EtcdClusterController.Test do
 
   test "get unit_logs retrieve invalid unit" do
     :meck.expect(EtcdClusterQuery, :get_by_etcd_token, fn token -> %EtcdCluster{etcd_token: token} end)
-    :meck.expect(FleetApi.Machine, :list!, 1, [%{"id" => "123"}])
-    :meck.expect(FleetApi.Unit, :list!, 1, [])
+    :meck.expect(FleetApi.Etcd, :start_link, 1, {:ok, :some_pid})
+    :meck.expect(FleetApi.Etcd, :list_machines, 1, {:ok, [%FleetApi.Machine{id: "123"}]})
+    :meck.expect(FleetApi.Etcd, :list_units, 1, {:ok, []})
 
     conn = call(Router, :get, "/clusters/some_etcd_token/machines/123/units/test/logs")
     assert conn.status == 404
@@ -272,8 +280,9 @@ defmodule ProjectOmeletteManager.EtcdClusterController.Test do
 
   test "get unit_logs no hosts" do
     :meck.expect(EtcdClusterQuery, :get_by_etcd_token, fn token -> %EtcdCluster{etcd_token: token} end)
-    :meck.expect(FleetApi.Machine, :list!, 1, nil)
-    :meck.expect(FleetApi.Unit, :list!, 1, [%{"name" => "test"}])
+    :meck.expect(FleetApi.Etcd, :start_link, 1, {:ok, :some_pid})
+    :meck.expect(FleetApi.Etcd, :list_machines, 1, {:ok, nil})
+    :meck.expect(FleetApi.Etcd, :list_units, 1, {:ok, [%FleetApi.Unit{name: "test"}]})
 
     conn = call(Router, :get, "/clusters/some_etcd_token/machines/123/units/test/logs")
     assert conn.status == 500
@@ -281,8 +290,9 @@ defmodule ProjectOmeletteManager.EtcdClusterController.Test do
 
   test "get unit_logs no units" do
     :meck.expect(EtcdClusterQuery, :get_by_etcd_token, fn token -> %EtcdCluster{etcd_token: token} end)
-    :meck.expect(FleetApi.Machine, :list!, 1, [%{"id" => "123"}])
-    :meck.expect(FleetApi.Unit, :list!, 1, nil)
+    :meck.expect(FleetApi.Etcd, :start_link, 1, {:ok, :some_pid})
+    :meck.expect(FleetApi.Etcd, :list_machines, 1, {:ok, [%FleetApi.Machine{id: "123"}]})
+    :meck.expect(FleetApi.Etcd, :list_units, 1, {:ok, nil})
 
     conn = call(Router, :get, "/clusters/some_etcd_token/machines/123/units/test/logs")
     assert conn.status == 500
