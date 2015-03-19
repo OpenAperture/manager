@@ -44,7 +44,7 @@ defmodule ProjectOmeletteManager.EtcdClusterController do
   """
   def register(conn, params) do
     cluster = %EtcdCluster{}
-              |> Ecto.Changeset.cast(params, ~w(etcd_token))
+              |> Ecto.Changeset.cast(params, ~w(etcd_token), ~w(allow_docker_builds messaging_exchange_id))
 
     if cluster.valid? do
       try do

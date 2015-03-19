@@ -298,6 +298,40 @@ defmodule ProjectOmeletteManager.Web.Controllers.MessagingExchangesController.Te
     assert returned_cluster["messaging_exchange_id"] == exchange.id
   end
 
+  test "show_clusters - success build clusters" do
+    exchange = Repo.insert(MessagingExchange.new(%{name: "#{UUID.uuid1()}"}))
+    params = %{
+      etcd_token: "123abc",
+      messaging_exchange_id: exchange.id,
+      allow_docker_builds: true
+    }
+    cluster = Repo.insert(Ecto.Changeset.cast(%EtcdCluster{}, params, ~w(etcd_token), ~w(allow_docker_builds messaging_exchange_id)))
+
+    conn = call(Router, :get, "/messaging/exchanges/#{exchange.id}/clusters?allow_docker_builds=true", %{})
+    assert conn.status == 200
+    body = Poison.decode!(conn.resp_body)
+    assert length(body) == 1
+    returned_cluster = List.first(body)
+    assert returned_cluster != nil
+    assert returned_cluster["id"] == cluster.id
+    assert returned_cluster["messaging_exchange_id"] == exchange.id
+  end
+
+  test "show_clusters - success found no build clusters" do
+    exchange = Repo.insert(MessagingExchange.new(%{name: "#{UUID.uuid1()}"}))
+    params = %{
+      etcd_token: "123abc",
+      messaging_exchange_id: exchange.id,
+      allow_docker_builds: true
+    }
+    cluster = Repo.insert(Ecto.Changeset.cast(%EtcdCluster{}, params, ~w(etcd_token), ~w(allow_docker_builds messaging_exchange_id)))
+
+    conn = call(Router, :get, "/messaging/exchanges/#{exchange.id}/clusters?allow_docker_builds=false", %{})
+    assert conn.status == 200
+    body = Poison.decode!(conn.resp_body)
+    assert length(body) == 0
+  end
+
   test "show_clusters - none associated" do
     exchange = Repo.insert(MessagingExchange.new(%{name: "#{UUID.uuid1()}"}))
     params = %{

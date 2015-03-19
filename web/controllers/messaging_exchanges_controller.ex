@@ -320,13 +320,20 @@ defmodule ProjectOmeletteManager.Web.Controllers.MessagingExchangesController do
   Underlying HTTP connection
   """
   @spec show_clusters(term, [any]) :: term
-  def show_clusters(conn, %{"id" => id}) do
+  def show_clusters(conn, %{"id" => id} = params) do
     case Repo.get(MessagingExchange, id) do
       nil -> resp(conn, :not_found, "")
       _exchange -> 
-        query = from c in EtcdCluster,
-          where: c.messaging_exchange_id == ^id,
-          select: c
+        if params["allow_docker_builds"] != nil do
+          query = from c in EtcdCluster,
+            where: c.messaging_exchange_id == ^id and c.allow_docker_builds == ^params["allow_docker_builds"],
+            select: c
+        else
+          query = from c in EtcdCluster,
+            where: c.messaging_exchange_id == ^id,
+            select: c
+        end
+
       case Repo.all(query) do
         nil -> json conn, []
         [] -> json conn, []
