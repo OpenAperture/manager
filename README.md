@@ -8,6 +8,9 @@ To start your new Phoenix application:
 
 Now you can visit `localhost:4000` from your browser.
 
+The MessagingBrokersController tests require a keyfile to be present in order for the tests to pass and functionality to work.  A quick way to generate the required PEMs is as follows:
 
+```
 ssh-keygen -t rsa -b 1024 -C "Test Key"
 openssl rsa -in testing.pem -pubout
+```
