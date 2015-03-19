@@ -16,6 +16,9 @@ defmodule ProjectOmeletteManager.Router do
     pipe_through :browser # Use the default browser stack
 
     get "/", PageController, :index
+    #Server Statuses
+    get "/status", StatusController, :index
+
   end
 
   scope "/clusters", ProjectOmeletteManager do
