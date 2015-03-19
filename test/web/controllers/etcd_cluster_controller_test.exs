@@ -11,6 +11,7 @@ defmodule ProjectOmeletteManager.EtcdClusterController.Test do
 
   setup do
     :meck.new ProjectOmeletteManager.Repo
+    :meck.new FleetApi.Etcd
 
     on_exit fn -> :meck.unload end
   end
@@ -150,21 +151,15 @@ defmodule ProjectOmeletteManager.EtcdClusterController.Test do
 
   # #=========
   # # tests for machines
-  # test "get machines success" do
-  #   :meck.new(EtcdClusterQuery, [:passthrough])
-  #   :meck.expect(EtcdClusterQuery, :get_by_etcd_token, fn token -> %EtcdCluster{etcd_token: token} end)
+  test "get machines success" do
+    :meck.expect(EtcdClusterQuery, :get_by_etcd_token, fn token -> %EtcdCluster{etcd_token: token} end)
+    :meck.expect(FleetApi.Etcd, :start_link, 1, {:ok, :some_pid})
+    :meck.expect(FleetApi.Etcd, :list_machines, 1, {:ok, []})
 
-  #   :meck.new(CloudosBuildServer.Agents.EtcdCluster, [:passthrough])
-  #   :meck.expect(CloudosBuildServer.Agents.EtcdCluster, :create!, fn token -> {} end)
-  #   :meck.expect(CloudosBuildServer.Agents.EtcdCluster, :get_hosts, fn token -> [] end)
+    conn = call(Router, :get, "/clusters/some_etcd_token/machines")
 
-  #   conn = Router.call(conn("GET", "clusters/abc123/machines", JSON.encode!(%{}), [headers: [{"content-type", "application/json"}]]), [])
-  #   assert conn != nil
-  #   assert conn.status == 200
-  # after
-  #   :meck.unload(EtcdClusterQuery)
-  #   :meck.unload(CloudosBuildServer.Agents.EtcdCluster)
-  # end
+    assert conn.status == 200
+  end
 
   test "get machines not found" do
     :meck.expect(EtcdClusterQuery, :get_by_etcd_token, 1, nil)
@@ -174,39 +169,25 @@ defmodule ProjectOmeletteManager.EtcdClusterController.Test do
     assert conn.status == 404
   end
 
-  # test "get machines fail" do
-  #   :meck.new(EtcdClusterQuery, [:passthrough])
-  #   :meck.expect(EtcdClusterQuery, :get_by_etcd_token, fn token -> %EtcdCluster{etcd_token: token} end)
+  test "get machines fail" do
+    :meck.expect(EtcdClusterQuery, :get_by_etcd_token, fn token -> %EtcdCluster{etcd_token: token} end)
+    :meck.expect(FleetApi.Etcd, :start_link, 1, {:ok, :some_pid})
+    :meck.expect(FleetApi.Etcd, :list_machines, 1, {:ok, nil})
 
-  #   :meck.new(CloudosBuildServer.Agents.EtcdCluster, [:passthrough])
-  #   :meck.expect(CloudosBuildServer.Agents.EtcdCluster, :create!, fn token -> {} end)
-  #   :meck.expect(CloudosBuildServer.Agents.EtcdCluster, :get_hosts, fn token -> nil end)
-
-  #   conn = Router.call(conn("GET", "clusters/abc123/machines", JSON.encode!(%{}), [headers: [{"content-type", "application/json"}]]), [])
-  #   assert conn != nil
-  #   assert conn.status == 500
-  # after
-  #   :meck.unload(EtcdClusterQuery)
-  #   :meck.unload(CloudosBuildServer.Agents.EtcdCluster)
-  # end
+    conn = call(Router, :get, "/clusters/some_etcd_token/machines")
+    assert conn.status == 500
+  end
 
   # #=========
   # # tests for units
-  # test "get units success" do
-  #   :meck.new(EtcdClusterQuery, [:passthrough])
-  #   :meck.expect(EtcdClusterQuery, :get_by_etcd_token, fn token -> %EtcdCluster{etcd_token: token} end)
+  test "get units success" do
+    :meck.expect(EtcdClusterQuery, :get_by_etcd_token, fn token -> %EtcdCluster{etcd_token: token} end)
+    :meck.expect(FleetApi.Etcd, :start_link, 1, {:ok, :some_pid})
+    :meck.expect(FleetApi.Etcd, :list_units, 1, {:ok, []})
 
-  #   :meck.new(CloudosBuildServer.Agents.EtcdCluster, [:passthrough])
-  #   :meck.expect(CloudosBuildServer.Agents.EtcdCluster, :create!, fn token -> {} end)
-  #   :meck.expect(CloudosBuildServer.Agents.EtcdCluster, :get_units, fn token -> [] end)
-
-  #   conn = Router.call(conn("GET", "clusters/abc123/units", JSON.encode!(%{}), [headers: [{"content-type", "application/json"}]]), [])
-  #   assert conn != nil
-  #   assert conn.status == 200
-  # after
-  #   :meck.unload(EtcdClusterQuery)
-  #   :meck.unload(CloudosBuildServer.Agents.EtcdCluster)
-  # end
+    conn = call(Router, :get, "/clusters/some_etcd_token/units")
+    assert conn.status == 200
+  end
 
   test "get units not found" do
     :meck.expect(EtcdClusterQuery, :get_by_etcd_token, 1, nil)
@@ -216,39 +197,25 @@ defmodule ProjectOmeletteManager.EtcdClusterController.Test do
     assert conn.status == 404
   end
 
-  # test "get units fail" do
-  #   :meck.new(EtcdClusterQuery, [:passthrough])
-  #   :meck.expect(EtcdClusterQuery, :get_by_etcd_token, fn token -> %EtcdCluster{etcd_token: token} end)
+  test "get units fail" do
+    :meck.expect(EtcdClusterQuery, :get_by_etcd_token, fn token -> %EtcdCluster{etcd_token: token} end)
+    :meck.expect(FleetApi.Etcd, :start_link, 1, {:ok, :some_pid})
+    :meck.expect(FleetApi.Etcd, :list_units, 1, {:ok, nil})
 
-  #   :meck.new(CloudosBuildServer.Agents.EtcdCluster, [:passthrough])
-  #   :meck.expect(CloudosBuildServer.Agents.EtcdCluster, :create!, fn token -> {} end)
-  #   :meck.expect(CloudosBuildServer.Agents.EtcdCluster, :get_units, fn token -> nil end)
-
-  #   conn = Router.call(conn("GET", "clusters/abc123/units", JSON.encode!(%{}), [headers: [{"content-type", "application/json"}]]), [])
-  #   assert conn != nil
-  #   assert conn.status == 500
-  # after
-  #   :meck.unload(EtcdClusterQuery)
-  #   :meck.unload(CloudosBuildServer.Agents.EtcdCluster)
-  # end
+    conn = call(Router, :get, "/clusters/some_etcd_token/units")
+    assert conn.status == 500
+  end
 
   # #=========
   # # tests for units_state
-  # test "get units_state success" do
-  #   :meck.new(EtcdClusterQuery, [:passthrough])
-  #   :meck.expect(EtcdClusterQuery, :get_by_etcd_token, fn token -> %EtcdCluster{etcd_token: token} end)
+  test "get units_state success" do
+     :meck.expect(EtcdClusterQuery, :get_by_etcd_token, fn token -> %EtcdCluster{etcd_token: token} end)
+     :meck.expect(FleetApi.Etcd, :start_link, 1, {:ok, :some_pid})
+     :meck.expect(FleetApi.Etcd, :list_unit_states, 1, {:ok, []})
 
-  #   :meck.new(CloudosBuildServer.Agents.EtcdCluster, [:passthrough])
-  #   :meck.expect(CloudosBuildServer.Agents.EtcdCluster, :create!, fn token -> {} end)
-  #   :meck.expect(CloudosBuildServer.Agents.EtcdCluster, :get_units_state, fn token -> [] end)
-
-  #   conn = Router.call(conn("GET", "clusters/abc123/state", JSON.encode!(%{}), [headers: [{"content-type", "application/json"}]]), [])
-  #   assert conn != nil
-  #   assert conn.status == 200
-  # after
-  #   :meck.unload(EtcdClusterQuery)
-  #   :meck.unload(CloudosBuildServer.Agents.EtcdCluster)
-  # end
+     conn = call(Router, :get, "/clusters/some_etcd_token/state")
+     assert conn.status == 200
+  end
 
   test "get units_state not found" do
     :meck.expect(EtcdClusterQuery, :get_by_etcd_token, 1, nil)
@@ -258,187 +225,78 @@ defmodule ProjectOmeletteManager.EtcdClusterController.Test do
     assert conn.status == 404
   end
 
-  # test "get units_state fail" do
-  #   :meck.new(EtcdClusterQuery, [:passthrough])
-  #   :meck.expect(EtcdClusterQuery, :get_by_etcd_token, fn token -> %EtcdCluster{etcd_token: token} end)
+  test "get units_state fail" do
+    :meck.expect(EtcdClusterQuery, :get_by_etcd_token, fn token -> %EtcdCluster{etcd_token: token} end)
+    :meck.expect(FleetApi.Etcd, :start_link, 1, {:ok, :some_pid})
+    :meck.expect(FleetApi.Etcd, :list_unit_states, 1, {:ok, nil})
 
-  #   :meck.new(CloudosBuildServer.Agents.EtcdCluster, [:passthrough])
-  #   :meck.expect(CloudosBuildServer.Agents.EtcdCluster, :create!, fn token -> {} end)
-  #   :meck.expect(CloudosBuildServer.Agents.EtcdCluster, :get_units_state, fn token -> nil end)
-
-  #   conn = Router.call(conn("GET", "clusters/abc123/state", JSON.encode!(%{}), [headers: [{"content-type", "application/json"}]]), [])
-  #   assert conn != nil
-  #   assert conn.status == 500
-  # after
-  #   :meck.unload(EtcdClusterQuery)
-  #   :meck.unload(CloudosBuildServer.Agents.EtcdCluster)
-  # end
+    conn = call(Router, :get, "/clusters/some_etcd_token/state")
+    assert conn.status == 500
+  end
 
   # #=========
   # # tests for unit_logs
-  # test "get unit_logs success" do
-  #   :meck.new(EtcdClusterQuery, [:passthrough])
-  #   :meck.expect(EtcdClusterQuery, :get_by_etcd_token, fn token -> %EtcdCluster{etcd_token: token} end)
+  test "get unit_logs success" do
+    :meck.expect(EtcdClusterQuery, :get_by_etcd_token, fn token -> %EtcdCluster{etcd_token: token} end)
+    :meck.expect(FleetApi.Etcd, :start_link, 1, {:ok, :some_pid})
+    :meck.expect(FleetApi.Etcd, :list_machines, 1, {:ok, [%FleetApi.Machine{id: "123"}]})
+    :meck.expect(FleetApi.Etcd, :list_units, 1, {:ok, [%FleetApi.Unit{name: "test"}]})
+    :meck.expect(ProjectOmeletteManager.SystemdUnit, :execute_journal_request, 3, {:ok, "happy result", ""})
 
-  #   :meck.new(CloudosBuildServer.Agents.EtcdCluster, [:passthrough])
-  #   :meck.expect(CloudosBuildServer.Agents.EtcdCluster, :create!, fn token -> {} end)
+    conn = call(Router, :get, "/clusters/some_etcd_token/machines/123/units/test/logs")
+    assert conn.status == 200
+  end
 
-  #   host = Map.put(%{}, "id", "123")
-  #   :meck.expect(CloudosBuildServer.Agents.EtcdCluster, :get_hosts, fn token -> [host] end)
+  test "get unit_logs retrieve log error" do
+    :meck.expect(EtcdClusterQuery, :get_by_etcd_token, fn token -> %EtcdCluster{etcd_token: token} end)
+    :meck.expect(FleetApi.Etcd, :start_link, 1, {:ok, :some_pid})
+    :meck.expect(FleetApi.Etcd, :list_machines, 1, {:ok, [%FleetApi.Machine{id: "123"}]})
+    :meck.expect(FleetApi.Etcd, :list_units, 1, {:ok, [%FleetApi.Unit{name: "test"}]})
+    :meck.expect(ProjectOmeletteManager.SystemdUnit, :execute_journal_request, 3, {:error, "bad news bears", ""})
 
-  #   unit = Map.put(%{}, "name", "test")
-  #   :meck.expect(CloudosBuildServer.Agents.EtcdCluster, :get_units, fn token -> [unit] end)
+    conn = call(Router, :get, "/clusters/some_etcd_token/machines/123/units/test/logs")
+    assert conn.status == 500
+  end
 
-  #   :meck.new(CloudosBuildServer.Agents.SystemdUnit, [:passthrough])
-  #   :meck.expect(CloudosBuildServer.Agents.SystemdUnit, :execute_journal_request, fn hosts, unit, verify_result -> {:ok, "happy result", ""} end)
+  test "get unit_logs invalid host" do
+    :meck.expect(EtcdClusterQuery, :get_by_etcd_token, fn token -> %EtcdCluster{etcd_token: token} end)
+    :meck.expect(FleetApi.Etcd, :start_link, 1, {:ok, :some_pid})
+    :meck.expect(FleetApi.Etcd, :list_machines, 1, {:ok, []})
+    :meck.expect(FleetApi.Etcd, :list_units, 1, {:ok, [%FleetApi.Unit{name: "test"}]})
 
+    conn = call(Router, :get, "/clusters/some_etcd_token/machines/123/units/test/logs")
+    assert conn.status == 404
+  end
 
-  #   conn = Router.call(conn("GET", "clusters/abc123/machines/123/units/test/logs", JSON.encode!(%{}), [headers: [{"content-type", "application/json"}]]), [])
-  #   assert conn != nil
-  #   assert conn.status == 200
-  # after
-  #   :meck.unload(EtcdClusterQuery)
-  #   :meck.unload(CloudosBuildServer.Agents.EtcdCluster)
-  #   :meck.unload(CloudosBuildServer.Agents.SystemdUnit)
-  # end
+  test "get unit_logs retrieve invalid unit" do
+    :meck.expect(EtcdClusterQuery, :get_by_etcd_token, fn token -> %EtcdCluster{etcd_token: token} end)
+    :meck.expect(FleetApi.Etcd, :start_link, 1, {:ok, :some_pid})
+    :meck.expect(FleetApi.Etcd, :list_machines, 1, {:ok, [%FleetApi.Machine{id: "123"}]})
+    :meck.expect(FleetApi.Etcd, :list_units, 1, {:ok, []})
 
-  # test "get unit_logs retrieve log error" do
-  #   :meck.new(EtcdClusterQuery, [:passthrough])
-  #   :meck.expect(EtcdClusterQuery, :get_by_etcd_token, fn token -> %EtcdCluster{etcd_token: token} end)
+    conn = call(Router, :get, "/clusters/some_etcd_token/machines/123/units/test/logs")
+    assert conn.status == 404
+  end
 
-  #   :meck.new(CloudosBuildServer.Agents.EtcdCluster, [:passthrough])
-  #   :meck.expect(CloudosBuildServer.Agents.EtcdCluster, :create!, fn token -> {} end)
+  test "get unit_logs no hosts" do
+    :meck.expect(EtcdClusterQuery, :get_by_etcd_token, fn token -> %EtcdCluster{etcd_token: token} end)
+    :meck.expect(FleetApi.Etcd, :start_link, 1, {:ok, :some_pid})
+    :meck.expect(FleetApi.Etcd, :list_machines, 1, {:ok, nil})
+    :meck.expect(FleetApi.Etcd, :list_units, 1, {:ok, [%FleetApi.Unit{name: "test"}]})
 
-  #   host = Map.put(%{}, "id", "123")
-  #   :meck.expect(CloudosBuildServer.Agents.EtcdCluster, :get_hosts, fn token -> [host] end)
+    conn = call(Router, :get, "/clusters/some_etcd_token/machines/123/units/test/logs")
+    assert conn.status == 500
+  end
 
-  #   unit = Map.put(%{}, "name", "test")
-  #   :meck.expect(CloudosBuildServer.Agents.EtcdCluster, :get_units, fn token -> [unit] end)
+  test "get unit_logs no units" do
+    :meck.expect(EtcdClusterQuery, :get_by_etcd_token, fn token -> %EtcdCluster{etcd_token: token} end)
+    :meck.expect(FleetApi.Etcd, :start_link, 1, {:ok, :some_pid})
+    :meck.expect(FleetApi.Etcd, :list_machines, 1, {:ok, [%FleetApi.Machine{id: "123"}]})
+    :meck.expect(FleetApi.Etcd, :list_units, 1, {:ok, nil})
 
-  #   :meck.new(CloudosBuildServer.Agents.SystemdUnit, [:passthrough])
-  #   :meck.expect(CloudosBuildServer.Agents.SystemdUnit, :execute_journal_request, fn hosts, unit, verify_result -> {:error, "bad news bears", ""} end)
-
-
-  #   conn = Router.call(conn("GET", "clusters/abc123/machines/123/units/test/logs", JSON.encode!(%{}), [headers: [{"content-type", "application/json"}]]), [])
-  #   assert conn != nil
-  #   assert conn.status == 500
-  # after
-  #   :meck.unload(EtcdClusterQuery)
-  #   :meck.unload(CloudosBuildServer.Agents.EtcdCluster)
-  #   :meck.unload(CloudosBuildServer.Agents.SystemdUnit)
-  # end
-
-  # test "get unit_logs retrieve log error" do
-  #   :meck.new(EtcdClusterQuery, [:passthrough])
-  #   :meck.expect(EtcdClusterQuery, :get_by_etcd_token, fn token -> %EtcdCluster{etcd_token: token} end)
-
-  #   :meck.new(CloudosBuildServer.Agents.EtcdCluster, [:passthrough])
-  #   :meck.expect(CloudosBuildServer.Agents.EtcdCluster, :create!, fn token -> {} end)
-
-  #   host = Map.put(%{}, "id", "123")
-  #   :meck.expect(CloudosBuildServer.Agents.EtcdCluster, :get_hosts, fn token -> [host] end)
-
-  #   unit = Map.put(%{}, "name", "test")
-  #   :meck.expect(CloudosBuildServer.Agents.EtcdCluster, :get_units, fn token -> [unit] end)
-
-  #   :meck.new(CloudosBuildServer.Agents.SystemdUnit, [:passthrough])
-  #   :meck.expect(CloudosBuildServer.Agents.SystemdUnit, :execute_journal_request, fn hosts, unit, verify_result -> {:error, "bad news bears", ""} end)
-
-
-  #   conn = Router.call(conn("GET", "clusters/abc123/machines/123/units/test/logs", JSON.encode!(%{}), [headers: [{"content-type", "application/json"}]]), [])
-  #   assert conn != nil
-  #   assert conn.status == 500
-  # after
-  #   :meck.unload(EtcdClusterQuery)
-  #   :meck.unload(CloudosBuildServer.Agents.EtcdCluster)
-  #   :meck.unload(CloudosBuildServer.Agents.SystemdUnit)
-  # end
-
-  # test "get unit_logs invalid host" do
-  #   :meck.new(EtcdClusterQuery, [:passthrough])
-  #   :meck.expect(EtcdClusterQuery, :get_by_etcd_token, fn token -> %EtcdCluster{etcd_token: token} end)
-
-  #   :meck.new(CloudosBuildServer.Agents.EtcdCluster, [:passthrough])
-  #   :meck.expect(CloudosBuildServer.Agents.EtcdCluster, :create!, fn token -> {} end)
-
-  #   :meck.expect(CloudosBuildServer.Agents.EtcdCluster, :get_hosts, fn token -> [] end)
-
-  #   unit = Map.put(%{}, "name", "test")
-  #   :meck.expect(CloudosBuildServer.Agents.EtcdCluster, :get_units, fn token -> [unit] end)
-
-  #   :meck.new(CloudosBuildServer.Agents.SystemdUnit, [:passthrough])
-  #   :meck.expect(CloudosBuildServer.Agents.SystemdUnit, :execute_journal_request, fn hosts, unit, verify_result -> {:error, "bad news bears", ""} end)
-
-
-  #   conn = Router.call(conn("GET", "clusters/abc123/machines/123/units/test/logs", JSON.encode!(%{}), [headers: [{"content-type", "application/json"}]]), [])
-  #   assert conn != nil
-  #   assert conn.status == 404
-  # after
-  #   :meck.unload(EtcdClusterQuery)
-  #   :meck.unload(CloudosBuildServer.Agents.EtcdCluster)
-  #   :meck.unload(CloudosBuildServer.Agents.SystemdUnit)
-  # end
-
-  # test "get unit_logs retrieve invalid unit" do
-  #   :meck.new(EtcdClusterQuery, [:passthrough])
-  #   :meck.expect(EtcdClusterQuery, :get_by_etcd_token, fn token -> %EtcdCluster{etcd_token: token} end)
-
-  #   :meck.new(CloudosBuildServer.Agents.EtcdCluster, [:passthrough])
-  #   :meck.expect(CloudosBuildServer.Agents.EtcdCluster, :create!, fn token -> {} end)
-
-  #   host = Map.put(%{}, "id", "123")
-  #   :meck.expect(CloudosBuildServer.Agents.EtcdCluster, :get_hosts, fn token -> [host] end)
-
-  #   :meck.expect(CloudosBuildServer.Agents.EtcdCluster, :get_units, fn token -> [] end)
-
-  #   :meck.new(CloudosBuildServer.Agents.SystemdUnit, [:passthrough])
-  #   :meck.expect(CloudosBuildServer.Agents.SystemdUnit, :execute_journal_request, fn hosts, unit, verify_result -> {:error, "bad news bears", ""} end)
-
-
-  #   conn = Router.call(conn("GET", "clusters/abc123/machines/123/units/test/logs", JSON.encode!(%{}), [headers: [{"content-type", "application/json"}]]), [])
-  #   assert conn != nil
-  #   assert conn.status == 404
-  # after
-  #   :meck.unload(EtcdClusterQuery)
-  #   :meck.unload(CloudosBuildServer.Agents.EtcdCluster)
-  #   :meck.unload(CloudosBuildServer.Agents.SystemdUnit)
-  # end
-
-  # test "get unit_logs no hosts" do
-  #   :meck.new(EtcdClusterQuery, [:passthrough])
-  #   :meck.expect(EtcdClusterQuery, :get_by_etcd_token, fn token -> %EtcdCluster{etcd_token: token} end)
-
-  #   :meck.new(CloudosBuildServer.Agents.EtcdCluster, [:passthrough])
-  #   :meck.expect(CloudosBuildServer.Agents.EtcdCluster, :create!, fn token -> {} end)
-
-  #   :meck.expect(CloudosBuildServer.Agents.EtcdCluster, :get_hosts, fn token -> nil end)
-  #   :meck.expect(CloudosBuildServer.Agents.EtcdCluster, :get_units, fn token -> [] end)
-
-  #   conn = Router.call(conn("GET", "clusters/abc123/machines/123/units/test/logs", JSON.encode!(%{}), [headers: [{"content-type", "application/json"}]]), [])
-  #   assert conn != nil
-  #   assert conn.status == 500
-  # after
-  #   :meck.unload(EtcdClusterQuery)
-  #   :meck.unload(CloudosBuildServer.Agents.EtcdCluster)
-  # end
-
-  # test "get unit_logs no units" do
-  #   :meck.new(EtcdClusterQuery, [:passthrough])
-  #   :meck.expect(EtcdClusterQuery, :get_by_etcd_token, fn token -> %EtcdCluster{etcd_token: token} end)
-
-  #   :meck.new(CloudosBuildServer.Agents.EtcdCluster, [:passthrough])
-  #   :meck.expect(CloudosBuildServer.Agents.EtcdCluster, :create!, fn token -> {} end)
-
-  #   :meck.expect(CloudosBuildServer.Agents.EtcdCluster, :get_hosts, fn token -> nil end)
-  #   :meck.expect(CloudosBuildServer.Agents.EtcdCluster, :get_units, fn token -> nil end)
-
-  #   conn = Router.call(conn("GET", "clusters/abc123/machines/123/units/test/logs", JSON.encode!(%{}), [headers: [{"content-type", "application/json"}]]), [])
-  #   assert conn != nil
-  #   assert conn.status == 500
-  # after
-  #   :meck.unload(EtcdClusterQuery)
-  #   :meck.unload(CloudosBuildServer.Agents.EtcdCluster)
-  # end
+    conn = call(Router, :get, "/clusters/some_etcd_token/machines/123/units/test/logs")
+    assert conn.status == 500
+  end
 
   test "get unit_logs no cluster" do
     :meck.expect(EtcdClusterQuery, :get_by_etcd_token, 1, nil)

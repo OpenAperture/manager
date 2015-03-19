@@ -8,7 +8,7 @@ config :project_omelette_manager, ProjectOmeletteManager.Repo,
 	database: System.get_env("CLOUDOS_MANAGER_DATABASE_NAME")       || "project_omelette_manager",
 	username: System.get_env("CLOUDOS_MANAGER_USER_NAME")      		|| "postgres",
 	password: System.get_env("CLOUDOS_MANAGER_PASSWORD")      		|| "postgres",
-    hostname: System.get_env("CLOUDOS_MANAGER_DATABASE_HOST")       || "localhost"
+  hostname: System.get_env("CLOUDOS_MANAGER_DATABASE_HOST")       || "localhost"
 
 
 # ## SSL Support
