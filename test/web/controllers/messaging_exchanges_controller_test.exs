@@ -4,6 +4,8 @@ defmodule ProjectOmeletteManager.Web.Controllers.MessagingExchangesController.Te
   use ProjectOmeletteManager.Test.ConnHelper
 
   alias ProjectOmeletteManager.DB.Models.MessagingExchange
+  alias ProjectOmeletteManager.DB.Models.MessagingBroker
+  alias ProjectOmeletteManager.DB.Models.MessagingExchangeBroker
   alias ProjectOmeletteManager.Repo
   alias ProjectOmeletteManager.Router
 
@@ -11,6 +13,8 @@ defmodule ProjectOmeletteManager.Web.Controllers.MessagingExchangesController.Te
 
   setup do
     on_exit fn -> 
+      Repo.delete_all(MessagingExchangeBroker)
+      Repo.delete_all(MessagingBroker)
       Repo.delete_all(MessagingExchange)
     end
   end
@@ -155,5 +159,122 @@ defmodule ProjectOmeletteManager.Web.Controllers.MessagingExchangesController.Te
     assert conn.status == 204
 
     assert Repo.get(MessagingExchange, exchange.id) == nil
+  end
+
+  test "create_broker_restriction - success" do
+    exchange = Repo.insert(MessagingExchange.new(%{name: "#{UUID.uuid1()}"}))
+    broker = Repo.insert(MessagingBroker.new(%{name: "#{UUID.uuid1()}"}))
+
+    conn = call(Router, :post, "/messaging/exchanges/#{exchange.id}/brokers", %{
+      "messaging_broker_id" => broker.id
+    })
+    assert conn.status == 201
+    location_header = Enum.reduce conn.resp_headers, nil, fn ({key, value}, location_header) ->
+      if key == "location" do
+        value
+      else
+        location_header
+      end
+    end
+    assert location_header != nil
+    assert String.contains?(location_header, "/brokers")
+    assert String.contains?(location_header, "/exchanges")
+    
+    query = from b in MessagingExchangeBroker,
+      where: b.messaging_exchange_id == ^exchange.id,
+      select: b
+    connections = Repo.all(query)
+    assert connections != nil
+    assert length(connections) == 1
+    exchange_broker = List.first(connections)
+    
+    assert exchange_broker != nil
+    assert exchange_broker.id != nil
+    assert exchange_broker.messaging_broker_id == broker.id
+    assert exchange_broker.messaging_exchange_id == exchange.id
+  end
+
+  test "create_broker_restriction - bad request" do
+    exchange = Repo.insert(MessagingExchange.new(%{name: "#{UUID.uuid1()}"}))
+    broker = Repo.insert(MessagingBroker.new(%{name: "#{UUID.uuid1()}"}))
+
+    conn = call(Router, :post, "/messaging/exchanges/#{exchange.id}/brokers", %{})
+    assert conn.status == 400
+  end
+
+  test "create_broker_restriction - conflict" do
+    exchange = Repo.insert(MessagingExchange.new(%{name: "#{UUID.uuid1()}"}))
+    broker = Repo.insert(MessagingBroker.new(%{name: "#{UUID.uuid1()}"}))
+    exchange_broker = Repo.insert(MessagingExchangeBroker.new(%{
+      "messaging_broker_id" => broker.id,
+      "messaging_exchange_id" => exchange.id
+      }))
+
+    conn = call(Router, :post, "/messaging/exchanges/#{exchange.id}/brokers", %{
+      "messaging_broker_id" => broker.id
+    })
+    assert conn.status == 409
+  end
+
+  test "create_broker_restriction - internal server error" do
+    exchange = Repo.insert(MessagingExchange.new(%{name: "#{UUID.uuid1()}"}))
+    broker = Repo.insert(MessagingBroker.new(%{name: "#{UUID.uuid1()}"}))
+
+    :meck.new(Repo, [:passthrough])
+    :meck.expect(Repo, :all, fn _ -> [] end)
+    :meck.expect(Repo, :insert, fn _ -> raise "bad news bears" end)
+
+    conn = call(Router, :post, "/messaging/exchanges/#{exchange.id}/brokers", %{
+      "messaging_broker_id" => broker.id
+    })
+    assert conn.status == 500
+  after
+    :meck.unload(Repo)
+  end
+
+  test "get_broker_restrictions - success" do
+    exchange = Repo.insert(MessagingExchange.new(%{name: "#{UUID.uuid1()}"}))
+    broker = Repo.insert(MessagingBroker.new(%{name: "#{UUID.uuid1()}"}))
+    exchange_broker = Repo.insert(MessagingExchangeBroker.new(%{
+      "messaging_broker_id" => broker.id,
+      "messaging_exchange_id" => exchange.id
+      }))
+
+    conn = call(Router, :get, "/messaging/exchanges/#{exchange.id}/brokers", %{})
+    assert conn.status == 200
+    body = Poison.decode!(conn.resp_body)
+    assert length(body) == 1
+    returned_exchange_broker = List.first(body)
+    assert returned_exchange_broker != nil
+    assert returned_exchange_broker["id"] != nil
+    assert returned_exchange_broker["messaging_broker_id"] == broker.id
+    assert returned_exchange_broker["messaging_exchange_id"] == exchange.id    
+  end
+
+  test "get_broker_restrictions - not found" do
+    conn = call(Router, :get, "/messaging/exchanges/1234567980/brokers", %{})
+    assert conn.status == 404
+  end
+
+  test "destroy_broker_restrictions - success" do
+    exchange = Repo.insert(MessagingExchange.new(%{name: "#{UUID.uuid1()}"}))
+    broker = Repo.insert(MessagingBroker.new(%{name: "#{UUID.uuid1()}"}))
+
+    conn = call(Router, :delete, "/messaging/exchanges/#{exchange.id}/brokers", %{
+      "messaging_broker_id" => broker.id
+    })
+    assert conn.status == 204
+    
+    query = from b in MessagingExchangeBroker,
+      where: b.messaging_exchange_id == ^exchange.id,
+      select: b
+    connections = Repo.all(query)
+    assert connections != nil
+    assert length(connections) == 0
+  end
+
+  test "get_broker_restrictions - not found" do
+    conn = call(Router, :delete, "/messaging/exchanges/1234567980/brokers", %{})
+    assert conn.status == 404
   end
 end

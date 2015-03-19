@@ -7,5 +7,7 @@ defmodule ProjectOmeletteManager.Repo.Migrations.AddMessagingBrokersTable do
       add :failover_broker_id, references(:messaging_brokers)
       timestamps
     end
+
+    create index(:messaging_brokers, [:failover_broker_id], unique: false)
   end
 end

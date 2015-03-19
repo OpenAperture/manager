@@ -3,6 +3,8 @@ defmodule ProjectOmeletteManager.Web.Controllers.MessagingBrokersController.Test
   use Plug.Test
   use ProjectOmeletteManager.Test.ConnHelper
 
+  alias ProjectOmeletteManager.DB.Models.MessagingExchange
+  alias ProjectOmeletteManager.DB.Models.MessagingExchangeBroker
   alias ProjectOmeletteManager.DB.Models.MessagingBroker
   alias ProjectOmeletteManager.DB.Models.MessagingBrokerConnection
   alias ProjectOmeletteManager.Repo
@@ -12,8 +14,10 @@ defmodule ProjectOmeletteManager.Web.Controllers.MessagingBrokersController.Test
 
   setup do
     on_exit fn -> 
+      Repo.delete_all(MessagingExchangeBroker)
       Repo.delete_all(MessagingBrokerConnection)
       Repo.delete_all(MessagingBroker)
+      Repo.delete_all(MessagingExchange)
     end
   end
 

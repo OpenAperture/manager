@@ -59,6 +59,10 @@ defmodule ProjectOmeletteManager.Router do
       get "/:id", MessagingExchangesController, :show
       put "/:id", MessagingExchangesController, :update
       delete "/:id", MessagingExchangesController, :destroy
+
+      get "/:id/brokers", MessagingExchangesController, :get_broker_restrictions
+      post "/:id/brokers", MessagingExchangesController, :create_broker_restriction
+      delete "/:id/brokers", MessagingExchangesController, :destroy_broker_restrictions
     end
   end
 end

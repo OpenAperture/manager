@@ -13,7 +13,8 @@ defmodule ProjectOmeletteManager.Web.Controllers.MessagingBrokersController do
   alias ProjectOmeletteManager.Endpoint
   alias ProjectOmeletteManager.DB.Models.MessagingBroker
   alias ProjectOmeletteManager.DB.Models.MessagingBrokerConnection
-
+  alias ProjectOmeletteManager.DB.Models.MessagingExchangeBroker
+  
   alias ProjectOmeletteManager.Controllers.FormatHelper
   
   import Ecto.Query
@@ -189,6 +190,7 @@ defmodule ProjectOmeletteManager.Web.Controllers.MessagingBrokersController do
         Repo.transaction(fn ->
           Repo.update_all(from(c in MessagingBroker, where: c.failover_broker_id  == ^id), failover_broker_id: nil)
           Repo.delete_all(from(c in MessagingBrokerConnection, where: c.messaging_broker_id == ^id))
+          Repo.delete_all(from(b in MessagingExchangeBroker, where: b.messaging_broker_id  == ^id))          
           Repo.delete(broker)
         end)
         resp(conn, :no_content, "")
