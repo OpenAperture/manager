@@ -21,6 +21,11 @@ config :logger, :console,
   format: "$time $metadata[$level] $message\n",
   metadata: [:request_id]
 
+config :cloudos_messaging, 
+	private_key: System.get_env("CLOUDOS_MANAGER_MESSAGING_PRIVATE_KEY"),
+	public_key: System.get_env("CLOUDOS_MANAGER_MESSAGING_PUBLIC_KEY"),
+  keyname: System.get_env("CLOUDOS_MANAGER_MESSAGING_KEYNAME")
+
 # Import environment specific config. This must remain at the bottom
 # of this file so it overrides the configuration defined above.
 import_config "#{Mix.env}.exs"

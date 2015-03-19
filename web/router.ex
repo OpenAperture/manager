@@ -35,4 +35,36 @@ defmodule ProjectOmeletteManager.Router do
     get "/:etcd_token/state", EtcdClusterController, :units_state
     get "/:etcd_token/machines/:machine_id/units/:unit_name/logs", EtcdClusterController, :unit_logs
   end
+
+  scope "/messaging", ProjectOmeletteManager.Web.Controllers do
+    pipe_through :api
+
+    scope "/brokers" do
+      get "/", MessagingBrokersController, :index
+      post "/", MessagingBrokersController, :create
+
+      get "/:id", MessagingBrokersController, :show
+      put "/:id", MessagingBrokersController, :update
+      delete "/:id", MessagingBrokersController, :destroy
+
+      get "/:id/connections", MessagingBrokersController, :get_connections
+      post "/:id/connections", MessagingBrokersController, :create_connection
+      delete "/:id/connections", MessagingBrokersController, :destroy_connections
+    end
+
+    scope "/exchanges" do
+      get "/", MessagingExchangesController, :index
+      post "/", MessagingExchangesController, :create
+
+      get "/:id", MessagingExchangesController, :show
+      put "/:id", MessagingExchangesController, :update
+      delete "/:id", MessagingExchangesController, :destroy
+
+      get "/:id/brokers", MessagingExchangesController, :get_broker_restrictions
+      post "/:id/brokers", MessagingExchangesController, :create_broker_restriction
+      delete "/:id/brokers", MessagingExchangesController, :destroy_broker_restrictions
+
+      get "/:id/clusters", MessagingExchangesController, :show_clusters
+    end
+  end
 end

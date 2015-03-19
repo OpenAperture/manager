@@ -47,7 +47,6 @@ defmodule ProjectOmeletteManager.EtcdClusterController do
   """
   def register(conn, params) do
     cluster = EtcdCluster.new(params)
-
     if cluster.valid? do
       try do
         cluster = Repo.insert(cluster)
