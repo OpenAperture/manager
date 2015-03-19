@@ -5,12 +5,16 @@
 #
 require Logger
 
-defmodule ProjectOmeletteManager.MessagingBrokersController do
+defmodule ProjectOmeletteManager.Web.Controllers.MessagingBrokersController do
   use ProjectOmeletteManager.Web, :controller
+
+  require Repo
 
   alias ProjectOmeletteManager.Endpoint
   alias ProjectOmeletteManager.DB.Models.MessagingBroker
   alias ProjectOmeletteManager.DB.Models.MessagingBrokerConnection
+
+  alias ProjectOmeletteManager.Controllers.FormatHelper
   
   import Ecto.Query
 
@@ -22,8 +26,8 @@ defmodule ProjectOmeletteManager.MessagingBrokersController do
   This module contains the controllers for managing MessagingBrokers
   """  
 
-  @sendable_broker_fields [:id, :name, :inserted_at, :updated_at]
-  @updatable_broker_fields ["name"]
+  @sendable_broker_fields [:id, :name, :inserted_at, :failover_broker_id, :updated_at]
+  @updatable_broker_fields ["name", "failover_broker_id"]
 
 	@sendable_broker_connection_fields [:id, :messaging_broker_id, :username, :password, :host, :virtual_host, :inserted_at, :updated_at]
 
@@ -58,7 +62,7 @@ defmodule ProjectOmeletteManager.MessagingBrokersController do
   def show(conn, %{"id" => id}) do
     case Repo.get(MessagingBroker, id) do
       nil -> resp(conn, :not_found, "")
-      broker -> json conn, broker |> to_sendable(@sendable_broker_fields)
+      broker -> json conn, broker |> FormatHelper.to_sendable(@sendable_broker_fields)
     end
   end
 
@@ -98,7 +102,7 @@ defmodule ProjectOmeletteManager.MessagingBrokersController do
         else
           conn
           |> put_status(:bad_request)
-          |> json keywords_to_map(changeset.errors)
+          |> json FormatHelper.keywords_to_map(changeset.errors)
         end
       _ ->
         conn |> resp(:conflict, "")
@@ -156,7 +160,7 @@ defmodule ProjectOmeletteManager.MessagingBrokersController do
       else
         conn
         |> put_status(:bad_request)
-        |> json keywords_to_map(changeset.errors)
+        |> json FormatHelper.keywords_to_map(changeset.errors)
       end
     end
   end
@@ -183,6 +187,7 @@ defmodule ProjectOmeletteManager.MessagingBrokersController do
       nil -> resp(conn, :not_found, "")
       broker ->
         Repo.transaction(fn ->
+          Repo.update_all(from(c in MessagingBroker, where: c.failover_broker_id  == ^id), failover_broker_id: nil)
           Repo.delete_all(from(c in MessagingBrokerConnection, where: c.messaging_broker_id == ^id))
           Repo.delete(broker)
         end)
@@ -234,7 +239,7 @@ defmodule ProjectOmeletteManager.MessagingBrokersController do
 		        else
 		          conn
 		          |> put_status(:bad_request)
-		          |> json keywords_to_map(changeset.errors)
+		          |> json FormatHelper.keywords_to_map(changeset.errors)
 		        end      			
       	end
     end
@@ -321,11 +326,11 @@ defmodule ProjectOmeletteManager.MessagingBrokersController do
       	cond do
       		connections == nil -> json conn, []
       		connections != nil && length(connections) == 1 ->
-      			sendable_connection = to_sendable(List.first(connections), @sendable_broker_connection_fields)
+      			sendable_connection = FormatHelper.to_sendable(List.first(connections), @sendable_broker_connection_fields)
       			json conn, [Map.put(sendable_connection, :password, decrypt_password(sendable_connection[:password]))]
       		true ->
       			sendable_connections = Enum.reduce connections, [], fn (connection, sendable_connections) ->
-	      			sendable_connection = to_sendable(connection, @sendable_broker_connection_fields)
+	      			sendable_connection = FormatHelper.to_sendable(connection, @sendable_broker_connection_fields)
 	      			sendable_connections ++ [Map.put(sendable_connection, "password", decrypt_password(sendable_connection["password"]))]
 	      		end
 	      		json conn, sendable_connections
@@ -354,35 +359,5 @@ defmodule ProjectOmeletteManager.MessagingBrokersController do
         end)
         resp(conn, :no_content, "")
     end
-  end
-
-  defp to_sendable(%{__struct__: _} = struct, allowed_fields) do
-    struct
-    |> Map.from_struct
-    |> Map.take(allowed_fields)
-  end
-
-  @doc """
-  keywords_to_map converts a keyword list to a map, which is more easily
-  transmitted as a JSON object. If a key is repeated in the keyword list, then
-  the value in the map is represented as a list.
-  Ex:
-  [a: "First value", b: "Second value", c: "Third value"] becomes
-  %{a: ["First value", "Third value"], b: "Second value"}
-  """
-  @spec keywords_to_map(Keyword) :: Map
-  defp keywords_to_map(kw) do
-    kw
-    |> Enum.reduce(
-      %{},
-      fn {key, value}, acc ->
-        current = acc[key]
-        case current do
-          nil -> Map.put(acc, key, value)
-          [single] -> Map.put(acc, key, [single, value])
-          [_ | _] -> Map.put(acc, key, current ++ [value])
-          _ -> Map.put(acc, key, [current, value])
-        end
-      end)
   end
 end

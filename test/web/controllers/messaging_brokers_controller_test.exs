@@ -1,4 +1,4 @@
-defmodule ProjectOmeletteManager.MessagingBrokersController.Test do
+defmodule ProjectOmeletteManager.Web.Controllers.MessagingBrokersController.Test do
   use ExUnit.Case
   use Plug.Test
   use ProjectOmeletteManager.Test.ConnHelper
@@ -15,15 +15,6 @@ defmodule ProjectOmeletteManager.MessagingBrokersController.Test do
       Repo.delete_all(MessagingBrokerConnection)
       Repo.delete_all(MessagingBroker)
     end
-  end
-
-  test "destroy - valid broker" do
-    broker = Repo.insert(MessagingBroker.new(%{name: "#{UUID.uuid1()}"}))
-
-    conn = call(Router, :delete, "/messaging/brokers/#{broker.id}")
-    assert conn.status == 204
-
-    assert Repo.get(MessagingBroker, broker.id) == nil
   end
 
   test "index - no brokers" do
@@ -157,6 +148,15 @@ defmodule ProjectOmeletteManager.MessagingBrokersController.Test do
   test "destroy - invalid broker" do
     conn = call(Router, :delete, "/messaging/brokers/1234567890")
     assert conn.status == 404
+  end
+
+  test "destroy - valid broker" do
+    broker = Repo.insert(MessagingBroker.new(%{name: "#{UUID.uuid1()}"}))
+
+    conn = call(Router, :delete, "/messaging/brokers/#{broker.id}")
+    assert conn.status == 204
+
+    assert Repo.get(MessagingBroker, broker.id) == nil
   end
 
   test "create_connection - success" do
