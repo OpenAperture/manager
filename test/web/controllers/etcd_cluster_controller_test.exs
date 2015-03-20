@@ -63,7 +63,7 @@ defmodule ProjectOmeletteManager.EtcdClusterController.Test do
   end
 
   test "register action - bad request if no etcd_token is provided" do
-    conn = call(Router, :post, "/clusters", Poison.encode!(%{}), [headers: [{"content-type", "application/json"}]])
+    conn = call(Router, :post, "/clusters", Poison.encode!(%{}), [{"content-type", "application/json"}])
 
     assert conn.status == 400
 
@@ -75,7 +75,7 @@ defmodule ProjectOmeletteManager.EtcdClusterController.Test do
   test "register action -- success" do
     cluster = %EtcdCluster{id: 1, etcd_token: "token"}
     :meck.expect(Repo, :insert, 1, cluster)
-    conn = call(Router, :post, "/clusters", Poison.encode!(cluster), [headers: [{"content-type", "application/json"}]])
+    conn = call(Router, :post, "/clusters", Poison.encode!(cluster), [{"content-type", "application/json"}])
 
     assert conn.status == 201
 
