@@ -30,6 +30,20 @@ defmodule DB.Models.Product.Test do
     assert Keyword.has_key?(changeset.errors, :name)
   end
 
+  test "product name cannot be blank" do
+    changeset = Product.new(%{id: 1, name: ""})
+
+    refute changeset.valid?
+    assert Keyword.has_key?(changeset.errors, :name)
+  end
+
+  test "product name cannot be nil" do
+    changeset = Product.new(%{id: 1, name: nil})
+
+    refute changeset.valid?
+    assert Keyword.has_key?(changeset.errors, :name)
+  end
+
   test "retrieve associated product environments" do
     product = Product.new(%{name: "test product"}) |> Repo.insert
 
