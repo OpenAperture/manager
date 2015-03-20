@@ -67,4 +67,15 @@ defmodule ProjectOmeletteManager.Router do
       get "/:id/clusters", MessagingExchangesController, :show_clusters
     end
   end
+
+  scope "/products", ProjectOmeletteManager do
+    pipe_through :api
+
+    get "/", ProductsController, :index
+    post "/", ProductsController, :create
+
+    get "/:product_name", ProductsController, :show
+    delete "/:product_name", ProductsController, :destroy
+    put "/:product_name", ProductsController, :update
+  end
 end
