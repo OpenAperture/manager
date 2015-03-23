@@ -4,15 +4,12 @@ defmodule ProjectOmeletteManager.ProductsController do
   use ProjectOmeletteManager.Web, :controller
 
   import ProjectOmeletteManager.Controllers.FormatHelper
-  import Ecto.Query
   import ProjectOmeletteManager.Router.Helpers
 
   alias ProjectOmeletteManager.Endpoint
   alias ProjectOmeletteManager.DB.Models.Product
   alias ProjectOmeletteManager.DB.Queries.Product, as: ProductQuery
   alias ProjectOmeletteManager.Repo
-
-  alias Ecto.Changeset
 
   @sendable_fields [:id, :name, :updated_at, :inserted_at]
   @updatable_fields [:name]
