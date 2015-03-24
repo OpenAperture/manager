@@ -16,7 +16,6 @@ defmodule ProjectOmeletteManager.StatusController do
 #  alias CloudosBuildServer.Agents.BuildServerDependencies
 
   plug :action
-  plug ProjectOmeletteManager.Plugs.Authentication
 
   @moduledoc """
   This module contains the Phoenix controller for managing CloudOS server statuses.

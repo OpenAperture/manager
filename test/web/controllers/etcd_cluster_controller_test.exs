@@ -9,11 +9,27 @@ defmodule ProjectOmeletteManager.EtcdClusterController.Test do
   alias ProjectOmeletteManager.DB.Queries.EtcdCluster, as: EtcdClusterQuery
   alias ProjectOmeletteManager.Router
 
+  setup_all _context do
+    :meck.new(ProjectOmeletteManager.Plugs.Authentication, [:passthrough])
+    :meck.expect(ProjectOmeletteManager.Plugs.Authentication, :call, fn conn, _opts -> conn end)
+
+    on_exit _context, fn ->
+      try do
+        :meck.unload
+      rescue _ -> IO.puts "" end
+    end    
+    :ok
+  end
+
   setup do
     :meck.new ProjectOmeletteManager.Repo
     :meck.new FleetApi.Etcd
-
-    on_exit fn -> :meck.unload end
+    on_exit fn ->
+              try do
+                :meck.unload ProjectOmeletteManager.Repo
+                :meck.unload FleetApi.Etcd
+              rescue _ -> IO.puts "" end
+            end
   end
 
   test "index" do
