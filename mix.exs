@@ -32,7 +32,8 @@ defmodule ProjectOmeletteManager.Mixfile do
      {:postgrex, "~> 0.8.0"},
      {:fleet_api, "0.0.2"},
      {:rsa, "~> 0.0.1"},
-     {:cloudos_auth, git: "https://#{System.get_env("GITHUB_OAUTH_TOKEN")}:x-oauth-basic@github.com/UmbrellaCorporation-SecretProjectLab/cloudos_auth.git", ref: "00d0ef0c848f571e1c3830df72185276580f913f"},
+     {:cloudos_auth, git: "https://#{System.get_env("GITHUB_OAUTH_TOKEN")}:x-oauth-basic@github.com/UmbrellaCorporation-SecretProjectLab/cloudos_auth.git",
+            ref: "9f94afd9e8b4a4705fed8e76ecb0f405ea00322c"},
       
      {:meck, "0.8.2", only: :test}
    ]

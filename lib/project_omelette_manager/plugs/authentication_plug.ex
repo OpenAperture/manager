@@ -26,9 +26,9 @@ defmodule ProjectOmeletteManager.Plugs.Authentication do
   Array of options
   """
   @spec init([any]) :: [any]
-  def init(_options) do
+  def init(options) do
     # initialize options
-    [Agent.start_link(fn -> %{:auth_server_pid => CloudosAuth.Server.start_link(Application.get_env(:project_omelette_manager, :oauth_validate_url))} end, name: __MODULE__)]
+    options
   end
 
   @doc """
@@ -39,8 +39,8 @@ defmodule ProjectOmeletteManager.Plugs.Authentication do
   ## Return Values
   Underlying HTTP connection.
   """
-  @spec call(term, [pid]) :: term
-  def call(conn, [pid]) do
+  @spec call(term, [any]) :: term
+  def call(conn, _options) do
     Logger.debug("Verifying authentication...")
     case List.keyfind(conn.req_headers, "authorization", 0) do
       nil ->
@@ -49,7 +49,7 @@ defmodule ProjectOmeletteManager.Plugs.Authentication do
         |> halt
       {"authorization", auth_header} ->
         try do
-          case authenticate_request(pid, auth_header) do
+          case authenticate_request(Application.get_env(:cloudos_manager, :oauth_validate_url), auth_header) do
             true -> 
               Logger.debug("Request authentication was validated")
               conn
@@ -79,14 +79,14 @@ defmodule ProjectOmeletteManager.Plugs.Authentication do
   # 
   # boolean
   # 
-  @spec authenticate_request(pid, String.t()) :: term
-  defp authenticate_request(pid, auth_header) do
+  @spec authenticate_request(String.t(), String.t()) :: term
+  defp authenticate_request(url, auth_header) do
     Logger.debug("Attempting to validate auth header...")
     if (!String.starts_with?(auth_header, "OAuth ")) do
       false
     else
       access_token = to_string(tl(String.split(auth_header, "OAuth ")))    
-      CloudosAuth.Server.validate_header(pid, access_token)
+      CloudosAuth.Server.validate_header(url, access_token)
     end
   end
 end
