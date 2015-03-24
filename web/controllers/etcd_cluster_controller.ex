@@ -17,12 +17,24 @@ defmodule ProjectOmeletteManager.EtcdClusterController do
   @doc """
   List all Etcd Clusters the system knows about.
   """
-  def index(conn, _params) do
+  def index(conn, params) do
     # TODO: Pagination?
-    clusters = EtcdCluster
-               |> Repo.all
-               |> Enum.map &Map.from_struct/1
+    clusters = case params["allow_docker_builds"] do
+      true ->
+        EtcdClusterQuery.get_docker_build_clusters
+        |> Repo.all
+        |> Enum.map &Map.from_struct/1      
+      "true" ->
+        EtcdClusterQuery.get_docker_build_clusters
+        |> Repo.all
+        |> Enum.map &Map.from_struct/1
+      _ ->
+        EtcdCluster
+        |> Repo.all
+        |> Enum.map &Map.from_struct/1
+    end
 
+    #IO.puts("clusters:  #{inspect clusters}")
     conn
     |> json clusters
   end

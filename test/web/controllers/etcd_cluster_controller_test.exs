@@ -31,6 +31,27 @@ defmodule ProjectOmeletteManager.EtcdClusterController.Test do
     assert cluster["etcd_token"] == "abc123"
   end
 
+  test "index - only retrieve docker build clusters" do
+    :meck.unload(ProjectOmeletteManager.Repo)
+    Repo.delete_all(EtcdCluster)
+
+    build_cluster = EtcdCluster.new(%{etcd_token: "#{UUID.uuid1()}", allow_docker_builds: true}) |> Repo.insert
+    non_build_cluster = EtcdCluster.new(%{etcd_token: "#{UUID.uuid1()}", allow_docker_builds: false}) |> Repo.insert
+    cluster = EtcdCluster.new(%{etcd_token: "#{UUID.uuid1()}"}) |> Repo.insert
+
+    conn = call(Router, :get, "/clusters?allow_docker_builds=true")
+
+    assert conn.status == 200
+
+    body = Poison.decode!(conn.resp_body)
+
+    assert length(body) == 1
+    cluster = List.first(body)
+    assert cluster["etcd_token"] == build_cluster.etcd_token
+  after
+    :meck.new ProjectOmeletteManager.Repo
+  end
+
   test "index returns empty list if no clusters" do
     :meck.expect(ProjectOmeletteManager.Repo, :all, 1, [])
     conn = call(Router, :get, "/clusters")
