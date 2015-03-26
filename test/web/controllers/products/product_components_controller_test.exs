@@ -14,6 +14,18 @@ defmodule ProjectOmeletteManager.ProductComponentsController.Test do
   alias ProjectOmeletteManager.DB.Models.ProductComponentOption
   alias ProjectOmeletteManager.Router
 
+  setup_all _context do
+    :meck.new(ProjectOmeletteManager.Plugs.Authentication, [:passthrough])
+    :meck.expect(ProjectOmeletteManager.Plugs.Authentication, :call, fn conn, _opts -> conn end)
+
+    on_exit _context, fn ->
+      try do
+        :meck.unload(ProjectOmeletteManager.Plugs.Authentication)
+      rescue _ -> IO.puts "" end
+    end    
+    :ok
+  end
+
   setup do
     etcd_cluster = EtcdCluster.new(%{etcd_token: "test_token"})
                    |> Repo.insert
@@ -52,8 +64,6 @@ defmodule ProjectOmeletteManager.ProductComponentsController.Test do
       }) |> Repo.insert
 
     on_exit fn ->
-      :meck.unload
-
       Repo.delete_all(EtcdClusterPort)
       Repo.delete_all(ProductComponentOption)
       Repo.delete_all(ProductComponent)
