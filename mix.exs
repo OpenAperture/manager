@@ -16,7 +16,7 @@ defmodule ProjectOmeletteManager.Mixfile do
   def application do
     [
       mod: {ProjectOmeletteManager, []},
-      applications: [:phoenix, :cowboy, :logger, :ecto, :fleet_api, :crypto]
+      applications: [:phoenix, :cowboy, :logger, :ecto, :fleet_api, :crypto, :cloudos_auth]
    ]
   end
 
@@ -33,7 +33,7 @@ defmodule ProjectOmeletteManager.Mixfile do
      {:fleet_api, "0.0.2"},
      {:rsa, "~> 0.0.1"},
      {:cloudos_auth, git: "https://#{System.get_env("GITHUB_OAUTH_TOKEN")}:x-oauth-basic@github.com/UmbrellaCorporation-SecretProjectLab/cloudos_auth.git",
-            ref: "9f94afd9e8b4a4705fed8e76ecb0f405ea00322c"},
+            ref: "2ddba3011d7cf2edfb96a065244b8c0f6f5370ba"},
       
      {:meck, "0.8.2", only: :test}
    ]
