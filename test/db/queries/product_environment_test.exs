@@ -1,5 +1,5 @@
 defmodule DB.Queries.ProductEnvironment.Test do
-  use ExUnit.Case
+  use ExUnit.Case, async: false
 
   alias ProjectOmeletteManager.DB.Models.ProductEnvironment
   alias ProjectOmeletteManager.Repo

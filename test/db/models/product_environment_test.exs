@@ -1,5 +1,5 @@
 defmodule DB.Models.ProductEnvironment.Test do
-  use ExUnit.Case
+  use ExUnit.Case, async: false
 
   import Ecto.Query
 

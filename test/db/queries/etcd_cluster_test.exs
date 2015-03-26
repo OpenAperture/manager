@@ -1,5 +1,5 @@
 defmodule DB.Queries.EtcdCluster.Test do
-  use ExUnit.Case
+  use ExUnit.Case, async: false
 
   alias ProjectOmeletteManager.DB.Models.EtcdCluster
   alias ProjectOmeletteManager.Repo
@@ -36,8 +36,8 @@ defmodule DB.Queries.EtcdCluster.Test do
 
   test "get_docker_build_clusters" do
     build_cluster = EtcdCluster.new(%{etcd_token: "#{UUID.uuid1()}", allow_docker_builds: true}) |> Repo.insert
-    non_build_cluster = EtcdCluster.new(%{etcd_token: "#{UUID.uuid1()}", allow_docker_builds: false}) |> Repo.insert
-    cluster = EtcdCluster.new(%{etcd_token: "#{UUID.uuid1()}"}) |> Repo.insert
+    _non_build_cluster = EtcdCluster.new(%{etcd_token: "#{UUID.uuid1()}", allow_docker_builds: false}) |> Repo.insert
+    _cluster = EtcdCluster.new(%{etcd_token: "#{UUID.uuid1()}"}) |> Repo.insert
 
     clusters = Repo.all(EtcdClusterQuery.get_docker_build_clusters)
     assert clusters != nil

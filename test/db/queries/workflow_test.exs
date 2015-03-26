@@ -1,7 +1,7 @@
 require Timex.Time
 
 defmodule DB.Queries.Workflow.Test do
-  use ExUnit.Case
+  use ExUnit.Case, async: false
   use Timex
 
   alias ProjectOmeletteManager.DB.Models.Workflow
