@@ -251,13 +251,13 @@ defmodule ProjectOmeletteManager.ProductComponentsController do
 
     stack = if params["scaffold_options"] != nil, do: params["scaffold_options"]["stack"], else: nil
 
-    scaffold_result = if source_repo != nil && stack != nil do
-      # TODO: Implement Scaffold stuff
-      #Scaffold.create(source_repo, stack)
-      {:ok, "http://dummy.repo/.git"}
-    else
-      {:ok, nil}
-    end
+    # TODO: Scaffolding not currently supported
+    # scaffold_result = if source_repo != nil && stack != nil do
+    #   Scaffold.create(source_repo, stack)
+    # else
+    #   {:ok, nil}
+    # end
+    scaffold_result = {:ok, nil}
 
     case scaffold_result do
       {:ok, _repo} ->
