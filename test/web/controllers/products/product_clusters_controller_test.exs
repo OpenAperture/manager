@@ -5,7 +5,6 @@ defmodule ProjectOmeletteManager.ProductClustersController.Test do
 
   alias ProjectOmeletteManager.DB.Models.Product
   alias ProjectOmeletteManager.DB.Models.ProductCluster
-  alias ProjectOmeletteManager.DB.Models.EtcdCluster
   alias ProjectOmeletteManager.Router
 
   setup_all do

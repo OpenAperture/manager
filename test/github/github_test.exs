@@ -20,7 +20,7 @@ defmodule ProjectOmeletteManager.GitHub.Test do
 
   test "clone -- success", context do
     repo = context[:repo]
-    :meck.expect(System, :cmd, fn command, args, opts ->
+    :meck.expect(System, :cmd, fn command, args, _opts ->
       assert command == "/bin/bash"
       assert "git clone #{repo.remote_url} #{repo.local_repo_path}" in args
       {"cool test message", 0}
@@ -41,7 +41,7 @@ defmodule ProjectOmeletteManager.GitHub.Test do
     repo = context[:repo]
     path = "cool_folder"
 
-    :meck.expect(System, :cmd, fn command, args, opts ->
+    :meck.expect(System, :cmd, fn command, args, _opts ->
       assert command == "/bin/bash"
       assert "git add -A #{path}" in args
       {"cool success message", 0}
@@ -63,7 +63,7 @@ defmodule ProjectOmeletteManager.GitHub.Test do
   test "commit -- sucess", context do
     repo = context[:repo]
     message = "cool commit message"
-    :meck.expect(System, :cmd, fn command, args, opts ->
+    :meck.expect(System, :cmd, fn command, args, _opts ->
       assert command == "/bin/bash"
       assert "git commit -m \"#{message}\"" in args
       {"cool success message", 0}
@@ -84,8 +84,8 @@ defmodule ProjectOmeletteManager.GitHub.Test do
   test "push -- success", context do
     repo = context[:repo]
 
-    :meck.expect(System, :cmd, fn command, args, opts ->
-      assert command = "/bin/bash"
+    :meck.expect(System, :cmd, fn command, args, _opts ->
+      assert command == "/bin/bash"
       assert "git push" in args
       {"cool success message", 0}
     end)
