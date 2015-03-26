@@ -1,5 +1,5 @@
 defmodule DB.Models.MessagingExchange.Test do
-  use ExUnit.Case
+  use ExUnit.Case, async: false
 
   alias ProjectOmeletteManager.DB.Models.MessagingExchange
   alias ProjectOmeletteManager.Repo

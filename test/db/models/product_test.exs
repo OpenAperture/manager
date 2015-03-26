@@ -1,5 +1,5 @@
 defmodule DB.Models.Product.Test do
-  use ExUnit.Case
+  use ExUnit.Case, async: false
   import Ecto.Query
 
   alias ProjectOmeletteManager.DB.Models.Product

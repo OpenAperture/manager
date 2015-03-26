@@ -1,5 +1,5 @@
 defmodule DB.Models.ProductEnvironmentalVariable.Test do
-  use ExUnit.Case
+  use ExUnit.Case, async: false
 
   alias ProjectOmeletteManager.DB.Models.ProductEnvironmentalVariable, as: PEV
   alias ProjectOmeletteManager.DB.Models.Product

@@ -79,8 +79,26 @@ defmodule ProjectOmeletteManager.Router do
     get "/", ProductsController, :index
     post "/", ProductsController, :create
 
-    get "/:product_name", ProductsController, :show
-    delete "/:product_name", ProductsController, :destroy
-    put "/:product_name", ProductsController, :update
+    scope "/:product_name" do
+      get "/", ProductsController, :show
+      delete "/", ProductsController, :destroy
+      put "/", ProductsController, :update
+
+      scope "/clusters" do
+        get "/", ProductClustersController, :index
+        post "/", ProductClustersController, :create
+        delete "/", ProductClustersController, :destroy
+      end
+
+      scope "/components" do
+        get "/", ProductComponentsController, :index
+        post "/", ProductComponentsController, :create
+        delete "/", ProductComponentsController, :destroy
+
+        get "/:component_name", ProductComponentsController, :show
+        put "/:component_name", ProductComponentsController, :update
+        delete "/:component_name", ProductComponentsController, :destroy_component
+      end
+    end
   end
 end

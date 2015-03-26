@@ -146,7 +146,6 @@ defmodule ProjectOmeletteManager.ProductsController.Test do
 
   test "update action -- fails on invalid change" do
     product = %Product{name: "original_test1", id: 1}
-    updated_product = %Product{name: "updated_test1", id: 1}
     :meck.expect(ProjectOmeletteManager.Repo, :one, fn query ->
 
       # No real good way to get at the structure of the query, so just look at

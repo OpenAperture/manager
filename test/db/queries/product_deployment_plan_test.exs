@@ -1,5 +1,5 @@
 defmodule DB.Queries.ProductDeploymentPlan.Test do
-  use ExUnit.Case
+  use ExUnit.Case, async: false
 
   alias ProjectOmeletteManager.Repo
   alias ProjectOmeletteManager.DB.Models.Product

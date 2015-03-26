@@ -37,5 +37,19 @@ defmodule ProjectOmeletteManager.DB.Queries.EtcdCluster do
     from c in EtcdCluster,
       where: c.id == ^cluster_id,
       select: c
-  end  
+  end
+
+  @doc """
+  Method to retrieve the DB.Models.EtcdCluster that have the allow_docker_builds set to true
+     
+  ## Return values
+   
+  db query
+  """
+  @spec get_docker_build_clusters :: term
+  def get_docker_build_clusters do
+    from c in EtcdCluster,
+      where: c.allow_docker_builds == true,
+      select: c
+  end
 end
