@@ -14,6 +14,12 @@ defmodule ProjectOmeletteManager.ProductDeploymentPlansController.Test do
   alias ProjectOmeletteManager.DB.Models.ProductDeploymentPlanStep
   alias ProjectOmeletteManager.DB.Models.ProductDeploymentPlanStepOption
   
+  setup_all do
+    :meck.new(ProjectOmeletteManager.Plugs.Authentication, [:passthrough])
+    :meck.expect(ProjectOmeletteManager.Plugs.Authentication, :call, fn conn, _opts -> conn end)
+
+    on_exit fn -> :meck.unload end
+  end
 
   setup do
     product = Product.new(%{name: "test_pdp_product"})
