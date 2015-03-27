@@ -99,6 +99,16 @@ defmodule ProjectOmeletteManager.Router do
         put "/:component_name", ProductComponentsController, :update
         delete "/:component_name", ProductComponentsController, :destroy_component
       end
+
+      scope "/deployment_plans" do
+        get "/", ProductDeploymentPlansController, :index
+        post "/", ProductDeploymentPlansController, :create
+        delete "/", ProductDeploymentPlansController, :destroy_all_plans
+
+        get "/:plan_name", ProductDeploymentPlansController, :show
+        put "/:plan_name", ProductDeploymentPlansController, :update
+        delete "/:plan_name", ProductDeploymentPlansController, :destroy_plan
+      end
     end
   end
 end
