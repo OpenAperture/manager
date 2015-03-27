@@ -16,6 +16,9 @@ config :project_omelette_manager, ProjectOmeletteManager.Endpoint,
 config :project_omelette_manager, ProjectOmeletteManager.Repo,
   adapter: Ecto.Adapters.Postgres
 
+config :project_omelette_manager, ProjectOmeletteManager.Plugs.Authentication,
+  oauth_validate_url: System.get_env("CLOUDOS_MANAGER_OAUTH_VALIDATE_URL") || "https://www.googleapis.com/oauth2/v1/tokeninfo"
+
 # Configures Elixir's Logger
 config :logger, :console,
   format: "$time $metadata[$level] $message\n",
