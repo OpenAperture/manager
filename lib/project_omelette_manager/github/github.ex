@@ -2,19 +2,12 @@ defmodule ProjectOmeletteManager.GitHub do
   require Logger
   alias ProjectOmeletteManager.GitHub.Repo
 
-  @spec get_project_name(String.t) :: String.t
-  def get_project_name(repo_url) when is_binary(repo_url) do
-    uri = URI.parse(repo_url)
-
-    uri.path
-    |> String.split("/")
-    |> List.last
-  end
-
-  @spec get_project_name(Repo.t) :: String.t
-  def get_project_name(repo) when is_map(repo) do
-    repo.remote_url
-    |> get_project_name
+  @spec get_github_url :: String.t
+  def get_github_url() do
+    case Application.get_env(:github, :user_credentials) do
+      nil -> "https://github.com/"
+      creds -> "https://" <> creds <> "@github.com/"
+    end
   end
 
   @spec clone(Repo.t) :: :ok | {:error, String.t}

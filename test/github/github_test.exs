@@ -100,18 +100,4 @@ defmodule ProjectOmeletteManager.GitHub.Test do
     {result, _msg} = push(repo)
     assert :error == result
   end
-
-  test "get_project_name from repo", context do
-    repo = context[:repo]
-
-    assert get_project_name(repo) == "test_project"
-  end
-
-  test "get_project_name from https url" do
-    assert get_project_name("https://github.com/some_user/test_project") == "test_project"
-  end
-
-  test "get_project_name from ssh url" do
-    assert get_project_name("git@github.com:some_user/test_project.git") == "test_project.git"
-  end
 end
