@@ -240,18 +240,18 @@ defmodule ProjectOmeletteManager.ProductComponentsController do
 
   @spec create_component(Product.t, Map.t) :: {:ok, ProductComponent.t} | {:invalid, [any]} | {:error, any}
   defp create_component(product, params) do
-    options = params["options"] || []
-    source_repo = Enum.find_value(options, fn map ->
-      if map["name"] == "source_repo" do
-        map["value"]
-      else
-        false
-      end
-    end)
-
-    stack = if params["scaffold_options"] != nil, do: params["scaffold_options"]["stack"], else: nil
-
     # TODO: Scaffolding not currently supported
+    # options = params["options"] || []
+    # source_repo = Enum.find_value(options, fn map ->
+    #   if map["name"] == "source_repo" do
+    #     map["value"]
+    #   else
+    #     false
+    #   end
+    # end)
+
+    # stack = if params["scaffold_options"] != nil, do: params["scaffold_options"]["stack"], else: nil
+
     # scaffold_result = if source_repo != nil && stack != nil do
     #   Scaffold.create(source_repo, stack)
     # else
