@@ -82,10 +82,10 @@ defmodule ProjectOmeletteManager.Plugs.Authentication do
   @spec authenticate_request(String.t(), String.t()) :: term
   defp authenticate_request(url, auth_header) do
     Logger.debug("Attempting to validate auth header...")
-    if (!String.starts_with?(auth_header, "OAuth ")) do
+    if (!String.starts_with?(auth_header, "Bearer ")) do
       false
     else
-      access_token = to_string(tl(String.split(auth_header, "OAuth ")))
+      access_token = to_string(tl(String.split(auth_header, "Bearer ")))
       Logger.debug "Validating token: url: #{url}, token: #{inspect access_token}"
       CloudosAuth.Server.validate_token?(url, access_token)
     end
