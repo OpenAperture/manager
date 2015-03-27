@@ -49,7 +49,7 @@ defmodule ProjectOmeletteManager.Plugs.Authentication do
         |> halt
       {"authorization", auth_header} ->
         try do
-          case authenticate_request(Application.get_env(:project_omelette_manager, :oauth_validate_url), auth_header) do
+          case authenticate_request(Application.get_env(:project_omelette_manager, __MODULE__)[:oauth_validate_url], auth_header) do
             true -> 
               Logger.debug("Request authentication was validated")
               conn
@@ -86,7 +86,7 @@ defmodule ProjectOmeletteManager.Plugs.Authentication do
       false
     else
       access_token = to_string(tl(String.split(auth_header, "OAuth ")))
-      IO.puts "url: #{url}, token: #{inspect access_token}"
+      Logger.debug "Validating token: url: #{url}, token: #{inspect access_token}"
       CloudosAuth.Server.validate_token?(url, access_token)
     end
   end
