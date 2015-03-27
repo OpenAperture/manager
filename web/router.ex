@@ -12,9 +12,12 @@ defmodule ProjectOmeletteManager.Router do
     plug :accepts, ["json"]
   end
 
+  pipeline :secure do
+    plug ProjectOmeletteManager.Plugs.Authentication
+  end
+
   scope "/", ProjectOmeletteManager do
     pipe_through :browser # Use the default browser stack
-
     get "/", PageController, :index
     #Server Statuses
     get "/status", StatusController, :index
@@ -23,7 +26,7 @@ defmodule ProjectOmeletteManager.Router do
 
   scope "/clusters", ProjectOmeletteManager do
     pipe_through :api
-
+    pipe_through :secure
     get "/", EtcdClusterController, :index
     post "/", EtcdClusterController, :register
 
@@ -38,6 +41,7 @@ defmodule ProjectOmeletteManager.Router do
 
   scope "/messaging", ProjectOmeletteManager.Web.Controllers do
     pipe_through :api
+    pipe_through :secure
 
     scope "/brokers" do
       get "/", MessagingBrokersController, :index
@@ -70,6 +74,7 @@ defmodule ProjectOmeletteManager.Router do
 
   scope "/products", ProjectOmeletteManager do
     pipe_through :api
+    pipe_through :secure
 
     get "/", ProductsController, :index
     post "/", ProductsController, :create

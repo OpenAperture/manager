@@ -7,10 +7,18 @@ defmodule ProjectOmeletteManager.ProductClustersController.Test do
   alias ProjectOmeletteManager.DB.Models.ProductCluster
   alias ProjectOmeletteManager.Router
 
-  setup_all do
+  setup_all _context do
     :meck.new ProjectOmeletteManager.Repo
+    :meck.new(ProjectOmeletteManager.Plugs.Authentication, [:passthrough])
+    :meck.expect(ProjectOmeletteManager.Plugs.Authentication, :call, fn conn, _opts -> conn end)
 
-    on_exit fn -> :meck.unload end
+    on_exit _context, fn ->
+      try do
+        :meck.unload(ProjectOmeletteManager.Plugs.Authentication)
+        :meck.unload
+      rescue _ -> IO.puts "" end
+    end    
+    :ok
   end
 
   test "index action -- product exists" do

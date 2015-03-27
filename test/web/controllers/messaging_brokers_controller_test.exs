@@ -12,6 +12,18 @@ defmodule ProjectOmeletteManager.Web.Controllers.MessagingBrokersController.Test
 
   import Ecto.Query
 
+  setup_all _context do
+    :meck.new(ProjectOmeletteManager.Plugs.Authentication, [:passthrough])
+    :meck.expect(ProjectOmeletteManager.Plugs.Authentication, :call, fn conn, _opts -> conn end)
+
+    on_exit _context, fn ->
+      try do
+        :meck.unload(ProjectOmeletteManager.Plugs.Authentication)
+      rescue _ -> IO.puts "" end
+    end    
+    :ok
+  end
+
   setup do
     on_exit fn -> 
       Repo.delete_all(MessagingExchangeBroker)
