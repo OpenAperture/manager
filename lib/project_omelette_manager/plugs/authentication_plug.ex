@@ -49,7 +49,7 @@ defmodule ProjectOmeletteManager.Plugs.Authentication do
         |> halt
       {"authorization", auth_header} ->
         try do
-          case authenticate_request(Application.get_env(:cloudos_manager, :oauth_validate_url), auth_header) do
+          case authenticate_request(Application.get_env(:project_omelette_manager, :oauth_validate_url), auth_header) do
             true -> 
               Logger.debug("Request authentication was validated")
               conn
@@ -60,9 +60,9 @@ defmodule ProjectOmeletteManager.Plugs.Authentication do
               |> halt            
           end
         rescue e in _ ->
-          Logger.error("Unable to authentication request, an unknown error has occurred:  #{inspect e}")
+          Logger.error("Unable to authenticate request, an unknown error has occurred:  #{inspect e}")
           conn
-          |> send_resp(500, "Unable to authentication request, an unknown error has occurred!")
+          |> send_resp(500, "Unable to authenticate request, an unknown error has occurred!")
           |> halt                      
         end
     end
@@ -85,8 +85,9 @@ defmodule ProjectOmeletteManager.Plugs.Authentication do
     if (!String.starts_with?(auth_header, "OAuth ")) do
       false
     else
-      access_token = to_string(tl(String.split(auth_header, "OAuth ")))    
-      CloudosAuth.Server.validate_header(url, access_token)
+      access_token = to_string(tl(String.split(auth_header, "OAuth ")))
+      IO.puts "url: #{url}, token: #{inspect access_token}"
+      CloudosAuth.Server.validate_token?(url, access_token)
     end
   end
 end
