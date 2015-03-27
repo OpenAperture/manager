@@ -1,7 +1,16 @@
 defmodule ProjectOmeletteManager.GitHub do
+  @moduledoc """
+  This module contains functions used for interacting with a git repository,
+  specifically in the context of one cloned from GitHub.
+  """
+
   require Logger
   alias ProjectOmeletteManager.GitHub.Repo
 
+  @doc """
+  Retrieves the base GitHub URL, including an OAuth credential if one is set
+  in the application's configuration.
+  """
   @spec get_github_url :: String.t
   def get_github_url() do
     case Application.get_env(:github, :user_credentials) do
@@ -10,6 +19,9 @@ defmodule ProjectOmeletteManager.GitHub do
     end
   end
 
+  @doc """
+  Clones a remote git repository to a local path.
+  """
   @spec clone(Repo.t) :: :ok | {:error, String.t}
   def clone(repo) do
     Logger.debug "Attempting to clone GitHub repo: #{repo.remote_url} into #{repo.local_repo_path}"
@@ -27,6 +39,9 @@ defmodule ProjectOmeletteManager.GitHub do
     end
   end
 
+  @doc """
+  Executes a `git checkout` against a specific branch, tag, or hash.
+  """
   @spec checkout(Repo.t) :: :ok | {:error, String.t}
   def checkout(repo) do
     Logger.info("Switching to branch/tag #{repo.branch} in directory #{repo.local_repo_path}...")
@@ -42,6 +57,9 @@ defmodule ProjectOmeletteManager.GitHub do
     end
   end
 
+  @doc """
+  Stages a file to the local git repository.
+  """
   @spec add(Repo.t, String.t) :: :ok | {:error, String.t}
   def add(repo, path) do
     Logger.info("Staging file #{path} for commit...")
@@ -57,6 +75,9 @@ defmodule ProjectOmeletteManager.GitHub do
     end
   end
 
+  @doc """
+  Executes a git add -A for a directory.
+  """
   @spec add_all(Repo.t, String.t) :: :ok | {:error, String.t}
   def add_all(repo, path) do
     add_command = "git add -A " <> path
@@ -71,6 +92,9 @@ defmodule ProjectOmeletteManager.GitHub do
     end
   end
 
+  @doc """
+  Executes a git commit for the local repository.
+  """
   @spec commit(Repo.t, String.t) :: :ok | {:error, String.t}
   def commit(repo, message) do
     commit_command = "git commit -m \"" <> message <> "\""
@@ -85,6 +109,9 @@ defmodule ProjectOmeletteManager.GitHub do
     end
   end
 
+  @doc """
+  Executes a git push for a local repository. Uses the default remote.
+  """
   @spec push(Repo.t) :: :ok | {:error, String.t}
   def push(repo) do
     case System.cmd("/bin/bash", ["-c", "git push"], [{:cd, repo.local_repo_path}, {:stderr_to_stdout, true}]) do

@@ -1,5 +1,6 @@
 defmodule ProjectOmeletteManager.GitHub.Repo.Test do
   use ExUnit.Case
+  doctest ProjectOmeletteManager.GitHub.Repo
 
   import ProjectOmeletteManager.GitHub.Repo
   alias ProjectOmeletteManager.GitHub.Repo
