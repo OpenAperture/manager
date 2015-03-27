@@ -37,6 +37,45 @@ defmodule ProjectOmeletteManager.GitHub.Test do
     assert :error == result
   end
 
+  test "checkout -- success", context do
+    repo = context[:repo]
+    :meck.expect(System, :cmd, fn command, args, _opts ->
+      assert command == "/bin/bash"
+      assert "git checkout #{repo.branch}" in args
+      {"cool success message", 0}
+    end)
+
+    assert checkout(repo) == :ok
+  end
+
+  test "checkout -- failure", context do
+    repo = context[:repo]
+    :meck.expect(System, :cmd, 3, {"oh no!", 1})
+
+    {result, _msg} = checkout(repo)
+    assert :error == result
+  end
+
+  test "add -- success", context do
+    repo = context[:repo]
+    path = "/some/test/path"
+    :meck.expect(System, :cmd, fn command, args, _opts ->
+      assert command == "/bin/bash"
+      assert "git add " <> path in args
+      {"cool success message", 0}
+    end)
+
+    assert add(repo, path) == :ok
+  end
+
+  test "add -- failure", context do
+    repo = context[:repo]
+    :meck.expect(System, :cmd, 3, {"oh no!", 1})
+
+    {result, _msg} = add(repo, "blar")
+    assert :error == result
+  end
+
   test "add_all -- success", context do
     repo = context[:repo]
     path = "cool_folder"

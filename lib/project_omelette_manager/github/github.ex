@@ -21,7 +21,37 @@ defmodule ProjectOmeletteManager.GitHub do
         Logger.debug "Successfully cloned repository\n#{message}"
         :ok
       {message, code} ->
-        error_message = "`git clone` returned #{code}.\n#{message}"
+        error_message = "An error occurred performing  `git clone` (returned #{code}):\n#{message}"
+        Logger.error(error_message)
+        {:error, error_message}
+    end
+  end
+
+  @spec checkout(Repo.t) :: :ok | {:error, String.t}
+  def checkout(repo) do
+    Logger.info("Switching to branch/tag #{repo.branch} in directory #{repo.local_repo_path}...")
+    checkout_command = "git checkout " <> repo.branch
+    case System.cmd("/bin/bash", ["-c", checkout_command], [{:cd, repo.local_repo_path}, {:stderr_to_stdout, true}]) do
+      {message, 0} ->
+        Logger.debug "Successfully performed `git checkout`\n#{message}"
+        :ok
+      {message, code} ->
+        error_message = "An error occurred performing `git checkout` (returned #{code}):\n#{message}"
+        Logger.error(error_message)
+        {:error, error_message}
+    end
+  end
+
+  @spec add(Repo.t, String.t) :: :ok | {:error, String.t}
+  def add(repo, path) do
+    Logger.info("Staging file #{path} for commit...")
+    add_command = "git add " <> path
+    case System.cmd("/bin/bash", ["-c", add_command], [{:cd, repo.local_repo_path}, {:stderr_to_stdout, true}]) do
+      {message, 0} ->
+        Logger.debug "Successfully performed `git add`\n#{message}"
+        :ok
+      {message, code} ->
+        error_message = "An error occurred performing `git add` (returned #{code}):\n#{message}"
         Logger.error(error_message)
         {:error, error_message}
     end
@@ -35,7 +65,7 @@ defmodule ProjectOmeletteManager.GitHub do
         Logger.debug "Successfully performed `git add all`\n#{message}"
         :ok
       {message, code} ->
-        error_message = "`git add all` returned #{code}.\n#{message}"
+        error_message = "An error occurred performing  `git add all` (returned #{code}):\n#{message}"
         Logger.error(error_message)
         {:error, error_message}
     end
@@ -49,7 +79,7 @@ defmodule ProjectOmeletteManager.GitHub do
         Logger.debug "Successfully performed `git commit`\n#{message}"
         :ok
       {message, code} ->
-        error_message = "`git commit` returned #{code}.\n#{message}"
+        error_message = "An error occurred performing `git commit` (returned #{code}):\n#{message}"
         Logger.error(error_message)
         {:error, error_message}
     end
@@ -62,7 +92,7 @@ defmodule ProjectOmeletteManager.GitHub do
         Logger.debug "Successfully performed `git push`\n#{message}"
         :ok
       {message, code} ->
-        error_message = "`git push` returned #{code}.\n#{message}"
+        error_message = "An error occurred performing `git push` (returned #{code}):\n#{message}"
         Logger.error(error_message)
         {:error, error_message}
     end
