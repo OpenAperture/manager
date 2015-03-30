@@ -236,6 +236,7 @@ defmodule ProjectOmeletteManager.ProductDeploymentPlansController do
   @spec get_product_and_plan_by_name(String.t, String.t, :inner | :left | :right) :: {Product.t, ProductDeploymentPlan.t | nil} | nil
   defp get_product_and_plan_by_name(product_name, plan_name, join_type \\ :inner) do
     product_name = URI.decode(product_name)
+    plan_name = URI.decode(plan_name)
 
     Product
     |> join(join_type, [p], pdp in ProductDeploymentPlan, pdp.product_id == p.id and pdp.name == ^plan_name)

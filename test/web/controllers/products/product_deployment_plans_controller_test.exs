@@ -100,6 +100,25 @@ defmodule ProjectOmeletteManager.ProductDeploymentPlansController.Test do
     assert body["name"] == plan.name
   end
 
+  test "show action -- success with URI-encoded plan name", context do
+    product = context[:product]
+
+    name = "Test Plan & with ^ we#ird char@cters"
+    plan = ProductDeploymentPlan.new(%{name: name, product_id: product.id})
+           |> Repo.insert
+
+    name_encoded = URI.encode(name, &URI.char_unreserved?/1)
+    path = product_deployment_plans_path(Endpoint, :show, product.name, name_encoded)
+
+    conn = call(Router, :get, path)
+
+    assert conn.status == 200
+
+    body = Poison.decode!(conn.resp_body)
+
+    assert body["name"] == name
+  end
+
   test "show action -- product not found", context do
     plan = context[:pdp1]
     path = product_deployment_plans_path(Endpoint, :show, "not a real product name", plan.name)
