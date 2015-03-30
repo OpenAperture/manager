@@ -317,10 +317,10 @@ defmodule ProjectOmeletteManager.Web.Controllers.MessagingBrokersController do
   Underlying HTTP connection
   """
   @spec get_connections(term, [any]) :: term
-  def get_connections(conn, %{"id" => id} = params) do
+  def get_connections(conn, %{"id" => id} = _params) do
     case Repo.get(MessagingBroker, id) do
       nil -> resp(conn, :not_found, "")
-      broker -> 
+      _broker -> 
       	query = from b in MessagingBrokerConnection,
       		where: b.messaging_broker_id == ^id,
       		select: b
@@ -355,7 +355,7 @@ defmodule ProjectOmeletteManager.Web.Controllers.MessagingBrokersController do
   def destroy_connections(conn, %{"id" => id} = _params) do
     case Repo.get(MessagingBroker, id) do
       nil -> resp(conn, :not_found, "")
-      broker ->
+      _broker ->
         Repo.transaction(fn ->
           Repo.delete_all(from(c in MessagingBrokerConnection, where: c.messaging_broker_id == ^id))
         end)

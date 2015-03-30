@@ -111,4 +111,16 @@ defmodule ProjectOmeletteManager.Router do
       end
     end
   end
+
+  scope "/workflows", ProjectOmeletteManager.Web.Controllers do
+    pipe_through :api
+    pipe_through :secure
+
+    get "/", WorkflowController, :index
+    post "", WorkflowController, :create
+
+    get "/:id", WorkflowController, :show
+    put "/:id", WorkflowController, :update
+    delete "/:id", WorkflowController, :destroy
+  end  
 end
