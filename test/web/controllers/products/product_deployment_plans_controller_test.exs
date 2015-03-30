@@ -104,8 +104,8 @@ defmodule ProjectOmeletteManager.ProductDeploymentPlansController.Test do
     product = context[:product]
 
     name = "Test Plan & with ^ we#ird char@cters"
-    plan = ProductDeploymentPlan.new(%{name: name, product_id: product.id})
-           |> Repo.insert
+    ProductDeploymentPlan.new(%{name: name, product_id: product.id})
+    |> Repo.insert
 
     name_encoded = URI.encode(name, &URI.char_unreserved?/1)
     path = product_deployment_plans_path(Endpoint, :show, product.name, name_encoded)

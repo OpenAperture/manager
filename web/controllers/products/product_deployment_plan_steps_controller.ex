@@ -10,9 +10,7 @@ defmodule ProjectOmeletteManager.ProductDeploymentPlanStepsController do
   alias ProjectOmeletteManager.Endpoint
   alias ProjectOmeletteManager.Repo
   alias ProjectOmeletteManager.DB.Models.Product
-  alias ProjectOmeletteManager.DB.Queries.Product, as: ProductQuery
   alias ProjectOmeletteManager.DB.Models.ProductDeploymentPlan
-  alias ProjectOmeletteManager.DB.Queries.ProductDeploymentPlan, as: PDPQuery
   alias ProjectOmeletteManager.DB.Models.ProductDeploymentPlanStep
   alias ProjectOmeletteManager.DB.Queries.ProductDeploymentPlanStep, as: StepQuery
   alias ProjectOmeletteManager.DB.Models.ProductDeploymentPlanStepOption
