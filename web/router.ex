@@ -117,6 +117,10 @@ defmodule ProjectOmeletteManager.Router do
           end
         end
       end
+
+      scope "/environments" do
+        get "/", ProductEnvironmentsController, :index
+      end
     end
   end
 
