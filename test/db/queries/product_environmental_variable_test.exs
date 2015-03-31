@@ -80,6 +80,15 @@ defmodule DB.Queries.ProductEnvironmentalVariable.Test do
     assert length(results) == 11
   end
 
+  test "find_by_product_name, only product-level", context do
+    product_name = context[:product].name
+
+    results = PEVQuery.find_by_product_name(product_name, true)
+              |> Repo.all
+
+    assert length(results) == 3
+  end
+
   test "find_by_product_name is case-insensitive", context do
     product_name = context[:product].name |> String.upcase
 
@@ -127,6 +136,36 @@ defmodule DB.Queries.ProductEnvironmentalVariable.Test do
     results = Repo.all(PEVQuery.find_by_product_name_variable_name(context[:product].name, "A"))
 
     assert length(results) == 3
+  end
+
+  test "find_by_product_name_variable_name, only product_level", context do
+    product_name = context[:product].name
+    var_name = "A"
+
+    results = PEVQuery.find_by_product_name_variable_name(product_name, var_name, true)
+              |> Repo.all
+
+    assert length(results) == 1
+  end
+
+  test "find_by_product_name_variable_name, only product level, won't find var with only env association", context do
+    product_name = context[:product].name
+    var_name = "D"
+
+    results = PEVQuery.find_by_product_name_variable_name(product_name, var_name, true)
+              |> Repo.all
+
+    assert length(results) == 0
+  end
+
+  test "find_by_product_name_variable_name, *not* only product level, will find var with only env association", context do
+    product_name = context[:product].name
+    var_name = "F"
+
+    results = PEVQuery.find_by_product_name_variable_name(product_name, var_name, false)
+              |> Repo.all
+
+    assert length(results) == 1
   end
 
   test "find_by_product_name_variable_name is case-insensitive", context do

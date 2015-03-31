@@ -22,14 +22,32 @@ defmodule ProjectOmeletteManager.DB.Queries.ProductEnvironmentalVariable do
       select: pev
   end
 
-  @spec find_by_product_name(String.t) :: Ecto.Query.t
-  def find_by_product_name(product_name) do
+  @doc """
+  Finds all variables associated to the given product across environments,
+  optionally filtering to *only* those variables associated to the product and
+  no environment.
+  """
+  @spec find_by_product_name(String.t, boolean) :: Ecto.Query.t
+  def find_by_product_name(product_name, product_level_only \\ false)
+
+  def find_by_product_name(product_name, true) do
+    from pev in ProductEnvironmentalVariable,
+      join: p in Product, on: pev.product_id == p.id,
+      where: fragment("lower(?) = lower(?)", p.name, ^product_name),
+      where: is_nil(pev.product_environment_id),
+      select: pev
+  end
+
+  def find_by_product_name(product_name, false) do
     from pev in ProductEnvironmentalVariable,
       join: p in Product, on: pev.product_id == p.id,
       where: fragment("lower(?) = lower(?)", p.name, ^product_name),
       select: pev
   end
 
+  @doc """
+  Finds all variables associated to the given product and environment.
+  """
   @spec find_by_product_name_environment_name(String.t, String.t) :: Ecto.Query.t
   def find_by_product_name_environment_name(product_name, environment_name) do
     from pev in ProductEnvironmentalVariable,
@@ -40,8 +58,24 @@ defmodule ProjectOmeletteManager.DB.Queries.ProductEnvironmentalVariable do
       select: pev
   end
 
-  @spec find_by_product_name_variable_name(String.t, String.t) :: Ecto.Query.t
-  def find_by_product_name_variable_name(product_name, variable_name) do
+  @doc """
+  Finds all variables with the given name associated to the given product,
+  optionall filtering to *only* the variable associated to the given product
+  and no environment.
+  """
+  @spec find_by_product_name_variable_name(String.t, String.t, boolean) :: Ecto.Query.t
+  def find_by_product_name_variable_name(product_name, variable_name, product_level_only \\ false)
+
+  def find_by_product_name_variable_name(product_name, variable_name, true) do
+    from pev in ProductEnvironmentalVariable,
+      join: p in Product, on: pev.product_id == p.id,
+      where: fragment("lower(?) = lower(?)", pev.name, ^variable_name),
+      where: fragment("lower(?) = lower(?)", p.name, ^product_name),
+      where: is_nil(pev.product_environment_id),
+      select: pev
+  end
+
+  def find_by_product_name_variable_name(product_name, variable_name, false) do
     from pev in ProductEnvironmentalVariable,
       join: p in Product, on: pev.product_id == p.id,
       where: fragment("lower(?) = lower(?)", pev.name, ^variable_name),
