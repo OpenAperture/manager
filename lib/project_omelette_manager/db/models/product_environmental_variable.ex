@@ -15,5 +15,6 @@ defmodule ProjectOmeletteManager.DB.Models.ProductEnvironmentalVariable do
 
   def validate_changes(model_or_changeset, params) do
     cast(model_or_changeset,  params, @required_fields, @optional_fields)
+    |> validate_length(:name, min: 1)
   end
 end

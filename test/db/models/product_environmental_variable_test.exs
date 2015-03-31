@@ -86,4 +86,25 @@ defmodule DB.Models.ProductEnvironmentalVariable.Test do
     assert retrieved_var.name == "Test name"
     assert retrieved_var.value == "Test value"
   end
+
+  test "validates that variable name cannot be empty, product-only variable", context do
+    product = context[:product]
+    changeset = PEV.new(%{product_id: product.id, name: ""})
+
+    refute changeset.valid?
+
+    changeset = PEV.new(%{product_id: product.id, name: "test name"})
+    assert changeset.valid?
+  end
+
+  test "validates that variable name cannot be empty, product+environment variable", context do
+    product = context[:product]
+    env = context[:product_environment]
+    changeset = PEV.new(%{product_id: product.id, product_environment_id: env.id,  name: ""})
+
+    refute changeset.valid?
+
+    changeset = PEV.new(%{product_id: product.id, product_environment_id: env.id, name: "test name"})
+    assert changeset.valid?
+  end
 end
