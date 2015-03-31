@@ -78,4 +78,15 @@ defmodule DB.Models.ProductEnvironment.Test do
     Repo.delete(var1)
     Repo.delete(var2)
   end
+
+  test "validates that product name cannot be empty", context do
+    product = context[:product]
+    changeset = ProductEnvironment.new(%{product_id: product.id, name: ""})
+
+    refute changeset.valid?
+
+    changeset = ProductEnvironment.new(%{product_id: product.id, name: "some test name"})
+
+    assert changeset.valid?
+  end
 end
