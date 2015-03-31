@@ -126,7 +126,25 @@ defmodule ProjectOmeletteManager.Router do
           get "/", ProductEnvironmentsController, :show
           put "/", ProductEnvironmentsController, :update
           delete "/", ProductEnvironmentsController, :destroy
+
+          scope "/variables" do
+            get "/", ProductEnvironmentalVariablesController, :index_environment
+            post "/", ProductEnvironmentalVariablesController, :create_environment
+
+            get "/:variable_name", ProductEnvironmentalVariablesController, :show_environment
+            put "/:variable_name", ProductEnvironmentalVariablesController, :update_environment
+            delete "/:variable_name", ProductEnvironmentalVariablesController, :destroy_environment
+          end
         end
+      end
+
+      scope "/environmental_variables" do
+        get "/", ProductEnvironmentalVariablesController, :index_default
+        post "/", ProductEnvironmentalVariablesController, :create_default
+
+        get "/:variable_name", ProductEnvironmentalVariablesController, :show_default
+        put "/:variable_name", ProductEnvironmentalVariablesController, :update_default
+        delete "/:variable_name", ProductEnvironmentalVariablesController, :destroy_default
       end
     end
   end
