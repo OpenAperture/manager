@@ -11,7 +11,7 @@ defmodule ProjectOmeletteManager.DB.Queries.ProductEnvironment do
   def find_by_product_name(product_name) do
     from pe in ProductEnvironment,
       join: p in Product, on: pe.product_id == p.id,
-      where: p.name == ^product_name,
+      where: fragment("lower(?) = lower(?)", p.name, ^product_name),
       select: pe
   end
 
@@ -22,8 +22,8 @@ defmodule ProjectOmeletteManager.DB.Queries.ProductEnvironment do
   def get_environment(product_name, environment_name) do
     from pe in ProductEnvironment,
       join: p in Product, on: pe.product_id == p.id,
-      where: p.name == ^product_name,
-      where: pe.name == ^environment_name,
+      where: fragment("lower(?) = lower(?)", p.name, ^product_name),
+      where: fragment("lower(?) = lower(?)", pe.name, ^environment_name),
       select: pe
   end
 end
