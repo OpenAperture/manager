@@ -62,8 +62,29 @@ defmodule DB.Queries.ProductEnvironmentalVariable.Test do
     assert var.value == "staging"
   end
 
+  test "find_by_product_name_environment_name_variable_name is case-insensitive", context do
+    product_name = context[:product].name |> String.upcase
+    env_name = context[:env_testing].name |> String.upcase
+    var_name = "a"
+
+    result = PEVQuery.find_by_product_name_environment_name_variable_name(product_name, env_name, var_name)
+             |> Repo.one
+
+    assert result.name == "A"
+    assert result.value == "testing"
+  end
+
   test "find by product name", context do
     results = Repo.all(PEVQuery.find_by_product_name(context[:product].name))
+
+    assert length(results) == 11
+  end
+
+  test "find_by_product_name is case-insensitive", context do
+    product_name = context[:product].name |> String.upcase
+
+    results = PEVQuery.find_by_product_name(product_name)
+              |> Repo.all
 
     assert length(results) == 11
   end
@@ -71,6 +92,15 @@ defmodule DB.Queries.ProductEnvironmentalVariable.Test do
   test "find by product name and environment name", context do
     results = Repo.all(PEVQuery.find_by_product_name_environment_name(context[:product].name, context[:env_testing].name))
 
+    assert length(results) == 4
+  end
+
+  test "find_by_product_name_environment_name is case-insensitive", context do
+    product_name = context[:product].name |> String.upcase
+    env_name = context[:env_testing].name |> String.upcase
+
+    results = PEVQuery.find_by_product_name_environment_name(product_name, env_name)
+              |> Repo.all
     assert length(results) == 4
   end
 
@@ -84,8 +114,27 @@ defmodule DB.Queries.ProductEnvironmentalVariable.Test do
     assert Enum.all?(values, fn val -> val == "global" || val == "testing" end)
   end
 
+  test "find_all_for_environment is case-insensitive", context do
+    product_name = context[:product].name |> String.upcase
+    env_name = context[:env_testing].name |> String.upcase
+
+    results = PEVQuery.find_all_for_environment(product_name, env_name)
+              |> Repo.all
+    assert length(results) == 5
+  end
+
   test "find by product name and variable name", context do
     results = Repo.all(PEVQuery.find_by_product_name_variable_name(context[:product].name, "A"))
+
+    assert length(results) == 3
+  end
+
+  test "find_by_product_name_variable_name is case-insensitive", context do
+    product_name = context[:product].name |> String.upcase
+    var_name = "a"
+
+    results = PEVQuery.find_by_product_name_variable_name(product_name, var_name)
+              |> Repo.all
 
     assert length(results) == 3
   end

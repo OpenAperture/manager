@@ -16,7 +16,9 @@ defmodule ProjectOmeletteManager.DB.Queries.ProductEnvironmentalVariable do
     from pev in ProductEnvironmentalVariable,
       join: p in Product, on: pev.product_id == p.id,
       join: pe in ProductEnvironment, on: pev.product_environment_id == pe.id,
-      where: p.name == ^product_name and pe.name == ^environment_name and pev.name == ^name,
+      where: fragment("lower(?) = lower(?)", p.name, ^product_name),
+      where: fragment("lower(?) = lower(?)", pe.name, ^environment_name),
+      where: fragment("lower(?) = lower(?)", pev.name, ^name),
       select: pev
   end
 
@@ -24,7 +26,7 @@ defmodule ProjectOmeletteManager.DB.Queries.ProductEnvironmentalVariable do
   def find_by_product_name(product_name) do
     from pev in ProductEnvironmentalVariable,
       join: p in Product, on: pev.product_id == p.id,
-      where: p.name == ^product_name,
+      where: fragment("lower(?) = lower(?)", p.name, ^product_name),
       select: pev
   end
 
@@ -33,7 +35,8 @@ defmodule ProjectOmeletteManager.DB.Queries.ProductEnvironmentalVariable do
     from pev in ProductEnvironmentalVariable,
       join: p in Product, on: pev.product_id == p.id,
       join: pe in ProductEnvironment, on: pev.product_environment_id == pe.id,
-      where: p.name == ^product_name and pe.name == ^environment_name,
+      where: fragment("lower(?) = lower(?)", p.name, ^product_name),
+      where: fragment("lower(?) = lower(?)", pe.name, ^environment_name),
       select: pev
   end
 
@@ -41,7 +44,8 @@ defmodule ProjectOmeletteManager.DB.Queries.ProductEnvironmentalVariable do
   def find_by_product_name_variable_name(product_name, variable_name) do
     from pev in ProductEnvironmentalVariable,
       join: p in Product, on: pev.product_id == p.id,
-      where: pev.name == ^variable_name and p.name == ^product_name,
+      where: fragment("lower(?) = lower(?)", pev.name, ^variable_name),
+      where: fragment("lower(?) = lower(?)", p.name, ^product_name),
       select: pev
   end
 
@@ -65,8 +69,8 @@ defmodule ProjectOmeletteManager.DB.Queries.ProductEnvironmentalVariable do
       left_join: pe in ProductEnvironment, on: pev.product_environment_id == pe.id,
       distinct: pev.name,
       order_by: [pev.name, pev.product_environment_id],
-      where: p.name == ^product_name,
-      where: pe.name == ^environment_name or is_nil(pev.product_environment_id),
+      where: fragment("lower(?) = lower(?)", p.name, ^product_name),
+      where: fragment("lower(?) = lower(?)", pe.name, ^environment_name) or is_nil(pev.product_environment_id),
       select: pev
   end
 end
