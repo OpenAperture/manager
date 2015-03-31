@@ -120,6 +120,13 @@ defmodule ProjectOmeletteManager.Router do
 
       scope "/environments" do
         get "/", ProductEnvironmentsController, :index
+        post "/", ProductEnvironmentsController, :create
+
+        scope "/:environment_name" do
+          get "/", ProductEnvironmentsController, :show
+          put "/", ProductEnvironmentsController, :update
+          delete "/", ProductEnvironmentsController, :destroy
+        end
       end
     end
   end
