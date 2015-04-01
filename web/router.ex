@@ -146,6 +146,15 @@ defmodule ProjectOmeletteManager.Router do
         put "/:variable_name", ProductEnvironmentalVariablesController, :update_default
         delete "/:variable_name", ProductEnvironmentalVariablesController, :destroy_default
       end
+
+      scope "/deployments" do
+        get "/", ProductDeploymentsController, :index
+        post "/", ProductDeploymentsController, :create
+
+        get "/:deployment_id", ProductDeploymentsController, :show
+        get "/:deployment_id/steps", ProductDeploymentsController, :index_steps
+        delete "/:deployment_id", ProductDeploymentsController, :destroy
+      end
     end
   end
 
