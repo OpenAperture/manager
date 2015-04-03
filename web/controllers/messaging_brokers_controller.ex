@@ -30,7 +30,7 @@ defmodule ProjectOmeletteManager.Web.Controllers.MessagingBrokersController do
   @sendable_broker_fields [:id, :name, :inserted_at, :failover_broker_id, :updated_at]
   @updatable_broker_fields ["name", "failover_broker_id"]
 
-	@sendable_broker_connection_fields [:id, :messaging_broker_id, :username, :password, :host, :virtual_host, :inserted_at, :updated_at]
+	@sendable_broker_connection_fields [:id, :messaging_broker_id, :username, :password, :host, :port, :virtual_host, :inserted_at, :updated_at]
 
   @doc """
   GET /messaging/brokers - Retrieve all MessagingBrokers

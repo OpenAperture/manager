@@ -7,8 +7,9 @@ defmodule ProjectOmeletteManager.DB.Models.MessagingBrokerConnection do
     belongs_to :messaging_broker, MessagingBroker
     field :username                       
     field :password       
-    field :host           
-    field :virtual_host   
+    field :host   
+    field :virtual_host
+    field :port
     timestamps
   end
 
@@ -18,6 +19,6 @@ defmodule ProjectOmeletteManager.DB.Models.MessagingBrokerConnection do
   end
 
   def changeset(model_or_changeset, params \\ nil) do
-    cast(model_or_changeset, params, ~w(messaging_broker_id username password host), ~w(virtual_host))
+    cast(model_or_changeset, params, ~w(messaging_broker_id username password host), ~w(virtual_host port))
   end
 end
