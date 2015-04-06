@@ -28,8 +28,8 @@ defmodule ProjectOmeletteManager.Web.Controllers.MessagingExchangesController do
   This module contains the controllers for managing MessagingExchanges
   """  
 
-  @sendable_exchange_fields [:id, :name, :inserted_at, :updated_at]
-  @updatable_exchange_fields ["name"]
+  @sendable_exchange_fields [:id, :name, :failover_exchange_id, :inserted_at, :updated_at]
+  @updatable_exchange_fields ["name", "failover_exchange_id"]
 
   @sendable_exchange_broker_fields [:id, :messaging_exchange_id, :messaging_broker_id, :inserted_at, :updated_at]
 
@@ -190,6 +190,7 @@ defmodule ProjectOmeletteManager.Web.Controllers.MessagingExchangesController do
       exchange ->
         Repo.transaction(fn ->
           Repo.update_all(from(e in EtcdCluster, where: e.messaging_exchange_id  == ^id), messaging_exchange_id: nil)
+          Repo.update_all(from(e in MessagingExchange, where: e.failover_exchange_id  == ^id), failover_exchange_id: nil)
           Repo.delete_all(from(b in MessagingExchangeBroker, where: b.messaging_exchange_id  == ^id))          
           Repo.delete(exchange)
         end)

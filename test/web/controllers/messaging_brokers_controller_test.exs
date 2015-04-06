@@ -178,7 +178,6 @@ defmodule ProjectOmeletteManager.Web.Controllers.MessagingBrokersController.Test
   test "create_connection - success" do
     broker = Repo.insert(MessagingBroker.new(%{name: "#{UUID.uuid1()}"}))
 
-    name = "#{UUID.uuid1()}"
     conn = call(Router, :post, "/messaging/brokers/#{broker.id}/connections", %{
       "username" => "username",
       "password" => "123abc",
@@ -217,7 +216,6 @@ defmodule ProjectOmeletteManager.Web.Controllers.MessagingBrokersController.Test
   test "get_connections - success" do
     broker = Repo.insert(MessagingBroker.new(%{name: "#{UUID.uuid1()}"}))
 
-    name = "#{UUID.uuid1()}"
     conn = call(Router, :post, "/messaging/brokers/#{broker.id}/connections", %{
       "username" => "username",
       "password" => "123abc",

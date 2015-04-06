@@ -211,7 +211,7 @@ defmodule ProjectOmeletteManager.Web.Controllers.MessagingExchangesController.Te
 
   test "create_broker_restriction - bad request" do
     exchange = Repo.insert(MessagingExchange.new(%{name: "#{UUID.uuid1()}"}))
-    broker = Repo.insert(MessagingBroker.new(%{name: "#{UUID.uuid1()}"}))
+    Repo.insert(MessagingBroker.new(%{name: "#{UUID.uuid1()}"}))
 
     conn = call(Router, :post, "/messaging/exchanges/#{exchange.id}/brokers", %{})
     assert conn.status == 400
@@ -220,7 +220,7 @@ defmodule ProjectOmeletteManager.Web.Controllers.MessagingExchangesController.Te
   test "create_broker_restriction - conflict" do
     exchange = Repo.insert(MessagingExchange.new(%{name: "#{UUID.uuid1()}"}))
     broker = Repo.insert(MessagingBroker.new(%{name: "#{UUID.uuid1()}"}))
-    exchange_broker = Repo.insert(MessagingExchangeBroker.new(%{
+    Repo.insert(MessagingExchangeBroker.new(%{
       "messaging_broker_id" => broker.id,
       "messaging_exchange_id" => exchange.id
       }))
@@ -250,7 +250,7 @@ defmodule ProjectOmeletteManager.Web.Controllers.MessagingExchangesController.Te
   test "get_broker_restrictions - success" do
     exchange = Repo.insert(MessagingExchange.new(%{name: "#{UUID.uuid1()}"}))
     broker = Repo.insert(MessagingBroker.new(%{name: "#{UUID.uuid1()}"}))
-    exchange_broker = Repo.insert(MessagingExchangeBroker.new(%{
+    Repo.insert(MessagingExchangeBroker.new(%{
       "messaging_broker_id" => broker.id,
       "messaging_exchange_id" => exchange.id
       }))
@@ -288,7 +288,7 @@ defmodule ProjectOmeletteManager.Web.Controllers.MessagingExchangesController.Te
     assert length(connections) == 0
   end
 
-  test "get_broker_restrictions - not found" do
+  test "get_broker_restrictions - not found 2" do
     conn = call(Router, :delete, "/messaging/exchanges/1234567980/brokers", %{})
     assert conn.status == 404
   end
@@ -337,7 +337,7 @@ defmodule ProjectOmeletteManager.Web.Controllers.MessagingExchangesController.Te
       messaging_exchange_id: exchange.id,
       allow_docker_builds: true
     }
-    cluster = Repo.insert(Ecto.Changeset.cast(%EtcdCluster{}, params, ~w(etcd_token), ~w(allow_docker_builds messaging_exchange_id)))
+    Repo.insert(Ecto.Changeset.cast(%EtcdCluster{}, params, ~w(etcd_token), ~w(allow_docker_builds messaging_exchange_id)))
 
     conn = call(Router, :get, "/messaging/exchanges/#{exchange.id}/clusters?allow_docker_builds=false", %{})
     assert conn.status == 200
@@ -347,11 +347,6 @@ defmodule ProjectOmeletteManager.Web.Controllers.MessagingExchangesController.Te
 
   test "show_clusters - none associated" do
     exchange = Repo.insert(MessagingExchange.new(%{name: "#{UUID.uuid1()}"}))
-    params = %{
-      etcd_token: "123abc",
-      messaging_exchange_id: exchange.id
-    }
-
     conn = call(Router, :get, "/messaging/exchanges/#{exchange.id}/clusters", %{})
     assert conn.status == 200
     body = Poison.decode!(conn.resp_body)

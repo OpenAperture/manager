@@ -2,7 +2,8 @@ defmodule ProjectOmeletteManager.DB.Models.MessagingExchange do
   use Ecto.Model
 
   schema "messaging_exchanges" do
-    field :name   
+    field :name
+    field :failover_exchange_id, :integer
     timestamps
   end
 
@@ -12,6 +13,6 @@ defmodule ProjectOmeletteManager.DB.Models.MessagingExchange do
   end
 
   def changeset(model_or_changeset, params \\ nil) do
-    cast(model_or_changeset, params, ~w(name))
+    cast(model_or_changeset, params, ~w(name), ~w(failover_exchange_id))
   end
 end

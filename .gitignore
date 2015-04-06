@@ -5,3 +5,4 @@ erl_crash.dump
 sftp-config.json
 project_omelette.sublime-workspace
 mix.lock
+config/system.exs
