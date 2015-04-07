@@ -313,6 +313,7 @@ defmodule ProjectOmeletteManager.ProductEnvironmentalVariablesController do
   defp product_variable_name_conflict?(product_id, variable_name) do
     result = ProductEnvironmentalVariable
              |> where([pev], pev.product_id == ^product_id)
+             |> where([pev], is_nil(pev.product_environment_id))
              |> where([pev], fragment("lower(?) = lower(?)", pev.name, ^variable_name))
              |> Repo.one
 
@@ -324,6 +325,7 @@ defmodule ProjectOmeletteManager.ProductEnvironmentalVariablesController do
     result = ProductEnvironmentalVariable
              |> where([pev], pev.id != ^variable_id)
              |> where([pev], pev.product_id == ^product_id)
+             |> where([pev], is_nil(pev.product_environment_id))
              |> where([pev], fragment("lower(?) = lower(?)", pev.name, ^variable_name))
              |> Repo.one
 
