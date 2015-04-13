@@ -1,5 +1,5 @@
-defmodule ProjectOmeletteManager.PageController do
-  use ProjectOmeletteManager.Web, :controller
+defmodule OpenAperture.Manager.PageController do
+  use OpenAperture.Manager.Web, :controller
 
   plug :action
 

@@ -1,3 +1,3 @@
-defmodule ProjectOmeletteManager.PageView do
-  use ProjectOmeletteManager.Web, :view
+defmodule OpenAperture.Manager.PageView do
+  use OpenAperture.Manager.Web, :view
 end

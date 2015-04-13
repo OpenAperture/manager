@@ -5,17 +5,17 @@
 #
 require Logger
 
-defmodule ProjectOmeletteManager.Web.Controllers.MessagingBrokersController do
-  use ProjectOmeletteManager.Web, :controller
+defmodule OpenAperture.Manager.Web.Controllers.MessagingBrokersController do
+  use OpenAperture.Manager.Web, :controller
 
   require Repo
 
-  alias ProjectOmeletteManager.Endpoint
-  alias ProjectOmeletteManager.DB.Models.MessagingBroker
-  alias ProjectOmeletteManager.DB.Models.MessagingBrokerConnection
-  alias ProjectOmeletteManager.DB.Models.MessagingExchangeBroker
+  alias OpenAperture.Manager.Endpoint
+  alias OpenAperture.Manager.DB.Models.MessagingBroker
+  alias OpenAperture.Manager.DB.Models.MessagingBrokerConnection
+  alias OpenAperture.Manager.DB.Models.MessagingExchangeBroker
   
-  alias ProjectOmeletteManager.Controllers.FormatHelper
+  alias OpenAperture.Manager.Controllers.FormatHelper
   
   import Ecto.Query
 
@@ -89,7 +89,7 @@ defmodule ProjectOmeletteManager.Web.Controllers.MessagingBrokersController do
         if changeset.valid? do
           try do
             broker = Repo.insert(changeset)
-            path = ProjectOmeletteManager.Router.Helpers.messaging_brokers_path(Endpoint, :show, broker.id)
+            path = OpenAperture.Manager.Router.Helpers.messaging_brokers_path(Endpoint, :show, broker.id)
 
             # Set location header
             conn
@@ -146,7 +146,7 @@ defmodule ProjectOmeletteManager.Web.Controllers.MessagingBrokersController do
 
           	try do
 	            Repo.update(changeset)
-	            path = ProjectOmeletteManager.Router.Helpers.messaging_brokers_path(Endpoint, :show, id)
+	            path = OpenAperture.Manager.Router.Helpers.messaging_brokers_path(Endpoint, :show, id)
 	            conn
 	            |> put_resp_header("location", path)
 	            |> resp(:no_content, "")
@@ -220,14 +220,14 @@ defmodule ProjectOmeletteManager.Web.Controllers.MessagingBrokersController do
 		        	messaging_broker_id: id,
 		        	username: params["username"],
 		        	password: encrypted_password,
-		        	password_keyname: Application.get_env(:cloudos_messaging, :keyname, ""),
+		        	password_keyname: Application.get_env(:openaperture_messaging, :keyname, ""),
 		        	host: params["host"],
 		        	virtual_host: params["virtual_host"],
 		        })
 		        if changeset.valid? do
 		          try do
 		            connection = Repo.insert(changeset)
-		            path = ProjectOmeletteManager.Router.Helpers.messaging_brokers_path(Endpoint, :get_connections, broker.id)
+		            path = OpenAperture.Manager.Router.Helpers.messaging_brokers_path(Endpoint, :get_connections, broker.id)
 
 		            # Set location header
 		            conn
@@ -260,7 +260,7 @@ defmodule ProjectOmeletteManager.Web.Controllers.MessagingBrokersController do
   @spec encrypt_password(String.t()) :: String.t()
   defp encrypt_password(password) do
   	try do
-  		keyfile =  Application.get_env(:cloudos_messaging, :public_key)
+  		keyfile =  Application.get_env(:openaperture_messaging, :public_key)
   		if File.exists?(keyfile) do
 	  		public_key = RSA.decode_key(File.read!(keyfile))
 				cyphertext = password |> RSA.encrypt {:public, public_key}
@@ -289,7 +289,7 @@ defmodule ProjectOmeletteManager.Web.Controllers.MessagingBrokersController do
   @spec decrypt_password(String.t()) :: String.t()
   defp decrypt_password(encrypted_password) do
   	try do
-  		keyfile =  Application.get_env(:cloudos_messaging, :private_key)
+  		keyfile =  Application.get_env(:openaperture_messaging, :private_key)
   		if File.exists?(keyfile) do  		
 	  		private_key = RSA.decode_key(File.read!(keyfile))
 	  		cyphertext = :base64.decode(encrypted_password)

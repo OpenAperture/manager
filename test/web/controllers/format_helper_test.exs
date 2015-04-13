@@ -1,7 +1,7 @@
-defmodule ProjectOmeletteManager.Controllers.FormatHelper.Test do
+defmodule OpenAperture.Manager.Controllers.FormatHelper.Test do
   use ExUnit.Case
 
-  import ProjectOmeletteManager.Controllers.FormatHelper
+  import OpenAperture.Manager.Controllers.FormatHelper
 
   defmodule Controllers.FormatHelper.Test.TestStruct do
     defstruct name: "test struct", rank: 17, color: :blue, spin: :up

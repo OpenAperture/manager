@@ -1,4 +1,4 @@
-defmodule ProjectOmeletteManager.Repo.Migrations.AddWorkflowsTable do
+defmodule OpenapertureManager.Repo.Migrations.AddWorkflowsTable do
   use Ecto.Migration
 
   def change do

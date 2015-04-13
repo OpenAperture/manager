@@ -1,26 +1,26 @@
-defmodule ProjectOmeletteManager.ProductComponentsController.Test do
+defmodule OpenAperture.Manager.ProductComponentsController.Test do
   use ExUnit.Case, async: false
   use Plug.Test
-  use ProjectOmeletteManager.Test.ConnHelper
+  use OpenAperture.Manager.Test.ConnHelper
 
-  import ProjectOmeletteManager.Router.Helpers
+  import OpenAperture.Manager.Router.Helpers
 
-  alias ProjectOmeletteManager.Endpoint
-  alias ProjectOmeletteManager.Repo
-  alias ProjectOmeletteManager.DB.Models.EtcdCluster
-  alias ProjectOmeletteManager.DB.Models.EtcdClusterPort
-  alias ProjectOmeletteManager.DB.Models.Product
-  alias ProjectOmeletteManager.DB.Models.ProductComponent
-  alias ProjectOmeletteManager.DB.Models.ProductComponentOption
-  alias ProjectOmeletteManager.Router
+  alias OpenAperture.Manager.Endpoint
+  alias OpenapertureManager.Repo
+  alias OpenAperture.Manager.DB.Models.EtcdCluster
+  alias OpenAperture.Manager.DB.Models.EtcdClusterPort
+  alias OpenAperture.Manager.DB.Models.Product
+  alias OpenAperture.Manager.DB.Models.ProductComponent
+  alias OpenAperture.Manager.DB.Models.ProductComponentOption
+  alias OpenAperture.Manager.Router
 
   setup_all _context do
-    :meck.new(ProjectOmeletteManager.Plugs.Authentication, [:passthrough])
-    :meck.expect(ProjectOmeletteManager.Plugs.Authentication, :call, fn conn, _opts -> conn end)
+    :meck.new(OpenAperture.Manager.Plugs.Authentication, [:passthrough])
+    :meck.expect(OpenAperture.Manager.Plugs.Authentication, :call, fn conn, _opts -> conn end)
 
     on_exit _context, fn ->
       try do
-        :meck.unload(ProjectOmeletteManager.Plugs.Authentication)
+        :meck.unload(OpenAperture.Manager.Plugs.Authentication)
       rescue _ -> IO.puts "" end
     end    
     :ok

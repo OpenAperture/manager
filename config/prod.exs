@@ -1,14 +1,14 @@
 use Mix.Config
 
-config :project_omelette_manager, ProjectOmeletteManager.Endpoint,
+config :openaperture_manager, OpenAperture.Manager.Endpoint,
   http: [port: System.get_env("PORT") || 4000],
   secret_key_base: "Ks/rsx+RENMwWd4jgh3crqd3EwKGY8Mdm22NTJbby6pf35CwP9RAlT+8oDJQ8+1f"
 
-config :project_omelette_manager, ProjectOmeletteManager.Repo,
-	database: System.get_env("CLOUDOS_MANAGER_DATABASE_NAME")       || "project_omelette_manager",
-	username: System.get_env("CLOUDOS_MANAGER_USER_NAME")      		|| "postgres",
-	password: System.get_env("CLOUDOS_MANAGER_PASSWORD")      		|| "postgres",
-  hostname: System.get_env("CLOUDOS_MANAGER_DATABASE_HOST")       || "localhost"
+config :openaperture_manager, OpenapertureManager.Repo,
+	database: System.get_env("MANAGER_DATABASE_NAME")       || "openaperture_manager",
+	username: System.get_env("MANAGER_USER_NAME")      		|| "postgres",
+	password: System.get_env("MANAGER_PASSWORD")      		|| "postgres",
+  hostname: System.get_env("MANAGER_DATABASE_HOST")       || "localhost"
 
 
 # ## SSL Support
@@ -16,7 +16,7 @@ config :project_omelette_manager, ProjectOmeletteManager.Repo,
 # To get SSL working, you will need to add the `https` key
 # to the previous section:
 #
-#  config:project_omelette_manager, ProjectOmeletteManager.Endpoint,
+#  config:openaperture_manager, OpenAperture.Manager.Endpoint,
 #    ...
 #    https: [port: 443,
 #            keyfile: System.get_env("SOME_APP_SSL_KEY_PATH"),
@@ -39,5 +39,5 @@ config :logger, level: :info
 # Alternatively, you can configure exactly which server to
 # start per endpoint:
 #
-#     config :project_omelette_manager, ProjectOmeletteManager.Endpoint, server: true
+#     config :openaperture_manager, OpenAperture.Manager.Endpoint, server: true
 #

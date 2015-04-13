@@ -1,0 +1,22 @@
+{
+  "folders":
+  [
+    {
+      "follow_symlinks": true,
+      "path": ".",
+      "folder_exclude_patterns": ["_build"],
+    }
+  ],
+    "SublimeLinter": {
+        "linters": {
+            "elixirc": {
+                "pa": ["${project}/_build/dev/lib/phoenix/ebin",
+                       "${project}/_build/dev/lib/postgrex/ebin",
+                       "${project}/_build/dev/lib/ecto/ebin",
+                       "${project}/_build/dev/lib/timex/ebin",
+                       "${project}/_build/dev/lib/plug/ebin",
+                       "${project}/_build/dev/lib/manager/ebin"]
+            }
+        }
+    }
+}

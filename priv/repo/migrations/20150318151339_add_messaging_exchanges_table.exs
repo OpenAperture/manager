@@ -1,4 +1,4 @@
-defmodule :"Elixir.ProjectOmeletteManager.Repo.Migrations.AddMessagingExchangesTable.ex" do
+defmodule :"Elixir.OpenapertureManager.Repo.Migrations.AddMessagingExchangesTable.ex" do
   use Ecto.Migration
 
   def change do

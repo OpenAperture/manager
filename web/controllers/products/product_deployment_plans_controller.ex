@@ -1,20 +1,20 @@
-defmodule ProjectOmeletteManager.ProductDeploymentPlansController do
+defmodule OpenAperture.Manager.ProductDeploymentPlansController do
   require Logger
 
-  use ProjectOmeletteManager.Web, :controller
+  use OpenAperture.Manager.Web, :controller
 
-  import ProjectOmeletteManager.Controllers.FormatHelper
+  import OpenAperture.Manager.Controllers.FormatHelper
   import Ecto.Query
-  import ProjectOmeletteManager.Router.Helpers
+  import OpenAperture.Manager.Router.Helpers
 
-  alias ProjectOmeletteManager.Endpoint
-  alias ProjectOmeletteManager.Repo
-  alias ProjectOmeletteManager.DB.Models.Product
-  alias ProjectOmeletteManager.DB.Queries.Product, as: ProductQuery
-  alias ProjectOmeletteManager.DB.Models.ProductDeploymentPlan
-  alias ProjectOmeletteManager.DB.Queries.ProductDeploymentPlan, as: PDPQuery
-  alias ProjectOmeletteManager.DB.Models.ProductDeploymentPlanStep
-  alias ProjectOmeletteManager.DB.Models.ProductDeploymentPlanStepOption
+  alias OpenAperture.Manager.Endpoint
+  alias OpenapertureManager.Repo
+  alias OpenAperture.Manager.DB.Models.Product
+  alias OpenAperture.Manager.DB.Queries.Product, as: ProductQuery
+  alias OpenAperture.Manager.DB.Models.ProductDeploymentPlan
+  alias OpenAperture.Manager.DB.Queries.ProductDeploymentPlan, as: PDPQuery
+  alias OpenAperture.Manager.DB.Models.ProductDeploymentPlanStep
+  alias OpenAperture.Manager.DB.Models.ProductDeploymentPlanStepOption
 
   @sendable_fields [:id, :product_id, :name, :inserted_at, :updated_at]
 

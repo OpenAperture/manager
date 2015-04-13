@@ -1,11 +1,11 @@
 defmodule DB.Queries.ProductComponent.Test do
   use ExUnit.Case, async: false
 
-  alias ProjectOmeletteManager.Repo
-  alias ProjectOmeletteManager.DB.Models.Product
-  alias ProjectOmeletteManager.DB.Models.ProductComponent
-  alias ProjectOmeletteManager.DB.Models.ProductComponentOption
-  alias ProjectOmeletteManager.DB.Queries.ProductComponent, as: PCQuery
+  alias OpenapertureManager.Repo
+  alias OpenAperture.Manager.DB.Models.Product
+  alias OpenAperture.Manager.DB.Models.ProductComponent
+  alias OpenAperture.Manager.DB.Models.ProductComponentOption
+  alias OpenAperture.Manager.DB.Queries.ProductComponent, as: PCQuery
 
   setup_all _context do
     on_exit _context, fn ->

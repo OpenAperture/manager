@@ -1,20 +1,20 @@
-defmodule ProjectOmeletteManager.ProductClustersController.Test do
+defmodule OpenAperture.Manager.ProductClustersController.Test do
   use ExUnit.Case
   use Plug.Test
-  use ProjectOmeletteManager.Test.ConnHelper
+  use OpenAperture.Manager.Test.ConnHelper
 
-  alias ProjectOmeletteManager.DB.Models.Product
-  alias ProjectOmeletteManager.DB.Models.ProductCluster
-  alias ProjectOmeletteManager.Router
+  alias OpenAperture.Manager.DB.Models.Product
+  alias OpenAperture.Manager.DB.Models.ProductCluster
+  alias OpenAperture.Manager.Router
 
   setup_all _context do
-    :meck.new ProjectOmeletteManager.Repo
-    :meck.new(ProjectOmeletteManager.Plugs.Authentication, [:passthrough])
-    :meck.expect(ProjectOmeletteManager.Plugs.Authentication, :call, fn conn, _opts -> conn end)
+    :meck.new OpenapertureManager.Repo
+    :meck.new(OpenAperture.Manager.Plugs.Authentication, [:passthrough])
+    :meck.expect(OpenAperture.Manager.Plugs.Authentication, :call, fn conn, _opts -> conn end)
 
     on_exit _context, fn ->
       try do
-        :meck.unload(ProjectOmeletteManager.Plugs.Authentication)
+        :meck.unload(OpenAperture.Manager.Plugs.Authentication)
         :meck.unload
       rescue _ -> IO.puts "" end
     end    
@@ -23,11 +23,11 @@ defmodule ProjectOmeletteManager.ProductClustersController.Test do
 
   test "index action -- product exists" do
     product = %Product{name: "test1", id: 1}
-    :meck.expect(ProjectOmeletteManager.Repo, :one, 1, product)
+    :meck.expect(OpenapertureManager.Repo, :one, 1, product)
 
     clusters = [%ProductCluster{product_id: product.id}, %ProductCluster{product_id: product.id}]
 
-    :meck.expect(ProjectOmeletteManager.Repo, :all, 1, clusters)
+    :meck.expect(OpenapertureManager.Repo, :all, 1, clusters)
 
     conn = call(Router, :get, "/products/test1/clusters")
 
@@ -42,9 +42,9 @@ defmodule ProjectOmeletteManager.ProductClustersController.Test do
 
   test "index action -- product exists but no associated clusters" do
     product = %Product{name: "test1", id: 1}
-    :meck.expect(ProjectOmeletteManager.Repo, :one, 1, product)
+    :meck.expect(OpenapertureManager.Repo, :one, 1, product)
 
-    :meck.expect(ProjectOmeletteManager.Repo, :all, 1, [])
+    :meck.expect(OpenapertureManager.Repo, :all, 1, [])
 
     conn = call(Router, :get, "/products/test1/clusters")
 
@@ -56,7 +56,7 @@ defmodule ProjectOmeletteManager.ProductClustersController.Test do
   end
 
   test "index action -- product does not exist" do
-    :meck.expect(ProjectOmeletteManager.Repo, :one, 1, nil)
+    :meck.expect(OpenapertureManager.Repo, :one, 1, nil)
 
     conn = call(Router, :get, "products/test1/clusters")
 
@@ -66,10 +66,10 @@ defmodule ProjectOmeletteManager.ProductClustersController.Test do
   test "create action -- success" do
     product = %Product{name: "test1", id: 1}
 
-    :meck.expect(ProjectOmeletteManager.Repo, :one, 1, product)
-    :meck.expect(ProjectOmeletteManager.Repo, :all, 1, [1, 2, 3])
-    :meck.expect(ProjectOmeletteManager.Repo, :delete_all, 1, 0)
-    :meck.expect(ProjectOmeletteManager.Repo, :transaction, 1, {:ok, :ok})
+    :meck.expect(OpenapertureManager.Repo, :one, 1, product)
+    :meck.expect(OpenapertureManager.Repo, :all, 1, [1, 2, 3])
+    :meck.expect(OpenapertureManager.Repo, :delete_all, 1, 0)
+    :meck.expect(OpenapertureManager.Repo, :transaction, 1, {:ok, :ok})
 
     conn = call(Router, :post, "products/test1/clusters", Poison.encode!(%{clusters: [%{id: 1}, %{id: 2}, %{id: 3}]}), [{"content-type", "application/json"}])
 
@@ -77,7 +77,7 @@ defmodule ProjectOmeletteManager.ProductClustersController.Test do
   end
 
   test "create action -- product not found" do
-    :meck.expect(ProjectOmeletteManager.Repo, :one, 1, nil)
+    :meck.expect(OpenapertureManager.Repo, :one, 1, nil)
 
     conn = call(Router, :post, "products/test1/clusters", Poison.encode!(%{clusters: [%{id: 1}, %{id: 2}]}), [{"content-type", "application/json"}])
 
@@ -87,8 +87,8 @@ defmodule ProjectOmeletteManager.ProductClustersController.Test do
   test "create action -- invalid etcd cluster ids provided" do
     product = %Product{name: "test1", id: 1}
 
-    :meck.expect(ProjectOmeletteManager.Repo, :one, 1, product)
-    :meck.expect(ProjectOmeletteManager.Repo, :all, 1, [1, 2])
+    :meck.expect(OpenapertureManager.Repo, :one, 1, product)
+    :meck.expect(OpenapertureManager.Repo, :all, 1, [1, 2])
 
     conn = call(Router, :post, "products/test1/clusters", Poison.encode!(%{clusters: [%{id: 1}, %{id: 2}, %{id: 3}]}), [{"content-type", "application/json"}])
 
@@ -98,8 +98,8 @@ defmodule ProjectOmeletteManager.ProductClustersController.Test do
   test "destroy action -- success" do
     product = %Product{name: "test1", id: 1}
 
-    :meck.expect(ProjectOmeletteManager.Repo, :one, 1, product)
-    :meck.expect(ProjectOmeletteManager.Repo, :delete_all, 1, 1)
+    :meck.expect(OpenapertureManager.Repo, :one, 1, product)
+    :meck.expect(OpenapertureManager.Repo, :delete_all, 1, 1)
 
     conn = call(Router, :delete, "products/test1/clusters")
 
@@ -107,7 +107,7 @@ defmodule ProjectOmeletteManager.ProductClustersController.Test do
   end
 
   test "destroy action -- product not found" do
-    :meck.expect(ProjectOmeletteManager.Repo, :one, 1, nil)
+    :meck.expect(OpenapertureManager.Repo, :one, 1, nil)
 
     conn = call(Router, :delete, "products/test1/clusters")
 

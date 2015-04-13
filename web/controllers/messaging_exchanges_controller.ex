@@ -5,18 +5,18 @@
 #
 require Logger
 
-defmodule ProjectOmeletteManager.Web.Controllers.MessagingExchangesController do
-  use ProjectOmeletteManager.Web, :controller
+defmodule OpenAperture.Manager.Web.Controllers.MessagingExchangesController do
+  use OpenAperture.Manager.Web, :controller
 
   require Repo
 
-  alias ProjectOmeletteManager.Endpoint
-  alias ProjectOmeletteManager.DB.Models.MessagingExchange
-  alias ProjectOmeletteManager.DB.Models.MessagingBroker
-  alias ProjectOmeletteManager.DB.Models.MessagingExchangeBroker
-  alias ProjectOmeletteManager.DB.Models.EtcdCluster
+  alias OpenAperture.Manager.Endpoint
+  alias OpenAperture.Manager.DB.Models.MessagingExchange
+  alias OpenAperture.Manager.DB.Models.MessagingBroker
+  alias OpenAperture.Manager.DB.Models.MessagingExchangeBroker
+  alias OpenAperture.Manager.DB.Models.EtcdCluster
 
-  alias ProjectOmeletteManager.Controllers.FormatHelper
+  alias OpenAperture.Manager.Controllers.FormatHelper
   
   import Ecto.Query
 
@@ -90,7 +90,7 @@ defmodule ProjectOmeletteManager.Web.Controllers.MessagingExchangesController do
         if changeset.valid? do
           try do
             exchange = Repo.insert(changeset)
-            path = ProjectOmeletteManager.Router.Helpers.messaging_exchanges_path(Endpoint, :show, exchange.id)
+            path = OpenAperture.Manager.Router.Helpers.messaging_exchanges_path(Endpoint, :show, exchange.id)
 
             # Set location header
             conn
@@ -147,7 +147,7 @@ defmodule ProjectOmeletteManager.Web.Controllers.MessagingExchangesController do
 
             try do
               Repo.update(changeset)
-              path = ProjectOmeletteManager.Router.Helpers.messaging_exchanges_path(Endpoint, :show, id)
+              path = OpenAperture.Manager.Router.Helpers.messaging_exchanges_path(Endpoint, :show, id)
               conn
               |> put_resp_header("location", path)
               |> resp(:no_content, "")
@@ -227,7 +227,7 @@ defmodule ProjectOmeletteManager.Web.Controllers.MessagingExchangesController do
             if changeset.valid? do
               try do
                 exchange = Repo.insert(changeset)
-                path = ProjectOmeletteManager.Router.Helpers.messaging_exchanges_path(Endpoint, :get_broker_restrictions, exchange.id)
+                path = OpenAperture.Manager.Router.Helpers.messaging_exchanges_path(Endpoint, :get_broker_restrictions, exchange.id)
 
                 # Set location header
                 conn

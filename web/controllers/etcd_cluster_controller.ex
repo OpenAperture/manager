@@ -1,14 +1,15 @@
-defmodule ProjectOmeletteManager.EtcdClusterController do
+defmodule OpenAperture.Manager.EtcdClusterController do
   require Logger
-  use ProjectOmeletteManager.Web, :controller
+  use OpenAperture.Manager.Web, :controller
 
-  alias ProjectOmeletteManager.DB.Models.EtcdCluster
-  alias ProjectOmeletteManager.DB.Queries.EtcdCluster, as: EtcdClusterQuery
-  alias ProjectOmeletteManager.DB.Queries.ProductCluster, as: ProductClusterQuery
+  alias OpenAperture.Manager.DB.Models.EtcdCluster
+  alias OpenAperture.Manager.DB.Queries.EtcdCluster, as: EtcdClusterQuery
+  alias OpenAperture.Manager.DB.Queries.ProductCluster, as: ProductClusterQuery
 
   alias FleetApi.Etcd, as: FleetApi
+  alias OpenAperture.Fleet.SystemdUnit
 
-  import ProjectOmeletteManager.Router.Helpers
+  import OpenAperture.Manager.Router.Helpers
 
   # TODO: Add authentication
 
@@ -249,7 +250,7 @@ defmodule ProjectOmeletteManager.EtcdClusterController do
                 conn
                 |> resp :not_found, "Host #{machine_id} does not exist." 
               {host, unit} ->
-                case ProjectOmeletteManager.SystemdUnit.execute_journal_request([host], unit, false) do
+                case SystemdUnit.execute_journal_request([host], unit, false) do
                   {:ok, output, error} ->
                     Logger.info "Output: #{output}"
                     Logger.info "Error: #{error}"

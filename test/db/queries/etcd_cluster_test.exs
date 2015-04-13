@@ -1,9 +1,9 @@
 defmodule DB.Queries.EtcdCluster.Test do
   use ExUnit.Case, async: false
 
-  alias ProjectOmeletteManager.DB.Models.EtcdCluster
-  alias ProjectOmeletteManager.Repo
-  alias ProjectOmeletteManager.DB.Queries.EtcdCluster, as: EtcdClusterQuery
+  alias OpenAperture.Manager.DB.Models.EtcdCluster
+  alias OpenapertureManager.Repo
+  alias OpenAperture.Manager.DB.Queries.EtcdCluster, as: EtcdClusterQuery
 
   setup _context do
     on_exit _context, fn ->

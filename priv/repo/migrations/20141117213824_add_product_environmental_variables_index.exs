@@ -1,4 +1,4 @@
-defmodule ProjectOmeletteManager.Repo.Migrations.AddEnvironmentalVariablesIndex do
+defmodule OpenapertureManager.Repo.Migrations.AddEnvironmentalVariablesIndex do
   use Ecto.Migration
 
   #Where clause isn't supported in ddl, therefore need to manually create the index with execute,

@@ -1,11 +1,11 @@
 defmodule DB.Queries.ProductEnvironmentalVariable.Test do
   use ExUnit.Case, async: false
 
-  alias ProjectOmeletteManager.DB.Models.ProductEnvironmentalVariable, as: PEV
-  alias ProjectOmeletteManager.Repo
-  alias ProjectOmeletteManager.DB.Queries.ProductEnvironmentalVariable, as: PEVQuery
-  alias ProjectOmeletteManager.DB.Models.Product
-  alias ProjectOmeletteManager.DB.Models.ProductEnvironment
+  alias OpenAperture.Manager.DB.Models.ProductEnvironmentalVariable, as: PEV
+  alias OpenapertureManager.Repo
+  alias OpenAperture.Manager.DB.Queries.ProductEnvironmentalVariable, as: PEVQuery
+  alias OpenAperture.Manager.DB.Models.Product
+  alias OpenAperture.Manager.DB.Models.ProductEnvironment
 
   setup_all _context do
     product = Product.new(%{name: "ProductEnvironmentalVariableQueriesTest"}) |> Repo.insert

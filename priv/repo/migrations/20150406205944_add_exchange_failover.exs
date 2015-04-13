@@ -1,4 +1,4 @@
-defmodule ProjectOmeletteManager.Repo.Migrations.AddExchangeFailover do
+defmodule OpenapertureManager.Repo.Migrations.AddExchangeFailover do
   use Ecto.Migration
 
   def change do

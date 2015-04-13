@@ -1,4 +1,4 @@
-defmodule ProjectOmeletteManager.Repo.Migrations.AddProductComponents do
+defmodule OpenapertureManager.Repo.Migrations.AddProductComponents do
   use Ecto.Migration
 
   def change do

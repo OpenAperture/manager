@@ -5,14 +5,14 @@
 #
 require Logger
 
-defmodule ProjectOmeletteManager.Web.Controllers.WorkflowController do
-  use ProjectOmeletteManager.Web, :controller
+defmodule OpenAperture.Manager.Web.Controllers.WorkflowController do
+  use OpenAperture.Manager.Web, :controller
 
   require Repo
 
-  alias ProjectOmeletteManager.Controllers.FormatHelper
-  alias ProjectOmeletteManager.DB.Models.Workflow, as: WorkflowDB
-  alias ProjectOmeletteManager.DB.Queries.Workflow, as: WorkflowQuery
+  alias OpenAperture.Manager.Controllers.FormatHelper
+  alias OpenAperture.Manager.DB.Models.Workflow, as: WorkflowDB
+  alias OpenAperture.Manager.DB.Queries.Workflow, as: WorkflowQuery
 
   plug :action
 
@@ -140,7 +140,7 @@ defmodule ProjectOmeletteManager.Web.Controllers.WorkflowController do
     if changeset.valid? do
       try do
         raw_workflow = Repo.insert(changeset)
-        path = ProjectOmeletteManager.Router.Helpers.workflow_path(Endpoint, :show, id)
+        path = OpenAperture.Manager.Router.Helpers.workflow_path(Endpoint, :show, id)
 
         # Set location header
         conn
@@ -181,7 +181,7 @@ defmodule ProjectOmeletteManager.Web.Controllers.WorkflowController do
       if changeset.valid? do
         try do
           Repo.update(changeset)
-          path = ProjectOmeletteManager.Router.Helpers.workflow_path(Endpoint, :show, id)
+          path = OpenAperture.Manager.Router.Helpers.workflow_path(Endpoint, :show, id)
           conn
           |> put_resp_header("location", path)
           |> resp(:no_content, "")

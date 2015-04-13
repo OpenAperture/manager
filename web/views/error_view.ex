@@ -1,5 +1,5 @@
-defmodule ProjectOmeletteManager.ErrorView do
-  use ProjectOmeletteManager.Web, :view
+defmodule OpenAperture.Manager.ErrorView do
+  use OpenAperture.Manager.Web, :view
 
   def render("404.html", _assigns) do
     "Page not found - 404"

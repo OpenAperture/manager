@@ -1,10 +1,10 @@
 defmodule DB.Queries.ProductEnvironment.Test do
   use ExUnit.Case, async: false
 
-  alias ProjectOmeletteManager.DB.Models.ProductEnvironment
-  alias ProjectOmeletteManager.Repo
-  alias ProjectOmeletteManager.DB.Queries.ProductEnvironment, as: ProductEnvironmentQuery
-  alias ProjectOmeletteManager.DB.Models.Product
+  alias OpenAperture.Manager.DB.Models.ProductEnvironment
+  alias OpenapertureManager.Repo
+  alias OpenAperture.Manager.DB.Queries.ProductEnvironment, as: ProductEnvironmentQuery
+  alias OpenAperture.Manager.DB.Models.Product
 
   setup _context do
     product = Product.new(%{name: "ProductEnvironmentsQueriesTest"})

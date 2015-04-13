@@ -1,4 +1,4 @@
-defmodule ProjectOmeletteManager.Repo.Migrations.AddPortToBrokerOpts do
+defmodule OpenapertureManager.Repo.Migrations.AddPortToBrokerOpts do
   use Ecto.Migration
 
   def change do

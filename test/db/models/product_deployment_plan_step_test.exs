@@ -1,11 +1,11 @@
 defmodule DB.Models.ProductDeploymentPlanStep.Test do
   use ExUnit.Case, async: false
 
-  alias ProjectOmeletteManager.Repo
-  alias ProjectOmeletteManager.DB.Models.Product
-  alias ProjectOmeletteManager.DB.Models.ProductDeploymentPlan
-  alias ProjectOmeletteManager.DB.Models.ProductDeploymentPlanStep
-  alias ProjectOmeletteManager.DB.Queries.ProductDeploymentPlanStep, as: PDPSQuery
+  alias OpenapertureManager.Repo
+  alias OpenAperture.Manager.DB.Models.Product
+  alias OpenAperture.Manager.DB.Models.ProductDeploymentPlan
+  alias OpenAperture.Manager.DB.Models.ProductDeploymentPlanStep
+  alias OpenAperture.Manager.DB.Queries.ProductDeploymentPlanStep, as: PDPSQuery
 
 
   setup _context do

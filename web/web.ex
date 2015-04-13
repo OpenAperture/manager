@@ -1,12 +1,12 @@
-defmodule ProjectOmeletteManager.Web do
+defmodule OpenAperture.Manager.Web do
   @moduledoc """
   A module that keeps using definitions for controllers,
   views and so on.
 
   This can be used in your application as:
 
-      use ProjectOmeletteManager.Web, :controller
-      use ProjectOmeletteManager.Web, :view
+      use OpenAperture.Manager.Web, :controller
+      use OpenAperture.Manager.Web, :view
 
   Keep the definitions in this module short and clean,
   mostly focused on imports, uses and aliases.
@@ -17,7 +17,7 @@ defmodule ProjectOmeletteManager.Web do
       use Phoenix.View, root: "web/templates"
 
       # Import URL helpers from the router
-      import ProjectOmeletteManager.Router.Helpers
+      import OpenAperture.Manager.Router.Helpers
 
       # Import all HTML functions (forms, tags, etc)
       use Phoenix.HTML
@@ -29,10 +29,10 @@ defmodule ProjectOmeletteManager.Web do
       use Phoenix.Controller
 
       # Alias the data repository as a convenience
-      alias ProjectOmeletteManager.Repo
+      alias OpenapertureManager.Repo
 
       # Import URL helpers from the router
-      import ProjectOmeletteManager.Router.Helpers
+      import OpenAperture.Manager.Router.Helpers
     end
   end
 

@@ -1,18 +1,18 @@
-defmodule ProjectOmeletteManager.ProductEnvironmentalVariablesController do
+defmodule OpenAperture.Manager.ProductEnvironmentalVariablesController do
   require Logger
 
-  use ProjectOmeletteManager.Web, :controller
+  use OpenAperture.Manager.Web, :controller
 
-  import ProjectOmeletteManager.Controllers.FormatHelper
+  import OpenAperture.Manager.Controllers.FormatHelper
   import Ecto.Query
-  import ProjectOmeletteManager.Router.Helpers
+  import OpenAperture.Manager.Router.Helpers
 
-  alias ProjectOmeletteManager.Endpoint
-  alias ProjectOmeletteManager.Repo
-  alias ProjectOmeletteManager.DB.Models.ProductEnvironmentalVariable
-  alias ProjectOmeletteManager.DB.Queries.Product, as: ProductQuery
-  alias ProjectOmeletteManager.DB.Queries.ProductEnvironment, as: EnvQuery
-  alias ProjectOmeletteManager.DB.Queries.ProductEnvironmentalVariable, as: VarQuery
+  alias OpenAperture.Manager.Endpoint
+  alias OpenapertureManager.Repo
+  alias OpenAperture.Manager.DB.Models.ProductEnvironmentalVariable
+  alias OpenAperture.Manager.DB.Queries.Product, as: ProductQuery
+  alias OpenAperture.Manager.DB.Queries.ProductEnvironment, as: EnvQuery
+  alias OpenAperture.Manager.DB.Queries.ProductEnvironmentalVariable, as: VarQuery
 
   @sendable_fields [:id, :product_id, :product_environment_id, :name, :value, :inserted_at, :updated_at]
 

@@ -1,4 +1,4 @@
-defmodule ProjectOmeletteManager.Router do
+defmodule OpenAperture.Manager.Router do
   use Phoenix.Router
 
   pipeline :browser do
@@ -13,10 +13,10 @@ defmodule ProjectOmeletteManager.Router do
   end
 
   pipeline :secure do
-    plug ProjectOmeletteManager.Plugs.Authentication
+    plug OpenAperture.Manager.Plugs.Authentication
   end
 
-  scope "/", ProjectOmeletteManager do
+  scope "/", OpenAperture.Manager do
     pipe_through :browser # Use the default browser stack
     get "/", PageController, :index
     #Server Statuses
@@ -24,7 +24,7 @@ defmodule ProjectOmeletteManager.Router do
 
   end
 
-  scope "/clusters", ProjectOmeletteManager do
+  scope "/clusters", OpenAperture.Manager do
     pipe_through :api
     pipe_through :secure
     get "/", EtcdClusterController, :index
@@ -39,7 +39,7 @@ defmodule ProjectOmeletteManager.Router do
     get "/:etcd_token/machines/:machine_id/units/:unit_name/logs", EtcdClusterController, :unit_logs
   end
 
-  scope "/messaging", ProjectOmeletteManager.Web.Controllers do
+  scope "/messaging", OpenAperture.Manager.Web.Controllers do
     pipe_through :api
     pipe_through :secure
 
@@ -72,7 +72,7 @@ defmodule ProjectOmeletteManager.Router do
     end
   end
 
-  scope "/products", ProjectOmeletteManager do
+  scope "/products", OpenAperture.Manager do
     pipe_through :api
     pipe_through :secure
 
@@ -158,7 +158,7 @@ defmodule ProjectOmeletteManager.Router do
     end
   end
 
-  scope "/workflows", ProjectOmeletteManager.Web.Controllers do
+  scope "/workflows", OpenAperture.Manager.Web.Controllers do
     pipe_through :api
     pipe_through :secure
 

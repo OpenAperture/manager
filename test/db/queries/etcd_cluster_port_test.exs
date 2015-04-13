@@ -1,13 +1,13 @@
 defmodule DB.Queries.EtcdClusterPort.Test do
   use ExUnit.Case, async: false
 
-  alias ProjectOmeletteManager.DB.Models.Product
-  alias ProjectOmeletteManager.DB.Models.ProductComponent
-  alias ProjectOmeletteManager.DB.Models.EtcdCluster
-  alias ProjectOmeletteManager.DB.Models.EtcdClusterPort
+  alias OpenAperture.Manager.DB.Models.Product
+  alias OpenAperture.Manager.DB.Models.ProductComponent
+  alias OpenAperture.Manager.DB.Models.EtcdCluster
+  alias OpenAperture.Manager.DB.Models.EtcdClusterPort
 
-  alias ProjectOmeletteManager.Repo
-  alias ProjectOmeletteManager.DB.Queries.EtcdClusterPort, as: EtcdClusterQuery
+  alias OpenapertureManager.Repo
+  alias OpenAperture.Manager.DB.Queries.EtcdClusterPort, as: EtcdClusterQuery
 
   setup _context do
     on_exit _context, fn ->

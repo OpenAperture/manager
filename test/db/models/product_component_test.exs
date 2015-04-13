@@ -1,9 +1,9 @@
 defmodule DB.Models.ProductComponent.Test do
   use ExUnit.Case, async: false
 
-  alias ProjectOmeletteManager.Repo
-  alias ProjectOmeletteManager.DB.Models.Product
-  alias ProjectOmeletteManager.DB.Models.ProductComponent
+  alias OpenapertureManager.Repo
+  alias OpenAperture.Manager.DB.Models.Product
+  alias OpenAperture.Manager.DB.Models.ProductComponent
 
   setup _context do
     product = Product.new(%{name: "test product"}) |> Repo.insert

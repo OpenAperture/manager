@@ -1,4 +1,4 @@
-defmodule ProjectOmeletteManager.Repo.Migrations.AddEnvironmentalVariablesTable do
+defmodule OpenapertureManager.Repo.Migrations.AddEnvironmentalVariablesTable do
   use Ecto.Migration
 
   # Using "text" as the column type for the env var value feels a little

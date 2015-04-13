@@ -1,9 +1,9 @@
 defmodule DB.Queries.Product.Test do
   use ExUnit.Case, async: false
 
-  alias ProjectOmeletteManager.DB.Models.Product
-  alias ProjectOmeletteManager.Repo
-  alias ProjectOmeletteManager.DB.Queries.Product, as: ProductQuery
+  alias OpenAperture.Manager.DB.Models.Product
+  alias OpenapertureManager.Repo
+  alias OpenAperture.Manager.DB.Queries.Product, as: ProductQuery
 
   setup _context do
     on_exit _context, fn ->

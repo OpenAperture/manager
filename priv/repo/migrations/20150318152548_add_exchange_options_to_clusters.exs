@@ -1,4 +1,4 @@
-defmodule ProjectOmeletteManager.Repo.Migrations.AddExchangeOptionsToClusters do
+defmodule OpenapertureManager.Repo.Migrations.AddExchangeOptionsToClusters do
   use Ecto.Migration
 
   def change do

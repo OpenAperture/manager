@@ -1,4 +1,4 @@
-defmodule ProjectOmeletteManager.Repo.Migrations.AddEtcdClusterPorts do
+defmodule OpenapertureManager.Repo.Migrations.AddEtcdClusterPorts do
   use Ecto.Migration
 
   def change do

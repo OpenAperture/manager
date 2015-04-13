@@ -1,19 +1,19 @@
-defmodule ProjectOmeletteManager.ProductDeploymentPlanStepsController do
+defmodule OpenAperture.Manager.ProductDeploymentPlanStepsController do
   require Logger
 
-  use ProjectOmeletteManager.Web, :controller
+  use OpenAperture.Manager.Web, :controller
 
-  import ProjectOmeletteManager.Controllers.FormatHelper
+  import OpenAperture.Manager.Controllers.FormatHelper
   import Ecto.Query
-  import ProjectOmeletteManager.Router.Helpers
+  import OpenAperture.Manager.Router.Helpers
 
-  alias ProjectOmeletteManager.Endpoint
-  alias ProjectOmeletteManager.Repo
-  alias ProjectOmeletteManager.DB.Models.Product
-  alias ProjectOmeletteManager.DB.Models.ProductDeploymentPlan
-  alias ProjectOmeletteManager.DB.Models.ProductDeploymentPlanStep
-  alias ProjectOmeletteManager.DB.Queries.ProductDeploymentPlanStep, as: StepQuery
-  alias ProjectOmeletteManager.DB.Models.ProductDeploymentPlanStepOption
+  alias OpenAperture.Manager.Endpoint
+  alias OpenapertureManager.Repo
+  alias OpenAperture.Manager.DB.Models.Product
+  alias OpenAperture.Manager.DB.Models.ProductDeploymentPlan
+  alias OpenAperture.Manager.DB.Models.ProductDeploymentPlanStep
+  alias OpenAperture.Manager.DB.Queries.ProductDeploymentPlanStep, as: StepQuery
+  alias OpenAperture.Manager.DB.Models.ProductDeploymentPlanStepOption
 
   @step_sendable_fields   [:id, :type, :on_success_step_id, :on_failure_step_id, :options, :inserted_at, :updated_at]
   @option_sendable_fields [:id, :product_deployment_plan_step_id, :name, :value, :inserted_at, :updated_at]

@@ -1,8 +1,8 @@
 defmodule DB.Models.EtcdCluster.Test do
   use ExUnit.Case, async: false
 
-  alias ProjectOmeletteManager.Repo
-  alias ProjectOmeletteManager.DB.Models.EtcdCluster
+  alias OpenapertureManager.Repo
+  alias OpenAperture.Manager.DB.Models.EtcdCluster
 
   setup _context do
     on_exit _context, fn ->

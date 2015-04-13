@@ -1,16 +1,16 @@
-defmodule ProjectOmeletteManager.Web.Controllers.WorkflowController.Test do
+defmodule OpenAperture.Manager.Web.Controllers.WorkflowController.Test do
   use ExUnit.Case
   use Plug.Test
-  use ProjectOmeletteManager.Test.ConnHelper
+  use OpenAperture.Manager.Test.ConnHelper
 
-  alias ProjectOmeletteManager.Repo
-  alias ProjectOmeletteManager.Router
+  alias OpenapertureManager.Repo
+  alias OpenAperture.Manager.Router
 
-  alias ProjectOmeletteManager.DB.Models.Workflow, as: WorkflowDB
+  alias OpenAperture.Manager.DB.Models.Workflow, as: WorkflowDB
 
   setup_all _context do
-    :meck.new(ProjectOmeletteManager.Plugs.Authentication, [:passthrough])
-    :meck.expect(ProjectOmeletteManager.Plugs.Authentication, :call, fn conn, _opts -> conn end)
+    :meck.new(OpenAperture.Manager.Plugs.Authentication, [:passthrough])
+    :meck.expect(OpenAperture.Manager.Plugs.Authentication, :call, fn conn, _opts -> conn end)
 
     on_exit _context, fn ->
       Repo.delete_all(WorkflowDB)
@@ -86,7 +86,7 @@ defmodule ProjectOmeletteManager.Web.Controllers.WorkflowController.Test do
     conn = call(Router, :get, "/workflows?source_repo=Test-Org/#{source_repo_name}")
     assert conn.status == 200
     assert conn.resp_body != nil
-    result = JSON.decode!(conn.resp_body)
+    result = Poison.decode!(conn.resp_body)
     assert result != nil
     assert length(result) == 1
     assert List.first(result)["id"] == workflow_uuid

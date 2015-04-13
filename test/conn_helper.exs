@@ -1,4 +1,4 @@
-defmodule ProjectOmeletteManager.Test.ConnHelper do
+defmodule OpenAperture.Manager.Test.ConnHelper do
   defmacro __using__(_) do
     quote do
       import Plug.Test

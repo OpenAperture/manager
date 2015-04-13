@@ -1,24 +1,24 @@
-defmodule ProjectOmeletteManager.Web.Controllers.MessagingBrokersController.Test do
+defmodule OpenAperture.Manager.Web.Controllers.MessagingBrokersController.Test do
   use ExUnit.Case
   use Plug.Test
-  use ProjectOmeletteManager.Test.ConnHelper
+  use OpenAperture.Manager.Test.ConnHelper
 
-  alias ProjectOmeletteManager.DB.Models.MessagingExchange
-  alias ProjectOmeletteManager.DB.Models.MessagingExchangeBroker
-  alias ProjectOmeletteManager.DB.Models.MessagingBroker
-  alias ProjectOmeletteManager.DB.Models.MessagingBrokerConnection
-  alias ProjectOmeletteManager.Repo
-  alias ProjectOmeletteManager.Router
+  alias OpenAperture.Manager.DB.Models.MessagingExchange
+  alias OpenAperture.Manager.DB.Models.MessagingExchangeBroker
+  alias OpenAperture.Manager.DB.Models.MessagingBroker
+  alias OpenAperture.Manager.DB.Models.MessagingBrokerConnection
+  alias OpenapertureManager.Repo
+  alias OpenAperture.Manager.Router
 
   import Ecto.Query
 
   setup_all _context do
-    :meck.new(ProjectOmeletteManager.Plugs.Authentication, [:passthrough])
-    :meck.expect(ProjectOmeletteManager.Plugs.Authentication, :call, fn conn, _opts -> conn end)
+    :meck.new(OpenAperture.Manager.Plugs.Authentication, [:passthrough])
+    :meck.expect(OpenAperture.Manager.Plugs.Authentication, :call, fn conn, _opts -> conn end)
 
     on_exit _context, fn ->
       try do
-        :meck.unload(ProjectOmeletteManager.Plugs.Authentication)
+        :meck.unload(OpenAperture.Manager.Plugs.Authentication)
       rescue _ -> IO.puts "" end
     end    
     :ok

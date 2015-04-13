@@ -1,4 +1,4 @@
-defmodule ProjectOmeletteManager.Repo.Migrations.AddProductEnvironmentsTable do
+defmodule OpenapertureManager.Repo.Migrations.AddProductEnvironmentsTable do
   use Ecto.Migration
 
   def change do

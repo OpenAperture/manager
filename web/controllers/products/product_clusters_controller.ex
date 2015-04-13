@@ -1,18 +1,18 @@
-defmodule ProjectOmeletteManager.ProductClustersController do
+defmodule OpenAperture.Manager.ProductClustersController do
   require Logger
 
-  use ProjectOmeletteManager.Web, :controller
+  use OpenAperture.Manager.Web, :controller
 
-  import ProjectOmeletteManager.Controllers.FormatHelper
+  import OpenAperture.Manager.Controllers.FormatHelper
   import Ecto.Query
 
-  alias ProjectOmeletteManager.DB.Models.Product
-  alias ProjectOmeletteManager.DB.Models.ProductCluster
-  alias ProjectOmeletteManager.DB.Models.EtcdCluster
-  alias ProjectOmeletteManager.DB.Queries.Product, as: ProductQuery
-  alias ProjectOmeletteManager.DB.Queries.ProductCluster, as: ProductClusterQuery
+  alias OpenAperture.Manager.DB.Models.Product
+  alias OpenAperture.Manager.DB.Models.ProductCluster
+  alias OpenAperture.Manager.DB.Models.EtcdCluster
+  alias OpenAperture.Manager.DB.Queries.Product, as: ProductQuery
+  alias OpenAperture.Manager.DB.Queries.ProductCluster, as: ProductClusterQuery
 
-  alias ProjectOmeletteManager.Repo
+  alias OpenapertureManager.Repo
 
   @sendable_fields [:id, :product_id, :etcd_cluster_id, :primary_ind, :inserted_at, :updated_at]
   @updatable_fields [:product_id, :etcd_cluster_id, :primary_ind]

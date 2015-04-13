@@ -1,17 +1,19 @@
-defmodule ProjectOmeletteManager.EtcdClusterController.Test do
+defmodule OpenAperture.Manager.EtcdClusterController.Test do
   use ExUnit.Case
   use Plug.Test
-  use ProjectOmeletteManager.Test.ConnHelper
+  use OpenAperture.Manager.Test.ConnHelper
 
-  alias ProjectOmeletteManager.Repo
-  alias ProjectOmeletteManager.DB.Models.EtcdCluster
-  alias ProjectOmeletteManager.DB.Models.Product
-  alias ProjectOmeletteManager.DB.Queries.EtcdCluster, as: EtcdClusterQuery
-  alias ProjectOmeletteManager.Router
+  alias OpenapertureManager.Repo
+  alias OpenAperture.Manager.DB.Models.EtcdCluster
+  alias OpenAperture.Manager.DB.Models.Product
+  alias OpenAperture.Manager.DB.Queries.EtcdCluster, as: EtcdClusterQuery
+  alias OpenAperture.Manager.Router
+
+  alias OpenAperture.Fleet.SystemdUnit
 
   setup_all _context do
-    :meck.new(ProjectOmeletteManager.Plugs.Authentication, [:passthrough])
-    :meck.expect(ProjectOmeletteManager.Plugs.Authentication, :call, fn conn, _opts -> conn end)
+    :meck.new(OpenAperture.Manager.Plugs.Authentication, [:passthrough])
+    :meck.expect(OpenAperture.Manager.Plugs.Authentication, :call, fn conn, _opts -> conn end)
 
     on_exit _context, fn ->
       try do
@@ -22,11 +24,11 @@ defmodule ProjectOmeletteManager.EtcdClusterController.Test do
   end
 
   setup do
-    :meck.new ProjectOmeletteManager.Repo
+    :meck.new OpenapertureManager.Repo
     :meck.new FleetApi.Etcd
     on_exit fn ->
               try do
-                :meck.unload ProjectOmeletteManager.Repo
+                :meck.unload OpenapertureManager.Repo
                 :meck.unload FleetApi.Etcd
               rescue _ -> IO.puts "" end
             end
@@ -34,7 +36,7 @@ defmodule ProjectOmeletteManager.EtcdClusterController.Test do
 
   test "index" do
     clusters = [%EtcdCluster{etcd_token: "abc123"}]
-    :meck.expect(ProjectOmeletteManager.Repo, :all, 1, clusters)
+    :meck.expect(OpenapertureManager.Repo, :all, 1, clusters)
     conn = call(Router, :get, "/clusters")
 
     assert conn.status == 200
@@ -48,7 +50,7 @@ defmodule ProjectOmeletteManager.EtcdClusterController.Test do
   end
 
   test "index - only retrieve docker build clusters" do
-    :meck.unload(ProjectOmeletteManager.Repo)
+    :meck.unload(OpenapertureManager.Repo)
     Repo.delete_all(EtcdCluster)
 
     build_cluster = EtcdCluster.new(%{etcd_token: "#{UUID.uuid1()}", allow_docker_builds: true}) |> Repo.insert
@@ -65,11 +67,11 @@ defmodule ProjectOmeletteManager.EtcdClusterController.Test do
     cluster = List.first(body)
     assert cluster["etcd_token"] == build_cluster.etcd_token
   after
-    :meck.new ProjectOmeletteManager.Repo
+    :meck.new OpenapertureManager.Repo
   end
 
   test "index returns empty list if no clusters" do
-    :meck.expect(ProjectOmeletteManager.Repo, :all, 1, [])
+    :meck.expect(OpenapertureManager.Repo, :all, 1, [])
     conn = call(Router, :get, "/clusters")
 
     assert conn.status == 200
@@ -278,7 +280,7 @@ defmodule ProjectOmeletteManager.EtcdClusterController.Test do
     :meck.expect(FleetApi.Etcd, :start_link, 1, {:ok, :some_pid})
     :meck.expect(FleetApi.Etcd, :list_machines, 1, {:ok, [%FleetApi.Machine{id: "123"}]})
     :meck.expect(FleetApi.Etcd, :list_units, 1, {:ok, [%FleetApi.Unit{name: "test"}]})
-    :meck.expect(ProjectOmeletteManager.SystemdUnit, :execute_journal_request, 3, {:ok, "happy result", ""})
+    :meck.expect(SystemdUnit, :execute_journal_request, 3, {:ok, "happy result", ""})
 
     conn = call(Router, :get, "/clusters/some_etcd_token/machines/123/units/test/logs")
     assert conn.status == 200
@@ -289,7 +291,7 @@ defmodule ProjectOmeletteManager.EtcdClusterController.Test do
     :meck.expect(FleetApi.Etcd, :start_link, 1, {:ok, :some_pid})
     :meck.expect(FleetApi.Etcd, :list_machines, 1, {:ok, [%FleetApi.Machine{id: "123"}]})
     :meck.expect(FleetApi.Etcd, :list_units, 1, {:ok, [%FleetApi.Unit{name: "test"}]})
-    :meck.expect(ProjectOmeletteManager.SystemdUnit, :execute_journal_request, 3, {:error, "bad news bears", ""})
+    :meck.expect(SystemdUnit, :execute_journal_request, 3, {:error, "bad news bears", ""})
 
     conn = call(Router, :get, "/clusters/some_etcd_token/machines/123/units/test/logs")
     assert conn.status == 500

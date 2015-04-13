@@ -1,4 +1,4 @@
-defmodule ProjectOmeletteManager.Controllers.FormatHelper do
+defmodule OpenAperture.Manager.Controllers.FormatHelper do
   @moduledoc """
   This module provides helper functions that are used by controllers to
   format incoming and outgoing data.

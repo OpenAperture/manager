@@ -1,4 +1,4 @@
-defmodule ProjectOmeletteManager.Repo.Migrations.AddEtcdClustersTable do
+defmodule OpenapertureManager.Repo.Migrations.AddEtcdClustersTable do
   use Ecto.Migration
 
   def change do

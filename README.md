@@ -1,5 +1,4 @@
-# ProjectOmeletteManager
-[![Build Status](https://semaphoreci.com/api/v1/projects/5335bd3a-765e-4fd6-8521-402e2be6a680/372989/badge.png)](https://semaphoreci.com/perceptive/cloudos_manager)      
+# Manager
 
 To start your new Phoenix application:
 
@@ -15,15 +14,15 @@ The following configuration values must be defined either as environment variabl
 * Messaging Private Key
 	* Type:  String
 	* Description:  The absolute location of the private key for encrypting passwords
-  * Environment Variable:  CLOUDOS_MANAGER_MESSAGING_PRIVATE_KEY
+  * Environment Variable:  MANAGER_MESSAGING_PRIVATE_KEY
 * Messaging Public Key
 	* Type:  String
 	* Description:  The absolute location of the public key for encrypting passwords
-  * Environment Variable:  CLOUDOS_MANAGER_MESSAGING_PUBLIC_KEY
+  * Environment Variable:  MANAGER_MESSAGING_PUBLIC_KEY
 * Messaging Key Name
 	* Type:  String
 	* Description:  An identifier that can be used for the password encryption keyfile
-  * Environment Variable:  CLOUDOS_MANAGER_MESSAGING_KEYNAME
+  * Environment Variable:  MANAGER_MESSAGING_KEYNAME
 
 The MessagingBrokersController tests require a keyfile to be present in order for the tests to pass and functionality to work.  A quick way to generate the required PEMs is as follows:
 

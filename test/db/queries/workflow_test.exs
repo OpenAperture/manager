@@ -4,10 +4,10 @@ defmodule DB.Queries.Workflow.Test do
   use ExUnit.Case, async: false
   use Timex
 
-  alias ProjectOmeletteManager.DB.Models.Workflow
+  alias OpenAperture.Manager.DB.Models.Workflow
 
-  alias ProjectOmeletteManager.Repo
-  alias ProjectOmeletteManager.DB.Queries.Workflow, as: WorkflowQuery
+  alias OpenapertureManager.Repo
+  alias OpenAperture.Manager.DB.Queries.Workflow, as: WorkflowQuery
 
   setup _context do
     on_exit _context, fn ->

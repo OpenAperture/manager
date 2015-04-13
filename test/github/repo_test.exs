@@ -1,9 +1,9 @@
-defmodule ProjectOmeletteManager.GitHub.Repo.Test do
+defmodule OpenAperture.Manager.GitHub.Repo.Test do
   use ExUnit.Case
-  doctest ProjectOmeletteManager.GitHub.Repo
+  doctest OpenAperture.Manager.GitHub.Repo
 
-  import ProjectOmeletteManager.GitHub.Repo
-  alias ProjectOmeletteManager.GitHub.Repo
+  import OpenAperture.Manager.GitHub.Repo
+  alias OpenAperture.Manager.GitHub.Repo
 
   test "get_project_name from repo" do
     repo = %Repo{

@@ -1,15 +1,15 @@
-defmodule ProjectOmeletteManager.ProductsController do
+defmodule OpenAperture.Manager.ProductsController do
   require Logger
 
-  use ProjectOmeletteManager.Web, :controller
+  use OpenAperture.Manager.Web, :controller
 
-  import ProjectOmeletteManager.Controllers.FormatHelper
-  import ProjectOmeletteManager.Router.Helpers
+  import OpenAperture.Manager.Controllers.FormatHelper
+  import OpenAperture.Manager.Router.Helpers
 
-  alias ProjectOmeletteManager.Endpoint
-  alias ProjectOmeletteManager.DB.Models.Product
-  alias ProjectOmeletteManager.DB.Queries.Product, as: ProductQuery
-  alias ProjectOmeletteManager.Repo
+  alias OpenAperture.Manager.Endpoint
+  alias OpenAperture.Manager.DB.Models.Product
+  alias OpenAperture.Manager.DB.Queries.Product, as: ProductQuery
+  alias OpenapertureManager.Repo
 
   @sendable_fields [:id, :name, :updated_at, :inserted_at]
   @updatable_fields [:name]

@@ -1,4 +1,4 @@
-defmodule ProjectOmeletteManager.Repo.Migrations.AddMessagingBrokerConnectionsTable do
+defmodule OpenapertureManager.Repo.Migrations.AddMessagingBrokerConnectionsTable do
   use Ecto.Migration
 
   def change do

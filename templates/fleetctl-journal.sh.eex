@@ -8,7 +8,7 @@ eval `ssh-agent -s`
 if [ -f /root/.ssh/id_rsa ]; then
   chmod 0600 /root/.ssh/id_rsa > /dev/null
   if [ $? -ne 0 ]; then
-    echo "ERROR: adding key for cloudos to ssh agent." 1>&2
+    echo "ERROR: adding key for OpenAperture to ssh agent." 1>&2
   fi
 
   ssh-add /root/.ssh/id_rsa 1> /dev/null 2> /dev/null

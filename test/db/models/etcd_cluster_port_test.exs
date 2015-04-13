@@ -1,11 +1,11 @@
 defmodule DB.Models.EtcdClusterPort.Test do
   use ExUnit.Case, async: false
 
-  alias ProjectOmeletteManager.DB.Models.Product
-  alias ProjectOmeletteManager.DB.Models.ProductComponent
-  alias ProjectOmeletteManager.DB.Models.EtcdCluster
-  alias ProjectOmeletteManager.DB.Models.EtcdClusterPort
-  alias ProjectOmeletteManager.Repo
+  alias OpenAperture.Manager.DB.Models.Product
+  alias OpenAperture.Manager.DB.Models.ProductComponent
+  alias OpenAperture.Manager.DB.Models.EtcdCluster
+  alias OpenAperture.Manager.DB.Models.EtcdClusterPort
+  alias OpenapertureManager.Repo
 
   setup _context do
     on_exit _context, fn ->

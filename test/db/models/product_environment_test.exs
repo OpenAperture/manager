@@ -3,10 +3,10 @@ defmodule DB.Models.ProductEnvironment.Test do
 
   import Ecto.Query
 
-  alias ProjectOmeletteManager.DB.Models.ProductEnvironment
-  alias ProjectOmeletteManager.DB.Models.Product
-  alias ProjectOmeletteManager.Repo
-  alias ProjectOmeletteManager.DB.Models.ProductEnvironmentalVariable
+  alias OpenAperture.Manager.DB.Models.ProductEnvironment
+  alias OpenAperture.Manager.DB.Models.Product
+  alias OpenapertureManager.Repo
+  alias OpenAperture.Manager.DB.Models.ProductEnvironmentalVariable
 
   setup _context do
     product = Product.new(%{name: "ProductEnvironmentsModelsTest"}) |> Repo.insert

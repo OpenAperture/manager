@@ -2,10 +2,10 @@ defmodule DB.Models.Product.Test do
   use ExUnit.Case, async: false
   import Ecto.Query
 
-  alias ProjectOmeletteManager.DB.Models.Product
-  alias ProjectOmeletteManager.Repo
-  alias ProjectOmeletteManager.DB.Models.ProductEnvironment
-  alias ProjectOmeletteManager.DB.Models.ProductEnvironmentalVariable
+  alias OpenAperture.Manager.DB.Models.Product
+  alias OpenapertureManager.Repo
+  alias OpenAperture.Manager.DB.Models.ProductEnvironment
+  alias OpenAperture.Manager.DB.Models.ProductEnvironmentalVariable
 
   setup _context do
     on_exit _context, fn ->

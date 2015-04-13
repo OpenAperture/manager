@@ -1,9 +1,9 @@
 defmodule DB.Models.MessagingBrokerConnection.Test do
   use ExUnit.Case, async: false
 
-  alias ProjectOmeletteManager.DB.Models.MessagingBroker
-  alias ProjectOmeletteManager.DB.Models.MessagingBrokerConnection
-  alias ProjectOmeletteManager.Repo
+  alias OpenAperture.Manager.DB.Models.MessagingBroker
+  alias OpenAperture.Manager.DB.Models.MessagingBrokerConnection
+  alias OpenapertureManager.Repo
 
   setup _context do
     on_exit _context, fn ->

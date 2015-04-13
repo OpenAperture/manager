@@ -1,8 +1,8 @@
-defmodule ProjectOmeletteManager.GitHub.Test do
+defmodule OpenAperture.Manager.GitHub.Test do
   use ExUnit.Case
 
-  alias ProjectOmeletteManager.GitHub.Repo
-  import ProjectOmeletteManager.GitHub
+  alias OpenAperture.Manager.GitHub.Repo
+  import OpenAperture.Manager.GitHub
 
   setup do
     :meck.new System, [:unstick, :passthrough]
