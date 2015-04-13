@@ -23,8 +23,36 @@ The following configuration values must be defined either as environment variabl
 	* Type:  String
 	* Description:  An identifier that can be used for the password encryption keyfile
   * Environment Variable:  MANAGER_MESSAGING_KEYNAME
+* Current Exchange
+	* Type:  String
+	* Description:  The identifier of the exchange in which the Orchestrator is running
+  * Environment Variable:  EXCHANGE_ID
+* Current Broker
+	* Type:  String
+	* Description:  The identifier of the broker to which the Orchestrator is connecting
+  * Environment Variable:  BROKER_ID
+* Manager URL
+  * Type: String
+  * Description: The url of the OpenAperture Manager
+  * Environment Variable:  MANAGER_URL
+  * Environment Configuration (.exs): :openaperture_manager_api, :manager_url
+* OAuth Login URL
+  * Type: String
+  * Description: The login url of the OAuth2 server
+  * Environment Variable:  OAUTH_LOGIN_URL
+  * Environment Configuration (.exs): :openaperture_manager_api, :oauth_login_url
+* OAuth Client ID
+  * Type: String
+  * Description: The OAuth2 client id to be used for authenticating with the OpenAperture Manager
+  * Environment Variable:  OAUTH_CLIENT_ID
+  * Environment Configuration (.exs): :openaperture_manager_api, :oauth_client_id
+* OAuth Client Secret
+  * Type: String
+  * Description: The OAuth2 client secret to be used for authenticating with the OpenAperture Manager
+  * Environment Variable:  OAUTH_CLIENT_SECRET
+  * Environment Configuration (.exs): :openaperture_manager_api, :oauth_client_secret
 
-The MessagingBrokersController tests require a keyfile to be present in order for the tests to pass and functionality to work.  A quick way to generate the required PEMs is as follows:
+The MessagingBrokers (Controller) tests require a keyfile to be present in order for the tests to pass and functionality to work.  A quick way to generate the required PEMs is as follows:
 
 ```
 ssh-keygen -t rsa -b 1024 -C "Test Key"
