@@ -202,7 +202,7 @@ defmodule OpenAperture.Manager.ProductComponentsController.Test do
     conn = call(Router, :post, path, Poison.encode!(new_component), [{"content-type", "application/json"}])
     assert conn.status == 400
 
-    assert conn.resp_body == "\"[type: :inclusion]\""
+    assert conn.resp_body == "\"[type: \\\"is invalid\\\"]\""
   end
 
   test "create action -- invalid component name with no options", context do
@@ -214,7 +214,7 @@ defmodule OpenAperture.Manager.ProductComponentsController.Test do
     conn = call(Router, :post, path, Poison.encode!(new_component), [{"content-type", "application/json"}])
     assert conn.status == 400
 
-    assert conn.resp_body == "\"[name: :required]\""
+    assert conn.resp_body == "\"[name: \\\"can't be blank\\\"]\""
   end
 
   test "create action -- valid component with invalid options", context do

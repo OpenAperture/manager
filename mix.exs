@@ -33,7 +33,7 @@ defmodule OpenAperture.Mixfile do
       {:phoenix, "~> 0.11.0"},
       {:phoenix_live_reload, "~> 0.3"},
       {:cowboy, "~> 1.0"},
-      {:ecto, "~> 0.9.0"},
+      {:ecto, "~> 0.10.1"},
       {:uuid, "~> 0.1.5" },
       {:timex, "~> 0.13.3"},
       {:postgrex, "~> 0.8.0"},

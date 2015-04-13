@@ -1,4 +1,4 @@
-defmodule OpenAperture.Manager do
+defmodule OpenAperture.ManagerTest do
   use ExUnit.Case
 
   test "the truth" do

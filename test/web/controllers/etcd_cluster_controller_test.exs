@@ -108,7 +108,7 @@ defmodule OpenAperture.Manager.EtcdClusterController.Test do
 
     body = Poison.decode!(conn.resp_body)
 
-    assert body == %{"etcd_token" => "required"}
+    assert body == %{"etcd_token" => "can't be blank"}
   end
 
   test "register action -- success" do
