@@ -21,7 +21,7 @@ defmodule OpenAperture.Mixfile do
   def application do
     [
       mod: {OpenAperture.Manager, []},
-      applications: [:phoenix, :cowboy, :logger, :ecto, :fleet_api, :crypto, :openaperture_auth, :openaperture_fleet]
+      applications: [:phoenix, :cowboy, :logger, :ecto, :fleet_api, :crypto, :openaperture_auth, :openaperture_fleet, :openaperture_messaging]
    ]
   end
 
@@ -43,7 +43,9 @@ defmodule OpenAperture.Mixfile do
         ref: "0ded31f747cb0b781838b5799acadcda88dd7953", override: true},
       {:openaperture_fleet, git: "https://#{System.get_env("GITHUB_OAUTH_TOKEN")}:x-oauth-basic@github.com/OpenAperture/fleet.git",
         ref: "0c648a0645106e51b858e3dbddefa570cdd2785a", override: true},      
-      {:meck, "0.8.2", only: :test}
+      {:openaperture_messaging, git: "https://#{System.get_env("GITHUB_OAUTH_TOKEN")}:x-oauth-basic@github.com/OpenAperture/messaging.git",
+        ref: "6b013743053bd49c964cdf49766a8a201ef33f71", override: true},
+      {:meck, "0.8.2", only: :test},
    ]
   end
 

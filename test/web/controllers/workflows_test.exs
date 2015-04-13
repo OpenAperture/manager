@@ -8,6 +8,8 @@ defmodule OpenAperture.Manager.Controllers.WorkflowsTest do
 
   alias OpenAperture.Manager.DB.Models.Workflow, as: WorkflowDB
 
+  alias OpenAperture.Manager.WorkflowOrchestrator.Publisher, as: WorkflowOrchestratorPublisher
+
   setup_all _context do
     :meck.new(OpenAperture.Manager.Plugs.Authentication, [:passthrough])
     :meck.expect(OpenAperture.Manager.Plugs.Authentication, :call, fn conn, _opts -> conn end)
@@ -193,5 +195,59 @@ defmodule OpenAperture.Manager.Controllers.WorkflowsTest do
     assert conn.status == 204
 
     assert Repo.get(WorkflowDB, raw_workflow_id) == nil
+  end  
+
+  # ==========================================
+  # execute tests
+
+  test "execute - invalid workflow" do
+    conn = call(Router, :post, "/workflows/1234567890/execute")
+    assert conn.status == 404
+  end
+
+  test "execute - completed workflow" do
+    workflow_id = "#{UUID.uuid1()}"
+    raw_workflow_id = (workflow_id |> UUID.info)[:binary]    
+    _workflow = Repo.insert(WorkflowDB.new(%{id: raw_workflow_id, workflow_completed: true}))
+
+    conn = call(Router, :post, "/workflows/#{workflow_id}/execute")
+    assert conn.status == 409
+  end
+
+  test "execute - completed in-progress" do
+    workflow_id = "#{UUID.uuid1()}"
+    raw_workflow_id = (workflow_id |> UUID.info)[:binary]    
+    _workflow = Repo.insert(WorkflowDB.new(%{id: raw_workflow_id, current_step: "something"}))
+
+    conn = call(Router, :post, "/workflows/#{workflow_id}/execute")
+    assert conn.status == 409
+  end
+
+  test "execute - publish fails" do
+    :meck.new(WorkflowOrchestratorPublisher, [:passthrough])
+    :meck.expect(WorkflowOrchestratorPublisher, :execute_workflow, fn _, _ -> {:error, "bad news bears"} end)
+
+    workflow_id = "#{UUID.uuid1()}"
+    raw_workflow_id = (workflow_id |> UUID.info)[:binary]    
+    _workflow = Repo.insert(WorkflowDB.new(%{id: raw_workflow_id}))
+
+    conn = call(Router, :post, "/workflows/#{workflow_id}/execute")
+    assert conn.status == 500
+  after
+    :meck.unload(WorkflowOrchestratorPublisher)
+  end  
+
+  test "execute - success" do
+    :meck.new(WorkflowOrchestratorPublisher, [:passthrough])
+    :meck.expect(WorkflowOrchestratorPublisher, :execute_workflow, fn _, _ -> :ok end)
+
+    workflow_id = "#{UUID.uuid1()}"
+    raw_workflow_id = (workflow_id |> UUID.info)[:binary]    
+    _workflow = Repo.insert(WorkflowDB.new(%{id: raw_workflow_id}))
+
+    conn = call(Router, :post, "/workflows/#{workflow_id}/execute")
+    assert conn.status == 204
+  after
+    :meck.unload(WorkflowOrchestratorPublisher)    
   end  
 end

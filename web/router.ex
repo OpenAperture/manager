@@ -162,10 +162,12 @@ defmodule OpenAperture.Manager.Router do
     pipe_through :secure
 
     get "/", Workflows, :index
-    post "", Workflows, :create
+    post "/", Workflows, :create
 
     get "/:id", Workflows, :show
     put "/:id", Workflows, :update
     delete "/:id", Workflows, :destroy
+    
+    post "/:id/execute", Workflows, :execute
   end  
 end

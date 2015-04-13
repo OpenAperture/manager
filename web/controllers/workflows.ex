@@ -14,6 +14,8 @@ defmodule OpenAperture.Manager.Controllers.Workflows do
   alias OpenAperture.Manager.DB.Models.Workflow, as: WorkflowDB
   alias OpenAperture.Manager.DB.Queries.Workflow, as: WorkflowQuery
 
+  alias OpenAperture.Manager.WorkflowOrchestrator.Publisher, as: WorkflowOrchestratorPublisher
+
   plug :action
 
   @moduledoc """
@@ -220,6 +222,45 @@ defmodule OpenAperture.Manager.Controllers.Workflows do
         resp(conn, :no_content, "")
     end
   end  
+
+  @doc """
+  POST /workflows/:id/execute - Begins execution of a Workflow
+
+  ## Options
+
+  The `conn` option defines the underlying HTTP connection.
+
+  The `params` option defines an array of arguments.
+
+  ## Return Values
+
+  Underlying HTTP connection
+  """
+  @spec execute(term, [any]) :: term
+  def execute(conn, %{"id" => id} = params) do
+    raw_workflow = get_workflow(id)
+
+    cond do
+      raw_workflow == nil -> resp(conn, :not_found, "")
+      raw_workflow.workflow_completed == true -> resp(conn, :conflict, "Workflow has already completed")
+      raw_workflow.current_step != nil -> resp(conn, :conflict, "Workflow has already been started")
+      true ->
+        workflow = List.first(convert_raw_workflows([raw_workflow]))
+
+        case WorkflowOrchestratorPublisher.execute_workflow(workflow, params["options"]) do
+          :ok -> 
+            path = OpenAperture.Manager.Router.Helpers.workflows_path(Endpoint, :show, id)
+
+            # Set location header
+            conn
+            |> put_resp_header("location", path)
+            |> resp(:no_content, "")
+          {:error, reason} -> 
+            Logger.error("Error executing Workflow #{id}: #{inspect reason}")
+            resp(conn, :internal_server_error, "")            
+        end
+    end
+  end
 
   @doc false
   # Method to convert an array of DB.Models.Workflows into an array of List of workflows

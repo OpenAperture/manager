@@ -12,6 +12,7 @@ defmodule OpenAperture.Manager do
       # Here you could define other workers and supervisors as children
       # worker(OpenAperture.Manager.Worker, [arg1, arg2, arg3]),
       worker(OpenapertureManager.Repo, []),
+      worker(OpenAperture.Manager.WorkflowOrchestrator.Publisher, [])
     ]
 
     # See http://elixir-lang.org/docs/stable/elixir/Supervisor.html
