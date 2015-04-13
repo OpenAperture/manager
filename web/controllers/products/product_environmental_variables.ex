@@ -1,4 +1,4 @@
-defmodule OpenAperture.Manager.ProductEnvironmentalVariablesController do
+defmodule OpenAperture.Manager.Controllers.ProductEnvironmentalVariables do
   require Logger
 
   use OpenAperture.Manager.Web, :controller

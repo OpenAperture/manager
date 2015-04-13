@@ -1,4 +1,4 @@
-defmodule OpenAperture.Manager.ProductClustersController do
+defmodule OpenAperture.Manager.Controllers.ProductClusters do
   require Logger
 
   use OpenAperture.Manager.Web, :controller

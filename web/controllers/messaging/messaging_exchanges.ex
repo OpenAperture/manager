@@ -5,7 +5,7 @@
 #
 require Logger
 
-defmodule OpenAperture.Manager.Web.Controllers.MessagingExchangesController do
+defmodule OpenAperture.Manager.Controllers.MessagingExchanges do
   use OpenAperture.Manager.Web, :controller
 
   require Repo

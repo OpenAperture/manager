@@ -1,4 +1,4 @@
-defmodule OpenAperture.Manager.ProductDeploymentsController do
+defmodule OpenAperture.Manager.Controllers.ProductDeployments do
   require Logger
 
   use OpenAperture.Manager.Web, :controller

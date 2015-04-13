@@ -1,4 +1,4 @@
-defmodule OpenAperture.Manager.Web.Controllers.MessagingExchangesController.Test do
+defmodule OpenAperture.Manager.Controllers.MessagingExchangesTest do
   use ExUnit.Case
   use Plug.Test
   use OpenAperture.Manager.Test.ConnHelper

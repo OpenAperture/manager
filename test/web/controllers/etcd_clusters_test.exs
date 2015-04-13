@@ -1,4 +1,4 @@
-defmodule OpenAperture.Manager.EtcdClusterController.Test do
+defmodule OpenAperture.Manager.Controllers.EtcdClustersTest do
   use ExUnit.Case
   use Plug.Test
   use OpenAperture.Manager.Test.ConnHelper

@@ -1,4 +1,4 @@
-defmodule OpenAperture.Manager.ProductClustersController.Test do
+defmodule OpenAperture.Manager.Controllers.ProductClustersTest do
   use ExUnit.Case
   use Plug.Test
   use OpenAperture.Manager.Test.ConnHelper

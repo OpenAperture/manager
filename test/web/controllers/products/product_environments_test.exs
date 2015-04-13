@@ -1,4 +1,4 @@
-defmodule OpenAperture.Manager.ProductEnvironmentsController.Test do
+defmodule OpenAperture.Manager.Controllers.ProductEnvironmentsTest do
   use ExUnit.Case, async: false
   use Plug.Test
   use OpenAperture.Manager.Test.ConnHelper

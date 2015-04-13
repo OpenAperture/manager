@@ -16,157 +16,156 @@ defmodule OpenAperture.Manager.Router do
     plug OpenAperture.Manager.Plugs.Authentication
   end
 
-  scope "/", OpenAperture.Manager do
+  scope "/", OpenAperture.Manager.Controllers do
     pipe_through :browser # Use the default browser stack
-    get "/", PageController, :index
     #Server Statuses
-    get "/status", StatusController, :index
+    get "/status", Status, :index
 
   end
 
-  scope "/clusters", OpenAperture.Manager do
+  scope "/clusters", OpenAperture.Manager.Controllers do
     pipe_through :api
     pipe_through :secure
-    get "/", EtcdClusterController, :index
-    post "/", EtcdClusterController, :register
+    get "/", EtcdClusters, :index
+    post "/", EtcdClusters, :register
 
-    get "/:etcd_token", EtcdClusterController, :show
-    delete "/:etcd_token", EtcdClusterController, :destroy
-    get "/:etcd_token/products", EtcdClusterController, :products
-    get "/:etcd_token/machines", EtcdClusterController, :machines
-    get "/:etcd_token/units", EtcdClusterController, :units
-    get "/:etcd_token/state", EtcdClusterController, :units_state
-    get "/:etcd_token/machines/:machine_id/units/:unit_name/logs", EtcdClusterController, :unit_logs
+    get "/:etcd_token", EtcdClusters, :show
+    delete "/:etcd_token", EtcdClusters, :destroy
+    get "/:etcd_token/products", EtcdClusters, :products
+    get "/:etcd_token/machines", EtcdClusters, :machines
+    get "/:etcd_token/units", EtcdClusters, :units
+    get "/:etcd_token/state", EtcdClusters, :units_state
+    get "/:etcd_token/machines/:machine_id/units/:unit_name/logs", EtcdClusters, :unit_logs
   end
 
-  scope "/messaging", OpenAperture.Manager.Web.Controllers do
+  scope "/messaging", OpenAperture.Manager.Controllers do
     pipe_through :api
     pipe_through :secure
 
     scope "/brokers" do
-      get "/", MessagingBrokersController, :index
-      post "/", MessagingBrokersController, :create
+      get "/", MessagingBrokers, :index
+      post "/", MessagingBrokers, :create
 
-      get "/:id", MessagingBrokersController, :show
-      put "/:id", MessagingBrokersController, :update
-      delete "/:id", MessagingBrokersController, :destroy
+      get "/:id", MessagingBrokers, :show
+      put "/:id", MessagingBrokers, :update
+      delete "/:id", MessagingBrokers, :destroy
 
-      get "/:id/connections", MessagingBrokersController, :get_connections
-      post "/:id/connections", MessagingBrokersController, :create_connection
-      delete "/:id/connections", MessagingBrokersController, :destroy_connections
+      get "/:id/connections", MessagingBrokers, :get_connections
+      post "/:id/connections", MessagingBrokers, :create_connection
+      delete "/:id/connections", MessagingBrokers, :destroy_connections
     end
 
     scope "/exchanges" do
-      get "/", MessagingExchangesController, :index
-      post "/", MessagingExchangesController, :create
+      get "/", MessagingExchanges, :index
+      post "/", MessagingExchanges, :create
 
-      get "/:id", MessagingExchangesController, :show
-      put "/:id", MessagingExchangesController, :update
-      delete "/:id", MessagingExchangesController, :destroy
+      get "/:id", MessagingExchanges, :show
+      put "/:id", MessagingExchanges, :update
+      delete "/:id", MessagingExchanges, :destroy
 
-      get "/:id/brokers", MessagingExchangesController, :get_broker_restrictions
-      post "/:id/brokers", MessagingExchangesController, :create_broker_restriction
-      delete "/:id/brokers", MessagingExchangesController, :destroy_broker_restrictions
+      get "/:id/brokers", MessagingExchanges, :get_broker_restrictions
+      post "/:id/brokers", MessagingExchanges, :create_broker_restriction
+      delete "/:id/brokers", MessagingExchanges, :destroy_broker_restrictions
 
-      get "/:id/clusters", MessagingExchangesController, :show_clusters
+      get "/:id/clusters", MessagingExchanges, :show_clusters
     end
   end
 
-  scope "/products", OpenAperture.Manager do
+  scope "/products", OpenAperture.Manager.Controllers do
     pipe_through :api
     pipe_through :secure
 
-    get "/", ProductsController, :index
-    post "/", ProductsController, :create
+    get "/", Products, :index
+    post "/", Products, :create
 
     scope "/:product_name" do
-      get "/", ProductsController, :show
-      delete "/", ProductsController, :destroy
-      put "/", ProductsController, :update
+      get "/", Products, :show
+      delete "/", Products, :destroy
+      put "/", Products, :update
 
       scope "/clusters" do
-        get "/", ProductClustersController, :index
-        post "/", ProductClustersController, :create
-        delete "/", ProductClustersController, :destroy
+        get "/", ProductClusters, :index
+        post "/", ProductClusters, :create
+        delete "/", ProductClusters, :destroy
       end
 
       scope "/components" do
-        get "/", ProductComponentsController, :index
-        post "/", ProductComponentsController, :create
-        delete "/", ProductComponentsController, :destroy
+        get "/", ProductComponents, :index
+        post "/", ProductComponents, :create
+        delete "/", ProductComponents, :destroy
 
-        get "/:component_name", ProductComponentsController, :show
-        put "/:component_name", ProductComponentsController, :update
-        delete "/:component_name", ProductComponentsController, :destroy_component
+        get "/:component_name", ProductComponents, :show
+        put "/:component_name", ProductComponents, :update
+        delete "/:component_name", ProductComponents, :destroy_component
       end
 
       scope "/deployment_plans" do
-        get "/", ProductDeploymentPlansController, :index
-        post "/", ProductDeploymentPlansController, :create
-        delete "/", ProductDeploymentPlansController, :destroy_all_plans
+        get "/", ProductDeploymentPlans, :index
+        post "/", ProductDeploymentPlans, :create
+        delete "/", ProductDeploymentPlans, :destroy_all_plans
 
         scope "/:plan_name" do
-          get "/", ProductDeploymentPlansController, :show
-          put "/", ProductDeploymentPlansController, :update
-          delete "/", ProductDeploymentPlansController, :destroy_plan
+          get "/", ProductDeploymentPlans, :show
+          put "/", ProductDeploymentPlans, :update
+          delete "/", ProductDeploymentPlans, :destroy_plan
 
           scope "/steps" do
-            get "/", ProductDeploymentPlanStepsController, :index
-            post "/", ProductDeploymentPlanStepsController, :create
-            delete "/", ProductDeploymentPlanStepsController, :destroy
+            get "/", ProductDeploymentPlanSteps, :index
+            post "/", ProductDeploymentPlanSteps, :create
+            delete "/", ProductDeploymentPlanSteps, :destroy
           end
         end
       end
 
       scope "/environments" do
-        get "/", ProductEnvironmentsController, :index
-        post "/", ProductEnvironmentsController, :create
+        get "/", ProductEnvironments, :index
+        post "/", ProductEnvironments, :create
 
         scope "/:environment_name" do
-          get "/", ProductEnvironmentsController, :show
-          put "/", ProductEnvironmentsController, :update
-          delete "/", ProductEnvironmentsController, :destroy
+          get "/", ProductEnvironments, :show
+          put "/", ProductEnvironments, :update
+          delete "/", ProductEnvironments, :destroy
 
           scope "/variables" do
-            get "/", ProductEnvironmentalVariablesController, :index_environment
-            post "/", ProductEnvironmentalVariablesController, :create_environment
+            get "/", ProductEnvironmentalVariables, :index_environment
+            post "/", ProductEnvironmentalVariables, :create_environment
 
-            get "/:variable_name", ProductEnvironmentalVariablesController, :show_environment
-            put "/:variable_name", ProductEnvironmentalVariablesController, :update_environment
-            delete "/:variable_name", ProductEnvironmentalVariablesController, :destroy_environment
+            get "/:variable_name", ProductEnvironmentalVariables, :show_environment
+            put "/:variable_name", ProductEnvironmentalVariables, :update_environment
+            delete "/:variable_name", ProductEnvironmentalVariables, :destroy_environment
           end
         end
       end
 
       scope "/environmental_variables" do
-        get "/", ProductEnvironmentalVariablesController, :index_default
-        post "/", ProductEnvironmentalVariablesController, :create_default
+        get "/", ProductEnvironmentalVariables, :index_default
+        post "/", ProductEnvironmentalVariables, :create_default
 
-        get "/:variable_name", ProductEnvironmentalVariablesController, :show_default
-        put "/:variable_name", ProductEnvironmentalVariablesController, :update_default
-        delete "/:variable_name", ProductEnvironmentalVariablesController, :destroy_default
+        get "/:variable_name", ProductEnvironmentalVariables, :show_default
+        put "/:variable_name", ProductEnvironmentalVariables, :update_default
+        delete "/:variable_name", ProductEnvironmentalVariables, :destroy_default
       end
 
       scope "/deployments" do
-        get "/", ProductDeploymentsController, :index
-        post "/", ProductDeploymentsController, :create
+        get "/", ProductDeployments, :index
+        post "/", ProductDeployments, :create
 
-        get "/:deployment_id", ProductDeploymentsController, :show
-        get "/:deployment_id/steps", ProductDeploymentsController, :index_steps
-        delete "/:deployment_id", ProductDeploymentsController, :destroy
+        get "/:deployment_id", ProductDeployments, :show
+        get "/:deployment_id/steps", ProductDeployments, :index_steps
+        delete "/:deployment_id", ProductDeployments, :destroy
       end
     end
   end
 
-  scope "/workflows", OpenAperture.Manager.Web.Controllers do
+  scope "/workflows", OpenAperture.Manager.Controllers do
     pipe_through :api
     pipe_through :secure
 
-    get "/", WorkflowController, :index
-    post "", WorkflowController, :create
+    get "/", Workflows, :index
+    post "", Workflows, :create
 
-    get "/:id", WorkflowController, :show
-    put "/:id", WorkflowController, :update
-    delete "/:id", WorkflowController, :destroy
+    get "/:id", Workflows, :show
+    put "/:id", Workflows, :update
+    delete "/:id", Workflows, :destroy
   end  
 end

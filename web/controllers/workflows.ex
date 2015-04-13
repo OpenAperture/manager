@@ -5,7 +5,7 @@
 #
 require Logger
 
-defmodule OpenAperture.Manager.Web.Controllers.WorkflowController do
+defmodule OpenAperture.Manager.Controllers.Workflows do
   use OpenAperture.Manager.Web, :controller
 
   require Repo
@@ -140,7 +140,7 @@ defmodule OpenAperture.Manager.Web.Controllers.WorkflowController do
     if changeset.valid? do
       try do
         raw_workflow = Repo.insert(changeset)
-        path = OpenAperture.Manager.Router.Helpers.workflow_path(Endpoint, :show, id)
+        path = OpenAperture.Manager.Router.Helpers.workflows_path(Endpoint, :show, id)
 
         # Set location header
         conn
@@ -181,7 +181,7 @@ defmodule OpenAperture.Manager.Web.Controllers.WorkflowController do
       if changeset.valid? do
         try do
           Repo.update(changeset)
-          path = OpenAperture.Manager.Router.Helpers.workflow_path(Endpoint, :show, id)
+          path = OpenAperture.Manager.Router.Helpers.workflows_path(Endpoint, :show, id)
           conn
           |> put_resp_header("location", path)
           |> resp(:no_content, "")

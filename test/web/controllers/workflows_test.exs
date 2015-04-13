@@ -1,4 +1,4 @@
-defmodule OpenAperture.Manager.Web.Controllers.WorkflowController.Test do
+defmodule OpenAperture.Manager.Controllers.WorkflowsTest do
   use ExUnit.Case
   use Plug.Test
   use OpenAperture.Manager.Test.ConnHelper

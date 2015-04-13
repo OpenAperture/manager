@@ -5,7 +5,7 @@
 #
 require Logger
 
-defmodule OpenAperture.Manager.Web.Controllers.MessagingBrokersController do
+defmodule OpenAperture.Manager.Controllers.MessagingBrokers do
   use OpenAperture.Manager.Web, :controller
 
   require Repo

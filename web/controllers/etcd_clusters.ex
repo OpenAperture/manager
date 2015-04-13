@@ -1,4 +1,4 @@
-defmodule OpenAperture.Manager.EtcdClusterController do
+defmodule OpenAperture.Manager.Controllers.EtcdClusters do
   require Logger
   use OpenAperture.Manager.Web, :controller
 
@@ -63,7 +63,7 @@ defmodule OpenAperture.Manager.EtcdClusterController do
     if cluster.valid? do
       try do
         cluster = Repo.insert(cluster)
-        path = etcd_cluster_path(Endpoint, :show, cluster.etcd_token)
+        path = etcd_clusters_path(Endpoint, :show, cluster.etcd_token)
 
         conn
         |> put_resp_header("location", path)
