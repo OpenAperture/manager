@@ -20,7 +20,7 @@ defmodule OpenAperture.Manager.Web do
       import OpenAperture.Manager.Router.Helpers
 
       # Import all HTML functions (forms, tags, etc)
-      use Phoenix.HTML
+      import Phoenix.Controller, only: [get_flash: 2]
     end
   end
 
@@ -33,6 +33,8 @@ defmodule OpenAperture.Manager.Web do
 
       # Import URL helpers from the router
       import OpenAperture.Manager.Router.Helpers
+
+      alias OpenAperture.Manager.Endpoint
     end
   end
 

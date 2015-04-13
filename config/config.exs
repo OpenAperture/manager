@@ -11,7 +11,8 @@ config :openaperture_manager, OpenAperture.Manager.Endpoint,
   secret_key_base: "Ks/rsx+RENMwWd4jgh3crqd3EwKGY8Mdm22NTJbby6pf35CwP9RAlT+8oDJQ8+1f",
   debug_errors: false,
   pubsub: [name: OpenAperture.Manager.PubSub,
-           adapter: Phoenix.PubSub.PG2]
+           adapter: Phoenix.PubSub.PG2],
+  root: Path.expand("..", __DIR__)
 
 config :openaperture_manager, OpenapertureManager.Repo,
   adapter: Ecto.Adapters.Postgres

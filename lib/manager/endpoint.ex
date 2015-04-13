@@ -1,6 +1,7 @@
 defmodule OpenAperture.Manager.Endpoint do
   use Phoenix.Endpoint, otp_app: :openaperture_manager
 
+
   # Serve at "/" the given assets from "priv/static" directory
   plug Plug.Static,
     at: "/", from: :openaperture_manager,
@@ -8,9 +9,10 @@ defmodule OpenAperture.Manager.Endpoint do
 
   plug Plug.Logger
 
-  # Code reloading will only work if the :code_reloader key of
-  # the :phoenix application is set to true in your config file.
-  plug Phoenix.CodeReloader
+  if code_reloading? do
+    use Phoenix.LiveReloader
+    use Phoenix.CodeReloader
+  end
 
   plug Plug.Parsers,
     parsers: [:urlencoded, :multipart, :json],
