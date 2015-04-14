@@ -10,8 +10,8 @@ defmodule OpenAperture.Manager.Endpoint do
   plug Plug.Logger
 
   if code_reloading? do
-    use Phoenix.LiveReloader
-    use Phoenix.CodeReloader
+    plug Phoenix.LiveReloader
+    plug Phoenix.CodeReloader
   end
 
   plug Plug.Parsers,
