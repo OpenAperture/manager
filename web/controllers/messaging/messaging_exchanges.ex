@@ -14,6 +14,7 @@ defmodule OpenAperture.Manager.Controllers.MessagingExchanges do
   alias OpenAperture.Manager.DB.Models.MessagingExchange
   alias OpenAperture.Manager.DB.Models.MessagingBroker
   alias OpenAperture.Manager.DB.Models.MessagingExchangeBroker
+  alias OpenAperture.Manager.DB.Models.MessagingExchangeModule
   alias OpenAperture.Manager.DB.Models.EtcdCluster
 
   alias OpenAperture.Manager.Controllers.FormatHelper
@@ -191,7 +192,8 @@ defmodule OpenAperture.Manager.Controllers.MessagingExchanges do
         Repo.transaction(fn ->
           Repo.update_all(from(e in EtcdCluster, where: e.messaging_exchange_id  == ^id), messaging_exchange_id: nil)
           Repo.update_all(from(e in MessagingExchange, where: e.failover_exchange_id  == ^id), failover_exchange_id: nil)
-          Repo.delete_all(from(b in MessagingExchangeBroker, where: b.messaging_exchange_id  == ^id))          
+          Repo.delete_all(from(b in MessagingExchangeBroker, where: b.messaging_exchange_id  == ^id))
+          Repo.delete_all(from(m in MessagingExchangeModule, where: m.messaging_exchange_id  == ^id))          
           Repo.delete(exchange)
         end)
         resp(conn, :no_content, "")

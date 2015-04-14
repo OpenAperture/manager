@@ -68,6 +68,11 @@ defmodule OpenAperture.Manager.Router do
       delete "/:id/brokers", MessagingExchanges, :destroy_broker_restrictions
 
       get "/:id/clusters", MessagingExchanges, :show_clusters
+
+      get    "/:id/modules", MessagingExchangeModules, :index
+      post   "/:id/modules", MessagingExchangeModules, :create
+      get    "/:id/modules/:hostname", MessagingExchangeModules, :show
+      delete "/:id/modules/:hostname", MessagingExchangeModules, :destroy    
     end
   end
 

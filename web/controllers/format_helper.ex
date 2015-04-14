@@ -13,6 +13,17 @@ defmodule OpenAperture.Manager.Controllers.FormatHelper do
   @spec to_sendable(Map.t, List.t) :: Map.t
   def to_sendable(item, allowed_fields \\ [])
 
+  @doc """
+  to_sendable prepares a List of structs or maps for transmission by converting structs
+  to plain old maps (if a struct is passed in), and stripping out any fields
+  in the allowed_fields list. If allowed_fields is empty, then all fields are
+  sent.
+  """
+  @spec to_sendable(List.t, List.t) :: List.t
+  def to_sendable(item, allowed_fields) when is_list(item) do
+    to_sendable_list([], item, allowed_fields)
+  end
+
   def to_sendable(item, []) do
     to_sendable(item, Map.keys(item))
   end
@@ -50,5 +61,13 @@ defmodule OpenAperture.Manager.Controllers.FormatHelper do
           _ -> Map.put(acc, key, [current, value])
         end
       end)
+  end
+
+  defp to_sendable_list(sendable_items, [], _) do
+    sendable_items
+  end
+  
+  defp to_sendable_list(sendable_items, [item|remaining_items], allowed_fields) do
+    to_sendable_list(sendable_items ++ [to_sendable(item, allowed_fields)], remaining_items, allowed_fields)
   end
 end
