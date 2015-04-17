@@ -69,7 +69,7 @@ defmodule OpenAperture.Manager.Plugs.Authentication do
   end
 
   @doc false
-  # Method to validate a request header.  Will try psw, peppr, and google auth
+  # Method to validate a request header.  Will try oauth provider
   # 
   ## Options
   # 
