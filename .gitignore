@@ -6,3 +6,4 @@ sftp-config.json
 manager.sublime-workspace
 mix.lock
 config/system.exs
+/doc
