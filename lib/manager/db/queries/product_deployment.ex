@@ -1,14 +1,3 @@
-#
-# == product_component.ex
-#
-# This module contains the queries associated with OpenAperture.Manager.DB.Models.ProductDeployment
-#
-# == Contact
-#
-# Author::    Trantor (trantordevonly@perceptivesoftware.com)
-# Copyright:: 2014 Lexmark International Technology S.A.  All rights reserved.
-# License::   n/a
-#
 defmodule OpenAperture.Manager.DB.Queries.ProductDeployment do
   alias OpenAperture.Manager.DB.Models.ProductDeploymentStep
   alias OpenAperture.Manager.DB.Models.ProductDeployment

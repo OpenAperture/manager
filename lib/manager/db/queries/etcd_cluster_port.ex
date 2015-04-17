@@ -1,14 +1,3 @@
-#
-# == product_cluster.ex
-#
-# This module contains the queries associated with OpenAperture.Manager.DB.Models.EtcdClusterPort
-#
-# == Contact
-#
-# Author::    Trantor (trantordevonly@perceptivesoftware.com)
-# Copyright:: 2014 Lexmark International Technology S.A.  All rights reserved.
-# License::   n/a
-#
 defmodule OpenAperture.Manager.DB.Queries.EtcdClusterPort do
   import Ecto.Query
 

@@ -1,14 +1,3 @@
-#
-# == uthentication_plug.ex
-#
-# This module contains an authentication filter for incoming requests.
-#
-# == Contact
-#
-# Author::    Trantor (trantordevonly@perceptivesoftware.com)
-# Copyright:: 2014 Lexmark International Technology S.A.  All rights reserved.
-# License::   n/a
-#
 require Logger
 
 defmodule OpenAperture.Manager.Plugs.Authentication do

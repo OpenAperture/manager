@@ -1,14 +1,3 @@
-#
-# == product_deployment_plan.ex
-#
-# This module contains the db schema the 'product_deployment_plans' table
-#
-# == Contact
-#
-# Author::    Trantor (trantordevonly@perceptivesoftware.com)
-# Copyright:: 2015 Lexmark International Technology S.A.  All rights reserved.
-# License::   n/a
-#
 require Logger
 
 defmodule OpenAperture.Manager.DB.Models.ProductDeploymentPlanStep do

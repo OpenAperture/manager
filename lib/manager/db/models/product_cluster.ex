@@ -1,14 +1,3 @@
-#
-# == product_cluster.ex
-#
-# This module contains the db schema the 'product_clusters' table
-#
-# == Contact
-#
-# Author::    Trantor (trantordevonly@perceptivesoftware.com)
-# Copyright:: 2014 Lexmark International Technology S.A.  All rights reserved.
-# License::   n/a
-#
 require Logger
 defmodule OpenAperture.Manager.DB.Models.ProductCluster do
   @required_fields [:product_id, :etcd_cluster_id]

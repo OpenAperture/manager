@@ -78,9 +78,9 @@ defmodule DB.Queries.Workflow.Test do
     _workflow_old = Workflow.new(%{id: workflow_old_id, deployment_repo: "bad-news-bears", inserted_at: Ecto.DateTime.utc()}) |> Repo.insert
 
     workflow_id = ("#{UUID.uuid1()}" |> UUID.info)[:binary]
-    _workflow = Workflow.new(%{id: workflow_id, deployment_repo: "Perceptive-Cloud/myapp", inserted_at: Ecto.DateTime.utc()}) |> Repo.insert
+    _workflow = Workflow.new(%{id: workflow_id, deployment_repo: "Cloud/myapp", inserted_at: Ecto.DateTime.utc()}) |> Repo.insert
 
-    results = Repo.all(WorkflowQuery.get_workflows_by_deployment_repo("Perceptive-Cloud/myapp", 24))
+    results = Repo.all(WorkflowQuery.get_workflows_by_deployment_repo("Cloud/myapp", 24))
     assert results != nil
     assert length(results) == 1
     assert List.first(results).id == workflow_id
@@ -93,12 +93,12 @@ defmodule DB.Queries.Workflow.Test do
     lookback_time = :calendar.gregorian_seconds_to_datetime(now_secs-(25*60*60))
     then = from_erl(lookback_time)
 
-    _workflow_old = %Workflow{id: workflow_old_id, deployment_repo: "Perceptive-Cloud/myapp", inserted_at: then} |> Repo.insert
+    _workflow_old = %Workflow{id: workflow_old_id, deployment_repo: "Cloud/myapp", inserted_at: then} |> Repo.insert
 
     workflow_id = ("#{UUID.uuid1()}" |> UUID.info)[:binary]
-    _workflow = Workflow.new(%{id: workflow_id, deployment_repo: "Perceptive-Cloud/myapp"}) |> Repo.insert
+    _workflow = Workflow.new(%{id: workflow_id, deployment_repo: "Cloud/myapp"}) |> Repo.insert
 
-    results = Repo.all(WorkflowQuery.get_workflows_by_deployment_repo("Perceptive-Cloud/myapp", 24))
+    results = Repo.all(WorkflowQuery.get_workflows_by_deployment_repo("Cloud/myapp", 24))
     assert results != nil
     assert length(results) == 1
     assert List.first(results).id == workflow_id
@@ -111,9 +111,9 @@ defmodule DB.Queries.Workflow.Test do
     lookback_time = :calendar.gregorian_seconds_to_datetime(now_secs-(25*60*60))
     then = from_erl(lookback_time)
 
-    _workflow_old = %Workflow{id: workflow_old_id, deployment_repo: "Perceptive-Cloud/myapp", inserted_at: then} |> Repo.insert
+    _workflow_old = %Workflow{id: workflow_old_id, deployment_repo: "Cloud/myapp", inserted_at: then} |> Repo.insert
 
-    results = Repo.all(WorkflowQuery.get_workflows_by_deployment_repo("Perceptive-Cloud/myapp", 24))
+    results = Repo.all(WorkflowQuery.get_workflows_by_deployment_repo("Cloud/myapp", 24))
     assert results != nil
     assert length(results) == 0
   end
@@ -125,12 +125,12 @@ defmodule DB.Queries.Workflow.Test do
     lookback_time = :calendar.gregorian_seconds_to_datetime(now_secs-(25*60*60))
     then = from_erl(lookback_time)
 
-    _workflow_old = %Workflow{id: workflow_old_id, deployment_repo: "Perceptive-Cloud/myapp", inserted_at: then} |> Repo.insert
+    _workflow_old = %Workflow{id: workflow_old_id, deployment_repo: "Cloud/myapp", inserted_at: then} |> Repo.insert
 
     workflow_id = ("#{UUID.uuid1()}" |> UUID.info)[:binary]
-    _workflow = Workflow.new(%{id: workflow_id, deployment_repo: "Perceptive-Cloud/myapp", inserted_at: Ecto.DateTime.utc()}) |> Repo.insert
+    _workflow = Workflow.new(%{id: workflow_id, deployment_repo: "Cloud/myapp", inserted_at: Ecto.DateTime.utc()}) |> Repo.insert
 
-    results = Repo.all(WorkflowQuery.get_workflows_by_deployment_repo("Perceptive-Cloud/myapp"))
+    results = Repo.all(WorkflowQuery.get_workflows_by_deployment_repo("Cloud/myapp"))
     assert results != nil
     assert length(results) == 2
     Enum.reduce results, [], fn result, _errors ->

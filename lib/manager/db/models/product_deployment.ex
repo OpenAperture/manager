@@ -1,15 +1,3 @@
-
-#
-# == product_deployment.ex
-#
-# This module contains the db schema the 'product_deployments' table
-#
-# == Contact
-#
-# Author::    Trantor (trantordevonly@perceptivesoftware.com)
-# Copyright:: 2014 Lexmark International Technology S.A.  All rights reserved.
-# License::   n/a
-#
 defmodule OpenAperture.Manager.DB.Models.ProductDeployment do
   @required_fields [:product_id, :product_deployment_plan_id]
   @optional_fields [:execution_options, :completed, :duration, :output]

@@ -1,14 +1,3 @@
-#
-# == product_deployment_step.ex
-#
-# This module contains the db schema the 'product_deployment_steps' table
-#
-# == Contact
-#
-# Author::    Trantor (trantordevonly@perceptivesoftware.com)
-# Copyright:: 2014 Lexmark International Technology S.A.  All rights reserved.
-# License::   n/a
-#
 defmodule OpenAperture.Manager.DB.Models.ProductDeploymentStep do
   @required_fields [:product_deployment_id]
   @optional_fields [:product_deployment_plan_step_id, :product_deployment_plan_step_type, :duration, :successful,

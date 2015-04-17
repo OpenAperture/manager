@@ -1,14 +1,3 @@
-#
-# == etcd_cluster_port.ex
-#
-# This module contains the db schema the 'etcd_cluster_ports' table
-#
-# == Contact
-#
-# Author::    Trantor (trantordevonly@perceptivesoftware.com)
-# Copyright:: 2015 Lexmark International Technology S.A.  All rights reserved.
-# License::   n/a
-#
 defmodule OpenAperture.Manager.DB.Models.EtcdClusterPort do
   @required_fields [:etcd_cluster_id, :product_component_id, :port]
   @optional_fields []

@@ -1,14 +1,3 @@
-#
-# == product_deployment_plan_step_option.ex
-#
-# This module contains the db schema the 'product_deployment_plan_step_options' table
-#
-# == Contact
-#
-# Author::    Trantor (trantordevonly@perceptivesoftware.com)
-# Copyright:: 2015 Lexmark International Technology S.A.  All rights reserved.
-# License::   n/a
-#
 defmodule OpenAperture.Manager.DB.Models.ProductDeploymentPlanStepOption do
   @required_fields [:product_deployment_plan_step_id, :name]
   @optional_fields [:value]

@@ -1,14 +1,3 @@
-#
-# == product_deployment_plan.ex
-#
-# This module contains the queries associated with OpenAperture.Manager.DB.Models.ProductDeploymentPlan
-#
-# == Contact
-#
-# Author::    Trantor (trantordevonly@perceptivesoftware.com)
-# Copyright:: 2014 Lexmark International Technology S.A.  All rights reserved.
-# License::   n/a
-#
 defmodule OpenAperture.Manager.DB.Queries.ProductDeploymentPlan do
   alias OpenAperture.Manager.DB.Models.ProductDeploymentPlan
 

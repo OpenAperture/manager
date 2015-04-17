@@ -1,14 +1,3 @@
-#
-# == product_component_option.ex
-#
-# This module contains the db schema the 'product_component' table
-#
-# == Contact
-#
-# Author::    Trantor (trantordevonly@perceptivesoftware.com)
-# Copyright:: 2014 Lexmark International Technology S.A.  All rights reserved.
-# License::   n/a
-#
 defmodule OpenAperture.Manager.DB.Models.ProductComponentOption do
   @required_fields [:product_component_id, :name]
   @optional_fields [:value]
