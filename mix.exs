@@ -30,8 +30,8 @@ defmodule OpenAperture.Mixfile do
   # Type `mix help deps` for examples and options
   defp deps do
     [
-      {:ex_doc, github: "elixir-lang/ex_doc", only: [:dev, :test]},
-      {:markdown, github: "devinus/markdown", only: [:dev, :test]},
+      {:ex_doc, github: "elixir-lang/ex_doc", only: [:test]},
+      {:markdown, github: "devinus/markdown", only: [:test]},
 
       {:phoenix, "~> 0.11.0"},
       {:phoenix_live_reload, "~> 0.3"},
