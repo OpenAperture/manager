@@ -1,7 +1,7 @@
 # Manager
 
 [![Build Status](https://semaphoreci.com/api/v1/projects/57ae4ce0-e5f1-4a08-ab29-715b56d03480/398198/badge.svg)](https://semaphoreci.com/perceptive/manager
-
+ 
 To start your new Phoenix application:
 
 1. Install dependencies with `mix deps.get`
