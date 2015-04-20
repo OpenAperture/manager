@@ -66,4 +66,20 @@ defmodule OpenAperture.Manager.Controllers.FormatHelper.Test do
     kw = [a: "a value", b: "b value", b: "b value 2", a: "a value 2"]
     assert keywords_to_map(kw) == %{a: ["a value", "a value 2"], b: ["b value", "b value 2"]}
   end
+
+  test "to_string_timestamps" do
+    raw_result = [%{
+      inserted_at: Ecto.DateTime.utc,
+      updated_at: Ecto.DateTime.utc
+    }]
+    result = assert to_string_timestamps(raw_result)
+    assert length(result) == 1
+    
+    item = List.first(result)
+    assert item != nil
+    assert item[:inserted_at] != nil
+    assert String.length(item[:inserted_at]) > 0
+    assert item[:updated_at] != nil
+    assert String.length(item[:updated_at]) > 0
+  end  
 end

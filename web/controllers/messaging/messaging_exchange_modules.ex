@@ -48,7 +48,7 @@ defmodule OpenAperture.Manager.Controllers.MessagingExchangeModules do
           from m in MessagingExchangeModuleDb,
           where: m.messaging_exchange_id == ^id,
           select: m
-        json conn, Repo.all(query) |> FormatHelper.to_sendable(@sendable_fields)
+        json conn, Repo.all(query) |> FormatHelper.to_sendable(@sendable_fields) |> FormatHelper.to_string_timestamps
     end
   end
 
@@ -73,7 +73,7 @@ defmodule OpenAperture.Manager.Controllers.MessagingExchangeModules do
           select: m
         case Repo.all(query) do
           [] -> resp(conn, :not_found, "")
-          modules -> json conn, List.first(modules) |> FormatHelper.to_sendable(@sendable_fields)
+          modules -> json conn, List.first(modules) |> FormatHelper.to_sendable(@sendable_fields) |> FormatHelper.to_string_timestamps
         end
     end
   end  

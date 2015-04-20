@@ -1,4 +1,6 @@
 defmodule OpenAperture.Manager.Controllers.FormatHelper do
+  use Timex
+
   @moduledoc """
   This module provides helper functions that are used by controllers to
   format incoming and outgoing data.
@@ -70,4 +72,41 @@ defmodule OpenAperture.Manager.Controllers.FormatHelper do
   defp to_sendable_list(sendable_items, [item|remaining_items], allowed_fields) do
     to_sendable_list(sendable_items ++ [to_sendable(item, allowed_fields)], remaining_items, allowed_fields)
   end
+
+  @doc """
+  Method to convert the :inserted_at and :updated_at entries into RFC 1123-compliant Strings
+  """
+  @spec to_sendable(Map.t) :: Map.t
+  def to_string_timestamps(item)  when is_list(item) do 
+    to_string_timestamps_list([], item)
+  end
+
+  @doc """
+  Method to convert the :inserted_at and :updated_at entries into RFC 1123-compliant Strings
+  """
+  @spec to_sendable(Map.t) :: Map.t
+  def to_string_timestamps(item) do
+    if item[:inserted_at] != nil do
+      {:ok, erl_date} = Ecto.DateTime.dump(item[:inserted_at])
+      date = Date.from(erl_date, :utc)
+      item = Map.put(item, :inserted_at, DateFormat.format!(date, "{RFC1123}"))
+    end
+
+    if item[:updated_at] != nil do
+      {:ok, erl_date} = Ecto.DateTime.dump(item[:updated_at])
+      date = Date.from(erl_date, :utc)
+      item = Map.put(item, :updated_at, DateFormat.format!(date, "{RFC1123}"))
+      
+    end
+
+    item
+  end
+
+  defp to_string_timestamps_list(updated_items, []) do
+    updated_items
+  end
+  
+  defp to_string_timestamps_list(updated_items, [item|remaining_items]) do
+    to_string_timestamps_list(updated_items ++ [to_string_timestamps(item)], remaining_items)
+  end  
 end
