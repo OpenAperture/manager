@@ -53,7 +53,11 @@ The following configuration values must be defined either as environment variabl
   * Description: The OAuth2 client secret to be used for authenticating with the OpenAperture Manager
   * Environment Variable:  OAUTH_CLIENT_SECRET
   * Environment Configuration (.exs): :openaperture_manager_api, :oauth_client_secret
-
+* System Module Type
+  * Type:  atom or string
+  * Description:  An atom or string describing what kind of system module is running (i.e. builder, deployer, etc...)
+  * Environment Configuration (.exs): :openaperture_overseer_api, :module_type
+  
 The MessagingBrokers (Controller) tests require a keyfile to be present in order for the tests to pass and functionality to work.  A quick way to generate the required PEMs is as follows:
 
 ```
