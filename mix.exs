@@ -21,7 +21,20 @@ defmodule OpenAperture.Mixfile do
   def application do
     [
       mod: {OpenAperture.Manager, []},
-      applications: [:phoenix, :cowboy, :logger, :ecto, :fleet_api, :crypto, :openaperture_auth, :openaperture_fleet, :openaperture_messaging]
+      applications: [
+        :phoenix, 
+        :cowboy, 
+        :logger, 
+        :ecto, 
+        :fleet_api, 
+        :crypto, 
+        :openaperture_auth, 
+        :openaperture_fleet, 
+        :openaperture_messaging,
+        :openaperture_manager_api,
+        :openaperture_overseer_api,
+        :openaperture_workflow_orchestrator_api
+    ]
    ]
   end
 
@@ -38,19 +51,18 @@ defmodule OpenAperture.Mixfile do
       {:cowboy, "~> 1.0"},
       {:ecto, "~> 0.10.1"},
       {:uuid, "~> 0.1.5" },
-      {:timex, "~> 0.13.3"},
+      {:timex, "~> 0.13.3", override: true},
       {:postgrex, "~> 0.8.0"},
       {:fleet_api, "~> 0.0.4"},
       {:rsa, "~> 0.0.1"},
-      {:openaperture_auth, git: "https://#{System.get_env("GITHUB_OAUTH_TOKEN")}:x-oauth-basic@github.com/OpenAperture/auth.git",
-        ref: "0ded31f747cb0b781838b5799acadcda88dd7953", override: true},
-      {:openaperture_fleet, git: "https://#{System.get_env("GITHUB_OAUTH_TOKEN")}:x-oauth-basic@github.com/OpenAperture/fleet.git",
-        ref: "0c648a0645106e51b858e3dbddefa570cdd2785a", override: true},      
-      {:openaperture_messaging, git: "https://#{System.get_env("GITHUB_OAUTH_TOKEN")}:x-oauth-basic@github.com/OpenAperture/messaging.git",
-        ref: "6b013743053bd49c964cdf49766a8a201ef33f71", override: true},
-      {:meck, "0.8.2", only: :test},
-      {:openaperture_manager_api, git: "https://#{System.get_env("GITHUB_OAUTH_TOKEN")}:x-oauth-basic@github.com/OpenAperture/manager_api.git", 
-        ref: "f67a4570ec4b46cb2b2bb746924b322eec1e3178", override: true},
+      {:openaperture_auth, git: "https://github.com/OpenAperture/auth.git", ref: "dd7483eac3e7833fd5f2f9fb7347b17f68ff4bea", override: true},
+      {:openaperture_fleet, git: "https://github.com/OpenAperture/fleet.git", ref: "adab7f2649016f43352f43def797f61acea8a292", override: true},      
+      {:openaperture_messaging, git: "https://github.com/OpenAperture/messaging.git", ref: "e3247e4fbcc097a3156e3b95ad2115408693ca12", override: true},
+      {:openaperture_manager_api, git: "https://github.com/OpenAperture/manager_api.git",  ref: "ae629a4127acceac8a9791c85e5a0d3b67d1ad16", override: true},
+      {:openaperture_overseer_api, git: "https://github.com/OpenAperture/overseer_api.git", ref: "bbc5b14934f253884f91c174906bbc3570fddd2f", override: true},
+      {:openaperture_workflow_orchestrator_api, git: "https://github.com/OpenAperture/workflow_orchestrator_api.git", ref: "488832b216a1a139a6c58d788083cf5054b3dbe8", override: true},
+
+      {:meck, "0.8.2", only: :test},        
    ]
   end
 

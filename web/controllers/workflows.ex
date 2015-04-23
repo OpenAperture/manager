@@ -14,7 +14,8 @@ defmodule OpenAperture.Manager.Controllers.Workflows do
   alias OpenAperture.Manager.DB.Models.Workflow, as: WorkflowDB
   alias OpenAperture.Manager.DB.Queries.Workflow, as: WorkflowQuery
 
-  alias OpenAperture.Manager.WorkflowOrchestrator.Publisher, as: WorkflowOrchestratorPublisher
+  alias OpenAperture.WorkflowOrchestratorApi.Request, as: OrchestratorRequest
+  alias OpenAperture.WorkflowOrchestratorApi.WorkflowOrchestrator.Publisher, as: OrchestratorPublisher
 
   plug :action
 
@@ -121,6 +122,24 @@ defmodule OpenAperture.Manager.Controllers.Workflows do
     id = "#{UUID.uuid1()}"
     raw_workflow_id = string_to_uuid(id)
 
+    milestones = if params["milestones"] != nil do
+      Poison.encode!(params["milestones"])
+    else 
+      nil
+    end
+
+    workflow_step_durations = if params["workflow_step_durations"] != nil do
+      Poison.encode!(params["workflow_step_durations"])
+    else
+      nil
+    end
+
+    event_log = if params["event_log"] != nil do
+      Poison.encode!(params["event_log"])
+    else
+      nil
+    end
+
     changeset = WorkflowDB.new(%{
       :id => raw_workflow_id,
       :deployment_repo => params["deployment_repo"],
@@ -128,15 +147,15 @@ defmodule OpenAperture.Manager.Controllers.Workflows do
       :source_repo => params["source_repo"],
       :source_repo_git_ref => params["source_repo_git_ref"],
       :source_commit_hash => params["source_commit_hash"],
-      :milestones => params["milestones"],
+      :milestones => milestones,
       :current_step => params["current_step"],
       :elapsed_step_time => params["elapsed_step_time"],
       :elapsed_workflow_time => params["elapsed_workflow_time"],
       :workflow_duration => params["workflow_duration"],
-      :workflow_step_durations => params["workflow_step_durations"],
+      :workflow_step_durations => workflow_step_durations,
       :workflow_error => params["workflow_error"],
       :workflow_completed => params["workflow_completed"],
-      :event_log => params["event_log"],
+      :event_log => event_log,
     })
 
     if changeset.valid? do
@@ -179,6 +198,21 @@ defmodule OpenAperture.Manager.Controllers.Workflows do
       resp(conn, :not_found, "")
     else
       workflow_params = Map.put(params, "id", raw_workflow_id)
+
+      if params["milestones"] != nil do
+        workflow_params = Map.put(workflow_params, "milestones", Poison.encode!(params["milestones"]))
+      end
+
+      if params["workflow_step_durations"] != nil do
+        workflow_params = Map.put(workflow_params, "workflow_step_durations", Poison.encode!(params["workflow_step_durations"]))
+      end
+
+      if params["event_log"] != nil do
+        workflow_params = Map.put(workflow_params, "event_log", Poison.encode!(params["event_log"]))
+      else
+        nil
+      end
+
       changeset = WorkflowDB.update(raw_workflow, workflow_params)
       if changeset.valid? do
         try do
@@ -245,9 +279,12 @@ defmodule OpenAperture.Manager.Controllers.Workflows do
       raw_workflow.workflow_completed == true -> resp(conn, :conflict, "Workflow has already completed")
       raw_workflow.current_step != nil -> resp(conn, :conflict, "Workflow has already been started")
       true ->
-        workflow = List.first(convert_raw_workflows([raw_workflow]))
+        payload = List.first(convert_raw_workflows([raw_workflow]))
+        if params["force_build"] != nil do
+          payload = Map.put(payload, :force_build, params["force_build"])
+        end
 
-        case WorkflowOrchestratorPublisher.execute_workflow(workflow, params["options"]) do
+        case OrchestratorPublisher.execute_orchestration(OrchestratorRequest.from_payload(payload)) do
           :ok -> 
             path = OpenAperture.Manager.Router.Helpers.workflows_path(Endpoint, :show, id)
 
@@ -294,6 +331,21 @@ defmodule OpenAperture.Manager.Controllers.Workflows do
             if (workflow[:updated_at] != nil) do
               workflow = Map.put(workflow, :updated_at, "#{:httpd_util.rfc1123_date(ecto_to_erl(workflow[:updated_at]))}")
             end
+
+            #stored as String in the db
+            if (workflow[:milestones] != nil) do
+              workflow = Map.put(workflow, :milestones, Poison.decode!(workflow[:milestones]))
+            end
+            
+            #stored as String in the db
+            if (workflow[:workflow_step_durations] != nil) do
+              workflow = Map.put(workflow, :workflow_step_durations, Poison.decode!(workflow[:workflow_step_durations]))
+            end
+            
+            #stored as String in the db
+            if (workflow[:event_log] != nil) do
+              workflow = Map.put(workflow, :event_log, Poison.decode!(workflow[:event_log]))
+            end            
         
             workflows = workflows ++ [workflow]
           end

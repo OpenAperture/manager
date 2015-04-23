@@ -8,7 +8,7 @@ defmodule OpenAperture.Manager.Controllers.WorkflowsTest do
 
   alias OpenAperture.Manager.DB.Models.Workflow, as: WorkflowDB
 
-  alias OpenAperture.Manager.WorkflowOrchestrator.Publisher, as: WorkflowOrchestratorPublisher
+  alias OpenAperture.WorkflowOrchestratorApi.WorkflowOrchestrator.Publisher, as: OrchestratorPublisher
 
   setup_all _context do
     :meck.new(OpenAperture.Manager.Plugs.Authentication, [:passthrough])
@@ -31,7 +31,13 @@ defmodule OpenAperture.Manager.Controllers.WorkflowsTest do
   test "get workflow" do
     workflow_uuid = "#{UUID.uuid1()}" 
     workflow_id = (workflow_uuid |> UUID.info)[:binary]
-    _workflow = Repo.insert(%WorkflowDB{id: workflow_id, inserted_at: from_erl(:calendar.universal_time)})
+    _workflow = Repo.insert(%WorkflowDB{
+      id: workflow_id, 
+      milestones: Poison.encode!([:build, :deploy]),
+      workflow_step_durations: Poison.encode!(%{build: "24 seconds"}),
+      event_log: Poison.encode!(["Event 1", "Event 2"]),
+      inserted_at: from_erl(:calendar.universal_time)}
+    )
 
     conn = call(Router, :get, "/workflows/#{workflow_uuid}")
     assert conn.status == 200
@@ -165,7 +171,12 @@ defmodule OpenAperture.Manager.Controllers.WorkflowsTest do
     _workflow = Repo.insert(WorkflowDB.new(%{id: raw_workflow_id}))
 
     deployment_repo = "#{UUID.uuid1()}"
-    conn = call(Router, :put, "/workflows/#{workflow_id}", %{"deployment_repo" => deployment_repo})
+    conn = call(Router, :put, "/workflows/#{workflow_id}", %{
+      "deployment_repo" => deployment_repo,
+      "milestones" => [:build, :deploy],
+      "workflow_step_durations" => %{"build" => "12 seconds"},
+      "event_log" => ["Event 1", "Event 2"]
+    })
 
     assert conn.status == 204
     location_header = Enum.reduce conn.resp_headers, nil, fn ({key, value}, location_header) ->
@@ -224,8 +235,8 @@ defmodule OpenAperture.Manager.Controllers.WorkflowsTest do
   end
 
   test "execute - publish fails" do
-    :meck.new(WorkflowOrchestratorPublisher, [:passthrough])
-    :meck.expect(WorkflowOrchestratorPublisher, :execute_workflow, fn _, _ -> {:error, "bad news bears"} end)
+    :meck.new(OrchestratorPublisher, [:passthrough])
+    :meck.expect(OrchestratorPublisher, :execute_orchestration, fn _ -> {:error, "bad news bears"} end)
 
     workflow_id = "#{UUID.uuid1()}"
     raw_workflow_id = (workflow_id |> UUID.info)[:binary]    
@@ -234,12 +245,12 @@ defmodule OpenAperture.Manager.Controllers.WorkflowsTest do
     conn = call(Router, :post, "/workflows/#{workflow_id}/execute")
     assert conn.status == 500
   after
-    :meck.unload(WorkflowOrchestratorPublisher)
+    :meck.unload(OrchestratorPublisher)
   end  
 
   test "execute - success" do
-    :meck.new(WorkflowOrchestratorPublisher, [:passthrough])
-    :meck.expect(WorkflowOrchestratorPublisher, :execute_workflow, fn _, _ -> :ok end)
+    :meck.new(OrchestratorPublisher, [:passthrough])
+    :meck.expect(OrchestratorPublisher, :execute_orchestration, fn _ -> :ok end)
 
     workflow_id = "#{UUID.uuid1()}"
     raw_workflow_id = (workflow_id |> UUID.info)[:binary]    
@@ -248,6 +259,6 @@ defmodule OpenAperture.Manager.Controllers.WorkflowsTest do
     conn = call(Router, :post, "/workflows/#{workflow_id}/execute")
     assert conn.status == 204
   after
-    :meck.unload(WorkflowOrchestratorPublisher)    
+    :meck.unload(OrchestratorPublisher)    
   end  
 end
