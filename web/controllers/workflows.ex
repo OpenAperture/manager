@@ -13,6 +13,7 @@ defmodule OpenAperture.Manager.Controllers.Workflows do
   alias OpenAperture.Manager.Controllers.FormatHelper
   alias OpenAperture.Manager.DB.Models.Workflow, as: WorkflowDB
   alias OpenAperture.Manager.DB.Queries.Workflow, as: WorkflowQuery
+  alias OpenAperture.Manager.Configuration
 
   alias OpenAperture.WorkflowOrchestratorApi.Request, as: OrchestratorRequest
   alias OpenAperture.WorkflowOrchestratorApi.WorkflowOrchestrator.Publisher, as: OrchestratorPublisher
@@ -284,7 +285,14 @@ defmodule OpenAperture.Manager.Controllers.Workflows do
           payload = Map.put(payload, :force_build, params["force_build"])
         end
 
-        case OrchestratorPublisher.execute_orchestration(OrchestratorRequest.from_payload(payload)) do
+        request = OrchestratorRequest.from_payload(payload)
+        request = %{request | notifications_exchange_id: Configuration.get_current_exchange_id}
+        request = %{request | notifications_broker_id: Configuration.get_current_broker_id}
+        request = %{request | workflow_orchestration_exchange_id: Configuration.get_current_exchange_id}
+        request = %{request | workflow_orchestration_broker_id: Configuration.get_current_broker_id}
+        request = %{request | orchestration_queue_name: "workflow_orchestration"}
+
+        case OrchestratorPublisher.execute_orchestration(request) do
           :ok -> 
             path = OpenAperture.Manager.Router.Helpers.workflows_path(Endpoint, :show, id)
 
