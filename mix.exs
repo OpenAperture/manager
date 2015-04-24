@@ -57,7 +57,7 @@ defmodule OpenAperture.Mixfile do
       {:rsa, "~> 0.0.1"},
       {:openaperture_auth, git: "https://github.com/OpenAperture/auth.git", ref: "dd7483eac3e7833fd5f2f9fb7347b17f68ff4bea", override: true},
       {:openaperture_fleet, git: "https://github.com/OpenAperture/fleet.git", ref: "adab7f2649016f43352f43def797f61acea8a292", override: true},      
-      {:openaperture_messaging, git: "https://github.com/OpenAperture/messaging.git", ref: "e3247e4fbcc097a3156e3b95ad2115408693ca12", override: true},
+      {:openaperture_messaging, git: "https://github.com/OpenAperture/messaging.git", ref: "ae1c1744d21d5cc7a74c8e1323bdac13b2f7fe80", override: true},
       {:openaperture_manager_api, git: "https://github.com/OpenAperture/manager_api.git",  ref: "ae629a4127acceac8a9791c85e5a0d3b67d1ad16", override: true},
       {:openaperture_overseer_api, git: "https://github.com/OpenAperture/overseer_api.git", ref: "bbc5b14934f253884f91c174906bbc3570fddd2f", override: true},
       {:openaperture_workflow_orchestrator_api, git: "https://github.com/OpenAperture/workflow_orchestrator_api.git", ref: "488832b216a1a139a6c58d788083cf5054b3dbe8", override: true},
