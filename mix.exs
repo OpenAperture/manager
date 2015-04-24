@@ -32,7 +32,7 @@ defmodule OpenAperture.Mixfile do
         :openaperture_fleet, 
         :openaperture_messaging,
         :openaperture_manager_api,
-        :openaperture_overseer_api,
+        #:openaperture_overseer_api,
         :openaperture_workflow_orchestrator_api
     ]
    ]
