@@ -67,7 +67,7 @@ defmodule OpenAperture.Manager.Controllers.MessagingExchangeModulesTest do
     assert returned_module["hostname"] == module.hostname
     assert returned_module["type"] == module.type
     assert returned_module["status"] == module.status
-    assert returned_module["workload"] == module.workload
+    assert returned_module["workload"] == []
   end
 
   test "show - invalid exchange" do
@@ -102,7 +102,7 @@ defmodule OpenAperture.Manager.Controllers.MessagingExchangeModulesTest do
     assert returned_module["hostname"] == module.hostname
     assert returned_module["type"] == module.type
     assert returned_module["status"] == module.status
-    assert returned_module["workload"] == module.workload
+    assert returned_module["workload"] == []
   end  
 
   test "destroy - invalid exchange" do

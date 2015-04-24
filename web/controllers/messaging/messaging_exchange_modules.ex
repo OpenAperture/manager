@@ -48,7 +48,27 @@ defmodule OpenAperture.Manager.Controllers.MessagingExchangeModules do
           from m in MessagingExchangeModuleDb,
           where: m.messaging_exchange_id == ^id,
           select: m
-        json conn, Repo.all(query) |> FormatHelper.to_sendable(@sendable_fields) |> FormatHelper.to_string_timestamps
+
+        updated_modules = case Repo.all(query) do
+          [] -> []
+          raw_modules -> 
+            modules = 
+            raw_modules
+            |> FormatHelper.to_sendable(@sendable_fields) 
+            |> FormatHelper.to_string_timestamps
+
+            if length(modules) > 0 do
+              Enum.reduce modules, [], fn (module, updated_modules) ->
+                if (module[:workload] != nil) do
+                  module = Map.put(module, :workload, Poison.decode!(module[:workload]))
+                end
+                updated_modules ++ [module]
+              end
+            else
+              modules
+            end
+        end
+        json conn, updated_modules
     end
   end
 
@@ -73,7 +93,16 @@ defmodule OpenAperture.Manager.Controllers.MessagingExchangeModules do
           select: m
         case Repo.all(query) do
           [] -> resp(conn, :not_found, "")
-          modules -> json conn, List.first(modules) |> FormatHelper.to_sendable(@sendable_fields) |> FormatHelper.to_string_timestamps
+          modules -> 
+            module = 
+            List.first(modules)
+            |> FormatHelper.to_sendable(@sendable_fields) 
+            |> FormatHelper.to_string_timestamps
+
+            if (module[:workload] != nil) do
+              module = Map.put(module, :workload, Poison.decode!(module[:workload]))
+            end
+            json conn, module
         end
     end
   end  
@@ -93,13 +122,20 @@ defmodule OpenAperture.Manager.Controllers.MessagingExchangeModules do
   def create(conn, %{"id" => id} = params) do
     case Repo.get(MessagingExchange, id) do
       nil -> resp(conn, :not_found, "")    
-      _ ->    
+      _ ->
+
+        workload = if params["workload"] != nil do
+          Poison.encode!(params["workload"])
+        else 
+          nil
+        end
+
         changeset = MessagingExchangeModuleDb.new(%{
           "messaging_exchange_id" => id,
           "hostname" => params["hostname"],
           "type" => params["type"],
           "status" => params["status"],
-          "workload" => params["workload"]
+          "workload" => workload
         })
         unless changeset.valid? do
           conn
