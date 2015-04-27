@@ -23,7 +23,7 @@ defmodule OpenAperture.Manager.DB.Models.Workflow do
     field :workflow_duration,         :string
     field :workflow_step_durations,   :string
     field :workflow_error,            :boolean
-    field :workflow_completed,        :boolean
+    field :workflow_completed,        :boolean, default: false
     field :event_log,                 :string
     timestamps
   end
