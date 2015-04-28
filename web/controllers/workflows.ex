@@ -218,7 +218,7 @@ defmodule OpenAperture.Manager.Controllers.Workflows do
         workflow_params = Map.put(workflow_params, "event_log", Poison.encode!(params["event_log"]))
       end
 
-      if params["workflow_completed"] != nil do
+      if params["workflow_completed"] == nil do
         workflow_params = Map.put(workflow_params, "workflow_completed", false)
       end      
 
