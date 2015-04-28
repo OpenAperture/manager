@@ -141,6 +141,12 @@ defmodule OpenAperture.Manager.Controllers.Workflows do
       nil
     end
 
+    workflow_completed = if params["workflow_completed"] != nil do
+      params["workflow_completed"]
+    else
+      false
+    end
+
     changeset = WorkflowDB.new(%{
       :id => raw_workflow_id,
       :deployment_repo => params["deployment_repo"],
@@ -155,7 +161,7 @@ defmodule OpenAperture.Manager.Controllers.Workflows do
       :workflow_duration => params["workflow_duration"],
       :workflow_step_durations => workflow_step_durations,
       :workflow_error => params["workflow_error"],
-      :workflow_completed => params["workflow_completed"],
+      :workflow_completed => workflow_completed,
       :event_log => event_log,
     })
 
@@ -210,9 +216,11 @@ defmodule OpenAperture.Manager.Controllers.Workflows do
 
       if params["event_log"] != nil do
         workflow_params = Map.put(workflow_params, "event_log", Poison.encode!(params["event_log"]))
-      else
-        nil
       end
+
+      if params["workflow_completed"] != nil do
+        workflow_params = Map.put(workflow_params, "workflow_completed", false)
+      end      
 
       changeset = WorkflowDB.update(raw_workflow, workflow_params)
       if changeset.valid? do

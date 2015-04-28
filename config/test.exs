@@ -11,7 +11,7 @@ config :openaperture_manager, OpenapertureManager.Repo,
 	database: System.get_env("MANAGER_DATABASE_NAME")       || "openaperture_manager_test",
 	username: System.get_env("MANAGER_USER_NAME")      		|| "postgres",
 	password: System.get_env("MANAGER_PASSWORD")      		|| "postgres",
-    hostname: System.get_env("MANAGER_DATABASE_HOST")       || "localhost"
+  hostname: System.get_env("MANAGER_DATABASE_HOST")       || "localhost"
 
 config :openaperture_messaging, 
 	private_key: "#{System.cwd!() <> "/priv/keys/testing.pem"}",
@@ -24,12 +24,9 @@ config :openaperture_manager_api,
 	oauth_client_id: System.get_env("OAUTH_CLIENT_ID") ||"id",
 	oauth_client_secret: System.get_env("OAUTH_CLIENT_SECRET") || "secret"
 
-config :openaperture_workflow_orchestrator, 
+config :openaperture_manager, 
 	exchange_id: "1",
 	broker_id: "1"
 
-config :openaperture_overseer_api,
-	module_type: :test,
-	autostart: false,	
-	exchange_id: "1",
-	broker_id: "1"
+config :openaperture_manager_overseer_api,
+  autostart: false
