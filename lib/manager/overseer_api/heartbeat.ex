@@ -85,20 +85,23 @@ defmodule OpenAperture.Manager.OverseerApi.Heartbeat do
 
     module = ModuleRegistration.get_module
 
-    payload = %{
-      hostname: module[:hostname],
-      type: module[:type],
-      workload: workload,
-      status: :active,
-      event_type: :status
-    }
-    
-    options = ConnectionOptionsResolver.get_for_broker(ManagerApi.get_api, Configuration.get_current_broker_id)
-    event_queue = QueueBuilder.build(ManagerApi.get_api, "system_modules", Configuration.get_current_exchange_id)
+    #if module failed to register, don't attempt to send a heartbeat
+    unless module == nil do
+      payload = %{
+        hostname: module[:hostname],
+        type: module[:type],
+        workload: workload,
+        status: :active,
+        event_type: :status
+      }
+      
+      options = ConnectionOptionsResolver.get_for_broker(ManagerApi.get_api, Configuration.get_current_broker_id)
+      event_queue = QueueBuilder.build(ManagerApi.get_api, "system_modules", Configuration.get_current_exchange_id)
 
-    case publish(options, event_queue, payload) do
-      :ok -> Logger.debug("[Publisher] Successfully published Overseer :status event")
-      {:error, reason} -> Logger.error("[Publisher] Failed to publish Overseer :status event:  #{inspect reason}")
+      case publish(options, event_queue, payload) do
+        :ok -> Logger.debug("[Publisher] Successfully published Overseer :status event")
+        {:error, reason} -> Logger.error("[Publisher] Failed to publish Overseer :status event:  #{inspect reason}")
+      end
     end
     {:noreply, state}
   end

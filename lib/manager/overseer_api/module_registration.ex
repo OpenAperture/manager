@@ -35,12 +35,14 @@ defmodule OpenAperture.Manager.OverseerApi.ModuleRegistration do
       {:ok, pid} ->
         if Application.get_env(:openaperture_manager_overseer_api, :autostart, true) do
           case register_module(module) do
-            true -> {:ok, pid}
-            false -> {:error, "[ModuleRegistration] Failed to register module #{module[:hostname]}!"}
+            true -> 
+              Logger.debug("[ModuleRegistration] Successfully registered module #{module[:hostname]}")
+            false -> 
+              Logger.error("[ModuleRegistration] Failed to register module #{module[:hostname]}!")
+              Agent.update(pid, fn _ -> nil end)
           end
-        else
-          {:ok, pid}
         end
+        {:ok, pid}
       {:error, reason} -> {:error, reason}
     end
   end
@@ -64,19 +66,22 @@ defmodule OpenAperture.Manager.OverseerApi.ModuleRegistration do
       "workload" => Poison.encode!(module[:workload])
     })
 
-    unless changeset.valid? do
-      Logger.error("[ModuleRegistration] Unable to register module #{module[:hostname]}!  module - #{inspect module}, error - #{inspect changeset.errors}")
-      false
-    else
-      try do
-        inserted_module = Repo.insert(changeset)
-        Logger.debug("[ModuleRegistration] Successfully registered module #{module[:hostname]}")
-        true
-      rescue e ->
-        Logger.error("[ModuleRegistration] Failed to registered module #{module[:hostname]}!  module - #{inspect module}, error - #{inspect e}")
-        false
-      end  
+    try do
+      unless changeset.valid? do
+        Logger.error("[ModuleRegistration] Unable to register module #{module[:hostname]}!  module - #{inspect module}, error - #{inspect changeset.errors}")
+      else        
+        Repo.insert(changeset)
+      end
+    catch
+      :exit, code   -> 
+        Logger.error("[ModuleRegistration] Failed to registered module #{module[:hostname]}!  module - #{inspect module}, error - #{inspect code}")
+      :throw, value -> 
+        Logger.error("[ModuleRegistration] Failed to registered module #{module[:hostname]}!  module - #{inspect module}, error - #{inspect value}")
+      what, value   -> 
+        Logger.error("[ModuleRegistration] Failed to registered module #{module[:hostname]}!  module - #{inspect module}, error - #{inspect what}, #{inspect value}")
     end
+
+    true
   end
 
   @doc """

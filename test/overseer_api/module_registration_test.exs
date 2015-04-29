@@ -38,6 +38,6 @@ defmodule OpenAperture.Manager.OverseerApi.ModuleRegistrationTest do
       status: :active,
       workload: []      
     }
-    assert ModuleRegistration.register_module(module) == false
+    assert ModuleRegistration.register_module(module) == true
   end  
 end
