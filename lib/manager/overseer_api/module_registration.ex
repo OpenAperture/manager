@@ -36,9 +36,9 @@ defmodule OpenAperture.Manager.OverseerApi.ModuleRegistration do
         if Application.get_env(:openaperture_manager_overseer_api, :autostart, true) do
           case register_module(module) do
             true -> 
-              Logger.debug("[ModuleRegistration] Successfully registered module #{module[:hostname]}")
+              Logger.debug("[ModuleRegistration] Completed")
             false -> 
-              Logger.error("[ModuleRegistration] Failed to register module #{module[:hostname]}!")
+              Logger.error("[ModuleRegistration] Completed")
               Agent.update(pid, fn _ -> nil end)
           end
         end

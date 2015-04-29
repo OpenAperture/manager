@@ -39,6 +39,7 @@ defmodule OpenAperture.Manager.OverseerApi.Heartbeat do
         end
 
         Agent.start_link(fn -> [] end, name: HeartbeatWorkload)
+        Logger.debug("[Heartbeat] Startup Complete")
         {:ok, pid}
       {:error, reason} -> {:error, reason}
     end
