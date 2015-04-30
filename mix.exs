@@ -44,7 +44,7 @@ defmodule OpenAperture.Mixfile do
   defp deps do
     [
       {:ex_doc, github: "elixir-lang/ex_doc", only: [:test]},
-      {:markdown, github: "devinus/markdown", only: [:test]},
+      {:earmark, github: "pragdave/earmark", tag: "v0.1.8", only: [:test]},
 
       {:phoenix, "~> 0.11.0"},
       {:phoenix_live_reload, "~> 0.3"},
