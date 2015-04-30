@@ -55,6 +55,7 @@ defmodule OpenAperture.Mixfile do
       {:postgrex, "~> 0.8.0"},
       {:fleet_api, "~> 0.0.4"},
       {:rsa, "~> 0.0.1"},
+      {:plug_cors, git: "https://github.com/bryanjos/plug_cors", tag: "v0.7.0"},
       {:openaperture_auth, git: "https://github.com/OpenAperture/auth.git", ref: "dd7483eac3e7833fd5f2f9fb7347b17f68ff4bea", override: true},
       {:openaperture_fleet, git: "https://github.com/OpenAperture/fleet.git", ref: "adab7f2649016f43352f43def797f61acea8a292", override: true},      
       {:openaperture_messaging, git: "https://github.com/OpenAperture/messaging.git", ref: "11061d019bab15c4b43425f7cdb50899eef05b45", override: true},
