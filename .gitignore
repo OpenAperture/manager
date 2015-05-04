@@ -4,6 +4,6 @@ erl_crash.dump
 *.ez
 sftp-config.json
 manager.sublime-workspace
-mix.lock
 config/system.exs
 /doc
+swagger/
