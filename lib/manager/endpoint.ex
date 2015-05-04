@@ -1,6 +1,7 @@
 defmodule OpenAperture.Manager.Endpoint do
   use Phoenix.Endpoint, otp_app: :openaperture_manager
 
+  plug PlugCors, headers: ["Authorization"]
 
   # Serve at "/" the given assets from "priv/static" directory
   plug Plug.Static,

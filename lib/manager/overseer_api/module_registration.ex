@@ -10,7 +10,6 @@ defmodule OpenAperture.Manager.OverseerApi.ModuleRegistration do
   alias OpenapertureManager.Repo
   require Repo
 
-  alias OpenAperture.Manager.Endpoint
   alias OpenAperture.Manager.DB.Models.MessagingExchangeModule, as: MessagingExchangeModuleDb
   alias OpenAperture.Manager.Configuration
 

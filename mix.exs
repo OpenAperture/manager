@@ -44,7 +44,7 @@ defmodule OpenAperture.Mixfile do
   defp deps do
     [
       {:ex_doc, github: "elixir-lang/ex_doc", only: [:test]},
-      {:markdown, github: "devinus/markdown", only: [:test]},
+      {:earmark, github: "pragdave/earmark", tag: "v0.1.8", only: [:test]},
 
       {:phoenix, "~> 0.11.0"},
       {:phoenix_live_reload, "~> 0.3"},
@@ -55,6 +55,7 @@ defmodule OpenAperture.Mixfile do
       {:postgrex, "~> 0.8.0"},
       {:fleet_api, "~> 0.0.4"},
       {:rsa, "~> 0.0.1"},
+      {:plug_cors, git: "https://github.com/bryanjos/plug_cors", tag: "v0.7.0"},
       {:openaperture_auth, git: "https://github.com/OpenAperture/auth.git", ref: "dd7483eac3e7833fd5f2f9fb7347b17f68ff4bea", override: true},
       {:openaperture_fleet, git: "https://github.com/OpenAperture/fleet.git", ref: "adab7f2649016f43352f43def797f61acea8a292", override: true},      
       {:openaperture_messaging, git: "https://github.com/OpenAperture/messaging.git", ref: "b313cf059816389288d946ae022b702e22a7fe68", override: true},
