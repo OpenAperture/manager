@@ -4,7 +4,8 @@ defmodule OpenAperture.Manager.Endpoint do
   plug PlugCors, headers: ["Authorization", "Content-Type", "Accept", "Origin",
                  "User-Agent", "DNT","Cache-Control", "X-Mx-ReqToken",
                  "Keep-Alive", "X-Requested-With", "If-Modified-Since",
-                 "X-CSRF-Token", "X-Verbose-Error-Handling", "Location"]
+                 "X-CSRF-Token", "X-Verbose-Error-Handling"],
+                 expose_headers: ["Location", "location"]
 
   # Serve at "/" the given assets from "priv/static" directory
   plug Plug.Static,
