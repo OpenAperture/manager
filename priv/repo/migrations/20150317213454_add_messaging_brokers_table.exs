@@ -1,4 +1,4 @@
-defmodule OpenapertureManager.Repo.Migrations.AddMessagingBrokersTable do
+defmodule OpenAperture.Manager.Repo.Migrations.AddMessagingBrokersTable do
   use Ecto.Migration
 
   def change do

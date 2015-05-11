@@ -1,7 +1,7 @@
 defmodule DB.Models.ProductDeploymentPlan.Test do
   use ExUnit.Case, async: false
 
-  alias OpenapertureManager.Repo
+  alias OpenAperture.Manager.Repo
   alias OpenAperture.Manager.DB.Models.Product
   alias OpenAperture.Manager.DB.Models.ProductDeploymentPlan
 

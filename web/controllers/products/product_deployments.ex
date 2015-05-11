@@ -8,7 +8,7 @@ defmodule OpenAperture.Manager.Controllers.ProductDeployments do
   import OpenAperture.Manager.Router.Helpers
 
   alias OpenAperture.Manager.Endpoint
-  alias OpenapertureManager.Repo
+  alias OpenAperture.Manager.Repo
   alias OpenAperture.Manager.DB.Models.Product
   alias OpenAperture.Manager.DB.Models.ProductDeployment
   alias OpenAperture.Manager.DB.Queries.ProductDeployment, as: DeploymentQuery

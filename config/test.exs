@@ -1,13 +1,13 @@
 use Mix.Config
 
-config :openaperture_manager, OpenAperture.Manager.Endpoint,
+config OpenAperture.Manager, OpenAperture.Manager.Endpoint,
   http: [port: System.get_env("PORT") || 4001]
 
 # Print only warnings and errors during test
 config :logger, level: :warn
 
 
-config :openaperture_manager, OpenapertureManager.Repo,
+config OpenAperture.Manager, OpenAperture.Manager.Repo,
 	database: System.get_env("MANAGER_DATABASE_NAME")       || "openaperture_manager_test",
 	username: System.get_env("MANAGER_USER_NAME")      		|| "postgres",
 	password: System.get_env("MANAGER_PASSWORD")      		|| "postgres",
@@ -24,7 +24,7 @@ config :openaperture_manager_api,
 	oauth_client_id: System.get_env("OAUTH_CLIENT_ID") ||"id",
 	oauth_client_secret: System.get_env("OAUTH_CLIENT_SECRET") || "secret"
 
-config :openaperture_manager, 
+config OpenAperture.Manager, 
 	exchange_id: "1",
 	broker_id: "1"
 

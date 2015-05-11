@@ -6,7 +6,7 @@ defmodule DB.Queries.EtcdClusterPort.Test do
   alias OpenAperture.Manager.DB.Models.EtcdCluster
   alias OpenAperture.Manager.DB.Models.EtcdClusterPort
 
-  alias OpenapertureManager.Repo
+  alias OpenAperture.Manager.Repo
   alias OpenAperture.Manager.DB.Queries.EtcdClusterPort, as: EtcdClusterQuery
 
   setup _context do

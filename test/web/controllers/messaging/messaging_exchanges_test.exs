@@ -6,7 +6,7 @@ defmodule OpenAperture.Manager.Controllers.MessagingExchangesTest do
   alias OpenAperture.Manager.DB.Models.MessagingExchange
   alias OpenAperture.Manager.DB.Models.MessagingBroker
   alias OpenAperture.Manager.DB.Models.MessagingExchangeBroker
-  alias OpenapertureManager.Repo
+  alias OpenAperture.Manager.Repo
   alias OpenAperture.Manager.Router
   alias OpenAperture.Manager.DB.Models.EtcdCluster
 

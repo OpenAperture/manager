@@ -8,7 +8,7 @@ defmodule OpenAperture.Manager.Controllers.ProductDeploymentPlanSteps do
   import OpenAperture.Manager.Router.Helpers
 
   alias OpenAperture.Manager.Endpoint
-  alias OpenapertureManager.Repo
+  alias OpenAperture.Manager.Repo
   alias OpenAperture.Manager.DB.Models.Product
   alias OpenAperture.Manager.DB.Models.ProductDeploymentPlan
   alias OpenAperture.Manager.DB.Models.ProductDeploymentPlanStep

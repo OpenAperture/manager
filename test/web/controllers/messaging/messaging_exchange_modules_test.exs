@@ -5,7 +5,7 @@ defmodule OpenAperture.Manager.Controllers.MessagingExchangeModulesTest do
 
   alias OpenAperture.Manager.DB.Models.MessagingExchange
   alias OpenAperture.Manager.DB.Models.MessagingExchangeModule
-  alias OpenapertureManager.Repo
+  alias OpenAperture.Manager.Repo
   alias OpenAperture.Manager.Router
 
   setup_all _context do
