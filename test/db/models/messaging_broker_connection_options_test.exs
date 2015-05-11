@@ -3,7 +3,7 @@ defmodule DB.Models.MessagingBrokerConnection.Test do
 
   alias OpenAperture.Manager.DB.Models.MessagingBroker
   alias OpenAperture.Manager.DB.Models.MessagingBrokerConnection
-  alias OpenapertureManager.Repo
+  alias OpenAperture.Manager.Repo
 
   setup _context do
     on_exit _context, fn ->

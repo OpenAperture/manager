@@ -3,7 +3,7 @@ defmodule OpenAperture.Manager.Controllers.EtcdClustersTest do
   use Plug.Test
   use OpenAperture.Manager.Test.ConnHelper
 
-  alias OpenapertureManager.Repo
+  alias OpenAperture.Manager.Repo
   alias OpenAperture.Manager.DB.Models.EtcdCluster
   alias OpenAperture.Manager.DB.Models.Product
   alias OpenAperture.Manager.DB.Queries.EtcdCluster, as: EtcdClusterQuery
@@ -24,11 +24,11 @@ defmodule OpenAperture.Manager.Controllers.EtcdClustersTest do
   end
 
   setup do
-    :meck.new OpenapertureManager.Repo
+    :meck.new OpenAperture.Manager.Repo
     :meck.new FleetApi.Etcd
     on_exit fn ->
               try do
-                :meck.unload OpenapertureManager.Repo
+                :meck.unload OpenAperture.Manager.Repo
                 :meck.unload FleetApi.Etcd
               rescue _ -> IO.puts "" end
             end
@@ -36,7 +36,7 @@ defmodule OpenAperture.Manager.Controllers.EtcdClustersTest do
 
   test "index" do
     clusters = [%EtcdCluster{etcd_token: "abc123"}]
-    :meck.expect(OpenapertureManager.Repo, :all, 1, clusters)
+    :meck.expect(OpenAperture.Manager.Repo, :all, 1, clusters)
     conn = call(Router, :get, "/clusters")
 
     assert conn.status == 200
@@ -50,7 +50,7 @@ defmodule OpenAperture.Manager.Controllers.EtcdClustersTest do
   end
 
   test "index - only retrieve docker build clusters" do
-    :meck.unload(OpenapertureManager.Repo)
+    :meck.unload(OpenAperture.Manager.Repo)
     Repo.delete_all(EtcdCluster)
 
     build_cluster = EtcdCluster.new(%{etcd_token: "#{UUID.uuid1()}", allow_docker_builds: true}) |> Repo.insert
@@ -67,11 +67,11 @@ defmodule OpenAperture.Manager.Controllers.EtcdClustersTest do
     cluster = List.first(body)
     assert cluster["etcd_token"] == build_cluster.etcd_token
   after
-    :meck.new OpenapertureManager.Repo
+    :meck.new OpenAperture.Manager.Repo
   end
 
   test "index returns empty list if no clusters" do
-    :meck.expect(OpenapertureManager.Repo, :all, 1, [])
+    :meck.expect(OpenAperture.Manager.Repo, :all, 1, [])
     conn = call(Router, :get, "/clusters")
 
     assert conn.status == 200

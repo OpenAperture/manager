@@ -5,7 +5,7 @@ defmodule DB.Models.EtcdClusterPort.Test do
   alias OpenAperture.Manager.DB.Models.ProductComponent
   alias OpenAperture.Manager.DB.Models.EtcdCluster
   alias OpenAperture.Manager.DB.Models.EtcdClusterPort
-  alias OpenapertureManager.Repo
+  alias OpenAperture.Manager.Repo
 
   setup _context do
     on_exit _context, fn ->

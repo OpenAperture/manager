@@ -6,7 +6,7 @@ defmodule OpenAperture.Manager.Controllers.ProductDeploymentPlansTest do
   import OpenAperture.Manager.Router.Helpers
 
   alias OpenAperture.Manager.Endpoint
-  alias OpenapertureManager.Repo
+  alias OpenAperture.Manager.Repo
   alias OpenAperture.Manager.Router
 
   alias OpenAperture.Manager.DB.Models.Product

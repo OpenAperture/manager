@@ -1,4 +1,4 @@
-defmodule OpenapertureManager.Repo.Migrations.AddPortToBrokerOpts do
+defmodule OpenAperture.Manager.Repo.Migrations.AddPortToBrokerOpts do
   use Ecto.Migration
 
   def change do

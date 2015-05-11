@@ -5,7 +5,7 @@ defmodule DB.Models.ProductEnvironment.Test do
 
   alias OpenAperture.Manager.DB.Models.ProductEnvironment
   alias OpenAperture.Manager.DB.Models.Product
-  alias OpenapertureManager.Repo
+  alias OpenAperture.Manager.Repo
   alias OpenAperture.Manager.DB.Models.ProductEnvironmentalVariable
 
   setup _context do

@@ -33,11 +33,11 @@ config :logger, level: :debug
 #     config :openaperture_manager, OpenAperture.Manager.Endpoint, server: true
 #
 
-config :openaperture_manager, OpenAperture.Manager.Endpoint,
+config OpenAperture.Manager, OpenAperture.Manager.Endpoint,
   http: [port: System.get_env("PORT") || 4000],
   secret_key_base: "Ks/rsx+RENMwWd4jgh3crqd3EwKGY8Mdm22NTJbby6pf35CwP9RAlT+8oDJQ8+1f"
 
-config :openaperture_manager, OpenapertureManager.Repo,
+config OpenAperture.Manager, OpenAperture.Manager.Repo,
 	database: System.get_env("MANAGER_DATABASE_NAME")       || "openaperture_manager",
 	username: System.get_env("MANAGER_USER_NAME")      		|| "postgres",
 	password: System.get_env("MANAGER_PASSWORD")      		|| "postgres",

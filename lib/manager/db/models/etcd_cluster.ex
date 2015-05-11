@@ -9,7 +9,7 @@ defmodule OpenAperture.Manager.DB.Models.EtcdCluster do
   alias OpenAperture.Manager.DB.Queries.EtcdClusterPort, as: EctdPortQuery
   alias OpenAperture.Manager.DB.Models.MessagingExchange
 
-  alias OpenapertureManager.Repo
+  alias OpenAperture.Manager.Repo
 
   schema "etcd_clusters" do
     has_many :etcd_cluster_ports,   EtcdClusterPort

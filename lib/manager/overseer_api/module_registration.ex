@@ -7,7 +7,7 @@ defmodule OpenAperture.Manager.OverseerApi.ModuleRegistration do
   This module contains the GenServer for a Manager system module to interact with the Overseer system module
   """  
 
-  alias OpenapertureManager.Repo
+  alias OpenAperture.Manager.Repo
   require Repo
 
   alias OpenAperture.Manager.DB.Models.MessagingExchangeModule, as: MessagingExchangeModuleDb

@@ -1,5 +1,5 @@
 defmodule OpenAperture.Manager.Endpoint do
-  use Phoenix.Endpoint, otp_app: :openaperture_manager
+  use Phoenix.Endpoint, otp_app: OpenAperture.Manager
 
   plug PlugCors, headers: ["Authorization", "Content-Type", "Accept", "Origin",
                  "User-Agent", "DNT","Cache-Control", "X-Mx-ReqToken",
@@ -9,7 +9,7 @@ defmodule OpenAperture.Manager.Endpoint do
 
   # Serve at "/" the given assets from "priv/static" directory
   plug Plug.Static,
-    at: "/", from: :openaperture_manager,
+    at: "/", from: OpenAperture.Manager,
     only: ~w(css images js favicon.ico robots.txt)
 
   plug Plug.Logger
@@ -29,7 +29,7 @@ defmodule OpenAperture.Manager.Endpoint do
 
   plug Plug.Session,
     store: :cookie,
-    key: "_openaperture_manager_key",
+    key: "_open_aperture_manager_key",
     signing_salt: "9dslX4Uf",
     encryption_salt: "gKrz9xoA"
 

@@ -6,7 +6,7 @@ defmodule OpenAperture.Manager.Controllers.ProductComponentsTest do
   import OpenAperture.Manager.Router.Helpers
 
   alias OpenAperture.Manager.Endpoint
-  alias OpenapertureManager.Repo
+  alias OpenAperture.Manager.Repo
   alias OpenAperture.Manager.DB.Models.EtcdCluster
   alias OpenAperture.Manager.DB.Models.EtcdClusterPort
   alias OpenAperture.Manager.DB.Models.Product

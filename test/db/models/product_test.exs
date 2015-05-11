@@ -3,7 +3,7 @@ defmodule DB.Models.Product.Test do
   import Ecto.Query
 
   alias OpenAperture.Manager.DB.Models.Product
-  alias OpenapertureManager.Repo
+  alias OpenAperture.Manager.Repo
   alias OpenAperture.Manager.DB.Models.ProductEnvironment
   alias OpenAperture.Manager.DB.Models.ProductEnvironmentalVariable
 

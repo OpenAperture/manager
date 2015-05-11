@@ -9,7 +9,7 @@ defmodule OpenAperture.Manager.OverseerApi.Heartbeat do
   alias OpenAperture.Manager.OverseerApi.ModuleRegistration
   alias OpenAperture.Manager.Configuration
 
-  alias OpenapertureManager.Repo
+  alias OpenAperture.Manager.Repo
   require Repo
 
   alias OpenAperture.ManagerApi

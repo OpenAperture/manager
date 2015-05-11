@@ -6,7 +6,7 @@ defmodule OpenAperture.Manager.DB.Models.ProductCluster do
 
   alias OpenAperture.Manager.DB.Models.Product
   alias OpenAperture.Manager.DB.Models.EtcdCluster
-  alias OpenapertureManager.Repo
+  alias OpenAperture.Manager.Repo
 
 
   schema "product_clusters" do

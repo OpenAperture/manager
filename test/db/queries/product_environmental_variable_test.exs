@@ -2,7 +2,7 @@ defmodule DB.Queries.ProductEnvironmentalVariable.Test do
   use ExUnit.Case, async: false
 
   alias OpenAperture.Manager.DB.Models.ProductEnvironmentalVariable, as: PEV
-  alias OpenapertureManager.Repo
+  alias OpenAperture.Manager.Repo
   alias OpenAperture.Manager.DB.Queries.ProductEnvironmentalVariable, as: PEVQuery
   alias OpenAperture.Manager.DB.Models.Product
   alias OpenAperture.Manager.DB.Models.ProductEnvironment
