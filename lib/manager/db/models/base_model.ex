@@ -8,7 +8,7 @@ defmodule OpenAperture.Manager.DB.Models.BaseModel do
       @type params :: %{binary => any} | %{atom => any} | nil
 
       @spec new(params) :: Ecto.Changeset.t
-      def new(params) do
+      def new(params \\ %{}) do
         validate_changes(struct(__MODULE__), params)
       end
 
