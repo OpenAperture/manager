@@ -12,7 +12,7 @@ defmodule OpenAperture.Manager.Controllers.ProductClusters do
   alias OpenAperture.Manager.DB.Queries.Product, as: ProductQuery
   alias OpenAperture.Manager.DB.Queries.ProductCluster, as: ProductClusterQuery
 
-  alias OpenapertureManager.Repo
+  alias OpenAperture.Manager.Repo
 
   @sendable_fields [:id, :product_id, :etcd_cluster_id, :primary_ind, :inserted_at, :updated_at]
   @updatable_fields [:product_id, :etcd_cluster_id, :primary_ind]

@@ -1,7 +1,7 @@
 defmodule OpenAperture.Manager.DB.Queries.EtcdCluster do
   import Ecto.Query
 
-  alias OpenapertureManager.Repo
+  alias OpenAperture.Manager.Repo
   alias OpenAperture.Manager.DB.Models.EtcdCluster
 
   @doc """

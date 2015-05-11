@@ -6,7 +6,7 @@
 use Mix.Config
 
 # Configures the endpoint
-config :openaperture_manager, OpenAperture.Manager.Endpoint,
+config OpenAperture.Manager, OpenAperture.Manager.Endpoint,
   url: [host: "localhost"],
   secret_key_base: "Ks/rsx+RENMwWd4jgh3crqd3EwKGY8Mdm22NTJbby6pf35CwP9RAlT+8oDJQ8+1f",
   debug_errors: false,
@@ -14,10 +14,10 @@ config :openaperture_manager, OpenAperture.Manager.Endpoint,
            adapter: Phoenix.PubSub.PG2],
   root: Path.expand("..", __DIR__)
 
-config :openaperture_manager, OpenapertureManager.Repo,
+config OpenAperture.Manager, OpenAperture.Manager.Repo,
   adapter: Ecto.Adapters.Postgres
 
-config :openaperture_manager, OpenAperture.Manager.Plugs.Authentication,
+config OpenAperture.Manager, OpenAperture.Manager.Plugs.Authentication,
   oauth_validate_url: System.get_env("MANAGER_OAUTH_VALIDATE_URL") || "https://www.googleapis.com/oauth2/v1/tokeninfo"
 
 # Configures Elixir's Logger

@@ -29,7 +29,7 @@ defmodule OpenAperture.Manager.Web do
       use Phoenix.Controller
 
       # Alias the data repository as a convenience
-      alias OpenapertureManager.Repo
+      alias OpenAperture.Manager.Repo
 
       # Import URL helpers from the router
       import OpenAperture.Manager.Router.Helpers

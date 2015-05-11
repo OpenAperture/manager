@@ -1,4 +1,4 @@
-defmodule OpenapertureManager.Repo.Migrations.AddWorkflowsTable do
+defmodule OpenAperture.Manager.Repo.Migrations.AddWorkflowsTable do
   use Ecto.Migration
 
   def change do

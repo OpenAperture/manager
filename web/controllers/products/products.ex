@@ -9,7 +9,7 @@ defmodule OpenAperture.Manager.Controllers.Products do
   alias OpenAperture.Manager.Endpoint
   alias OpenAperture.Manager.DB.Models.Product
   alias OpenAperture.Manager.DB.Queries.Product, as: ProductQuery
-  alias OpenapertureManager.Repo
+  alias OpenAperture.Manager.Repo
 
   @sendable_fields [:id, :name, :updated_at, :inserted_at]
   @updatable_fields [:name]

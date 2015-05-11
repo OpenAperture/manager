@@ -11,7 +11,7 @@ defmodule OpenAperture.Manager do
       supervisor(OpenAperture.Manager.Endpoint, []),
       # Here you could define other workers and supervisors as children
       # worker(OpenAperture.Manager.Worker, [arg1, arg2, arg3]),
-      worker(OpenapertureManager.Repo, []),
+      worker(OpenAperture.Manager.Repo, []),
       worker(OpenAperture.Manager.OverseerApi.ModuleRegistration, []),
       worker(OpenAperture.Manager.OverseerApi.Heartbeat, [])
     ]

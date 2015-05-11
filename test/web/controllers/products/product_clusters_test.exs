@@ -8,7 +8,7 @@ defmodule OpenAperture.Manager.Controllers.ProductClustersTest do
   alias OpenAperture.Manager.Router
 
   setup_all _context do
-    :meck.new OpenapertureManager.Repo
+    :meck.new OpenAperture.Manager.Repo
     :meck.new(OpenAperture.Manager.Plugs.Authentication, [:passthrough])
     :meck.expect(OpenAperture.Manager.Plugs.Authentication, :call, fn conn, _opts -> conn end)
 
@@ -23,11 +23,11 @@ defmodule OpenAperture.Manager.Controllers.ProductClustersTest do
 
   test "index action -- product exists" do
     product = %Product{name: "test1", id: 1}
-    :meck.expect(OpenapertureManager.Repo, :one, 1, product)
+    :meck.expect(OpenAperture.Manager.Repo, :one, 1, product)
 
     clusters = [%ProductCluster{product_id: product.id}, %ProductCluster{product_id: product.id}]
 
-    :meck.expect(OpenapertureManager.Repo, :all, 1, clusters)
+    :meck.expect(OpenAperture.Manager.Repo, :all, 1, clusters)
 
     conn = call(Router, :get, "/products/test1/clusters")
 
@@ -42,9 +42,9 @@ defmodule OpenAperture.Manager.Controllers.ProductClustersTest do
 
   test "index action -- product exists but no associated clusters" do
     product = %Product{name: "test1", id: 1}
-    :meck.expect(OpenapertureManager.Repo, :one, 1, product)
+    :meck.expect(OpenAperture.Manager.Repo, :one, 1, product)
 
-    :meck.expect(OpenapertureManager.Repo, :all, 1, [])
+    :meck.expect(OpenAperture.Manager.Repo, :all, 1, [])
 
     conn = call(Router, :get, "/products/test1/clusters")
 
@@ -56,7 +56,7 @@ defmodule OpenAperture.Manager.Controllers.ProductClustersTest do
   end
 
   test "index action -- product does not exist" do
-    :meck.expect(OpenapertureManager.Repo, :one, 1, nil)
+    :meck.expect(OpenAperture.Manager.Repo, :one, 1, nil)
 
     conn = call(Router, :get, "products/test1/clusters")
 
@@ -66,10 +66,10 @@ defmodule OpenAperture.Manager.Controllers.ProductClustersTest do
   test "create action -- success" do
     product = %Product{name: "test1", id: 1}
 
-    :meck.expect(OpenapertureManager.Repo, :one, 1, product)
-    :meck.expect(OpenapertureManager.Repo, :all, 1, [1, 2, 3])
-    :meck.expect(OpenapertureManager.Repo, :delete_all, 1, 0)
-    :meck.expect(OpenapertureManager.Repo, :transaction, 1, {:ok, :ok})
+    :meck.expect(OpenAperture.Manager.Repo, :one, 1, product)
+    :meck.expect(OpenAperture.Manager.Repo, :all, 1, [1, 2, 3])
+    :meck.expect(OpenAperture.Manager.Repo, :delete_all, 1, 0)
+    :meck.expect(OpenAperture.Manager.Repo, :transaction, 1, {:ok, :ok})
 
     conn = call(Router, :post, "products/test1/clusters", Poison.encode!(%{clusters: [%{id: 1}, %{id: 2}, %{id: 3}]}), [{"content-type", "application/json"}])
 
@@ -77,7 +77,7 @@ defmodule OpenAperture.Manager.Controllers.ProductClustersTest do
   end
 
   test "create action -- product not found" do
-    :meck.expect(OpenapertureManager.Repo, :one, 1, nil)
+    :meck.expect(OpenAperture.Manager.Repo, :one, 1, nil)
 
     conn = call(Router, :post, "products/test1/clusters", Poison.encode!(%{clusters: [%{id: 1}, %{id: 2}]}), [{"content-type", "application/json"}])
 
@@ -87,8 +87,8 @@ defmodule OpenAperture.Manager.Controllers.ProductClustersTest do
   test "create action -- invalid etcd cluster ids provided" do
     product = %Product{name: "test1", id: 1}
 
-    :meck.expect(OpenapertureManager.Repo, :one, 1, product)
-    :meck.expect(OpenapertureManager.Repo, :all, 1, [1, 2])
+    :meck.expect(OpenAperture.Manager.Repo, :one, 1, product)
+    :meck.expect(OpenAperture.Manager.Repo, :all, 1, [1, 2])
 
     conn = call(Router, :post, "products/test1/clusters", Poison.encode!(%{clusters: [%{id: 1}, %{id: 2}, %{id: 3}]}), [{"content-type", "application/json"}])
 
@@ -98,8 +98,8 @@ defmodule OpenAperture.Manager.Controllers.ProductClustersTest do
   test "destroy action -- success" do
     product = %Product{name: "test1", id: 1}
 
-    :meck.expect(OpenapertureManager.Repo, :one, 1, product)
-    :meck.expect(OpenapertureManager.Repo, :delete_all, 1, 1)
+    :meck.expect(OpenAperture.Manager.Repo, :one, 1, product)
+    :meck.expect(OpenAperture.Manager.Repo, :delete_all, 1, 1)
 
     conn = call(Router, :delete, "products/test1/clusters")
 
@@ -107,7 +107,7 @@ defmodule OpenAperture.Manager.Controllers.ProductClustersTest do
   end
 
   test "destroy action -- product not found" do
-    :meck.expect(OpenapertureManager.Repo, :one, 1, nil)
+    :meck.expect(OpenAperture.Manager.Repo, :one, 1, nil)
 
     conn = call(Router, :delete, "products/test1/clusters")
 

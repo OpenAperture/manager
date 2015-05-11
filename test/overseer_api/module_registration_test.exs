@@ -5,7 +5,7 @@ defmodule OpenAperture.Manager.OverseerApi.ModuleRegistrationTest do
   alias OpenAperture.Manager.DB.Models.MessagingExchange
   alias OpenAperture.Manager.DB.Models.MessagingExchangeModule  
 
-  alias OpenapertureManager.Repo
+  alias OpenAperture.Manager.Repo
 
   setup do
     System.put_env("HOSTNAME", "123abc")

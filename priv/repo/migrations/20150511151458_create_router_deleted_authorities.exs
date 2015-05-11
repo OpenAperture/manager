@@ -1,4 +1,4 @@
-defmodule OpenapertureManager.Repo.Migrations.CreateRouterDeletedAuthorities do
+defmodule OpenAperture.Manager.Repo.Migrations.CreateRouterDeletedAuthorities do
   use Ecto.Migration
 
   def change do

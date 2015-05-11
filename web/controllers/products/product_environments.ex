@@ -8,7 +8,7 @@ defmodule OpenAperture.Manager.Controllers.ProductEnvironments do
   import OpenAperture.Manager.Router.Helpers
 
   alias OpenAperture.Manager.Endpoint
-  alias OpenapertureManager.Repo
+  alias OpenAperture.Manager.Repo
   alias OpenAperture.Manager.DB.Models.Product
   alias OpenAperture.Manager.DB.Models.ProductEnvironment
   alias OpenAperture.Manager.DB.Queries.ProductEnvironment, as: EnvQuery
