@@ -174,5 +174,18 @@ defmodule OpenAperture.Manager.Router do
     delete "/:id", Workflows, :destroy
     
     post "/:id/execute", Workflows, :execute
-  end  
+  end
+
+  scope "/router", OpenAperture.Manager.Controllers.Router do
+    pipe_through :api
+    pipe_through :secure
+
+    get "/routes", RoutesController, :index
+    get "/routes/deleted", RoutesController, :index_deleted
+
+    resources "/authorities", AuthorityController
+
+    delete "/authorities/:parent_id/routes/clear", RouteController, :clear
+    resources "/authorities/:parent_id/routes", RouteController
+  end
 end
