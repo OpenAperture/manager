@@ -184,5 +184,8 @@ defmodule OpenAperture.Manager.Router do
     get "/routes/deleted", RoutesController, :index_deleted
 
     resources "/authorities", AuthorityController
+
+    delete "/authorities/:parent_id/routes/clear", RouteController, :clear
+    resources "/authorities/:parent_id/routes", RouteController
   end
 end
