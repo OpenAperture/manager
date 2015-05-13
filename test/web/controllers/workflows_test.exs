@@ -3,7 +3,7 @@ defmodule OpenAperture.Manager.Controllers.WorkflowsTest do
   use Plug.Test
   use OpenAperture.Manager.Test.ConnHelper
 
-  alias OpenapertureManager.Repo
+  alias OpenAperture.Manager.Repo
   alias OpenAperture.Manager.Router
 
   alias OpenAperture.Manager.DB.Models.Workflow, as: WorkflowDB

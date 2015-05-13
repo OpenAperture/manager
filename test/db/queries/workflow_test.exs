@@ -6,7 +6,7 @@ defmodule DB.Queries.Workflow.Test do
 
   alias OpenAperture.Manager.DB.Models.Workflow
 
-  alias OpenapertureManager.Repo
+  alias OpenAperture.Manager.Repo
   alias OpenAperture.Manager.DB.Queries.Workflow, as: WorkflowQuery
 
   setup _context do

@@ -1,4 +1,4 @@
-defmodule OpenapertureManager.Repo.Migrations.AddProductsTable do
+defmodule OpenAperture.Manager.Repo.Migrations.AddProductsTable do
   use Ecto.Migration
 
   def change do

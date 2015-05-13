@@ -1,4 +1,4 @@
-defmodule OpenapertureManager.Repo.Migrations.CreateRouterAuthority do
+defmodule OpenAperture.Manager.Repo.Migrations.CreateRouterAuthority do
   use Ecto.Migration
 
   def change do

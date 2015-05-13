@@ -2,7 +2,7 @@ defmodule DB.Models.MessagingBroker.Test do
   use ExUnit.Case, async: false
 
   alias OpenAperture.Manager.DB.Models.MessagingBroker
-  alias OpenapertureManager.Repo
+  alias OpenAperture.Manager.Repo
 
   setup _context do
     on_exit _context, fn ->

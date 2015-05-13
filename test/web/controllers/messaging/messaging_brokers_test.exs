@@ -7,7 +7,7 @@ defmodule OpenAperture.Manager.Controllers.MessagingBrokersTest do
   alias OpenAperture.Manager.DB.Models.MessagingExchangeBroker
   alias OpenAperture.Manager.DB.Models.MessagingBroker
   alias OpenAperture.Manager.DB.Models.MessagingBrokerConnection
-  alias OpenapertureManager.Repo
+  alias OpenAperture.Manager.Repo
   alias OpenAperture.Manager.Router
 
   import Ecto.Query

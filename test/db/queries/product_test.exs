@@ -2,7 +2,7 @@ defmodule DB.Queries.Product.Test do
   use ExUnit.Case, async: false
 
   alias OpenAperture.Manager.DB.Models.Product
-  alias OpenapertureManager.Repo
+  alias OpenAperture.Manager.Repo
   alias OpenAperture.Manager.DB.Queries.Product, as: ProductQuery
 
   setup _context do

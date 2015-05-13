@@ -2,7 +2,7 @@ defmodule DB.Queries.EtcdCluster.Test do
   use ExUnit.Case, async: false
 
   alias OpenAperture.Manager.DB.Models.EtcdCluster
-  alias OpenapertureManager.Repo
+  alias OpenAperture.Manager.Repo
   alias OpenAperture.Manager.DB.Queries.EtcdCluster, as: EtcdClusterQuery
 
   setup _context do

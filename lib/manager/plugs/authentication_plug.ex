@@ -38,7 +38,7 @@ defmodule OpenAperture.Manager.Plugs.Authentication do
         |> halt
       {"authorization", auth_header} ->
         try do
-          case authenticate_request(Application.get_env(:openaperture_manager, __MODULE__)[:oauth_validate_url], auth_header) do
+          case authenticate_request(Application.get_env(OpenAperture.Manager, __MODULE__)[:oauth_validate_url], auth_header) do
             true -> 
               Logger.debug("Request authentication was validated")
               conn

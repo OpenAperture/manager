@@ -4,7 +4,7 @@ defmodule DB.Models.ProductEnvironmentalVariable.Test do
   alias OpenAperture.Manager.DB.Models.ProductEnvironmentalVariable, as: PEV
   alias OpenAperture.Manager.DB.Models.Product
   alias OpenAperture.Manager.DB.Models.ProductEnvironment
-  alias OpenapertureManager.Repo
+  alias OpenAperture.Manager.Repo
 
   setup _context do
     product = Product.new(%{name: "ProductEnvironmentalVariablesModelTest"}) |> Repo.insert

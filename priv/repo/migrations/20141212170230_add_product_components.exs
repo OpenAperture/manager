@@ -1,4 +1,4 @@
-defmodule OpenapertureManager.Repo.Migrations.AddProductComponents do
+defmodule OpenAperture.Manager.Repo.Migrations.AddProductComponents do
   use Ecto.Migration
 
   def change do
