@@ -293,11 +293,11 @@ defmodule OpenAperture.Manager.Controllers.Workflows do
           payload = Map.put(payload, :force_build, params["force_build"])
         end
 
-        if params["build_messaging_exchange_id"] != nil do
+        if params["build_messaging_exchange_id"] != nil && String.length(to_string(params["build_messaging_exchange_id"])) > 0 do
           payload = Map.put(payload, :build_messaging_exchange_id, params["build_messaging_exchange_id"])
         end
 
-        if params["deploy_messaging_exchange_id"] != nil do
+        if params["deploy_messaging_exchange_id"] != nil && String.length(to_string(params["deploy_messaging_exchange_id"])) > 0  do
           payload = Map.put(payload, :deploy_messaging_exchange_id, params["deploy_messaging_exchange_id"])
         end
                 
