@@ -293,6 +293,14 @@ defmodule OpenAperture.Manager.Controllers.Workflows do
           payload = Map.put(payload, :force_build, params["force_build"])
         end
 
+        if params["build_messaging_exchange_id"] != nil do
+          payload = Map.put(payload, :build_messaging_exchange_id, params["build_messaging_exchange_id"])
+        end
+
+        if params["deploy_messaging_exchange_id"] != nil do
+          payload = Map.put(payload, :deploy_messaging_exchange_id, params["deploy_messaging_exchange_id"])
+        end
+                
         request = OrchestratorRequest.from_payload(payload)
         request = %{request | notifications_exchange_id: Configuration.get_current_exchange_id}
         request = %{request | notifications_broker_id: Configuration.get_current_broker_id}
