@@ -50,22 +50,13 @@ defmodule OpenAperture.Manager.Controllers.Router.AuthorityController do
   # GET /router/authorities/full
   def index_detailed(conn, _params) do
     authorities = Authority
-                  |> join(:left, [a], r in Route, r.authority_id == a.id)
-                  |> select([a, r], {a, r})
+                  |> preload(:routes)
                   |> Repo.all
-                  |> Enum.reduce(%{}, fn({a, r}, acc) ->
-                    if Map.has_key?(acc, a.id) do
-                      authority = add_route(acc[a.id], r)
-                    else
-                      authority = a
-                                  |> to_sendable(@sendable_fields)
-                                  |> Map.put(:routes, [])
-                                  |> add_route(r)
-                    end
-
-                    Map.put(acc, authority.id, authority)
+                  |> Enum.map(fn authority ->
+                    routes = Enum.map(authority.routes, &to_sendable(&1, [:id, :hostname, :port, :secure_connection]))
+                    authority = to_sendable(authority, @sendable_fields)
+                    Map.put(authority, :routes, routes)
                   end)
-                  |> Map.values
 
     json conn, authorities
   end

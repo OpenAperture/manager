@@ -103,7 +103,6 @@ defmodule OpenAperture.Manager.Controllers.Router.AuthorityController.Test do
     assert conn.status == 200
 
     body = Poison.decode!(conn.resp_body)
-    IO.inspect body
 
     assert length(body) == length(context[:authorities])
 
