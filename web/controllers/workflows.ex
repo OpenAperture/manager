@@ -295,7 +295,7 @@ defmodule OpenAperture.Manager.Controllers.Workflows do
 
         build_messaging_exchange_id = to_string(params["build_messaging_exchange_id"])
         if String.length(build_messaging_exchange_id) > 0 do
-          payload = case Integer.parse(string_id) do
+          payload = case Integer.parse(build_messaging_exchange_id) do
             {messaging_exchange_id, _} -> Map.put(payload, :build_messaging_exchange_id, messaging_exchange_id)
             :error -> payload
           end
@@ -303,7 +303,7 @@ defmodule OpenAperture.Manager.Controllers.Workflows do
 
         deploy_messaging_exchange_id = to_string(params["deploy_messaging_exchange_id"])
         if String.length(deploy_messaging_exchange_id) > 0 do
-          payload = case Integer.parse(string_id) do
+          payload = case Integer.parse(deploy_messaging_exchange_id) do
             {messaging_exchange_id, _} -> Map.put(payload, :deploy_messaging_exchange_id, messaging_exchange_id)
             :error -> payload
           end
