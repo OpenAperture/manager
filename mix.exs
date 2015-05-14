@@ -32,7 +32,6 @@ defmodule OpenAperture.Mixfile do
         :openaperture_fleet, 
         :openaperture_messaging,
         :openaperture_manager_api,
-        #:openaperture_overseer_api,
         :openaperture_workflow_orchestrator_api
     ]
    ]
@@ -56,12 +55,12 @@ defmodule OpenAperture.Mixfile do
       {:fleet_api, "~> 0.0.4"},
       {:rsa, "~> 0.0.1"},
       {:plug_cors, git: "https://github.com/bryanjos/plug_cors", tag: "v0.7.0"},
-      {:openaperture_auth, git: "https://github.com/OpenAperture/auth.git", ref: "dd7483eac3e7833fd5f2f9fb7347b17f68ff4bea", override: true},
-      {:openaperture_fleet, git: "https://github.com/OpenAperture/fleet.git", ref: "adab7f2649016f43352f43def797f61acea8a292", override: true},      
+      {:openaperture_auth, git: "https://github.com/OpenAperture/auth.git", ref: "6b58ad987987fb39208967e94f8cae29835aad2f", override: true},
+      {:openaperture_fleet, git: "https://github.com/OpenAperture/fleet.git", ref: "6f487b355d4dd02d8455f2f86dfc23334a446fc9", override: true},      
       {:openaperture_messaging, git: "https://github.com/OpenAperture/messaging.git", ref: "0af47ad04667342251bd829e01379b6d7703433f", override: true},
-      {:openaperture_manager_api, git: "https://github.com/OpenAperture/manager_api.git",  ref: "ae629a4127acceac8a9791c85e5a0d3b67d1ad16", override: true},
-      {:openaperture_overseer_api, git: "https://github.com/OpenAperture/overseer_api.git", ref: "bbc5b14934f253884f91c174906bbc3570fddd2f", override: true},
-      {:openaperture_workflow_orchestrator_api, git: "https://github.com/OpenAperture/workflow_orchestrator_api.git", ref: "9f71efeda9ddf5315d3f7c945c5336347c720ac9", override: true},
+      {:openaperture_manager_api, git: "https://github.com/OpenAperture/manager_api.git",  ref: "5d442cfbdd45e71c1101334e185d02baec3ef945", override: true},
+      {:openaperture_overseer_api, git: "https://github.com/OpenAperture/overseer_api.git", ref: "4d65d2295f2730bc74ec695c32fa0d2478158182", override: true},
+      {:openaperture_workflow_orchestrator_api, git: "https://github.com/OpenAperture/workflow_orchestrator_api.git", ref: "b5b027d860c367d34ec116292fd8e7e4ca07623f", override: true},
 
       {:meck, "0.8.2", only: :test},        
    ]
