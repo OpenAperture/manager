@@ -45,6 +45,42 @@ defmodule OpenAperture.Manager.Controllers.Router.AuthorityController do
     json conn, authorities
   end
 
+  # This endpoint is used by the UI to retrieve all the authorities & route
+  # info at once, so we don't have to make multiple calls.
+  # GET /router/authorities/full
+  def index_detailed(conn, _params) do
+    authorities = Authority
+                  |> join(:left, [a], r in Route, r.authority_id == a.id)
+                  |> select([a, r], {a, r})
+                  |> Repo.all
+                  |> Enum.reduce(%{}, fn({a, r}, acc) ->
+                    if Map.has_key?(acc, a.id) do
+                      authority = add_route(acc[a.id], r)
+                    else
+                      authority = a
+                                  |> to_sendable(@sendable_fields)
+                                  |> Map.put(:routes, [])
+                                  |> add_route(r)
+                    end
+
+                    Map.put(acc, authority.id, authority)
+                  end)
+                  |> Map.values
+
+    json conn, authorities
+  end
+
+  defp add_route(authority, nil) do
+    authority
+  end
+
+  defp add_route(authority, route) do
+    route = to_sendable(route, [:id, :hostname, :port, :secure_connection])
+    Map.update(authority, :routes, [], fn routes ->
+      [route] ++ routes
+    end)
+  end
+
   # GET /router/authorities/:id
   def show(conn, %{"id" => id}) do
     case Repo.get(Authority, id) do

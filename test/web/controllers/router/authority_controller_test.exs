@@ -96,6 +96,22 @@ defmodule OpenAperture.Manager.Controllers.Router.AuthorityController.Test do
     assert length(body) == length(context[:authorities])
   end
 
+  test "GET /router/authorities/detailed", context do
+    path = authority_path(Endpoint, :index_detailed)
+    conn = call(Router, :get, path)
+
+    assert conn.status == 200
+
+    body = Poison.decode!(conn.resp_body)
+    IO.inspect body
+
+    assert length(body) == length(context[:authorities])
+
+    assert 1 == Enum.count(body, &(length(&1["routes"]) == 2))
+
+    assert 1 == Enum.count(body, &(length(&1["routes"]) == 0))
+  end
+
   test "GET /router/authorities/1", context do
     a1 = List.first(context[:authorities])
 
