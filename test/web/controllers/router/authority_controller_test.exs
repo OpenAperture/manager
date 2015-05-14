@@ -131,6 +131,20 @@ defmodule OpenAperture.Manager.Controllers.Router.AuthorityController.Test do
     assert conn.status == 404
   end
 
+  test "GET /router/authorities/1/detailed", context do
+    a1 = List.first(context[:authorities])
+
+    path = authority_path(Endpoint, :show_detailed, a1.id)
+    conn = call(Router, :get, path)
+
+    assert conn.status == 200
+    body = Poison.decode!(conn.resp_body)
+    assert body["hostname"] == a1.hostname
+    assert body["port"] == a1.port
+
+    assert length(body["routes"]) == 2
+  end
+
   test "DELETE /router/authorities/1", context do
     a1 = List.first(context[:authorities])
 

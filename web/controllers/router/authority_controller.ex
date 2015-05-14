@@ -53,7 +53,7 @@ defmodule OpenAperture.Manager.Controllers.Router.AuthorityController do
                   |> preload(:routes)
                   |> Repo.all
                   |> Enum.map(fn authority ->
-                    routes = Enum.map(authority.routes, &to_sendable(&1, [:id, :hostname, :port, :secure_connection]))
+                    routes = Enum.map(authority.routes, &format_route/1)
                     authority = to_sendable(authority, @sendable_fields)
                     Map.put(authority, :routes, routes)
                   end)
@@ -61,22 +61,32 @@ defmodule OpenAperture.Manager.Controllers.Router.AuthorityController do
     json conn, authorities
   end
 
-  defp add_route(authority, nil) do
-    authority
-  end
-
-  defp add_route(authority, route) do
-    route = to_sendable(route, [:id, :hostname, :port, :secure_connection])
-    Map.update(authority, :routes, [], fn routes ->
-      [route] ++ routes
-    end)
+  defp format_route(route) do
+    to_sendable(route, [:id, :hostname, :port, :secure_connection])
   end
 
   # GET /router/authorities/:id
   def show(conn, %{"id" => id}) do
     case Repo.get(Authority, id) do
       nil -> resp conn, :not_found, ""
-      host -> json conn, to_sendable(host, @sendable_fields)
+      authority -> json conn, to_sendable(authority, @sendable_fields)
+    end
+  end
+
+  # GET /router/authorities/:id/detailed
+  def show_detailed(conn, %{"id" => id}) do
+    Authority
+    |> preload(:routes)
+    |> Repo.get(id)
+    |> case do
+      nil -> resp conn, :not_found, ""
+      authority ->
+        routes = Enum.map(authority.routes, &format_route/1)
+        authority = authority
+                    |> to_sendable(@sendable_fields)
+                    |> Map.put(:routes, routes)
+
+        json conn, authority
     end
   end
 
