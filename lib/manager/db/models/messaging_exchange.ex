@@ -9,6 +9,8 @@ defmodule OpenAperture.Manager.DB.Models.MessagingExchange do
     has_many :messaging_exchange_modules, MessagingExchangeModule
     field :name
     field :failover_exchange_id, :integer
+    field :parent_exchange_id, :integer
+    field :routing_key_fragment
     timestamps
   end
 
@@ -18,6 +20,6 @@ defmodule OpenAperture.Manager.DB.Models.MessagingExchange do
   end
 
   def changeset(model_or_changeset, params \\ nil) do
-    cast(model_or_changeset, params, ~w(name), ~w(failover_exchange_id))
+    cast(model_or_changeset, params, ~w(name), ~w(failover_exchange_id parent_exchange_id routing_key_fragment))
   end
 end

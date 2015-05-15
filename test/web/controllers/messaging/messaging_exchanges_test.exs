@@ -58,6 +58,47 @@ defmodule OpenAperture.Manager.Controllers.MessagingExchangesTest do
     assert returned_exchange["name"] == exchange.name
   end
 
+  test "index - hierarchy of exchanges" do
+    changeset = MessagingExchange.new(%{
+      name: "#{UUID.uuid1()}",
+      routing_key_fragment: "provider"
+    })
+    exchange = Repo.insert(changeset)
+
+    changeset = MessagingExchange.new(%{
+      name: "#{UUID.uuid1()}",
+      failover_exchange_id: exchange.id,
+      parent_exchange_id: exchange.id,
+      routing_key_fragment: "region"
+    })
+    child_exchange = Repo.insert(changeset)
+
+    conn = call(Router, :get, "/messaging/exchanges")
+    assert conn.status == 200
+
+    body = Poison.decode!(conn.resp_body)
+    assert length(body) == 2
+    Enum.reduce body, nil, fn(returned_exchange, errors) ->
+      cond do
+        returned_exchange == nil -> 
+          assert returned_exchange != nil
+        returned_exchange["id"] == exchange.id ->
+          assert returned_exchange["id"] == exchange.id
+          assert returned_exchange["name"] == exchange.name
+          assert returned_exchange["routing_key_fragment"] == exchange.routing_key_fragment
+          assert returned_exchange["routing_key"] == exchange.routing_key_fragment
+          assert returned_exchange["root_exchange_name"] == exchange.name
+        returned_exchange["id"] == child_exchange.id ->
+          assert returned_exchange["id"] == child_exchange.id
+          assert returned_exchange["name"] == child_exchange.name
+          assert returned_exchange["routing_key_fragment"] == child_exchange.routing_key_fragment
+          assert returned_exchange["routing_key"] == "#{exchange.routing_key_fragment}.#{child_exchange.routing_key_fragment}"
+          assert returned_exchange["root_exchange_name"] == exchange.name          
+        true -> assert true == false
+      end
+    end
+  end
+
   test "show - invalid exchange" do
     conn = call(Router, :get, "/messaging/exchanges/1234567890")
     assert conn.status == 404
@@ -73,6 +114,32 @@ defmodule OpenAperture.Manager.Controllers.MessagingExchangesTest do
     assert returned_exchange != nil
     assert returned_exchange["id"] == exchange.id
     assert returned_exchange["name"] == exchange.name
+  end
+
+  test "show - valid exchange in hierarchy" do
+    changeset = MessagingExchange.new(%{
+      name: "#{UUID.uuid1()}",
+      routing_key_fragment: "provider"
+    })
+    exchange = Repo.insert(changeset)
+
+    changeset = MessagingExchange.new(%{
+      name: "#{UUID.uuid1()}",
+      failover_exchange_id: exchange.id,
+      parent_exchange_id: exchange.id,
+      routing_key_fragment: "region"
+    })
+    child_exchange = Repo.insert(changeset)
+    conn = call(Router, :get, "/messaging/exchanges/#{child_exchange.id}")
+    assert conn.status == 200
+
+    returned_exchange = Poison.decode!(conn.resp_body)
+    assert returned_exchange != nil
+    assert returned_exchange["id"] == child_exchange.id
+    assert returned_exchange["name"] == child_exchange.name
+    assert returned_exchange["routing_key_fragment"] == child_exchange.routing_key_fragment
+    assert returned_exchange["routing_key"] == "#{exchange.routing_key_fragment}.#{child_exchange.routing_key_fragment}"
+    assert returned_exchange["root_exchange_name"] == exchange.name
   end
 
   test "create - conflict" do

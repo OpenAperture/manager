@@ -29,10 +29,31 @@ defmodule OpenAperture.Manager.Controllers.MessagingExchanges do
   This module contains the controllers for managing MessagingExchanges
   """  
 
-  @sendable_exchange_fields [:id, :name, :failover_exchange_id, :inserted_at, :updated_at]
-  @updatable_exchange_fields ["name", "failover_exchange_id"]
+  @sendable_exchange_fields [
+    :id, 
+    :name, 
+    :failover_exchange_id, 
+    :parent_exchange_id, 
+    :routing_key_fragment, 
+    :routing_key, #dynamic
+    :root_exchange_name, #dynamic
+    :inserted_at, 
+    :updated_at
+  ]
+  @updatable_exchange_fields [
+    "name", 
+    "failover_exchange_id", 
+    "parent_exchange_id", 
+    "routing_key_fragment"
+  ]
 
-  @sendable_exchange_broker_fields [:id, :messaging_exchange_id, :messaging_broker_id, :inserted_at, :updated_at]
+  @sendable_exchange_broker_fields [
+    :id, 
+    :messaging_exchange_id, 
+    :messaging_broker_id, 
+    :inserted_at, 
+    :updated_at
+  ]
 
   @doc """
   GET /messaging/exchanges - Retrieve all MessagingExchanges
@@ -47,7 +68,12 @@ defmodule OpenAperture.Manager.Controllers.MessagingExchanges do
   """
   @spec index(term, [any]) :: term
   def index(conn, _params) do
-    json conn, Repo.all(MessagingExchange)
+    exchanges = 
+      Repo.all(MessagingExchange)
+      |> FormatHelper.to_sendable(@sendable_exchange_fields) 
+      |> FormatHelper.to_string_timestamps
+
+    json conn, resolve_hierachy(exchanges, [])
   end
 
   @doc """
@@ -65,7 +91,38 @@ defmodule OpenAperture.Manager.Controllers.MessagingExchanges do
   def show(conn, %{"id" => id}) do
     case Repo.get(MessagingExchange, id) do
       nil -> resp(conn, :not_found, "")
-      exchange -> json conn, exchange |> FormatHelper.to_sendable(@sendable_exchange_fields)
+      raw_exchange -> 
+        exchange = 
+          raw_exchange
+          |> FormatHelper.to_sendable(@sendable_exchange_fields) 
+          |> FormatHelper.to_string_timestamps        
+
+        json conn, List.first(resolve_hierachy([exchange], []))
+    end
+  end
+
+  def resolve_hierachy([], updated_exchanges) do
+    updated_exchanges
+  end
+
+  def resolve_hierachy([exchange | remaining_exchanges], updated_exchanges) do
+    {routing_key, root_exchange} = build_route_hierarchy(exchange[:id], nil, nil)
+    exchange = Map.put(exchange, :routing_key, to_string(routing_key))
+    exchange = Map.put(exchange, :root_exchange_name, root_exchange.name)
+
+    resolve_hierachy(remaining_exchanges, updated_exchanges ++ [exchange])
+  end
+
+  def build_route_hierarchy(exchange_id, routing_key, root_exchange) do
+    if exchange_id == nil do
+      {routing_key, root_exchange}
+    else
+      exchange = Repo.get(MessagingExchange, exchange_id)
+      cond do
+        exchange == nil -> build_route_hierarchy(routing_key.parent_exchange_id, routing_key, root_exchange)
+        routing_key == nil -> build_route_hierarchy(exchange.parent_exchange_id, exchange.routing_key_fragment, exchange)
+        true -> build_route_hierarchy(exchange.parent_exchange_id, "#{exchange.routing_key_fragment}.#{routing_key}", exchange)
+      end
     end
   end
 
@@ -81,13 +138,18 @@ defmodule OpenAperture.Manager.Controllers.MessagingExchanges do
   Underlying HTTP connection
   """
   @spec create(term, [any]) :: term
-  def create(conn, %{"name" => name} = _params) when name != "" do
+  def create(conn, %{"name" => name} = params) when name != "" do
     query = from b in MessagingExchange,
       where: b.name == ^name,
       select: b
     case Repo.all(query) do
       [] ->
-        changeset = MessagingExchange.new(%{"name" => name})
+        changeset = MessagingExchange.new(%{
+          "name" => name,
+          "failover_exchange_id" => params["failover_exchange_id"],
+          "parent_exchange_id" => params["parent_exchange_id"],
+          "routing_key_fragment" => params["routing_key_fragment"]
+        })
         if changeset.valid? do
           try do
             exchange = Repo.insert(changeset)
@@ -135,7 +197,9 @@ defmodule OpenAperture.Manager.Controllers.MessagingExchanges do
     if exchange == nil do
       resp(conn, :not_found, "")
     else
-      changeset = MessagingExchange.new(%{"name" => params["name"]})
+      changeset = MessagingExchange.new(%{"name" => 
+        params["name"]
+      })
       if changeset.valid? do
         # Check to see if there is another exchange with the same name
         query = from b in MessagingExchange,
@@ -192,6 +256,7 @@ defmodule OpenAperture.Manager.Controllers.MessagingExchanges do
         Repo.transaction(fn ->
           Repo.update_all(from(e in EtcdCluster, where: e.messaging_exchange_id  == ^id), messaging_exchange_id: nil)
           Repo.update_all(from(e in MessagingExchange, where: e.failover_exchange_id  == ^id), failover_exchange_id: nil)
+          Repo.update_all(from(e in MessagingExchange, where: e.parent_exchange_id == ^id), parent_exchange_id: nil)
           Repo.delete_all(from(b in MessagingExchangeBroker, where: b.messaging_exchange_id  == ^id))
           Repo.delete_all(from(m in MessagingExchangeModule, where: m.messaging_exchange_id  == ^id))          
           Repo.delete(exchange)
