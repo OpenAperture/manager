@@ -31,12 +31,13 @@ defmodule OpenAperture.Manager.Plugs.Authentication do
   @spec call(term, [any]) :: term
   def call(conn, _options) do
     Logger.debug("Verifying authentication...")
-    case List.keyfind(conn.req_headers, "authorization", 0) do
-      nil ->
+    case get_req_header(conn, "authorization") do
+      [] ->
         conn
-        |> send_resp(401, "Unauthorized!")
+        |> send_resp(401, "Unauthorized")
         |> halt
-      {"authorization", auth_header} ->
+      [auth_header] ->
+        Logger.debug "auth header: #{inspect auth_header}"
         try do
           case authenticate_request(Application.get_env(OpenAperture.Manager, __MODULE__)[:oauth_validate_url], auth_header) do
             true -> 
@@ -74,9 +75,11 @@ defmodule OpenAperture.Manager.Plugs.Authentication do
     if (!String.starts_with?(auth_header, "Bearer ")) do
       false
     else
-      access_token = to_string(tl(String.split(auth_header, "Bearer ")))
+      access_token = auth_header
+                    |> String.split(~r/bearer\s?(access_token=)?/i)
+                    |> List.last
       Logger.debug "Validating token: url: #{url}, token: #{inspect access_token}"
-      OpenAperture.Auth.Server.validate_token?(url, access_token)
+      OpenAperture.Auth.Server.validate_token?(url, "access_token=" <> access_token)
     end
   end
 end
