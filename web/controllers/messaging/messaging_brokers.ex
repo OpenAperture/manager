@@ -333,7 +333,7 @@ defmodule OpenAperture.Manager.Controllers.MessagingBrokers do
       		true ->
       			sendable_connections = Enum.reduce connections, [], fn (connection, sendable_connections) ->
 	      			sendable_connection = FormatHelper.to_sendable(connection, @sendable_broker_connection_fields)
-	      			sendable_connections ++ [Map.put(sendable_connection, "password", decrypt_password(sendable_connection["password"]))]
+	      			sendable_connections ++ [Map.put(sendable_connection, :password, decrypt_password(sendable_connection[:password]))]
 	      		end
 	      		json conn, sendable_connections
       	end
