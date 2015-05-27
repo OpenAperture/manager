@@ -42,9 +42,8 @@ defmodule OpenAperture.Mixfile do
   # Type `mix help deps` for examples and options
   defp deps do
     [
-      {:ex_doc, github: "elixir-lang/ex_doc", only: [:test]},
-      {:earmark, github: "pragdave/earmark", tag: "v0.1.8", only: [:test]},
-
+      {:ex_doc, "0.7.3", only: :test},
+      {:earmark, "0.1.17", only: :test},
       {:phoenix, "~> 0.11.0"},
       {:phoenix_live_reload, "~> 0.3"},
       {:cowboy, "~> 1.0"},
