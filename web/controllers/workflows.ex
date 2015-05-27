@@ -323,7 +323,7 @@ defmodule OpenAperture.Manager.Controllers.Workflows do
             # Set location header
             conn
             |> put_resp_header("location", path)
-            |> resp(:no_content, "")
+            |> resp(:accepted, "")
           {:error, reason} -> 
             Logger.error("Error executing Workflow #{id}: #{inspect reason}")
             resp(conn, :internal_server_error, "")            
