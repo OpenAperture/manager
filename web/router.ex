@@ -190,4 +190,14 @@ defmodule OpenAperture.Manager.Router do
     delete "/authorities/:parent_id/routes/clear", RouteController, :clear
     resources "/authorities/:parent_id/routes", RouteController
   end
+
+  scope "/cloud_providers", OpenAperture.Manager.Controllers do
+    pipe_through :api
+    pipe_through :secure
+
+    get "/", CloudProviders, :index
+    post "/", CloudProviders, :create
+    
+    get "/:id", CloudProviders, :show
+  end
 end
