@@ -79,13 +79,16 @@ defmodule OpenAperture.Manager.Controllers.MessagingBrokers do
   Underlying HTTP connection
   """
   @spec create(term, [any]) :: term
-  def create(conn, %{"name" => name} = _params) when name != "" do
+  def create(conn, %{"name" => name} = params) when name != "" do
     query = from b in MessagingBroker,
       where: b.name == ^name,
       select: b
     case Repo.all(query) do
       [] ->
-        changeset = MessagingBroker.new(%{"name" => name})
+        changeset = MessagingBroker.new(%{
+          "name" => name,
+          "failover_broker_id" => params["failover_broker_id"]
+        })
         if changeset.valid? do
           try do
             broker = Repo.insert(changeset)
@@ -133,7 +136,10 @@ defmodule OpenAperture.Manager.Controllers.MessagingBrokers do
     if broker == nil do
       resp(conn, :not_found, "")
     else
-    	changeset = MessagingBroker.new(%{"name" => params["name"]})
+    	changeset = MessagingBroker.new(%{
+        "name" => params["name"],
+        "failover_broker_id" => params["failover_broker_id"]
+      })
       if changeset.valid? do
         # Check to see if there is another broker with the same name
     		query = from b in MessagingBroker,
