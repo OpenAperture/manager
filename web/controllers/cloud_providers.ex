@@ -51,5 +51,42 @@ defmodule OpenAperture.Manager.Controllers.CloudProviders do
     end      
   end
 
+  # PUT "/:id"
+  def update(conn, %{"id" => id} = params) do
+    Repo.get(CloudProvider, id)
+    |> case do
+      nil ->
+        conn
+        |> resp :not_found, ""
+      provider ->
+        changeset = CloudProvider.update(provider, params)
+        if changeset.valid? do
+          product = Repo.update(changeset)
+          conn
+          |> put_resp_header("location", cloud_providers_path(Endpoint, :show, provider.id))
+          |> resp :no_content, ""
+        else
+          conn
+          |> put_status(:bad_request)
+          |> json inspect(changeset.errors)
+        end
+    end
+  end
+
+  def destroy(conn, %{"id" => id}) do
+    Repo.get(CloudProvider, id)
+    |> case do
+      nil ->
+        conn
+        |> resp :not_found, ""
+      provider ->
+        Repo.delete(provider)
+        conn
+        |> resp :no_content, ""
+    end
+  end
+  
+  
+
 
 end

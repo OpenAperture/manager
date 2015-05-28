@@ -199,5 +199,8 @@ defmodule OpenAperture.Manager.Router do
     post "/", CloudProviders, :create
     
     get "/:id", CloudProviders, :show
+    put "/:id", CloudProviders, :update
+    delete "/:id", CloudProviders, :destroy
+
   end
 end
