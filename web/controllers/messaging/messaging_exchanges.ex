@@ -196,20 +196,30 @@ defmodule OpenAperture.Manager.Controllers.MessagingExchanges do
 
     if exchange == nil do
       resp(conn, :not_found, "")
-    else
+    else     
       changeset = MessagingExchange.new(%{"name" => 
         params["name"]
       })
-      if changeset.valid? do
+      if !changeset.valid? do
+        conn
+        |> put_status(:bad_request)
+        |> json FormatHelper.keywords_to_map(changeset.errors)        
+      else
         # Check to see if there is another exchange with the same name
         query = from b in MessagingExchange,
           where: b.name == ^params["name"],
           select: b
 
-        case Repo.all(query) do
-          [] ->
-            changeset = MessagingExchange.changeset(exchange, Map.take(params, @updatable_exchange_fields))
-
+        conflict = case Repo.all(query) do
+          [] -> false
+          exchanges -> List.first(exchanges).id != exchange.id
+        end
+           
+        if conflict do
+          resp(conn, :conflict, "")
+        else
+          changeset = MessagingExchange.changeset(exchange, Map.take(params, @updatable_exchange_fields))
+          if changeset.valid? do
             try do
               Repo.update(changeset)
               path = OpenAperture.Manager.Router.Helpers.messaging_exchanges_path(Endpoint, :show, id)
@@ -220,14 +230,13 @@ defmodule OpenAperture.Manager.Controllers.MessagingExchanges do
               e ->
                 Logger.error("Error inserting exchange record for #{params["name"]}: #{inspect e}")
                 resp(conn, :internal_server_error, "")
-            end             
-          _ ->
-            resp(conn, :conflict, "")
+            end          
+          else
+            conn
+            |> put_status(:bad_request)
+            |> json FormatHelper.keywords_to_map(changeset.errors)            
+          end
         end
-      else
-        conn
-        |> put_status(:bad_request)
-        |> json FormatHelper.keywords_to_map(changeset.errors)
       end
     end
   end
