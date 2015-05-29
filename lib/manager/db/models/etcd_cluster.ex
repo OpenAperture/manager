@@ -23,13 +23,13 @@ defmodule OpenAperture.Manager.DB.Models.EtcdCluster do
 
   def validate_changes(model_or_changeset, params) do
     changeset = cast(model_or_changeset, params, @required_fields, @optional_fields)
-    case Map.get(params, "hosting_provider_id", nil) do 
+    case Map.get(params, :hosting_provider_id, nil) do 
       nil -> 
         changeset
       hosting_provider_id -> 
         case Repo.get(CloudProvider, hosting_provider_id) do 
             nil -> add_error(changeset, :hosting_provider_id, "Invalid Cloud Provider")
-            _ -> changeset
+            _provider -> changeset
         end
     end
   end

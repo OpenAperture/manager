@@ -38,12 +38,12 @@ defmodule DB.Queries.EtcdCluster.Test do
 
   test "get clusters by cloud provider" do
 
-    cloud_provider1 = CloudProvider.new(%{id: 1, name: "a", type: "a", configuration: "{}"}) |> Repo.insert
-    _cloud_provider2 = CloudProvider.new(%{id: 2, name: "b", type: "b", configuration: "{}"}) |> Repo.insert
+    cloud_provider1 = CloudProvider.new(%{name: "a", type: "a", configuration: "{}"}) |> Repo.insert
+    cloud_provider2 = CloudProvider.new(%{name: "b", type: "b", configuration: "{}"}) |> Repo.insert
 
-    _cluster_model1 = EtcdCluster.new(%{etcd_token: "abc123", hosting_provider_id: 1}) |> Repo.insert
-    _cluster_model2 = EtcdCluster.new(%{etcd_token: "abc124", hosting_provider_id: 1}) |> Repo.insert
-    _cluster_model3 = EtcdCluster.new(%{etcd_token: "abc125", hosting_provider_id: 2}) |> Repo.insert
+    _cluster_model1 = EtcdCluster.new(%{etcd_token: "abc123", hosting_provider_id: cloud_provider1.id}) |> Repo.insert
+    _cluster_model2 = EtcdCluster.new(%{etcd_token: "abc124", hosting_provider_id: cloud_provider1.id}) |> Repo.insert
+    _cluster_model3 = EtcdCluster.new(%{etcd_token: "abc125", hosting_provider_id: cloud_provider2.id}) |> Repo.insert
 
     results = Repo.all(EtcdClusterQuery.get_by_cloud_provider(Map.from_struct(cloud_provider1)[:id]))
     assert length(results) == 2

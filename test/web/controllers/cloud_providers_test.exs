@@ -15,16 +15,10 @@ defmodule OpenAperture.Manager.Controllers.CloudProvidersTest do
 
     on_exit _context, fn ->
       try do
-        :meck.unload(Repo)
-      rescue _ -> 
-        Repo.delete_all(EtcdCluster)
-        Repo.delete_all(CloudProvider)
-      end
-
-      try do
-        :meck.unload(OpenAperture.Manager.Plugs.Authentication)
         :meck.unload
       rescue _ -> IO.puts "" end
+      Repo.delete_all(EtcdCluster)
+      Repo.delete_all(CloudProvider)
     end    
     :ok
   end
@@ -159,8 +153,8 @@ defmodule OpenAperture.Manager.Controllers.CloudProvidersTest do
   test "clusters action -- provider found" do 
     :meck.unload(Repo)
     provider = CloudProvider.new(%{name: "a", type: "a", configuration: "{}"}) |> Repo.insert
-    cluster1 = EtcdCluster.new(%{etcd_token: "abc125", hosting_provider_id: provider.id}) |> Repo.insert
-    cluster2 = EtcdCluster.new(%{etcd_token: "abc126", hosting_provider_id: provider.id}) |> Repo.insert
+    _cluster1 = EtcdCluster.new(%{etcd_token: "abc125", hosting_provider_id: provider.id}) |> Repo.insert
+    _cluster2 = EtcdCluster.new(%{etcd_token: "abc126", hosting_provider_id: provider.id}) |> Repo.insert
 
     conn = call(Router, :get, "/cloud_providers/#{provider.id}/clusters")
 
@@ -169,14 +163,15 @@ defmodule OpenAperture.Manager.Controllers.CloudProvidersTest do
     body = Poison.decode!(conn.resp_body)
 
     assert length(body) == 2
+    :meck.new(Repo)
   end
 
   test "clusters action -- provider has no clusters" do
     :meck.unload(Repo)
     provider1 = CloudProvider.new(%{name: "a", type: "a", configuration: "{}"}) |> Repo.insert
     provider2 = CloudProvider.new(%{name: "a", type: "a", configuration: "{}"}) |> Repo.insert
-    cluster1 = EtcdCluster.new(%{etcd_token: "abc125", hosting_provider_id: provider2.id}) |> Repo.insert
-    cluster2 = EtcdCluster.new(%{etcd_token: "abc126", hosting_provider_id: provider2.id}) |> Repo.insert
+    _cluster1 = EtcdCluster.new(%{etcd_token: "abc125", hosting_provider_id: provider2.id}) |> Repo.insert
+    _cluster2 = EtcdCluster.new(%{etcd_token: "abc126", hosting_provider_id: provider2.id}) |> Repo.insert
 
     conn = call(Router, :get, "/cloud_providers/#{provider1.id}/clusters")
 
@@ -185,13 +180,14 @@ defmodule OpenAperture.Manager.Controllers.CloudProvidersTest do
     body = Poison.decode!(conn.resp_body)
 
     assert length(body) == 0
+    :meck.new(Repo)
   end
 
   test "clusters action -- provider does not exist" do
     :meck.unload(Repo)
     provider = CloudProvider.new(%{name: "a", type: "a", configuration: "{}"}) |> Repo.insert
-    cluster1 = EtcdCluster.new(%{etcd_token: "abc125", hosting_provider_id: provider.id}) |> Repo.insert
-    cluster2 = EtcdCluster.new(%{etcd_token: "abc126", hosting_provider_id: provider.id}) |> Repo.insert
+    _cluster1 = EtcdCluster.new(%{etcd_token: "abc125", hosting_provider_id: provider.id}) |> Repo.insert
+    _cluster2 = EtcdCluster.new(%{etcd_token: "abc126", hosting_provider_id: provider.id}) |> Repo.insert
 
     conn = call(Router, :get, "/cloud_providers/-1/clusters")
 
@@ -200,6 +196,8 @@ defmodule OpenAperture.Manager.Controllers.CloudProvidersTest do
     body = Poison.decode!(conn.resp_body)
 
     assert length(body) == 0
+
+    :meck.new(Repo)
   end
 
 end

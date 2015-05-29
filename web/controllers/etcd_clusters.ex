@@ -59,7 +59,7 @@ defmodule OpenAperture.Manager.Controllers.EtcdClusters do
   Create a new Etcd Cluster instance.
   """
   def register(conn, params) do
-    cluster = EtcdCluster.new(params)
+    cluster = EtcdCluster.new(Enum.into(params, %{}, fn {key, value} -> {String.to_atom(key), value} end))
     if cluster.valid? do
       try do
         cluster = Repo.insert(cluster)
