@@ -20,8 +20,8 @@ defmodule OpenAperture.Manager.Controllers.CloudProviders do
         |> Enum.map &Map.from_struct/1
 
     #IO.puts("clusters:  #{inspect clusters}")
-    conn
-    |> json providers
+    
+    json conn, providers
   end
 
   @doc """
@@ -59,8 +59,7 @@ defmodule OpenAperture.Manager.Controllers.CloudProviders do
 
   # PUT "/:id"
   def update(conn, %{"id" => id} = params) do
-    Repo.get(CloudProvider, id)
-    |> case do
+    case Repo.get(CloudProvider, id) do
       nil ->
         conn
         |> resp :not_found, ""
@@ -86,8 +85,7 @@ defmodule OpenAperture.Manager.Controllers.CloudProviders do
   end
 
   def destroy(conn, %{"id" => id}) do
-    Repo.get(CloudProvider, id)
-    |> case do
+    case Repo.get(CloudProvider, id) do
       nil ->
         conn
         |> resp :not_found, ""
@@ -103,8 +101,7 @@ defmodule OpenAperture.Manager.Controllers.CloudProviders do
     |> Repo.all
     |> Enum.map &Map.from_struct/1 
 
-    conn
-    |> json clusters
+    json conn, clusters
   end
   
 end
