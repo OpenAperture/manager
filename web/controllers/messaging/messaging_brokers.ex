@@ -16,6 +16,7 @@ defmodule OpenAperture.Manager.Controllers.MessagingBrokers do
   alias OpenAperture.Manager.DB.Models.MessagingExchangeBroker
   
   alias OpenAperture.Manager.Controllers.FormatHelper
+  alias OpenAperture.Manager.Controllers.ResponseBodyFormatter
   
   import Ecto.Query
 
@@ -62,7 +63,9 @@ defmodule OpenAperture.Manager.Controllers.MessagingBrokers do
   @spec show(term, [any]) :: term
   def show(conn, %{"id" => id}) do
     case Repo.get(MessagingBroker, id) do
-      nil -> resp(conn, :not_found, "")
+      nil -> conn
+            |> put_status(:not_found)
+            |> json ResponseBodyFormatter.error_body(:not_found, "MessagingBroker")
       broker -> json conn, broker |> FormatHelper.to_sendable(@sendable_broker_fields)
     end
   end
@@ -101,21 +104,25 @@ defmodule OpenAperture.Manager.Controllers.MessagingBrokers do
           rescue
             e ->
               Logger.error("Error inserting broker record for #{name}: #{inspect e}")
-              resp(conn, :internal_server_error, "")
+              conn
+              |> put_status(:internal_server_error)
+              |> json ResponseBodyFormatter.error_body(:internal_server_error, "MessagingBroker")
           end
         else
           conn
           |> put_status(:bad_request)
-          |> json FormatHelper.keywords_to_map(changeset.errors)
+          |> json ResponseBodyFormatter.changeset_error_body(changeset.errors, "MessagingBroker")
         end
       _ ->
-        conn |> resp(:conflict, "")
+        conn
+        |> put_status(:conflict)
+        |> json ResponseBodyFormatter.error_body(:conflict, "MessagingBroker")
     end
   end
 
   # This action only matches if a param is missing
   def create(conn, _params) do
-    Plug.Conn.resp(conn, :bad_request, "name is required")
+    conn |> put_status(:bad_request) |> json ResponseBodyFormatter.error_body(:bad_request, "MessagingBroker")
   end
 
   @doc """
@@ -174,7 +181,7 @@ defmodule OpenAperture.Manager.Controllers.MessagingBrokers do
 
   # This action only matches if a param is missing
   def update(conn, _params) do
-    resp(conn, :bad_request, "name is required")
+    conn |> put_status(:bad_request) |> json ResponseBodyFormatter.error_body(:bad_request, "MessagingBroker")
   end
 
   @doc """
