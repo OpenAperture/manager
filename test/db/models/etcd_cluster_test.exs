@@ -3,15 +3,36 @@ defmodule DB.Models.EtcdCluster.Test do
 
   alias OpenAperture.Manager.Repo
   alias OpenAperture.Manager.DB.Models.EtcdCluster
+  alias OpenAperture.Manager.DB.Models.CloudProvider
 
   setup _context do
+    :meck.new(Repo)
+
     on_exit _context, fn ->
+      :meck.unload
       Repo.delete_all(EtcdCluster)
     end
   end
 
+  test "etcd_clusters hosting provider not valid" do
+    :meck.expect(Repo, :get, 2, nil)
+    etcd_cluster1_values = %{:etcd_token => "abc123", :hosting_provider_id => 1}
+    changeset = EtcdCluster.new(etcd_cluster1_values)
+    
+    refute changeset.valid?
+  end
+
+  test "etcd_clusters hosting provider is valid" do
+    :meck.expect(Repo, :get, 2, %CloudProvider{id: 1})
+    etcd_cluster1_values = %{:etcd_token => "abc123", :hosting_provider_id => 1}
+    changeset = EtcdCluster.new(etcd_cluster1_values)
+    
+    assert changeset.valid?
+  end
+
   test "etcd tokens must be unique" do
     etcd_cluster1_values = %{:etcd_token => "abc123"}
+    :meck.unload
     EtcdCluster.new(etcd_cluster1_values) |> Repo.insert
 
     assert_raise Postgrex.Error,

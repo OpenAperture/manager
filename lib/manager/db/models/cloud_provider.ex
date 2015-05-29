@@ -1,9 +1,13 @@
 defmodule OpenAperture.Manager.DB.Models.CloudProvider do
   @required_fields [:name, :type, :configuration]
   @optional_fields []
+
   use OpenAperture.Manager.DB.Models.BaseModel
 
+  alias OpenAperture.Manager.DB.Models.EtcdCluster
+
   schema "cloud_providers" do
+    has_many :etcd_clusters, EtcdCluster
     field :name                        # defaults to type :string
     field :type                        # defaults to type :string
     field :configuration               # defaults to type :string

@@ -8,6 +8,7 @@ defmodule OpenAperture.Manager.Controllers.EtcdClustersTest do
   alias OpenAperture.Manager.DB.Models.Product
   alias OpenAperture.Manager.DB.Queries.EtcdCluster, as: EtcdClusterQuery
   alias OpenAperture.Manager.Router
+  alias OpenAperture.Manager.DB.Models.CloudProvider
 
   alias OpenAperture.Fleet.SystemdUnit
 
@@ -113,6 +114,33 @@ defmodule OpenAperture.Manager.Controllers.EtcdClustersTest do
 
   test "register action -- success" do
     cluster = %EtcdCluster{id: 1, etcd_token: "token"}
+    :meck.expect(Repo, :insert, 1, cluster)
+    conn = call(Router, :post, "/clusters", Poison.encode!(cluster), [{"content-type", "application/json"}])
+
+    assert conn.status == 201
+
+    assert List.keymember?(conn.resp_headers, "location", 0)
+    location_header = List.keyfind(conn.resp_headers, "location", 0)
+
+    assert location_header == {"location", "/clusters/token"}
+  end
+
+  test "register action -- provided invalid hosting_provider_id" do
+    cluster = %EtcdCluster{id: 1, etcd_token: "token", hosting_provider_id: 1}
+    :meck.expect(Repo, :get, 2, nil)
+    :meck.expect(Repo, :insert, 1, cluster)
+    conn = call(Router, :post, "/clusters", Poison.encode!(cluster), [{"content-type", "application/json"}])
+
+    assert conn.status == 400
+
+    body = Poison.decode!(conn.resp_body)
+
+    assert body == %{"hosting_provider_id" => "Invalid Cloud Provider"}
+  end
+
+  test "register action -- provided valid hosting_provider_id" do
+    cluster = %EtcdCluster{id: 1, etcd_token: "token", hosting_provider_id: 1}
+    :meck.expect(Repo, :get, 2, %CloudProvider{id: 1})
     :meck.expect(Repo, :insert, 1, cluster)
     conn = call(Router, :post, "/clusters", Poison.encode!(cluster), [{"content-type", "application/json"}])
 

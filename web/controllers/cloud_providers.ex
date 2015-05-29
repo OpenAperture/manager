@@ -5,6 +5,7 @@ defmodule OpenAperture.Manager.Controllers.CloudProviders do
   alias OpenAperture.Manager.Endpoint
   alias OpenAperture.Manager.Controllers.FormatHelper
   alias OpenAperture.Manager.DB.Models.CloudProvider
+  alias OpenAperture.Manager.DB.Queries.EtcdCluster, as: EtcdClusterQuery
 
   @sendable_fields [:id, :name, :type, :configuration, :inserted_at, :updated_at]
 
@@ -85,8 +86,14 @@ defmodule OpenAperture.Manager.Controllers.CloudProviders do
         |> resp :no_content, ""
     end
   end
-  
-  
 
+  def clusters(conn, %{"id" => id}) do
+    clusters = EtcdClusterQuery.get_by_cloud_provider(id)
+    |> Repo.all
+    |> Enum.map &Map.from_struct/1 
 
+    conn
+    |> json clusters
+  end
+  
 end

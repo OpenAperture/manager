@@ -202,5 +202,7 @@ defmodule OpenAperture.Manager.Router do
     put "/:id", CloudProviders, :update
     delete "/:id", CloudProviders, :destroy
 
+    get "/:id/clusters", CloudProviders, :clusters
+
   end
 end
