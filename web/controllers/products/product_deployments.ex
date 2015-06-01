@@ -4,6 +4,7 @@ defmodule OpenAperture.Manager.Controllers.ProductDeployments do
   use OpenAperture.Manager.Web, :controller
 
   import OpenAperture.Manager.Controllers.FormatHelper
+  alias OpenAperture.Manager.Controllers.ResponseBodyFormatter
   import Ecto.Query
   import OpenAperture.Manager.Router.Helpers
 
@@ -28,7 +29,8 @@ defmodule OpenAperture.Manager.Controllers.ProductDeployments do
     |> case do
       nil ->
         conn
-        |> resp :not_found, ""
+        |> put_status(:not_found)
+        |> json ResponseBodyFormatter.error_body(:not_found, "ProductDeployment")
       product ->
         deployments = product.id
                       |> DeploymentQuery.get_deployments
@@ -47,7 +49,8 @@ defmodule OpenAperture.Manager.Controllers.ProductDeployments do
     case get_product_deployment(product_name, deployment_id) do
       nil ->
         conn
-        |> resp :not_found, ""
+        |> put_status(:not_found)
+        |> json ResponseBodyFormatter.error_body(:not_found, "ProductDeployment")
       pd ->
         conn
         |> json to_sendable(pd, @deployment_sendable_fields)
@@ -61,7 +64,8 @@ defmodule OpenAperture.Manager.Controllers.ProductDeployments do
     case get_deployment_plan_by_name(product_name, plan_name) do
       nil ->
         conn
-        |> resp :not_found, ""
+        |> put_status(:not_found)
+        |> json ResponseBodyFormatter.error_body(:not_found, "ProductDeployment")
       {product, plan} ->
         execution_options_string = params["execution_options"] || ""
                                    |> Poison.encode!
@@ -95,7 +99,7 @@ defmodule OpenAperture.Manager.Controllers.ProductDeployments do
         else
           conn
           |> put_status(:bad_request)
-          |> json %{error: inspect(changeset.errors)}
+          |> json ResponseBodyFormatter.error_body(changeset.errors, "ProductDeployment")
         end
 
     end
@@ -107,7 +111,7 @@ defmodule OpenAperture.Manager.Controllers.ProductDeployments do
   def create(conn, _params) do
     conn
     |> put_status(:bad_request)
-    |> json %{error: "plan_name required"}
+    |> json ResponseBodyFormatter.error_body(:bad_request, "ProductDeployment")
   end
 
   # DELETE /products/:product_name/deployments/:deploymen_id
@@ -117,7 +121,8 @@ defmodule OpenAperture.Manager.Controllers.ProductDeployments do
     case get_product_deployment(product_name, deployment_id) do
       nil ->
         conn
-        |> resp :not_found, ""
+        |> put_status(:not_found)
+        |> json ResponseBodyFormatter.error_body(:not_found, "ProductDeployment")
       pd ->
         result = Repo.transaction(fn ->
           steps_query = ProductDeploymentStep
@@ -131,10 +136,10 @@ defmodule OpenAperture.Manager.Controllers.ProductDeployments do
           {:ok, _} ->
             conn
             |> resp :no_content, ""
-          {:error, reason} ->
+          {:error, _reason} ->
             conn
             |> put_status(:internal_server_error)
-            |> json %{error: inspect(reason)}
+            |> json ResponseBodyFormatter.error_body(:internal_server_error, "ProductDeployment")
         end
     end
   end
@@ -146,7 +151,8 @@ defmodule OpenAperture.Manager.Controllers.ProductDeployments do
     case get_product_deployment(product_name, deployment_id) do
       nil ->
         conn
-        |> resp :not_found, ""
+        |> put_status(:not_found)
+        |> json ResponseBodyFormatter.error_body(:not_found, "ProductDeployment")
       pd ->
         steps = ProductDeploymentStep
                 |> where([pdps], pdps.product_deployment_id == ^pd.id)

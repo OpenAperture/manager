@@ -18,6 +18,7 @@ defmodule OpenAperture.Manager.Controllers.MessagingExchanges do
   alias OpenAperture.Manager.DB.Models.EtcdCluster
 
   alias OpenAperture.Manager.Controllers.FormatHelper
+  alias OpenAperture.Manager.Controllers.ResponseBodyFormatter
   
   import Ecto.Query
 
@@ -90,7 +91,10 @@ defmodule OpenAperture.Manager.Controllers.MessagingExchanges do
   @spec show(term, [any]) :: term
   def show(conn, %{"id" => id}) do
     case Repo.get(MessagingExchange, id) do
-      nil -> resp(conn, :not_found, "")
+      nil -> 
+        conn 
+        |> put_status(:not_found) 
+        |> json ResponseBodyFormatter.error_body(:not_found, "MessagingExchange")   
       raw_exchange -> 
         exchange = 
           raw_exchange
@@ -162,21 +166,27 @@ defmodule OpenAperture.Manager.Controllers.MessagingExchanges do
           rescue
             e ->
               Logger.error("Error inserting exchange record for #{name}: #{inspect e}")
-              resp(conn, :internal_server_error, "")
+              conn 
+              |> put_status(:internal_server_error) 
+              |> json ResponseBodyFormatter.error_body(:internal_server_error, "MessagingExchange")  
           end
         else
-          conn
-          |> put_status(:bad_request)
-          |> json FormatHelper.keywords_to_map(changeset.errors)
+          conn 
+          |> put_status(:bad_request) 
+          |> json ResponseBodyFormatter.error_body(changeset.errors, "MessagingExchange")  
         end
       _ ->
-        conn |> resp(:conflict, "")
+        conn 
+        |> put_status(:conflict) 
+        |> json ResponseBodyFormatter.error_body(:conflict, "MessagingExchange")  
     end
   end
 
   # This action only matches if a param is missing
   def create(conn, _params) do
-    Plug.Conn.resp(conn, :bad_request, "name is required")
+    conn 
+    |> put_status(:bad_request) 
+    |> json ResponseBodyFormatter.error_body(:bad_request, "MessagingExchange")  
   end
 
   @doc """
@@ -195,15 +205,17 @@ defmodule OpenAperture.Manager.Controllers.MessagingExchanges do
     exchange = Repo.get(MessagingExchange, id)
 
     if exchange == nil do
-      resp(conn, :not_found, "")
+      conn 
+      |> put_status(:not_found) 
+      |> json ResponseBodyFormatter.error_body(:not_found, "MessagingExchange")  
     else     
       changeset = MessagingExchange.new(%{"name" => 
         params["name"]
       })
       if !changeset.valid? do
-        conn
-        |> put_status(:bad_request)
-        |> json FormatHelper.keywords_to_map(changeset.errors)        
+        conn 
+        |> put_status(:bad_request) 
+        |> json ResponseBodyFormatter.error_body(changeset.errors, "MessagingExchange")        
       else
         # Check to see if there is another exchange with the same name
         query = from b in MessagingExchange,
@@ -216,7 +228,9 @@ defmodule OpenAperture.Manager.Controllers.MessagingExchanges do
         end
            
         if conflict do
-          resp(conn, :conflict, "")
+          conn 
+          |> put_status(:conflict) 
+          |> json ResponseBodyFormatter.error_body(:conflict, "MessagingExchange")  
         else
           changeset = MessagingExchange.changeset(exchange, Map.take(params, @updatable_exchange_fields))
           if changeset.valid? do
@@ -229,12 +243,14 @@ defmodule OpenAperture.Manager.Controllers.MessagingExchanges do
             rescue
               e ->
                 Logger.error("Error inserting exchange record for #{params["name"]}: #{inspect e}")
-                resp(conn, :internal_server_error, "")
+                conn 
+                |> put_status(:internal_server_error) 
+                |> json ResponseBodyFormatter.error_body(:internal_server_error, "MessagingExchange")  
             end          
           else
-            conn
-            |> put_status(:bad_request)
-            |> json FormatHelper.keywords_to_map(changeset.errors)            
+            conn 
+            |> put_status(:bad_request) 
+            |> json ResponseBodyFormatter.error_body(changeset.errors, "MessagingExchange")            
           end
         end
       end
@@ -243,7 +259,9 @@ defmodule OpenAperture.Manager.Controllers.MessagingExchanges do
 
   # This action only matches if a param is missing
   def update(conn, _params) do
-    resp(conn, :bad_request, "name is required")
+    conn 
+    |> put_status(:bad_request) 
+    |> json ResponseBodyFormatter.error_body(:bad_request, "MessagingExchange")  
   end
 
   @doc """
@@ -260,7 +278,10 @@ defmodule OpenAperture.Manager.Controllers.MessagingExchanges do
   @spec destroy(term, [any]) :: term
   def destroy(conn, %{"id" => id} = _params) do
     case Repo.get(MessagingExchange, id) do
-      nil -> resp(conn, :not_found, "")
+      nil -> 
+        conn 
+        |> put_status(:not_found) 
+        |> json ResponseBodyFormatter.error_body(:not_found, "MessagingExchange")  
       exchange ->
         Repo.transaction(fn ->
           Repo.update_all(from(e in EtcdCluster, where: e.messaging_exchange_id  == ^id), messaging_exchange_id: nil)
@@ -291,8 +312,14 @@ defmodule OpenAperture.Manager.Controllers.MessagingExchanges do
     broker = Repo.get(MessagingBroker, messaging_broker_id)
 
     cond do
-      exchange == nil -> resp(conn, :not_found, "")
-      broker == nil -> resp(conn, :bad_request, "a valid messaging_broker_id is required")
+      exchange == nil -> 
+        conn 
+        |> put_status(:not_found) 
+        |> json ResponseBodyFormatter.error_body(:not_found, "MessagingExchange")  
+      broker == nil -> 
+        conn 
+        |> put_status(:bad_request) 
+        |> json ResponseBodyFormatter.error_body(:bad_request, "MessagingBroker")  
       true ->
         query = from b in MessagingExchangeBroker,
           where: b.messaging_exchange_id == ^id and b.messaging_broker_id == ^messaging_broker_id,
@@ -312,12 +339,14 @@ defmodule OpenAperture.Manager.Controllers.MessagingExchanges do
               rescue
                 e ->
                   Logger.error("Error inserting exchange record for exchange #{id}, broker #{messaging_broker_id}: #{inspect e}")
-                  resp(conn, :internal_server_error, "")
+                  conn 
+                  |> put_status(:internal_server_error) 
+                  |> json ResponseBodyFormatter.error_body(:internal_server_error, "MessagingExchange")  
               end
             else
-              conn
-              |> put_status(:bad_request)
-              |> json FormatHelper.keywords_to_map(changeset.errors)
+              conn 
+              |> put_status(:bad_request) 
+              |> json ResponseBodyFormatter.error_body(changeset.errors, "MessagingExchange")  
             end
           _ ->
             conn |> resp(:conflict, "")
@@ -327,7 +356,9 @@ defmodule OpenAperture.Manager.Controllers.MessagingExchanges do
 
   # This action only matches if a param is missing
   def create_broker_restriction(conn, _params) do
-    Plug.Conn.resp(conn, :bad_request, "messaging_broker_id is required")
+    conn 
+    |> put_status(:bad_request) 
+    |> json ResponseBodyFormatter.error_body(:bad_request, "MessagingExchange")  
   end
 
   @doc """
@@ -344,7 +375,10 @@ defmodule OpenAperture.Manager.Controllers.MessagingExchanges do
   @spec get_broker_restrictions(term, [any]) :: term
   def get_broker_restrictions(conn, %{"id" => id} = _params) do
     case Repo.get(MessagingExchange, id) do
-      nil -> resp(conn, :not_found, "")
+      nil -> 
+        conn 
+        |> put_status(:not_found) 
+        |> json ResponseBodyFormatter.error_body(:not_found, "MessagingExchange")  
       _exchange -> 
         query = from b in MessagingExchangeBroker,
           where: b.messaging_exchange_id == ^id,
@@ -376,7 +410,10 @@ defmodule OpenAperture.Manager.Controllers.MessagingExchanges do
   @spec destroy_broker_restrictions(term, [any]) :: term
   def destroy_broker_restrictions(conn, %{"id" => id} = _params) do
     case Repo.get(MessagingExchange, id) do
-      nil -> resp(conn, :not_found, "")
+      nil -> 
+        conn 
+        |> put_status(:not_found) 
+        |> json ResponseBodyFormatter.error_body(:not_found, "MessagingExchange")  
       _exchange ->
         Repo.transaction(fn ->
           Repo.delete_all(from(b in MessagingExchangeBroker, where: b.messaging_exchange_id == ^id))
@@ -399,7 +436,10 @@ defmodule OpenAperture.Manager.Controllers.MessagingExchanges do
   @spec show_clusters(term, [any]) :: term
   def show_clusters(conn, %{"id" => id} = params) do
     case Repo.get(MessagingExchange, id) do
-      nil -> resp(conn, :not_found, "")
+      nil -> 
+        conn 
+        |> put_status(:not_found) 
+        |> json ResponseBodyFormatter.error_body(:not_found, "MessagingExchange")  
       _exchange -> 
         if params["allow_docker_builds"] != nil do
           query = from c in EtcdCluster,

@@ -4,8 +4,10 @@ defmodule OpenAperture.Manager.Controllers.ProductComponents do
   use OpenAperture.Manager.Web, :controller
 
   import OpenAperture.Manager.Controllers.FormatHelper
+  alias OpenAperture.Manager.Controllers.ResponseBodyFormatter
   import Ecto.Query
   import OpenAperture.Manager.Router.Helpers
+
   
   alias OpenAperture.Manager.Endpoint
   alias OpenAperture.Manager.DB.Models.EtcdClusterPort
@@ -14,6 +16,7 @@ defmodule OpenAperture.Manager.Controllers.ProductComponents do
   alias OpenAperture.Manager.DB.Models.ProductComponent
   alias OpenAperture.Manager.DB.Models.ProductComponentOption
   alias OpenAperture.Manager.DB.Queries.ProductComponent, as: PCQuery
+  alias OpenAperture.Manager.Controllers.ResponseBodyFormatter
 
   @component_sendable_fields [:id, :product_id, :type, :name, :options, :inserted_at, :updated_at]
   @component_option_sendable_fields [:id, :product_component_id, :name, :value, :inserted_at, :updated_at]
@@ -28,7 +31,8 @@ defmodule OpenAperture.Manager.Controllers.ProductComponents do
     |> case do
       nil ->
         conn
-        |> resp :not_found, ""
+        |> put_status(:not_found)
+        |> json ResponseBodyFormatter.error_body(:not_found, "ProductComponent")
       product ->
         components = product.id
                      |> PCQuery.get_components_for_product
@@ -45,7 +49,8 @@ defmodule OpenAperture.Manager.Controllers.ProductComponents do
     case get_product_and_component_by_names(product_name, component_name) do
       nil ->
         conn
-        |> resp :not_found, ""
+        |> put_status(:not_found)
+        |> json ResponseBodyFormatter.error_body(:not_found, "ProductComponent")
       {_product, product_component} ->
         conn
         |> json format_component(product_component)
@@ -59,7 +64,8 @@ defmodule OpenAperture.Manager.Controllers.ProductComponents do
     |> case do
       nil ->
         conn
-        |> resp :not_found, ""
+        |> put_status(:not_found)
+        |> json ResponseBodyFormatter.error_body(:not_found, "ProductComponent")
       product ->
         case get_component_by_name(product.id, params["name"]) do
           nil ->
@@ -67,11 +73,11 @@ defmodule OpenAperture.Manager.Controllers.ProductComponents do
               {:invalid, errors} ->
                 conn
                 |> put_status(:bad_request)
-                |> json inspect(errors)
-              {:error, message} ->
+                |> json ResponseBodyFormatter.error_body(errors, "ProductComponent")
+              {:error, _message} ->
                 conn
                 |> put_status(:internal_server_error)
-                |> json %{errors: ["#{message}"]}
+                |> json ResponseBodyFormatter.error_body(:internal_server_error, "ProductComponent")
               {:ok, new_component} ->
                 conn
                 |> put_resp_header("location", product_components_path(Endpoint, :show, product_name, URI.encode(new_component.name)))
@@ -81,7 +87,7 @@ defmodule OpenAperture.Manager.Controllers.ProductComponents do
             # A component with this name already exists for the product.
             conn
             |> put_status(:conflict)
-            |> json "A product component named #{params["name"]} already exists for #{product_name}."
+            |> json ResponseBodyFormatter.error_body(:conflict, "ProductComponent")
         end
     end
   end
@@ -91,7 +97,8 @@ defmodule OpenAperture.Manager.Controllers.ProductComponents do
     case get_product_and_component_by_names(product_name, component_name) do
       nil ->
         conn
-        |> resp :not_found, ""
+        |> put_status(:not_found)
+        |> json ResponseBodyFormatter.error_body(:not_found, "ProductComponent")
       {product, _product_component} ->
         # according to the current implementation in the old build server, the correct
         # way to "update" the component is to just blow it away and build a new one, so
@@ -112,11 +119,11 @@ defmodule OpenAperture.Manager.Controllers.ProductComponents do
               {:invalid, errors} ->
                 conn
                 |> put_status(:bad_request)
-                |> json inspect(errors)
+                |> json ResponseBodyFormatter.error_body(errors, "ProductComponent")
               {:error, message} ->
                 conn
                 |> put_status(:internal_server_error)
-                |> json %{errors: ["#{message}"]}
+                |> json ResponseBodyFormatter.error_body(:internal_server_error, "ProductComponent")
               {:ok, new_component} ->
                 conn
                 |> put_resp_header("location", product_components_path(Endpoint, :show, product_name, URI.encode(new_component.name)))
@@ -125,7 +132,7 @@ defmodule OpenAperture.Manager.Controllers.ProductComponents do
           {:error, reason} ->
             conn
             |> put_status(:internal_server_error)
-            |> json %{errors: ["#{reason}"]}
+            |> json ResponseBodyFormatter.error_body(:internal_server_error, "ProductComponent")
         end
     end
   end
@@ -137,7 +144,8 @@ defmodule OpenAperture.Manager.Controllers.ProductComponents do
     |> case do
       nil ->
         conn
-        |> resp :not_found, ""
+        |> put_status(:not_found)
+        |> json ResponseBodyFormatter.error_body(:not_found, "ProductComponent")
       product ->
         case delete_components_for_product(product) do
           :ok ->
@@ -146,7 +154,7 @@ defmodule OpenAperture.Manager.Controllers.ProductComponents do
           {:error, reason} ->
             conn
             |> put_status(:internal_server_error)
-            |> json reason
+            |> json ResponseBodyFormatter.error_body(:internal_server_error, "ProductComponent")
         end
     end
   end
@@ -156,16 +164,17 @@ defmodule OpenAperture.Manager.Controllers.ProductComponents do
     case get_product_and_component_by_names(product_name, component_name) do
       nil ->
         conn
-        |> resp :not_found, ""
+        |> put_status(:not_found)
+        |> json ResponseBodyFormatter.error_body(:not_found, "ProductComponent")
       {_product, product_component} ->
         case delete_component(product_component) do
           :ok ->
             conn
             |> resp :no_content, ""
-          {:error, reason} ->
+          {:error, _reason} ->
             conn
             |> put_status(:internal_server_error)
-            |> json reason
+            |> json ResponseBodyFormatter.error_body(:internal_server_error, "ProductComponent")
         end
     end
   end
