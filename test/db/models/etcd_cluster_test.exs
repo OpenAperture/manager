@@ -18,7 +18,6 @@ defmodule DB.Models.EtcdCluster.Test do
   test "etcd_clusters hosting provider not valid" do
     :meck.expect(Repo, :get, 2, nil)
     etcd_cluster1_values = %{:etcd_token => "abc123", :hosting_provider_id => 1}
-    IO.inspect Map.get(etcd_cluster1_values, :hosting_provider_id, nil)
     changeset = EtcdCluster.new(etcd_cluster1_values)
     
     refute changeset.valid?

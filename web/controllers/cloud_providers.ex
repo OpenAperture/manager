@@ -18,8 +18,6 @@ defmodule OpenAperture.Manager.Controllers.CloudProviders do
     providers = CloudProvider
         |> Repo.all
         |> Enum.map &Map.from_struct/1
-
-    #IO.puts("clusters:  #{inspect clusters}")
     
     json conn, providers
   end

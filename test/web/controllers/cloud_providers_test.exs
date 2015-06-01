@@ -79,8 +79,6 @@ defmodule OpenAperture.Manager.Controllers.CloudProvidersTest do
     
     assert conn.status == 400
 
-    IO.inspect(conn.resp_body)
-
     assert String.contains?(conn.resp_body, "name")
     assert String.contains?(conn.resp_body, "type")
     assert String.contains?(conn.resp_body, "configuration") 
