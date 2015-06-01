@@ -74,6 +74,15 @@ defmodule OpenAperture.Manager.Router do
       get    "/:id/modules/:hostname", MessagingExchangeModules, :show
       delete "/:id/modules/:hostname", MessagingExchangeModules, :destroy    
     end
+
+    scope "/rpc_requests" do
+      get "/", MessagingRpcRequests, :index
+      post "/", MessagingRpcRequests, :create
+
+      get "/:id", MessagingRpcRequests, :show
+      put "/:id", MessagingRpcRequests, :update
+      delete "/:id", MessagingRpcRequests, :destroy
+    end    
   end
 
   scope "/products", OpenAperture.Manager.Controllers do

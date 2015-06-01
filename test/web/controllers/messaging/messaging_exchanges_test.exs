@@ -78,7 +78,7 @@ defmodule OpenAperture.Manager.Controllers.MessagingExchangesTest do
 
     body = Poison.decode!(conn.resp_body)
     assert length(body) == 2
-    Enum.reduce body, nil, fn(returned_exchange, errors) ->
+    Enum.reduce body, nil, fn(returned_exchange, _errors) ->
       cond do
         returned_exchange == nil -> 
           assert returned_exchange != nil

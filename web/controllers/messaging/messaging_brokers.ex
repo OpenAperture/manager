@@ -1,5 +1,5 @@
 #
-# == connection_pools.ex
+# == messaging_brokers.ex
 #
 # This module contains the controllers for managing MessagingBrokers
 #
