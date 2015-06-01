@@ -257,7 +257,7 @@ defmodule OpenAperture.Manager.Controllers.WorkflowsTest do
     _workflow = Repo.insert(WorkflowDB.new(%{id: raw_workflow_id}))
 
     conn = call(Router, :post, "/workflows/#{workflow_id}/execute")
-    assert conn.status == 204
+    assert conn.status == 202
   after
     :meck.unload(OrchestratorPublisher)    
   end  
