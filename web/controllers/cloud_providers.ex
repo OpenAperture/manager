@@ -37,8 +37,13 @@ defmodule OpenAperture.Manager.Controllers.CloudProviders do
 
   # POST "/"
   def create(conn, params) do
-    changeset = CloudProvider.new(params)
+    params = case params["configuration"] do
+      nil -> params
+      "" -> params
+      _ -> Map.update(params, "configuration", "", fn _ -> Poison.encode!(params["configuration"]) end)
+    end
 
+    changeset = CloudProvider.new(params)
     if changeset.valid? do
       cloud_provider = Repo.insert(changeset)
 
@@ -59,6 +64,12 @@ defmodule OpenAperture.Manager.Controllers.CloudProviders do
         conn
         |> resp :not_found, ""
       provider ->
+        params = case params["configuration"] do
+          nil -> params
+          "" -> params
+          _ -> Map.update(params, "configuration", provider.configuration, fn _ -> Poison.encode!(params["configuration"]) end)
+        end
+
         changeset = CloudProvider.update(provider, params)
         if changeset.valid? do
           Repo.update(changeset)
