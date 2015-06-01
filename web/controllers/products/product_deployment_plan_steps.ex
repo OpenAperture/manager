@@ -4,6 +4,7 @@ defmodule OpenAperture.Manager.Controllers.ProductDeploymentPlanSteps do
   use OpenAperture.Manager.Web, :controller
 
   import OpenAperture.Manager.Controllers.FormatHelper
+  alias OpenAperture.Manager.Controllers.ResponseBodyFormatter
   import Ecto.Query
   import OpenAperture.Manager.Router.Helpers
 
@@ -41,7 +42,8 @@ defmodule OpenAperture.Manager.Controllers.ProductDeploymentPlanSteps do
         end
       _ ->
         conn
-        |> resp :not_found, ""
+        |> put_status(:not_found)
+        |> json ResponseBodyFormatter.error_body(:not_found, "ProductDeploymentPlanStep")
     end
   end
 
@@ -58,15 +60,16 @@ defmodule OpenAperture.Manager.Controllers.ProductDeploymentPlanSteps do
           {:invalid, errors} ->
             conn
             |> put_status(:bad_request)
-            |> json %{errors: inspect(errors)}
+            |> json ResponseBodyFormatter.error_body(errors, "ProductDeploymentPlanStep")
           {:error, reason} ->
             conn
             |> put_status(:internal_server_error)
-            |> json %{errors: inspect(reason)}
+            |> json ResponseBodyFormatter.error_body(:internal_server_error, "ProductDeploymentPlanStep")
         end
       _ ->
         conn
-        |> resp :not_found, ""
+        |> put_status(:not_found)
+        |> json ResponseBodyFormatter.error_body(:not_found, "ProductDeploymentPlanStep")
     end
   end
 
@@ -81,11 +84,12 @@ defmodule OpenAperture.Manager.Controllers.ProductDeploymentPlanSteps do
           {:error, reason} ->
             conn
             |> put_status(:internal_server_error)
-            |> json inspect(reason)
+            |> json ResponseBodyFormatter.error_body(:internal_server_error, "ProductDeploymentPlanStep")
         end
       _ ->
         conn
-        |> resp :not_found, ""
+        |> put_status(:not_found)
+        |> json ResponseBodyFormatter.error_body(:not_found, "ProductDeploymentPlanStep")
     end
   end
 

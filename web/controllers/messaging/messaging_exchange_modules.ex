@@ -15,6 +15,7 @@ defmodule OpenAperture.Manager.Controllers.MessagingExchangeModules do
   alias OpenAperture.Manager.DB.Models.MessagingExchangeModule, as: MessagingExchangeModuleDb
 
   alias OpenAperture.Manager.Controllers.FormatHelper
+  alias OpenAperture.Manager.Controllers.ResponseBodyFormatter
   
   import Ecto.Query, only: [from: 2]
 
@@ -42,7 +43,10 @@ defmodule OpenAperture.Manager.Controllers.MessagingExchangeModules do
   @spec index(term, [any]) :: term
   def index(conn, %{"id" => id}) do
     case Repo.get(MessagingExchange, id) do
-      nil -> resp(conn, :not_found, "")    
+      nil -> 
+        conn 
+        |> put_status(:not_found) 
+        |> json ResponseBodyFormatter.error_body(:not_found, "MessagingExchangeModule")    
       _ ->
         query = 
           from m in MessagingExchangeModuleDb,
@@ -86,13 +90,19 @@ defmodule OpenAperture.Manager.Controllers.MessagingExchangeModules do
   @spec show(term, [any]) :: term
   def show(conn, %{"id" => id, "hostname" => hostname}) do
     case Repo.get(MessagingExchange, id) do
-      nil -> resp(conn, :not_found, "")    
+      nil -> 
+        conn 
+        |> put_status(:not_found) 
+        |> json ResponseBodyFormatter.error_body(:not_found, "MessagingExchangeModule")     
       _ ->    
         query = from m in MessagingExchangeModuleDb,
           where: m.messaging_exchange_id == ^id and m.hostname == ^hostname,
           select: m
         case Repo.all(query) do
-          [] -> resp(conn, :not_found, "")
+          [] -> 
+            conn 
+            |> put_status(:not_found) 
+            |> json ResponseBodyFormatter.error_body(:not_found, "MessagingExchangeModuleDB")  
           modules -> 
             module = 
             List.first(modules)
@@ -121,7 +131,10 @@ defmodule OpenAperture.Manager.Controllers.MessagingExchangeModules do
   @spec create(term, [any]) :: term
   def create(conn, %{"id" => id} = params) do
     case Repo.get(MessagingExchange, id) do
-      nil -> resp(conn, :not_found, "")    
+      nil -> 
+        conn 
+        |> put_status(:not_found) 
+        |> json ResponseBodyFormatter.error_body(:not_found, "MessagingExchange")     
       _ ->
 
         workload = if params["workload"] != nil do
@@ -138,9 +151,9 @@ defmodule OpenAperture.Manager.Controllers.MessagingExchangeModules do
           "workload" => workload
         })
         unless changeset.valid? do
-          conn
-          |> put_status(:bad_request)
-          |> json inspect(changeset.errors)      
+          conn 
+          |> put_status(:bad_request) 
+          |> json ResponseBodyFormatter.error_body(changeset.errors, "MessagingExchangeModule")     
         else
           query = from m in MessagingExchangeModuleDb,
             where: m.messaging_exchange_id == ^id and m.hostname == ^params["hostname"],
@@ -168,7 +181,9 @@ defmodule OpenAperture.Manager.Controllers.MessagingExchangeModules do
           rescue
             e ->
               Logger.error("Error inserting module record for #{params["hostname"]}: #{inspect e}")
-              resp(conn, :internal_server_error, "")
+              conn 
+              |> put_status(:internal_server_error) 
+              |> json ResponseBodyFormatter.error_body(:internal_server_error, "MessagingExchangeModule")  
           end
         end    
     end
@@ -194,7 +209,10 @@ defmodule OpenAperture.Manager.Controllers.MessagingExchangeModules do
           where: m.messaging_exchange_id == ^id and m.hostname == ^hostname,
           select: m    
         case Repo.all(query) do
-          [] -> resp(conn, :not_found, "")
+          [] -> 
+            conn 
+            |> put_status(:not_found) 
+            |> json ResponseBodyFormatter.error_body(:not_found, "MessagingExchangeModuleDB")   
           modules ->
             Repo.transaction(fn ->
               Enum.reduce modules, nil, fn (module, _errors) ->

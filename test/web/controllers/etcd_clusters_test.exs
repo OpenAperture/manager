@@ -108,7 +108,7 @@ defmodule OpenAperture.Manager.Controllers.EtcdClustersTest do
 
     body = Poison.decode!(conn.resp_body)
 
-    assert body == %{"etcd_token" => "can't be blank"}
+    assert body ==  %{"errors" => [%{"message" => "One or more fields for EtcdCluster were invalid"}, %{"etcd_token" => "can't be blank"}]}
   end
 
   test "register action -- success" do

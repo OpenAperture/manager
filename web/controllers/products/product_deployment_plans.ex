@@ -4,6 +4,7 @@ defmodule OpenAperture.Manager.Controllers.ProductDeploymentPlans do
   use OpenAperture.Manager.Web, :controller
 
   import OpenAperture.Manager.Controllers.FormatHelper
+  alias OpenAperture.Manager.Controllers.ResponseBodyFormatter
   import Ecto.Query
   import OpenAperture.Manager.Router.Helpers
 
@@ -27,7 +28,8 @@ defmodule OpenAperture.Manager.Controllers.ProductDeploymentPlans do
     |> case do
       nil ->
         conn
-        |> resp :not_found, ""
+        |> put_status(:not_found)
+        |> json ResponseBodyFormatter.error_body(:not_found, "ProductDeploymentPlan")
       product ->
         plans = product.id
                 |> PDPQuery.get_deployment_plans_for_product
@@ -44,7 +46,8 @@ defmodule OpenAperture.Manager.Controllers.ProductDeploymentPlans do
     case get_product_and_plan_by_name(product_name, plan_name) do
       nil ->
         conn
-        |> resp :not_found, ""
+        |> put_status(:not_found)
+        |> json ResponseBodyFormatter.error_body(:not_found, "ProductDeploymentPlan")
       {_product, deployment_plan} ->
         conn
         |> json to_sendable(deployment_plan, @sendable_fields)
@@ -57,7 +60,8 @@ defmodule OpenAperture.Manager.Controllers.ProductDeploymentPlans do
     case get_product_and_plan_by_name(product_name, plan_name, :left) do
       nil ->
         conn
-        |> resp :not_found, ""
+        |> put_status(:not_found)
+        |> json ResponseBodyFormatter.error_body(:not_found, "ProductDeploymentPlan")
       {product, nil} ->
         case create_deployment_plan(product, params) do
           {:ok, new_plan} ->
@@ -70,19 +74,20 @@ defmodule OpenAperture.Manager.Controllers.ProductDeploymentPlans do
           {:invalid, errors} ->
             conn
             |> put_status(:bad_request)
-            |> json %{errors: inspect(errors)}
+            |> json ResponseBodyFormatter.error_body(errors, "ProductDeploymentPlan")
 
           {:error, reason} ->
             Logger.error "An error occurred creating a new Product Deployment Plan: #{inspect reason}"
             conn
-            |> resp :internal_server_error, ""
+            |> put_status(:internal_server_error)
+            |> json ResponseBodyFormatter.error_body(:internal_server_error, "ProductDeploymentPlan")
         end
 
       {_product, _deployment_plan} ->
         # A deployment plan with this name already exists for this product
         conn
         |> put_status(:conflict)
-        |> json "A product deployment plan named #{params["name"]} already exists for #{product_name}"
+        |> json ResponseBodyFormatter.error_body(:conflict, "ProductDeploymentPlan")
     end
   end
 
@@ -91,7 +96,8 @@ defmodule OpenAperture.Manager.Controllers.ProductDeploymentPlans do
     case get_product_and_plan_by_name(product_name, plan_name, :inner) do
       nil ->
         conn
-        |> resp :not_found, ""
+        |> put_status(:not_found)
+        |> json ResponseBodyFormatter.error_body(:not_found, "ProductDeploymentPlan")
       {product, deployment_plan} ->
         # Check for a conflicting plan
         existing = PDPQuery.get_deployment_plan_by_name(product.id, params["name"])
@@ -112,15 +118,15 @@ defmodule OpenAperture.Manager.Controllers.ProductDeploymentPlans do
             |> put_resp_header("location", path)
             |> resp :no_content, ""
 
-          rescue e ->
+          rescue _e ->
             conn
             |> put_status(:internal_server_error)
-            |> json %{error: inspect(e)}
+            |> json ResponseBodyFormatter.error_body(:internal_server_error, "ProductDeploymentPlan")
           end
         else
           conn
           |> put_status(:bad_request)
-          |> json %{error: inspect(changeset.errors)}
+          |> json ResponseBodyFormatter.error_body(changeset.errors, "ProductDeploymentPlan")
         end
     end
   end
@@ -132,16 +138,17 @@ defmodule OpenAperture.Manager.Controllers.ProductDeploymentPlans do
     |> case do
       nil ->
         conn
-        |> resp :not_found, ""
+        |> put_status(:not_found)
+        |> json ResponseBodyFormatter.error_body(:not_found, "ProductDeploymentPlan")
       product ->
         case delete_deployment_plans_for_product(product.id) do
           :ok ->
             conn
             |> resp :no_content, ""
-          {:error, reason} ->
+          {:error, _reason} ->
             conn
             |> put_status(:internal_server_error)
-            |> json %{error: inspect(reason)}
+            |> json ResponseBodyFormatter.error_body(:internal_server_error, "ProductDeploymentPlan")
         end
     end
   end
@@ -151,16 +158,17 @@ defmodule OpenAperture.Manager.Controllers.ProductDeploymentPlans do
     case get_product_and_plan_by_name(product_name, plan_name, :inner) do
       nil ->
         conn
-        |> resp :not_found, ""
+        |> put_status(:not_found)
+        |> json ResponseBodyFormatter.error_body(:not_found, "ProductDeploymentPlan")
       {_product, deployment_plan} ->
         case delete_deployment_plan(deployment_plan) do
           :ok ->
             conn
             |> resp :no_content, ""
-          {:error, reason} ->
+          {:error, _reason} ->
             conn
-            |> put_status(:internal_server_error)
-            |> json %{error: inspect(reason)}
+            |> put_status(:not_found)
+            |> json ResponseBodyFormatter.error_body(:internal_server_error, "ProductDeploymentPlan")
         end
     end
   end

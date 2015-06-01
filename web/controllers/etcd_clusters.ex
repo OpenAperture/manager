@@ -9,6 +9,8 @@ defmodule OpenAperture.Manager.Controllers.EtcdClusters do
   alias FleetApi.Etcd, as: FleetApi
   alias OpenAperture.Fleet.SystemdUnit
 
+  alias OpenAperture.Manager.Controllers.ResponseBodyFormatter
+
   import OpenAperture.Manager.Router.Helpers
 
   # TODO: Add authentication
@@ -47,7 +49,8 @@ defmodule OpenAperture.Manager.Controllers.EtcdClusters do
     case EtcdClusterQuery.get_by_etcd_token(token) do
       nil -> 
         conn
-        |> resp :not_found, ""
+        |> put_status(:not_found)
+        |> json ResponseBodyFormatter.error_body(:not_found, "EtcdCluster")
       cluster ->
         cluster = Map.from_struct(cluster)
         conn
@@ -73,15 +76,13 @@ defmodule OpenAperture.Manager.Controllers.EtcdClusters do
         _ ->
           conn
           |> put_status(:internal_server_error)
-          |> json "An error occurred registering a cluster with the token #{params["etcd_token"]}"
+          |> json ResponseBodyFormatter.error_body(:internal_server_error, "EtcdCluster")
       end
     else
-      errors = cluster.errors
-               |> Enum.into(%{})
 
       conn
       |> put_status(:bad_request)
-      |> json errors
+      |> json ResponseBodyFormatter.error_body(cluster.errors, "EtcdCluster")
     end
   end
 
@@ -92,7 +93,8 @@ defmodule OpenAperture.Manager.Controllers.EtcdClusters do
     case EtcdClusterQuery.get_by_etcd_token(token) do
       nil ->
         conn
-        |> resp :not_found, ""
+        |> put_status(:not_found)
+        |> json ResponseBodyFormatter.error_body(:not_found, "EtcdCluster")
       cluster ->
         try do
           Repo.delete(cluster)
@@ -102,7 +104,7 @@ defmodule OpenAperture.Manager.Controllers.EtcdClusters do
           _ ->
             conn
             |> put_status(:internal_server_error)
-            |> "An error occurred deleting the cluster with the token #{token}"
+            |> json ResponseBodyFormatter.error_body(:internal_server_error, "EtcdCluster")
         end
     end
   end
@@ -124,7 +126,8 @@ defmodule OpenAperture.Manager.Controllers.EtcdClusters do
     case EtcdClusterQuery.get_by_etcd_token(token) do
       nil ->
         conn
-        |> resp :not_found, ""
+        |> put_status(:not_found)
+        |> json ResponseBodyFormatter.error_body(:not_found, "EtcdCluster")
       _cluster ->
         {:ok, api_pid} = FleetApi.start_link(token)
         {:ok, hosts} = FleetApi.list_machines(api_pid)
@@ -132,7 +135,7 @@ defmodule OpenAperture.Manager.Controllers.EtcdClusters do
         if hosts == nil do
           conn
           |> put_status(:internal_server_error)
-          |> json %{error: "Unable to determine if machines are available"}
+          |> json ResponseBodyFormatter.error_body(:internal_server_error, "EtcdCluster")
         else
           conn
           |> json hosts
@@ -157,7 +160,8 @@ defmodule OpenAperture.Manager.Controllers.EtcdClusters do
     case EtcdClusterQuery.get_by_etcd_token(token) do
       nil ->
         conn
-        |> resp :not_found, ""
+        |> put_status(:not_found)
+        |> json ResponseBodyFormatter.error_body(:not_found, "EtcdCluster")
       _cluster ->
         {:ok, api_pid} = FleetApi.start_link(token)
         {:ok, units} = FleetApi.list_units(api_pid)
@@ -165,7 +169,7 @@ defmodule OpenAperture.Manager.Controllers.EtcdClusters do
         if units == nil do
           conn
           |> put_status(:internal_server_error)
-          |> json %{error: "Unable to determine if units are available"}
+          |> json ResponseBodyFormatter.error_body(:internal_server_error, "EtcdCluster")
         else
           conn
           |> json units
@@ -190,7 +194,8 @@ defmodule OpenAperture.Manager.Controllers.EtcdClusters do
     case EtcdClusterQuery.get_by_etcd_token(token) do
       nil ->
         conn
-        |> resp :not_found, ""
+        |> put_status(:not_found)
+        |> json ResponseBodyFormatter.error_body(:not_found, "EtcdCluster")
       _cluster ->
         {:ok, api_pid} = FleetApi.start_link(token)
         {:ok, states} = FleetApi.list_unit_states(api_pid)
@@ -198,7 +203,7 @@ defmodule OpenAperture.Manager.Controllers.EtcdClusters do
         if states == nil do
           conn
           |> put_status(:internal_server_error)
-          |> json %{error: "Unable to determine if unit states are available."}
+          |> json ResponseBodyFormatter.error_body(:internal_server_error, "EtcdCluster")
         else
           conn
           |> json states
@@ -223,7 +228,8 @@ defmodule OpenAperture.Manager.Controllers.EtcdClusters do
     case EtcdClusterQuery.get_by_etcd_token(token) do
       nil ->
         conn
-        |> resp :not_found, ""
+        |> put_status(:not_found)
+        |> json ResponseBodyFormatter.error_body(:not_found, "EtcdCluster")
       _cluster ->
         {:ok, api_pid} = FleetApi.start_link(token)
         {:ok, hosts} = FleetApi.list_machines(api_pid)
@@ -233,11 +239,11 @@ defmodule OpenAperture.Manager.Controllers.EtcdClusters do
           {nil, _} ->
             conn
             |> put_status(:internal_server_error)
-            |> json %{error: "Unable to determine if machines are available."}
+            |> json ResponseBodyFormatter.error_body("Unable to determine if machines are available.", "EtcdCluster")
           {_, nil} ->
             conn
             |> put_status(:internal_server_error)
-            |> json %{error: "Unable to determine if units are available."}
+            |> json ResponseBodyFormatter.error_body("Unable to determine if units are available.", "EtcdCluster")
           {hosts, units} ->
             host = Enum.find(hosts, fn h -> String.contains?(h.id, machine_id) end)
             unit = Enum.find(units, fn u -> String.contains?(u.name, unit_name) end)
@@ -245,10 +251,12 @@ defmodule OpenAperture.Manager.Controllers.EtcdClusters do
             case {host, unit} do
               {nil, _} ->
                 conn
-                |> resp :not_found, "Unit #{unit_name} does not exist."
+                |> put_status(:not_found)
+                |> json ResponseBodyFormatter.error_body(:not_found, "Unit")
               {_, nil} ->
                 conn
-                |> resp :not_found, "Host #{machine_id} does not exist." 
+                |> put_status(:not_found)
+                |> json ResponseBodyFormatter.error_body(:not_found, "Host")
               {host, unit} ->
                 case SystemdUnit.execute_journal_request([host], unit, false) do
                   {:ok, output, error} ->
@@ -258,7 +266,8 @@ defmodule OpenAperture.Manager.Controllers.EtcdClusters do
                     |> json output
                   {:error, reason, _} ->
                     conn
-                    |> resp :internal_server_error, "Unable to retreive logs: #{reason}"
+                    |> put_status(:internal_server_error)
+                    |> json ResponseBodyFormatter.error_body("Unable to retrieve logs: #{reason}", "EtcdCluster")
                 end
             end
         end

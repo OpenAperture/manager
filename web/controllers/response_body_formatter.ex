@@ -1,16 +1,24 @@
 defmodule OpenAperture.Manager.Controllers.ResponseBodyFormatter do
 
-	def error_body(type, item_name) do
+	def error_body(type, item_name) when is_atom(type) do
 		%{"errors" => [%{"message" => message_for_type(type, item_name)}]}
 	end
 
-	def changeset_error_body(changeset_errors, item_name) do
+	def error_body(explicit_error_message, item_name) when is_binary(explicit_error_message) do
+		%{"errors" => [%{"message" => "Internal server error for #{item_name}: #{explicit_error_message}"}]}
+	end
+
+	def error_body(changeset_errors, item_name) do
 		%{"errors" => [%{"message" => "One or more fields for #{item_name} were invalid"} | sanitize_changeset_errors(changeset_errors)]}
 	end
 
 	def sanitize_changeset_errors([]), do: []
 	def sanitize_changeset_errors([{key, value} | tail]) do
-		[Map.put(%{}, key, inspect(value)) | sanitize_changeset_errors(tail)]
+		error = cond do
+			is_binary(value) -> value
+			true -> inspect(value)
+		end
+		[Map.put(%{}, key, error) | sanitize_changeset_errors(tail)]
 	end
 
 	def message_for_type(:not_found, item_name), do: "#{item_name} was not found"

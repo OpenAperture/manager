@@ -63,10 +63,12 @@ defmodule OpenAperture.Manager.Controllers.MessagingBrokers do
   @spec show(term, [any]) :: term
   def show(conn, %{"id" => id}) do
     case Repo.get(MessagingBroker, id) do
-      nil -> conn
-            |> put_status(:not_found)
-            |> json ResponseBodyFormatter.error_body(:not_found, "MessagingBroker")
-      broker -> json conn, broker |> FormatHelper.to_sendable(@sendable_broker_fields)
+      nil -> 
+        conn
+        |> put_status(:not_found)
+        |> json ResponseBodyFormatter.error_body(:not_found, "MessagingBroker")
+      broker -> 
+        json conn, broker |> FormatHelper.to_sendable(@sendable_broker_fields)
     end
   end
 
@@ -111,7 +113,7 @@ defmodule OpenAperture.Manager.Controllers.MessagingBrokers do
         else
           conn
           |> put_status(:bad_request)
-          |> json ResponseBodyFormatter.changeset_error_body(changeset.errors, "MessagingBroker")
+          |> json ResponseBodyFormatter.error_body(changeset.errors, "MessagingBroker")
         end
       _ ->
         conn
@@ -141,7 +143,9 @@ defmodule OpenAperture.Manager.Controllers.MessagingBrokers do
     broker = Repo.get(MessagingBroker, id)
 
     if broker == nil do
-      resp(conn, :not_found, "")
+      conn 
+      |> put_status(:not_found) 
+      |> json ResponseBodyFormatter.error_body(:not_found, "MessagingBroker")
     else
     	changeset = MessagingBroker.new(%{
         "name" => params["name"],
@@ -166,15 +170,19 @@ defmodule OpenAperture.Manager.Controllers.MessagingBrokers do
 	          rescue
 	            e ->
 	              Logger.error("Error inserting broker record for #{params["name"]}: #{inspect e}")
-	              resp(conn, :internal_server_error, "")
+	              conn 
+                |> put_status(:internal_server_error) 
+                |> json ResponseBodyFormatter.error_body(:internal_server_error, "MessagingBroker")
 	          end	            
           _ ->
-            resp(conn, :conflict, "")
+            conn 
+            |> put_status(:conflict) 
+            |> json ResponseBodyFormatter.error_body(:conflict, "MessagingBroker")
         end
       else
-        conn
-        |> put_status(:bad_request)
-        |> json FormatHelper.keywords_to_map(changeset.errors)
+        conn 
+        |> put_status(:bad_request) 
+        |> json ResponseBodyFormatter.error_body(changeset.errors, "MessagingBroker")
       end
     end
   end
@@ -198,7 +206,10 @@ defmodule OpenAperture.Manager.Controllers.MessagingBrokers do
   @spec destroy(term, [any]) :: term
   def destroy(conn, %{"id" => id} = _params) do
     case Repo.get(MessagingBroker, id) do
-      nil -> resp(conn, :not_found, "")
+      nil -> 
+        conn
+        |> put_status(:not_found)
+        |> json ResponseBodyFormatter.error_body(:not_found, "MessagingBroker")
       broker ->
         Repo.transaction(fn ->
           Repo.update_all(from(c in MessagingBroker, where: c.failover_broker_id  == ^id), failover_broker_id: nil)
@@ -224,10 +235,16 @@ defmodule OpenAperture.Manager.Controllers.MessagingBrokers do
   @spec create_connection(term, [any]) :: term
   def create_connection(conn, %{"id" => id} = params) do
     case Repo.get(MessagingBroker, id) do
-      nil -> resp(conn, :not_found, "")
+      nil -> 
+        conn
+        |> put_status(:not_found)
+        |> json ResponseBodyFormatter.error_body(:not_found, "MessagingBroker")
       broker ->
       	case encrypt_password(params["password"]) do
-      		nil -> resp(conn, :internal_server_error, "")
+      		nil -> 
+            conn
+            |> put_status(:internal_server_error)
+            |> json ResponseBodyFormatter.error_body(:internal_server_error, "MessagingBroker")
       		encrypted_password ->
 		        changeset = MessagingBrokerConnection.new(%{
 		        	messaging_broker_id: id,
@@ -249,12 +266,14 @@ defmodule OpenAperture.Manager.Controllers.MessagingBrokers do
 		          rescue
 		            e ->
 		              Logger.error("Error inserting connection for broker #{params["host"]}: #{inspect e}")
-		              resp(conn, :internal_server_error, "")
+		              conn
+                  |> put_status(:internal_server_error)
+                  |> json ResponseBodyFormatter.error_body(:internal_server_error, "MessagingBroker")
 		          end
 		        else
-		          conn
-		          |> put_status(:bad_request)
-		          |> json FormatHelper.keywords_to_map(changeset.errors)
+              conn
+              |> put_status(:bad_request)
+              |> json ResponseBodyFormatter.error_body(changeset.errors, "MessagingBroker")
 		        end      			
       	end
     end
@@ -332,7 +351,10 @@ defmodule OpenAperture.Manager.Controllers.MessagingBrokers do
   @spec get_connections(term, [any]) :: term
   def get_connections(conn, %{"id" => id} = _params) do
     case Repo.get(MessagingBroker, id) do
-      nil -> resp(conn, :not_found, "")
+      nil -> 
+        conn
+        |> put_status(:not_found)
+        |> json ResponseBodyFormatter.error_body(:not_found, "MessagingBroker")
       _broker -> 
       	query = from b in MessagingBrokerConnection,
       		where: b.messaging_broker_id == ^id,
@@ -367,7 +389,10 @@ defmodule OpenAperture.Manager.Controllers.MessagingBrokers do
   @spec destroy_connections(term, [any]) :: term
   def destroy_connections(conn, %{"id" => id} = _params) do
     case Repo.get(MessagingBroker, id) do
-      nil -> resp(conn, :not_found, "")
+      nil -> 
+        conn
+        |> put_status(:not_found)
+        |> json ResponseBodyFormatter.error_body(:not_found, "MessagingBroker")
       _broker ->
         Repo.transaction(fn ->
           Repo.delete_all(from(c in MessagingBrokerConnection, where: c.messaging_broker_id == ^id))
