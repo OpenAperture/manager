@@ -4,6 +4,7 @@ defmodule OpenAperture.Manager.Controllers.ProductEnvironmentalVariables do
   use OpenAperture.Manager.Web, :controller
 
   import OpenAperture.Manager.Controllers.FormatHelper
+  alias OpenAperture.Manager.Controllers.ResponseBodyFormatter
   import Ecto.Query
   import OpenAperture.Manager.Router.Helpers
 
@@ -28,7 +29,8 @@ defmodule OpenAperture.Manager.Controllers.ProductEnvironmentalVariables do
     |> case do
       nil ->
         conn
-        |> resp :not_found, ""
+        |> put_status(:not_found)
+        |> json ResponseBodyFormatter.error_body(:not_found, "ProductEnvironmentalVariable")
       _ ->
         vars = VarQuery.find_by_product_name_environment_name(product_name, environment_name)
                |> Repo.all
@@ -48,7 +50,8 @@ defmodule OpenAperture.Manager.Controllers.ProductEnvironmentalVariables do
     |> case do
       nil ->
         conn
-        |> resp :not_found, ""
+        |> put_status(:not_found)
+        |> json ResponseBodyFormatter.error_body(:not_found, "ProductEnvironmentalVariable")
       _product ->
         coalesced? = params["coalesced"] != nil && String.downcase(params["coalesced"]) == "true"
 
@@ -76,7 +79,8 @@ defmodule OpenAperture.Manager.Controllers.ProductEnvironmentalVariables do
     case Repo.one(query) do
       nil ->
         conn
-        |> resp :not_found, ""
+        |> put_status(:not_found)
+        |> json ResponseBodyFormatter.error_body(:not_found, "ProductEnvironmentalVariable")
       env_var ->
         conn
         |> json to_sendable(env_var, @sendable_fields)
@@ -102,7 +106,8 @@ defmodule OpenAperture.Manager.Controllers.ProductEnvironmentalVariables do
 
     if vars == [] do
       conn
-      |> resp :not_found, ""
+      |> put_status(:not_found)
+      |> json ResponseBodyFormatter.error_body(:not_found, "ProductEnvironmentalVariable")
     else
       conn
       |> json vars
@@ -119,7 +124,8 @@ defmodule OpenAperture.Manager.Controllers.ProductEnvironmentalVariables do
     |> case do
       nil ->
         conn
-        |> resp :not_found, ""
+        |> put_status(:not_found)
+        |> json ResponseBodyFormatter.error_body(:not_found, "ProductEnvironmentalVariable")
       pe ->
         ids = %{"product_id" => pe.product_id, "product_environment_id" => pe.id}
 
@@ -130,7 +136,8 @@ defmodule OpenAperture.Manager.Controllers.ProductEnvironmentalVariables do
           {_source, name} = Ecto.Changeset.fetch_field(changeset, :name)
           if environment_variable_name_conflict?(pe.product_id, pe.id, name) do
             conn
-            |> resp :conflict, ""
+            |> put_status(:conflict)
+            |> json ResponseBodyFormatter.error_body(:conflict, "ProductEnvironmentalVariable")
           else
             new_var = Repo.insert(changeset)
             path = product_environmental_variables_path(Endpoint, :show_environment, product_name, environment_name, new_var.name)
@@ -142,7 +149,7 @@ defmodule OpenAperture.Manager.Controllers.ProductEnvironmentalVariables do
         else
           conn
           |> put_status(:bad_request)
-          |> json %{error: inspect(changeset.errors)}
+          |> json ResponseBodyFormatter.error_body(changeset.errors, "ProductEnvironmentalVariable")
         end
     end
   end
@@ -157,7 +164,8 @@ defmodule OpenAperture.Manager.Controllers.ProductEnvironmentalVariables do
     case Repo.one(query) do
       nil ->
         conn
-        |> resp :not_found, ""
+        |> put_status(:not_found)
+        |> json ResponseBodyFormatter.error_body(:not_found, "ProductEnvironmentalVariable")
       env_var ->
         changeset = ProductEnvironmentalVariable.update(env_var, params)
         if changeset.valid? do
@@ -165,7 +173,8 @@ defmodule OpenAperture.Manager.Controllers.ProductEnvironmentalVariables do
           {_source, name} = Ecto.Changeset.fetch_field(changeset, :name)
           if environment_variable_name_conflict?(env_var.product_id, env_var.product_environment_id, env_var.id, name) do
             conn
-            |> resp :conflict, ""
+            |> put_status(:conflict)
+            |> json ResponseBodyFormatter.error_body(:conflict, "ProductEnvironmentalVariable")
           else
             updated_var = Repo.update(changeset)
             path = product_environmental_variables_path(Endpoint, :show_environment, product_name, environment_name, updated_var.name)
@@ -177,7 +186,7 @@ defmodule OpenAperture.Manager.Controllers.ProductEnvironmentalVariables do
         else
           conn
           |> put_status(:bad_request)
-          |> json %{error: inspect(changeset.errors)}
+          |> json ResponseBodyFormatter.error_body(changeset.errors, "ProductEnvironmentalVariable")
         end
     end
   end
@@ -191,7 +200,8 @@ defmodule OpenAperture.Manager.Controllers.ProductEnvironmentalVariables do
     |> case do
       nil ->
         conn
-        |> resp :not_found, ""
+        |> put_status(:not_found)
+        |> json ResponseBodyFormatter.error_body(:not_found, "ProductEnvironmentalVariable")
       product ->
         ids = %{"product_id" => product.id}
         params = Map.merge(params, ids)
@@ -201,7 +211,8 @@ defmodule OpenAperture.Manager.Controllers.ProductEnvironmentalVariables do
           {_source, name} = Ecto.Changeset.fetch_field(changeset, :name)
           if product_variable_name_conflict?(product.id, name) do
             conn
-            |> resp :conflict, ""
+            |> put_status(:conflict)
+            |> json ResponseBodyFormatter.error_body(:not_found, "ProductEnvironmentalVariable")
           else
             new_var = Repo.insert(changeset)
             path = product_environmental_variables_path(Endpoint, :show_default, product_name, new_var.name)
@@ -213,7 +224,7 @@ defmodule OpenAperture.Manager.Controllers.ProductEnvironmentalVariables do
         else
           conn
           |> put_status(:bad_request)
-          |> json %{error: inspect(changeset.errors)}
+          |> json ResponseBodyFormatter.error_body(changeset.errors, "ProductEnvironmentalVariable")
         end
     end
   end
@@ -227,7 +238,8 @@ defmodule OpenAperture.Manager.Controllers.ProductEnvironmentalVariables do
     case Repo.one(query) do
       nil ->
         conn
-        |> resp :not_found, ""
+        |> put_status(:not_found)
+        |> json ResponseBodyFormatter.error_body(:not_found, "ProductEnvironmentalVariable")
       env_var ->
         changeset = ProductEnvironmentalVariable.update(env_var, params)
         if changeset.valid? do
@@ -235,7 +247,8 @@ defmodule OpenAperture.Manager.Controllers.ProductEnvironmentalVariables do
           {_source, name} = Ecto.Changeset.fetch_field(changeset, :name)
           if product_variable_name_conflict?(env_var.product_id, env_var.id, name) do
             conn
-            |> resp :conflict, ""
+            |> put_status(:conflict)
+            |> json ResponseBodyFormatter.error_body(:conflict, "ProductEnvironmentalVariable")
           else
             updated_var = Repo.update(changeset)
             path = product_environmental_variables_path(Endpoint, :show_default, product_name, updated_var.name)
@@ -247,7 +260,7 @@ defmodule OpenAperture.Manager.Controllers.ProductEnvironmentalVariables do
         else
           conn
           |> put_status(:bad_request)
-          |> json %{error: inspect(changeset.errors)}
+          |> json ResponseBodyFormatter.error_body(changeset.errors, "ProductEnvironmentalVariable")
         end
     end
   end
@@ -262,7 +275,8 @@ defmodule OpenAperture.Manager.Controllers.ProductEnvironmentalVariables do
     case Repo.one(query) do
       nil ->
         conn
-        |> resp :not_found, ""
+        |> put_status(:not_found)
+        |> json ResponseBodyFormatter.error_body(:not_found, "ProductEnvironmentalVariable")
       env_var ->
         Repo.delete(env_var)
         conn
@@ -280,7 +294,8 @@ defmodule OpenAperture.Manager.Controllers.ProductEnvironmentalVariables do
     |> case do
       nil ->
         conn
-        |> resp :not_found, ""
+        |> put_status(:not_found)
+        |> json ResponseBodyFormatter.error_body(:not_found, "ProductEnvironmentalVariable")
       env_var ->
         Repo.delete(env_var)
         conn

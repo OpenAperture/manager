@@ -4,6 +4,7 @@ defmodule OpenAperture.Manager.Controllers.ProductEnvironments do
   use OpenAperture.Manager.Web, :controller
 
   import OpenAperture.Manager.Controllers.FormatHelper
+  alias OpenAperture.Manager.Controllers.ResponseBodyFormatter
   import Ecto.Query
   import OpenAperture.Manager.Router.Helpers
 
@@ -26,7 +27,8 @@ defmodule OpenAperture.Manager.Controllers.ProductEnvironments do
     |> case do
       nil ->
         conn
-        |> resp :not_found, ""
+        |> put_status(:not_found)
+        |> json ResponseBodyFormatter.error_body(:not_found, "ProductEnvironment")
       product ->
         environments = Enum.map(product.environments, &to_sendable(&1, @sendable_fields))
 
@@ -45,7 +47,8 @@ defmodule OpenAperture.Manager.Controllers.ProductEnvironments do
     |> case do
       nil ->
         conn
-        |> resp :not_found, ""
+        |> put_status(:not_found)
+        |> json ResponseBodyFormatter.error_body(:not_found, "ProductEnvironment")
       pe ->
         conn
         |> json to_sendable(pe, @sendable_fields)
@@ -68,7 +71,8 @@ defmodule OpenAperture.Manager.Controllers.ProductEnvironments do
       nil ->
         # product not found
         conn
-        |> resp :not_found, ""
+        |> put_status(:not_found)
+        |> json ResponseBodyFormatter.error_body(:not_found, "ProductEnvironment")
       {product, nil} ->
         # This is the happy path
         changeset = ProductEnvironment.new(%{name: environment_name, product_id: product.id})
@@ -83,12 +87,13 @@ defmodule OpenAperture.Manager.Controllers.ProductEnvironments do
         else
           conn
           |> put_status(:bad_request)
-          |> json inspect(changeset.errors)
+          |> json ResponseBodyFormatter.error_body(changeset.errors, "ProductEnvironment")
         end
       {_product, _env} ->
         # An environment with this name already exists
         conn
-        |> resp :conflict, ""
+        |> put_status(:conflict)
+        |> json ResponseBodyFormatter.error_body(:conflict, "ProductEnvironment")
     end
   end
 
@@ -98,7 +103,7 @@ defmodule OpenAperture.Manager.Controllers.ProductEnvironments do
   def create(conn, _params) do
     conn
     |> put_status(:bad_request)
-    |> json %{errors: ["name parameter required"]}
+    |> json ResponseBodyFormatter.error_body(:bad_request, "ProductEnvironment")
   end
 
   # PUT /products/:product_name/environments/:environment_name
@@ -111,7 +116,8 @@ defmodule OpenAperture.Manager.Controllers.ProductEnvironments do
     |> case do
       nil ->
         conn
-        |> resp :not_found, ""
+        |> put_status(:not_found)
+        |> json ResponseBodyFormatter.error_body(:not_found, "ProductEnvironment")
       pe ->
         changeset = ProductEnvironment.update(pe, params)
         if changeset.valid? do
@@ -119,7 +125,8 @@ defmodule OpenAperture.Manager.Controllers.ProductEnvironments do
           {_source, name} = Ecto.Changeset.fetch_field(changeset, :name)
           if environment_name_conflict?(pe.product_id, pe.id, name) do
             conn
-            |> resp :conflict, ""
+            |> put_status(:conflict)
+            |> json ResponseBodyFormatter.error_body(:conflict, "ProductEnvironment")
           else
             env = Repo.update(changeset)
             path = product_environments_path(Endpoint, :show, product_name, env.name)
@@ -131,7 +138,7 @@ defmodule OpenAperture.Manager.Controllers.ProductEnvironments do
         else
           conn
           |> put_status(:bad_request)
-          |> json inspect(changeset.errors)
+          |> json ResponseBodyFormatter.error_body(changeset.errors, "ProductEnvironment")
         end
     end
   end
@@ -146,7 +153,8 @@ defmodule OpenAperture.Manager.Controllers.ProductEnvironments do
     |> case do
       nil ->
         conn
-        |> resp :not_found, ""
+        |> put_status(:not_found)
+        |> json ResponseBodyFormatter.error_body(:not_found, "ProductEnvironment")
       pe ->
         # We need to delete any associated product environment variables too
         result = Repo.transaction(fn ->
@@ -161,10 +169,10 @@ defmodule OpenAperture.Manager.Controllers.ProductEnvironments do
           {:ok, _} ->
             conn
             |> resp :no_content, ""
-          {:error, reason} ->
+          {:error, _reason} ->
             conn
             |> put_status(:internal_server_error)
-            |> json inspect(reason)
+            |> json ResponseBodyFormatter.error_body(:internal_server_error, "ProductEnvironment")
         end
     end
   end

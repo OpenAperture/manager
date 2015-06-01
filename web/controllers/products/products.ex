@@ -4,6 +4,7 @@ defmodule OpenAperture.Manager.Controllers.Products do
   use OpenAperture.Manager.Web, :controller
 
   import OpenAperture.Manager.Controllers.FormatHelper
+  alias OpenAperture.Manager.Controllers.ResponseBodyFormatter
   import OpenAperture.Manager.Router.Helpers
 
   alias OpenAperture.Manager.Endpoint
@@ -44,13 +45,13 @@ defmodule OpenAperture.Manager.Controllers.Products do
         else
           conn
           |> put_status(:bad_request)
-          |> json inspect(changeset.errors)
+          |> json ResponseBodyFormatter.error_body(changeset.errors, "Product")
         end      
 
       _product ->
         conn
         |> put_status(:conflict)
-        |> json %{errors: ["The name #{product_name} is not available."]}
+        |> json ResponseBodyFormatter.error_body(:conflict, "Product")
     end
   end
 
@@ -61,7 +62,8 @@ defmodule OpenAperture.Manager.Controllers.Products do
     |> case do
       nil ->
         conn
-        |> resp :not_found, ""
+        |> put_status(:not_found)
+        |> json ResponseBodyFormatter.error_body(:not_found, "Product")
       product ->
         conn
         |> json to_sendable(product, @sendable_fields)
@@ -75,7 +77,8 @@ defmodule OpenAperture.Manager.Controllers.Products do
     |> case do
       nil ->
         conn
-        |> resp :not_found, ""
+        |> put_status(:not_found)
+        |> json ResponseBodyFormatter.error_body(:not_found, "Product")
       product ->
         Repo.delete(product)
         conn
@@ -90,7 +93,8 @@ defmodule OpenAperture.Manager.Controllers.Products do
     |> case do
       nil ->
         conn
-        |> resp :not_found, ""
+        |> put_status(:not_found)
+        |> json ResponseBodyFormatter.error_body(:not_found, "Product")
       product ->
         changeset = Product.update(product, params)
         if changeset.valid? do
@@ -106,12 +110,12 @@ defmodule OpenAperture.Manager.Controllers.Products do
             _product ->
               conn
               |> put_status(:conflict)
-              |> json %{errors: ["The name #{product_name} is not available."]}
+              |> json ResponseBodyFormatter.error_body(:conflict, "Product")
           end
         else
           conn
           |> put_status(:bad_request)
-          |> json inspect(changeset.errors)
+          |> json ResponseBodyFormatter.error_body(changeset.errors, "Product")
         end
     end
   end

@@ -4,6 +4,7 @@ defmodule OpenAperture.Manager.Controllers.ProductClusters do
   use OpenAperture.Manager.Web, :controller
 
   import OpenAperture.Manager.Controllers.FormatHelper
+  alias OpenAperture.Manager.Controllers.ResponseBodyFormatter
   import Ecto.Query
 
   alias OpenAperture.Manager.DB.Models.Product
@@ -27,7 +28,8 @@ defmodule OpenAperture.Manager.Controllers.ProductClusters do
     |> case do
       nil ->
         conn
-        |> resp :not_found, ""
+        |> put_status(:not_found)
+        |> json ResponseBodyFormatter.error_body(:not_found, "ProductCluster")
       product ->
         clusters = product.id
                    |> ProductClusterQuery.get_etcd_clusters
@@ -46,7 +48,8 @@ defmodule OpenAperture.Manager.Controllers.ProductClusters do
     |> case do
       nil ->
         conn
-        |> resp :not_found, ""
+        |> put_status(:not_found)
+        |> json ResponseBodyFormatter.error_body(:not_found, "ProductCluster")
       product ->
         ids = Enum.map(request_clusters, &(&1["id"]))
         case find_invalid_etcd_cluster_ids(ids) do
@@ -70,7 +73,7 @@ defmodule OpenAperture.Manager.Controllers.ProductClusters do
               {:error, reason} ->
                 conn
                 |> put_status(:internal_server_error)
-                |> json inspect(reason)
+                |> json ResponseBodyFormatter.error_body(:internal_server_error, "ProductCluster")
             end            
         end
     end
@@ -82,7 +85,7 @@ defmodule OpenAperture.Manager.Controllers.ProductClusters do
   def create(conn, _params) do
     conn
     |> put_status(:bad_request)
-    |> json "Missing required parameter 'clusters'."
+    |> json ResponseBodyFormatter.error_body(:bad_request, "ProductCluster")
   end
 
   # DELETE "/products/:product_name/clusters"
@@ -92,7 +95,8 @@ defmodule OpenAperture.Manager.Controllers.ProductClusters do
     |> case do
       nil ->
         conn
-        |> resp :not_found, ""
+        |> put_status(:not_found)
+        |> json ResponseBodyFormatter.error_body(:not_found, "ProductCluster")
       product ->
         delete_associated_product_clusters(product.id)
         conn
