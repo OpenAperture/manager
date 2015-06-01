@@ -8,10 +8,10 @@ config :logger, level: :warn
 
 
 config OpenAperture.Manager, OpenAperture.Manager.Repo,
-	database: System.get_env("MANAGER_DATABASE_NAME")       || "openaperture_manager_test",
-	username: System.get_env("MANAGER_USER_NAME")      		|| "postgres",
-	password: System.get_env("MANAGER_PASSWORD")      		|| "postgres",
-  hostname: System.get_env("MANAGER_DATABASE_HOST")       || "localhost"
+	database: "openaperture_manager_test",
+	username: "postgres",
+	password: "postgres",
+  hostname: "localhost"
 
 config :openaperture_messaging, 
 	private_key: "#{System.cwd!() <> "/priv/keys/testing.pem"}",

@@ -2,27 +2,36 @@ require Logger
 
 defmodule OpenAperture.Manager.DB.Models.EtcdCluster do
   @required_fields [:etcd_token]
-  @optional_fields [:hosting_provider, :hosting_provider_region, :allow_docker_builds, :messaging_exchange_id]
+  @optional_fields [:hosting_provider_id, :allow_docker_builds, :messaging_exchange_id]
   use OpenAperture.Manager.DB.Models.BaseModel
 
   alias OpenAperture.Manager.DB.Models.EtcdClusterPort
   alias OpenAperture.Manager.DB.Queries.EtcdClusterPort, as: EctdPortQuery
   alias OpenAperture.Manager.DB.Models.MessagingExchange
+  alias OpenAperture.Manager.DB.Models.CloudProvider
 
   alias OpenAperture.Manager.Repo
 
   schema "etcd_clusters" do
     has_many :etcd_cluster_ports,   EtcdClusterPort
     field :etcd_token               # defaults to type :string
-    field :hosting_provider,        :string
-    field :hosting_provider_region, :string
+    belongs_to :hosting_provider,   CloudProvider
     field :allow_docker_builds,     :boolean
     belongs_to :messaging_exchange, MessagingExchange
     timestamps
   end
 
   def validate_changes(model_or_changeset, params) do
-    cast(model_or_changeset,  params, @required_fields, @optional_fields)
+    changeset = cast(model_or_changeset, params, @required_fields, @optional_fields)
+    case Map.get(params, :hosting_provider_id, nil) do 
+      nil -> 
+        changeset
+      hosting_provider_id -> 
+        case Repo.get(CloudProvider, hosting_provider_id) do 
+            nil -> add_error(changeset, :hosting_provider_id, "Invalid Cloud Provider")
+            _provider -> changeset
+        end
+    end
   end
 
   def allocate_ports(etcd_cluster, component, port_idx, etcd_ports) do

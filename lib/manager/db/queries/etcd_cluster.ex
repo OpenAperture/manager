@@ -39,6 +39,12 @@ defmodule OpenAperture.Manager.DB.Queries.EtcdCluster do
       select: c
   end
 
+  def get_by_cloud_provider(hosting_provider_id) do
+    from c in EtcdCluster,
+      where: c.hosting_provider_id == ^hosting_provider_id,
+      select: c
+  end
+
   @doc """
   Method to retrieve the DB.Models.EtcdCluster that have the allow_docker_builds set to true
      
