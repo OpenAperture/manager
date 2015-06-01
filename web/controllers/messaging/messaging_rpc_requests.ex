@@ -14,6 +14,7 @@ defmodule OpenAperture.Manager.Controllers.MessagingRpcRequests do
   alias OpenAperture.Manager.DB.Models.MessagingRpcRequest
   
   alias OpenAperture.Manager.Controllers.FormatHelper
+  alias OpenAperture.Manager.Controllers.ResponseBodyFormatter
   
   plug :action
 
@@ -72,7 +73,10 @@ defmodule OpenAperture.Manager.Controllers.MessagingRpcRequests do
   @spec show(term, [any]) :: term
   def show(conn, %{"id" => id}) do
     case Repo.get(MessagingRpcRequest, id) do
-      nil -> resp(conn, :not_found, "")
+      nil -> 
+        conn
+        |> put_status(:not_found)
+        |> json ResponseBodyFormatter.error_body(:not_found, "MessagingRpcRequest")        
       raw_request -> 
         request = 
           raw_request
@@ -133,12 +137,14 @@ defmodule OpenAperture.Manager.Controllers.MessagingRpcRequests do
       rescue
         e ->
           Logger.error("Error inserting request record: #{inspect e}")
-          resp(conn, :internal_server_error, "")
+          conn
+          |> put_status(:internal_server_error)
+          |> json ResponseBodyFormatter.error_body(:internal_server_error, "MessagingRpcRequest")
       end
     else
       conn
       |> put_status(:bad_request)
-      |> json FormatHelper.keywords_to_map(changeset.errors)
+      |> json ResponseBodyFormatter.error_body(changeset.errors, "MessagingRpcRequest")
     end
   end    
 
@@ -187,12 +193,14 @@ defmodule OpenAperture.Manager.Controllers.MessagingRpcRequests do
         rescue
           e ->
             Logger.error("Error inserting request record: #{inspect e}")
-            resp(conn, :internal_server_error, "")
+            conn
+            |> put_status(:internal_server_error)
+            |> json ResponseBodyFormatter.error_body(:internal_server_error, "MessagingRpcRequest")
         end             
       else
         conn
         |> put_status(:bad_request)
-        |> json FormatHelper.keywords_to_map(changeset.errors)
+        |> json ResponseBodyFormatter.error_body(changeset.errors, "MessagingRpcRequest")
       end
     end
   end  
@@ -211,7 +219,10 @@ defmodule OpenAperture.Manager.Controllers.MessagingRpcRequests do
   @spec destroy(term, [any]) :: term
   def destroy(conn, %{"id" => id} = _params) do
     case Repo.get(MessagingRpcRequest, id) do
-      nil -> resp(conn, :not_found, "")
+      nil -> 
+        conn
+        |> put_status(:not_found)
+        |> json ResponseBodyFormatter.error_body(:not_found, "MessagingRpcRequest")
       request ->
         Repo.transaction(fn ->
           Repo.delete(request)
