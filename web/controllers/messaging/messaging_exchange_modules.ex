@@ -58,8 +58,7 @@ defmodule OpenAperture.Manager.Controllers.MessagingExchangeModules do
           raw_modules -> 
             modules = 
             raw_modules
-            |> FormatHelper.to_sendable(@sendable_fields) 
-            |> FormatHelper.to_string_timestamps
+            |> FormatHelper.to_sendable(@sendable_fields)
 
             if length(modules) > 0 do
               Enum.reduce modules, [], fn (module, updated_modules) ->
@@ -106,8 +105,7 @@ defmodule OpenAperture.Manager.Controllers.MessagingExchangeModules do
           modules -> 
             module = 
             List.first(modules)
-            |> FormatHelper.to_sendable(@sendable_fields) 
-            |> FormatHelper.to_string_timestamps
+            |> FormatHelper.to_sendable(@sendable_fields)
 
             if (module[:workload] != nil) do
               module = Map.put(module, :workload, Poison.decode!(module[:workload]))

@@ -356,14 +356,6 @@ defmodule OpenAperture.Manager.Controllers.Workflows do
               workflow = Map.put(workflow, :id, uuid)
             end
 
-            if (workflow[:inserted_at] != nil) do
-              workflow = Map.put(workflow, :inserted_at, "#{:httpd_util.rfc1123_date(ecto_to_erl(workflow[:inserted_at]))}")
-            end
-
-            if (workflow[:updated_at] != nil) do
-              workflow = Map.put(workflow, :updated_at, "#{:httpd_util.rfc1123_date(ecto_to_erl(workflow[:updated_at]))}")
-            end
-
             #stored as String in the db
             if (workflow[:milestones] != nil) do
               workflow = Map.put(workflow, :milestones, Poison.decode!(workflow[:milestones]))
@@ -449,20 +441,4 @@ defmodule OpenAperture.Manager.Controllers.Workflows do
         end
     end
   end
-
-  @doc false
-  # Method to convert an Ecto.DateTime into an erlang calendar
-  # Based on https://github.com/elixir-lang/ecto/blob/v0.2.6/lib/ecto/types.ex#L46
-  #
-  ## Options
-  # The option represents an ecto DateTime
-  #
-  ## Return Value
-  #
-  # erlang calendar
-  #
-  @spec ecto_to_erl(term) :: term
-  defp ecto_to_erl(%Ecto.DateTime{year: year, month: month, day: day, hour: hour, min: min, sec: sec}) do
-    {{year, month, day}, {hour, min, sec}}
-  end 
 end

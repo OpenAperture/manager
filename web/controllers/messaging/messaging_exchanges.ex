@@ -71,8 +71,7 @@ defmodule OpenAperture.Manager.Controllers.MessagingExchanges do
   def index(conn, _params) do
     exchanges = 
       Repo.all(MessagingExchange)
-      |> FormatHelper.to_sendable(@sendable_exchange_fields) 
-      |> FormatHelper.to_string_timestamps
+      |> FormatHelper.to_sendable(@sendable_exchange_fields)
 
     json conn, resolve_hierachy(exchanges, [])
   end
@@ -99,7 +98,6 @@ defmodule OpenAperture.Manager.Controllers.MessagingExchanges do
         exchange = 
           raw_exchange
           |> FormatHelper.to_sendable(@sendable_exchange_fields) 
-          |> FormatHelper.to_string_timestamps        
 
         json conn, List.first(resolve_hierachy([exchange], []))
     end
