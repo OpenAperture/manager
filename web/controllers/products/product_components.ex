@@ -120,7 +120,8 @@ defmodule OpenAperture.Manager.Controllers.ProductComponents do
                 conn
                 |> put_status(:bad_request)
                 |> json ResponseBodyFormatter.error_body(errors, "ProductComponent")
-              {:error, message} ->
+              {:error, reason} ->
+                Logger.error(reason)
                 conn
                 |> put_status(:internal_server_error)
                 |> json ResponseBodyFormatter.error_body(:internal_server_error, "ProductComponent")
@@ -130,6 +131,7 @@ defmodule OpenAperture.Manager.Controllers.ProductComponents do
                 |> resp :no_content, ""
             end
           {:error, reason} ->
+            Logger.error(reason)
             conn
             |> put_status(:internal_server_error)
             |> json ResponseBodyFormatter.error_body(:internal_server_error, "ProductComponent")
@@ -152,6 +154,7 @@ defmodule OpenAperture.Manager.Controllers.ProductComponents do
             conn
             |> resp :no_content, ""
           {:error, reason} ->
+            Logger.error(reason)
             conn
             |> put_status(:internal_server_error)
             |> json ResponseBodyFormatter.error_body(:internal_server_error, "ProductComponent")

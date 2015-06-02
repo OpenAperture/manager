@@ -62,6 +62,7 @@ defmodule OpenAperture.Manager.Controllers.ProductDeploymentPlanSteps do
             |> put_status(:bad_request)
             |> json ResponseBodyFormatter.error_body(errors, "ProductDeploymentPlanStep")
           {:error, reason} ->
+            Logger.error(reason)
             conn
             |> put_status(:internal_server_error)
             |> json ResponseBodyFormatter.error_body(:internal_server_error, "ProductDeploymentPlanStep")
@@ -82,6 +83,7 @@ defmodule OpenAperture.Manager.Controllers.ProductDeploymentPlanSteps do
             conn
             |> resp :no_content, ""
           {:error, reason} ->
+            Logger.error(reason)
             conn
             |> put_status(:internal_server_error)
             |> json ResponseBodyFormatter.error_body(:internal_server_error, "ProductDeploymentPlanStep")

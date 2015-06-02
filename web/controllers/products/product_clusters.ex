@@ -71,6 +71,7 @@ defmodule OpenAperture.Manager.Controllers.ProductClusters do
                 conn
                 |> resp :created, ""
               {:error, reason} ->
+                Logger.error(reason)
                 conn
                 |> put_status(:internal_server_error)
                 |> json ResponseBodyFormatter.error_body(:internal_server_error, "ProductCluster")
