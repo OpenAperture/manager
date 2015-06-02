@@ -39,6 +39,7 @@ defmodule OpenAperture.Manager.Controllers.FormatHelper do
   def to_sendable(item, allowed_fields) do
     item
     |> Map.take(allowed_fields)
+    |> to_string_timestamps
   end
 
   @doc """

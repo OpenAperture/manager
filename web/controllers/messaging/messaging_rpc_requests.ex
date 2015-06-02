@@ -42,8 +42,7 @@ defmodule OpenAperture.Manager.Controllers.MessagingRpcRequests do
       raw_requests -> 
         requests = 
           raw_requests
-          |> FormatHelper.to_sendable(@sendable_fields) 
-          |> FormatHelper.to_string_timestamps
+          |> FormatHelper.to_sendable(@sendable_fields)
 
         Enum.reduce requests, [], fn (request, updated_requests) ->
           if (request[:request_body] != nil) do
@@ -80,8 +79,7 @@ defmodule OpenAperture.Manager.Controllers.MessagingRpcRequests do
       raw_request -> 
         request = 
           raw_request
-          |> FormatHelper.to_sendable(@sendable_fields) 
-          |> FormatHelper.to_string_timestamps
+          |> FormatHelper.to_sendable(@sendable_fields)
 
         if (request[:request_body] != nil) do
           request = Map.put(request, :request_body, Poison.decode!(request[:request_body]))
