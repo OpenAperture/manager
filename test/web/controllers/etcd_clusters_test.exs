@@ -134,8 +134,7 @@ defmodule OpenAperture.Manager.Controllers.EtcdClustersTest do
     assert conn.status == 400
 
     body = Poison.decode!(conn.resp_body)
-
-    assert body == %{"hosting_provider_id" => "Invalid Cloud Provider"}
+    assert body["errors"] |> List.last |> Map.has_key?("hosting_provider_id")
   end
 
   test "register action -- provided valid hosting_provider_id" do
