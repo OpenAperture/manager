@@ -109,13 +109,13 @@ defmodule OpenAperture.Manager.Controllers.MessagingRpcRequests do
     request_body = if params["request_body"] != nil do
       Poison.encode!(params["request_body"])
     else
-      ""
+      nil
     end
 
     response_body = if params["response_body"] != nil do
       Poison.encode!(params["response_body"])
     else
-      ""
+      nil
     end
 
     changeset = MessagingRpcRequest.new(%{
@@ -167,13 +167,13 @@ defmodule OpenAperture.Manager.Controllers.MessagingRpcRequests do
       request_body = if params["request_body"] != nil do
         Poison.encode!(params["request_body"])
       else
-        ""
+        nil
       end
 
       response_body = if params["response_body"] != nil do
         Poison.encode!(params["response_body"])
       else
-        ""
+        nil
       end
 
       changeset = MessagingRpcRequest.changeset(request, %{

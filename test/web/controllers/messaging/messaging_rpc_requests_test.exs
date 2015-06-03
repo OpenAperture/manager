@@ -64,6 +64,29 @@ defmodule OpenAperture.Manager.Controllers.MessagingRpcRequestsTest do
     assert returned_request["id"] == request.id
   end
 
+  test "show - valid request with data" do
+    request = Repo.insert(MessagingRpcRequest.new(%{
+      status: to_string(:not_started),
+      request_body: Poison.encode!(%{
+        "etcd_token" => "123abc",
+        "action_parameters" => nil,
+        "action" => "list_machines"
+      }),
+      response_body: Poison.encode!(%{
+        "errors" => ["Message 2 Caught :error with %RuntimeError{message: \"No valid nodes were found.\"}"]
+      }),
+    }))
+
+    conn = call(Router, :get, "/messaging/rpc_requests/#{request.id}")
+    assert conn.status == 200
+
+    returned_request = Poison.decode!(conn.resp_body)
+    assert returned_request != nil
+    assert returned_request["id"] == request.id
+    assert returned_request["request_body"] != nil
+    assert returned_request["response_body"] != nil
+  end
+
   test "create - bad request" do
     conn = call(Router, :post, "/messaging/rpc_requests", %{})
     assert conn.status == 400
