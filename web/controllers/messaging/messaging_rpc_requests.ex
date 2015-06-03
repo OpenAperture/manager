@@ -45,11 +45,11 @@ defmodule OpenAperture.Manager.Controllers.MessagingRpcRequests do
           |> FormatHelper.to_sendable(@sendable_fields)
 
         Enum.reduce requests, [], fn (request, updated_requests) ->
-          if (request[:request_body] != nil) do
+          if request[:request_body] != nil && String.length(request[:request_body]) > 0 do
             request = Map.put(request, :request_body, Poison.decode!(request[:request_body]))
           end
 
-          if (request[:response_body] != nil) do
+          if request[:response_body] != nil && String.length(request[:response_body]) > 0 do
             request = Map.put(request, :response_body, Poison.decode!(request[:response_body]))
           end
           updated_requests ++ [request]
@@ -81,13 +81,11 @@ defmodule OpenAperture.Manager.Controllers.MessagingRpcRequests do
           raw_request
           |> FormatHelper.to_sendable(@sendable_fields)
 
-        if (raw_request.request_body != nil) do
-          Logger.debug("raw_request.request_body:  #{raw_request.request_body}")
+        if (raw_request.request_body != nil && String.length(raw_request.request_body) > 0) do
           request = Map.put(request, :request_body, Poison.decode!(raw_request.request_body))
         end
 
-        if (raw_request.response_body != nil) do
-          Logger.debug("raw_request.response_body:  #{raw_request.response_body}")
+        if (raw_request.response_body != nil && String.length(raw_request.response_body) > 0) do
           request = Map.put(request, :response_body, Poison.decode!(raw_request.response_body))
         end
 
