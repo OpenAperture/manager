@@ -33,18 +33,11 @@ config :logger, level: :debug
 #     config :openaperture_manager, OpenAperture.Manager.Endpoint, server: true
 #
 
-config OpenAperture.Manager, OpenAperture.Manager.Endpoint,
-  http: [port: System.get_env("PORT") || 4000],
-  secret_key_base: "Ks/rsx+RENMwWd4jgh3crqd3EwKGY8Mdm22NTJbby6pf35CwP9RAlT+8oDJQ8+1f"
-
 config OpenAperture.Manager, OpenAperture.Manager.Repo,
-	database: System.get_env("MANAGER_DATABASE_NAME")       || "openaperture_manager_staging",
-	username: System.get_env("MANAGER_USER_NAME")      		|| "postgres",
-	password: System.get_env("MANAGER_PASSWORD")      		|| "postgres",
-  hostname: System.get_env("MANAGER_DATABASE_HOST")       || "localhost"
+  database: System.get_env("MANAGER_DATABASE_NAME") || "openaperture_manager_staging",
 
 config :openaperture_manager_api, 
-	manager_url: System.get_env("MANAGER_URL"),
-	oauth_login_url: System.get_env("OAUTH_LOGIN_URL"),
-	oauth_client_id: System.get_env("OAUTH_CLIENT_ID"),
-	oauth_client_secret: System.get_env("OAUTH_CLIENT_SECRET")
+  manager_url: System.get_env("MANAGER_URL"),
+  oauth_login_url: System.get_env("OAUTH_LOGIN_URL"),
+  oauth_client_id: System.get_env("OAUTH_CLIENT_ID"),
+  oauth_client_secret: System.get_env("OAUTH_CLIENT_SECRET")
