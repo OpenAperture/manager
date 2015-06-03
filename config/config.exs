@@ -40,6 +40,9 @@ config :openaperture_manager_api,
   oauth_login_url: System.get_env("OAUTH_LOGIN_URL")         || "https://auth.host.co",
   oauth_client_id: System.get_env("OAUTH_CLIENT_ID")         || "id",
   oauth_client_secret: System.get_env("OAUTH_CLIENT_SECRET") || "secret"
+
+config :openaperture_manager_overseer_api,
+  autostart: false
   
 # Import environment specific config. This must remain at the bottom
 # of this file so it overrides the configuration defined above.
