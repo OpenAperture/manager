@@ -51,7 +51,7 @@ defmodule OpenAperture.Manager.Messaging.FleetManagerPublisher do
         action: :list_machines
     }
 
-    case GenServer.call(__MODULE__, {:execute_orchestration, request_body, cluster_exchange_id}) do
+    case GenServer.call(__MODULE__, {:execute_rpc_request, request_body, cluster_exchange_id}) do
       {:ok, handler} -> handler
       {:error, reason} -> raise reason
     end
@@ -77,7 +77,7 @@ defmodule OpenAperture.Manager.Messaging.FleetManagerPublisher do
         action: :list_units
     }
 
-    case GenServer.call(__MODULE__, {:execute_orchestration, request_body, cluster_exchange_id}) do
+    case GenServer.call(__MODULE__, {:execute_rpc_request, request_body, cluster_exchange_id}) do
       {:ok, handler} -> handler
       {:error, reason} -> raise reason
     end
@@ -103,7 +103,7 @@ defmodule OpenAperture.Manager.Messaging.FleetManagerPublisher do
         action: :list_unit_states
     }
 
-    case GenServer.call(__MODULE__, {:execute_orchestration, request_body, cluster_exchange_id}) do
+    case GenServer.call(__MODULE__, {:execute_rpc_request, request_body, cluster_exchange_id}) do
       {:ok, handler} -> handler
       {:error, reason} -> raise reason
     end
@@ -134,7 +134,7 @@ defmodule OpenAperture.Manager.Messaging.FleetManagerPublisher do
         }
     }
 
-    case GenServer.call(__MODULE__, {:execute_orchestration, request_body, cluster_exchange_id}) do
+    case GenServer.call(__MODULE__, {:execute_rpc_request, request_body, cluster_exchange_id}) do
       {:ok, handler} -> handler
       {:error, reason} -> raise reason
     end
