@@ -10,7 +10,8 @@ defmodule OpenAperture.Manager.Controllers.EtcdClustersTest do
   alias OpenAperture.Manager.Router
   alias OpenAperture.Manager.DB.Models.CloudProvider
 
-  alias OpenAperture.Fleet.SystemdUnit
+  alias OpenAperture.Manager.Messaging.FleetManagerPublisher
+  alias OpenAperture.Messaging.AMQP.RpcHandler
 
   setup_all _context do
     :meck.new(OpenAperture.Manager.Plugs.Authentication, [:passthrough])
@@ -26,11 +27,13 @@ defmodule OpenAperture.Manager.Controllers.EtcdClustersTest do
 
   setup do
     :meck.new OpenAperture.Manager.Repo
-    :meck.new FleetApi.Etcd
+    :meck.new FleetManagerPublisher
+    :meck.new RpcHandler
     on_exit fn ->
               try do
                 :meck.unload OpenAperture.Manager.Repo
-                :meck.unload FleetApi.Etcd
+                :meck.unload FleetManagerPublisher
+                :meck.unload RpcHandler
               rescue _ -> IO.puts "" end
             end
   end
@@ -215,12 +218,13 @@ defmodule OpenAperture.Manager.Controllers.EtcdClustersTest do
     assert conn.status == 404
   end
 
-  # #=========
-  # # tests for machines
+  #=========
+  # tests for machines
+
   test "get machines success" do
     :meck.expect(EtcdClusterQuery, :get_by_etcd_token, fn token -> %EtcdCluster{etcd_token: token} end)
-    :meck.expect(FleetApi.Etcd, :start_link, 1, {:ok, :some_pid})
-    :meck.expect(FleetApi.Etcd, :list_machines, 1, {:ok, []})
+    :meck.expect(FleetManagerPublisher, :list_machines!, fn _,_ -> %{} end)
+    :meck.expect(RpcHandler, :get_response, fn _ -> {:ok, []} end)
 
     conn = call(Router, :get, "/clusters/some_etcd_token/machines")
 
@@ -237,19 +241,29 @@ defmodule OpenAperture.Manager.Controllers.EtcdClustersTest do
 
   test "get machines fail" do
     :meck.expect(EtcdClusterQuery, :get_by_etcd_token, fn token -> %EtcdCluster{etcd_token: token} end)
-    :meck.expect(FleetApi.Etcd, :start_link, 1, {:ok, :some_pid})
-    :meck.expect(FleetApi.Etcd, :list_machines, 1, {:ok, nil})
+    :meck.expect(FleetManagerPublisher, :list_machines!, fn _,_ -> %{} end)
+    :meck.expect(RpcHandler, :get_response, fn _ -> {:error, "bad news bears"} end)
 
     conn = call(Router, :get, "/clusters/some_etcd_token/machines")
     assert conn.status == 500
   end
 
-  # #=========
-  # # tests for units
+  test "get machines invalid" do
+    :meck.expect(EtcdClusterQuery, :get_by_etcd_token, fn token -> %EtcdCluster{etcd_token: token} end)
+    :meck.expect(FleetManagerPublisher, :list_machines!, fn _,_ -> %{} end)
+    :meck.expect(RpcHandler, :get_response, fn _ -> {:ok, nil} end)
+
+    conn = call(Router, :get, "/clusters/some_etcd_token/machines")
+    assert conn.status == 500
+  end
+
+  #=========
+  # tests for units
+
   test "get units success" do
     :meck.expect(EtcdClusterQuery, :get_by_etcd_token, fn token -> %EtcdCluster{etcd_token: token} end)
-    :meck.expect(FleetApi.Etcd, :start_link, 1, {:ok, :some_pid})
-    :meck.expect(FleetApi.Etcd, :list_units, 1, {:ok, []})
+    :meck.expect(FleetManagerPublisher, :list_units!, fn _,_ -> %{} end)
+    :meck.expect(RpcHandler, :get_response, fn _ -> {:ok, []} end)
 
     conn = call(Router, :get, "/clusters/some_etcd_token/units")
     assert conn.status == 200
@@ -265,19 +279,29 @@ defmodule OpenAperture.Manager.Controllers.EtcdClustersTest do
 
   test "get units fail" do
     :meck.expect(EtcdClusterQuery, :get_by_etcd_token, fn token -> %EtcdCluster{etcd_token: token} end)
-    :meck.expect(FleetApi.Etcd, :start_link, 1, {:ok, :some_pid})
-    :meck.expect(FleetApi.Etcd, :list_units, 1, {:ok, nil})
+    :meck.expect(FleetManagerPublisher, :list_units!, fn _,_ -> %{} end)
+    :meck.expect(RpcHandler, :get_response, fn _ -> {:error, "bad news bears"} end)
 
     conn = call(Router, :get, "/clusters/some_etcd_token/units")
     assert conn.status == 500
   end
 
-  # #=========
-  # # tests for units_state
+  test "get units invalid" do
+    :meck.expect(EtcdClusterQuery, :get_by_etcd_token, fn token -> %EtcdCluster{etcd_token: token} end)
+    :meck.expect(FleetManagerPublisher, :list_units!, fn _,_ -> %{} end)
+    :meck.expect(RpcHandler, :get_response, fn _ -> {:ok, nil} end)
+
+    conn = call(Router, :get, "/clusters/some_etcd_token/units")
+    assert conn.status == 500
+  end
+
+  #=========
+  # tests for units_state
+
   test "get units_state success" do
      :meck.expect(EtcdClusterQuery, :get_by_etcd_token, fn token -> %EtcdCluster{etcd_token: token} end)
-     :meck.expect(FleetApi.Etcd, :start_link, 1, {:ok, :some_pid})
-     :meck.expect(FleetApi.Etcd, :list_unit_states, 1, {:ok, []})
+    :meck.expect(FleetManagerPublisher, :list_unit_states!, fn _,_ -> %{} end)
+    :meck.expect(RpcHandler, :get_response, fn _ -> {:ok, []} end)
 
      conn = call(Router, :get, "/clusters/some_etcd_token/state")
      assert conn.status == 200
@@ -293,21 +317,29 @@ defmodule OpenAperture.Manager.Controllers.EtcdClustersTest do
 
   test "get units_state fail" do
     :meck.expect(EtcdClusterQuery, :get_by_etcd_token, fn token -> %EtcdCluster{etcd_token: token} end)
-    :meck.expect(FleetApi.Etcd, :start_link, 1, {:ok, :some_pid})
-    :meck.expect(FleetApi.Etcd, :list_unit_states, 1, {:ok, nil})
+    :meck.expect(FleetManagerPublisher, :list_unit_states!, fn _,_ -> %{} end)
+    :meck.expect(RpcHandler, :get_response, fn _ -> {:error, "bad news bears"} end)
 
     conn = call(Router, :get, "/clusters/some_etcd_token/state")
     assert conn.status == 500
   end
 
-  # #=========
-  # # tests for unit_logs
+  test "get units_state invalid" do
+    :meck.expect(EtcdClusterQuery, :get_by_etcd_token, fn token -> %EtcdCluster{etcd_token: token} end)
+    :meck.expect(FleetManagerPublisher, :list_unit_states!, fn _,_ -> %{} end)
+    :meck.expect(RpcHandler, :get_response, fn _ -> {:ok, nil} end)
+
+    conn = call(Router, :get, "/clusters/some_etcd_token/state")
+    assert conn.status == 500
+  end
+
+  #=========
+  # tests for unit_logs
+
   test "get unit_logs success" do
     :meck.expect(EtcdClusterQuery, :get_by_etcd_token, fn token -> %EtcdCluster{etcd_token: token} end)
-    :meck.expect(FleetApi.Etcd, :start_link, 1, {:ok, :some_pid})
-    :meck.expect(FleetApi.Etcd, :list_machines, 1, {:ok, [%FleetApi.Machine{id: "123"}]})
-    :meck.expect(FleetApi.Etcd, :list_units, 1, {:ok, [%FleetApi.Unit{name: "test"}]})
-    :meck.expect(SystemdUnit, :execute_journal_request, 3, {:ok, "happy result", ""})
+    :meck.expect(FleetManagerPublisher, :unit_logs!, fn _,_,_ -> %{} end)
+    :meck.expect(RpcHandler, :get_response, fn _ -> {:ok, ""} end)
 
     conn = call(Router, :get, "/clusters/some_etcd_token/machines/123/units/test/logs")
     assert conn.status == 200
@@ -315,50 +347,17 @@ defmodule OpenAperture.Manager.Controllers.EtcdClustersTest do
 
   test "get unit_logs retrieve log error" do
     :meck.expect(EtcdClusterQuery, :get_by_etcd_token, fn token -> %EtcdCluster{etcd_token: token} end)
-    :meck.expect(FleetApi.Etcd, :start_link, 1, {:ok, :some_pid})
-    :meck.expect(FleetApi.Etcd, :list_machines, 1, {:ok, [%FleetApi.Machine{id: "123"}]})
-    :meck.expect(FleetApi.Etcd, :list_units, 1, {:ok, [%FleetApi.Unit{name: "test"}]})
-    :meck.expect(SystemdUnit, :execute_journal_request, 3, {:error, "bad news bears", ""})
+    :meck.expect(FleetManagerPublisher, :unit_logs!, fn _,_,_ -> %{} end)
+    :meck.expect(RpcHandler, :get_response, fn _ -> {:error, "bad news bears"} end)
 
     conn = call(Router, :get, "/clusters/some_etcd_token/machines/123/units/test/logs")
     assert conn.status == 500
   end
 
-  test "get unit_logs invalid host" do
+  test "get unit_logs invalid" do
     :meck.expect(EtcdClusterQuery, :get_by_etcd_token, fn token -> %EtcdCluster{etcd_token: token} end)
-    :meck.expect(FleetApi.Etcd, :start_link, 1, {:ok, :some_pid})
-    :meck.expect(FleetApi.Etcd, :list_machines, 1, {:ok, []})
-    :meck.expect(FleetApi.Etcd, :list_units, 1, {:ok, [%FleetApi.Unit{name: "test"}]})
-
-    conn = call(Router, :get, "/clusters/some_etcd_token/machines/123/units/test/logs")
-    assert conn.status == 404
-  end
-
-  test "get unit_logs retrieve invalid unit" do
-    :meck.expect(EtcdClusterQuery, :get_by_etcd_token, fn token -> %EtcdCluster{etcd_token: token} end)
-    :meck.expect(FleetApi.Etcd, :start_link, 1, {:ok, :some_pid})
-    :meck.expect(FleetApi.Etcd, :list_machines, 1, {:ok, [%FleetApi.Machine{id: "123"}]})
-    :meck.expect(FleetApi.Etcd, :list_units, 1, {:ok, []})
-
-    conn = call(Router, :get, "/clusters/some_etcd_token/machines/123/units/test/logs")
-    assert conn.status == 404
-  end
-
-  test "get unit_logs no hosts" do
-    :meck.expect(EtcdClusterQuery, :get_by_etcd_token, fn token -> %EtcdCluster{etcd_token: token} end)
-    :meck.expect(FleetApi.Etcd, :start_link, 1, {:ok, :some_pid})
-    :meck.expect(FleetApi.Etcd, :list_machines, 1, {:ok, nil})
-    :meck.expect(FleetApi.Etcd, :list_units, 1, {:ok, [%FleetApi.Unit{name: "test"}]})
-
-    conn = call(Router, :get, "/clusters/some_etcd_token/machines/123/units/test/logs")
-    assert conn.status == 500
-  end
-
-  test "get unit_logs no units" do
-    :meck.expect(EtcdClusterQuery, :get_by_etcd_token, fn token -> %EtcdCluster{etcd_token: token} end)
-    :meck.expect(FleetApi.Etcd, :start_link, 1, {:ok, :some_pid})
-    :meck.expect(FleetApi.Etcd, :list_machines, 1, {:ok, [%FleetApi.Machine{id: "123"}]})
-    :meck.expect(FleetApi.Etcd, :list_units, 1, {:ok, nil})
+    :meck.expect(FleetManagerPublisher, :unit_logs!, fn _,_,_ -> %{} end)
+    :meck.expect(RpcHandler, :get_response, fn _ -> {:ok, nil} end)
 
     conn = call(Router, :get, "/clusters/some_etcd_token/machines/123/units/test/logs")
     assert conn.status == 500

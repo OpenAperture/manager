@@ -14,7 +14,8 @@ defmodule OpenAperture.Manager do
       worker(OpenAperture.Manager.Repo, []),
       worker(OpenAperture.Manager.OverseerApi.ModuleRegistration, []),
       worker(OpenAperture.Manager.OverseerApi.Heartbeat, []),
-      worker(OpenAperture.Manager.Messaging.RpcRequestsCleanup, [])
+      worker(OpenAperture.Manager.Messaging.RpcRequestsCleanup, []),
+      worker(OpenAperture.Manager.Messaging.FleetManagerPublisher, [])
     ]
 
     # See http://elixir-lang.org/docs/stable/elixir/Supervisor.html

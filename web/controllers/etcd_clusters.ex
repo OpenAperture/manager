@@ -6,10 +6,10 @@ defmodule OpenAperture.Manager.Controllers.EtcdClusters do
   alias OpenAperture.Manager.DB.Queries.EtcdCluster, as: EtcdClusterQuery
   alias OpenAperture.Manager.DB.Queries.ProductCluster, as: ProductClusterQuery
 
-  alias FleetApi.Etcd, as: FleetApi
-  alias OpenAperture.Fleet.SystemdUnit
-
   alias OpenAperture.Manager.Controllers.ResponseBodyFormatter
+
+  alias OpenAperture.Manager.Messaging.FleetManagerPublisher
+  alias OpenAperture.Messaging.AMQP.RpcHandler
 
   import OpenAperture.Manager.Router.Helpers
 
@@ -113,6 +113,37 @@ defmodule OpenAperture.Manager.Controllers.EtcdClusters do
   end
 
   @doc """
+  GET /clusters/:etcd_token/products - Retrieve associated products
+
+  ## Options
+
+  The `conn` option defines the underlying HTTP connection.
+
+  The `params` option defines an array of arguments.
+
+  ## Return Values
+
+  Plug.Conn
+  """
+  def products(conn, %{"etcd_token" => token}) do
+    case EtcdClusterQuery.get_by_etcd_token(token) do
+      nil ->
+        conn
+        |> resp :not_found, ""
+      etcd_cluster ->
+        products = etcd_cluster.id
+                   |> ProductClusterQuery.get_products_for_cluster
+                   |> Repo.all
+                   |> Enum.reduce([], fn(prod, products) ->
+                        [Map.from_struct(prod) | products]
+                      end)
+                   |> Enum.reverse
+        conn
+        |> json products
+    end
+  end
+
+  @doc """
   GET /clusters/:etcd_token/machines - Retrieve associated machines
 
   ## Options
@@ -131,17 +162,23 @@ defmodule OpenAperture.Manager.Controllers.EtcdClusters do
         conn
         |> put_status(:not_found)
         |> json ResponseBodyFormatter.error_body(:not_found, "EtcdCluster")
-      _cluster ->
-        {:ok, api_pid} = FleetApi.start_link(token)
-        {:ok, hosts} = FleetApi.list_machines(api_pid)
-
-        if hosts == nil do
-          conn
-          |> put_status(:internal_server_error)
-          |> json ResponseBodyFormatter.error_body(:internal_server_error, "EtcdCluster")
-        else
-          conn
-          |> json hosts
+      cluster ->
+        handler = FleetManagerPublisher.list_machines!(token, cluster.messaging_exchange_id)
+        case RpcHandler.get_response(handler) do
+          {:ok, hosts} ->
+            if hosts == nil do
+              conn
+              |> put_status(:internal_server_error)
+              |> json ResponseBodyFormatter.error_body(:internal_server_error, "EtcdCluster")
+            else
+              conn
+              |> json hosts
+            end
+          {:error, reason} -> 
+            Logger.error("Received the following error retrieving hosts:  #{inspect reason}")
+            conn
+            |> put_status(:internal_server_error)
+            |> json ResponseBodyFormatter.error_body(:internal_server_error, "EtcdCluster")
         end
     end
   end
@@ -165,17 +202,23 @@ defmodule OpenAperture.Manager.Controllers.EtcdClusters do
         conn
         |> put_status(:not_found)
         |> json ResponseBodyFormatter.error_body(:not_found, "EtcdCluster")
-      _cluster ->
-        {:ok, api_pid} = FleetApi.start_link(token)
-        {:ok, units} = FleetApi.list_units(api_pid)
-
-        if units == nil do
-          conn
-          |> put_status(:internal_server_error)
-          |> json ResponseBodyFormatter.error_body(:internal_server_error, "EtcdCluster")
-        else
-          conn
-          |> json units
+      cluster ->
+        handler = FleetManagerPublisher.list_units!(token, cluster.messaging_exchange_id)
+        case RpcHandler.get_response(handler) do
+          {:ok, units} ->
+            if units == nil do
+              conn
+              |> put_status(:internal_server_error)
+              |> json ResponseBodyFormatter.error_body(:internal_server_error, "EtcdCluster")
+            else
+              conn
+              |> json units
+            end
+          {:error, reason} -> 
+            Logger.error("Received the following error retrieving units:  #{inspect reason}")
+            conn
+            |> put_status(:internal_server_error)
+            |> json ResponseBodyFormatter.error_body(:internal_server_error, "EtcdCluster")
         end
     end
   end
@@ -199,17 +242,23 @@ defmodule OpenAperture.Manager.Controllers.EtcdClusters do
         conn
         |> put_status(:not_found)
         |> json ResponseBodyFormatter.error_body(:not_found, "EtcdCluster")
-      _cluster ->
-        {:ok, api_pid} = FleetApi.start_link(token)
-        {:ok, states} = FleetApi.list_unit_states(api_pid)
-
-        if states == nil do
-          conn
-          |> put_status(:internal_server_error)
-          |> json ResponseBodyFormatter.error_body(:internal_server_error, "EtcdCluster")
-        else
-          conn
-          |> json states
+      cluster ->
+        handler = FleetManagerPublisher.list_unit_states!(token, cluster.messaging_exchange_id)
+        case RpcHandler.get_response(handler) do
+          {:ok, states} ->
+            if states == nil do
+              conn
+              |> put_status(:internal_server_error)
+              |> json ResponseBodyFormatter.error_body(:internal_server_error, "EtcdCluster")
+            else
+              conn
+              |> json states
+            end
+          {:error, reason} -> 
+            Logger.error("Received the following error retrieving states:  #{inspect reason}")
+            conn
+            |> put_status(:internal_server_error)
+            |> json ResponseBodyFormatter.error_body(:internal_server_error, "EtcdCluster")
         end
     end
   end
@@ -233,65 +282,24 @@ defmodule OpenAperture.Manager.Controllers.EtcdClusters do
         conn
         |> put_status(:not_found)
         |> json ResponseBodyFormatter.error_body(:not_found, "EtcdCluster")
-      _cluster ->
-        {:ok, api_pid} = FleetApi.start_link(token)
-        {:ok, hosts} = FleetApi.list_machines(api_pid)
-        {:ok, units} = FleetApi.list_units(api_pid)
-
-        case {hosts, units} do
-          {nil, _} ->
-            conn
-            |> put_status(:internal_server_error)
-            |> json ResponseBodyFormatter.error_body("Unable to determine if machines are available.", "EtcdCluster")
-          {_, nil} ->
-            conn
-            |> put_status(:internal_server_error)
-            |> json ResponseBodyFormatter.error_body("Unable to determine if units are available.", "EtcdCluster")
-          {hosts, units} ->
-            host = Enum.find(hosts, fn h -> String.contains?(h.id, machine_id) end)
-            unit = Enum.find(units, fn u -> String.contains?(u.name, unit_name) end)
-
-            case {host, unit} do
-              {nil, _} ->
-                conn
-                |> put_status(:not_found)
-                |> json ResponseBodyFormatter.error_body(:not_found, "Unit")
-              {_, nil} ->
-                conn
-                |> put_status(:not_found)
-                |> json ResponseBodyFormatter.error_body(:not_found, "Host")
-              {host, unit} ->
-                case SystemdUnit.execute_journal_request([host], unit, false) do
-                  {:ok, output, error} ->
-                    Logger.info "Output: #{output}"
-                    Logger.info "Error: #{error}"
-                    conn
-                    |> json output
-                  {:error, reason, _} ->
-                    conn
-                    |> put_status(:internal_server_error)
-                    |> json ResponseBodyFormatter.error_body("Unable to retrieve logs: #{reason}", "EtcdCluster")
-                end
+      cluster ->
+        handler = FleetManagerPublisher.unit_logs!(token, cluster.messaging_exchange_id, unit_name)
+        case RpcHandler.get_response(handler) do
+          {:ok, output} ->
+            if output == nil do
+              conn
+              |> put_status(:internal_server_error)
+              |> json ResponseBodyFormatter.error_body(:internal_server_error, "EtcdCluster")
+            else
+              conn
+              |> json output
             end
-        end
-    end
-  end
-
-  def products(conn, %{"etcd_token" => token}) do
-    case EtcdClusterQuery.get_by_etcd_token(token) do
-      nil ->
-        conn
-        |> resp :not_found, ""
-      etcd_cluster ->
-        products = etcd_cluster.id
-                   |> ProductClusterQuery.get_products_for_cluster
-                   |> Repo.all
-                   |> Enum.reduce([], fn(prod, products) ->
-                        [Map.from_struct(prod) | products]
-                      end)
-                   |> Enum.reverse
-        conn
-        |> json products
+          {:error, reason} -> 
+            Logger.error("Received the following error retrieving unit log:  #{inspect reason}")
+            conn
+            |> put_status(:internal_server_error)
+            |> json ResponseBodyFormatter.error_body(:internal_server_error, "EtcdCluster")
+        end        
     end
   end
 end
