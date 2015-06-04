@@ -276,7 +276,7 @@ defmodule OpenAperture.Manager.Controllers.EtcdClusters do
 
   Plug.Conn
   """
-  def unit_logs(conn, %{"etcd_token" => token, "machine_id" => machine_id, "unit_name" => unit_name}) do
+  def unit_logs(conn, %{"etcd_token" => token, "machine_id" => _machine_id, "unit_name" => unit_name}) do
     case EtcdClusterQuery.get_by_etcd_token(token) do
       nil ->
         conn
