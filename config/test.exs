@@ -20,6 +20,3 @@ config :openaperture_messaging,
 config OpenAperture.Manager, 
   exchange_id: "1",
   broker_id: "1"
-
-config :openaperture_manager_overseer_api,
-  autostart: false

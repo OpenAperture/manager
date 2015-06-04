@@ -16,7 +16,6 @@ defmodule OpenAperture.Manager.Configuration do
   """ 
   @spec get_current_exchange_id() :: String.t()
   def get_current_exchange_id do
-    System.get_env()
     get_config("EXCHANGE_ID", OpenAperture.Manager, :exchange_id)
   end
 
@@ -31,7 +30,6 @@ defmodule OpenAperture.Manager.Configuration do
   """ 
   @spec get_current_broker_id() :: String.t()
   def get_current_broker_id do
-    System.get_env()
     get_config("BROKER_ID", OpenAperture.Manager, :broker_id)
   end
 
