@@ -46,12 +46,14 @@ defmodule OpenAperture.Manager.Controllers.ProductEnvironmentsTest do
     {:ok, product: product, pe1: pe1, pe2: pe2, pev1: pev1, pev2: pev2, pev3: pev3, pev4: pev4}
   end
 
+  @endpoint OpenAperture.Manager.Endpoint
+
   test "index action -- success", context do
     product = context[:product]
 
     path = product_environments_path(Endpoint, :index, product.name)
 
-    conn = call(Router, :get, path)
+    conn = get conn(), path
 
     assert conn.status == 200
 
@@ -66,7 +68,7 @@ defmodule OpenAperture.Manager.Controllers.ProductEnvironmentsTest do
 
     path = product_environments_path(Endpoint, :index, product.name)
 
-    conn = call(Router, :get, path)
+    conn = get conn(), path
 
     assert conn.status == 200
 
@@ -78,7 +80,7 @@ defmodule OpenAperture.Manager.Controllers.ProductEnvironmentsTest do
   test "index action -- product does not exist" do
     path = product_environments_path(Endpoint, :index, "not a real product name")
 
-    conn = call(Router, :get, path)
+    conn = get conn(), path
 
     assert conn.status == 404
   end
@@ -89,7 +91,7 @@ defmodule OpenAperture.Manager.Controllers.ProductEnvironmentsTest do
 
     path = product_environments_path(Endpoint, :show, product.name, env.name)
 
-    conn = call(Router, :get, path)
+    conn = get conn(), path
 
     assert conn.status == 200
 
@@ -114,7 +116,7 @@ defmodule OpenAperture.Manager.Controllers.ProductEnvironmentsTest do
 
     path = product_environments_path(Endpoint, :show, "not a real product name", env.name)
 
-    conn = call(Router, :get, path)
+    conn = get conn(), path
 
     assert conn.status == 404
   end
@@ -128,7 +130,7 @@ defmodule OpenAperture.Manager.Controllers.ProductEnvironmentsTest do
 
     path = product_environments_path(Endpoint, :create, product.name)
 
-    conn = call(Router, :post, path, Poison.encode!(new_env), [{"content-type", "application/json"}])
+    conn = post conn(), path, new_env
 
     assert conn.status == 201
 
@@ -151,7 +153,7 @@ defmodule OpenAperture.Manager.Controllers.ProductEnvironmentsTest do
 
     path = product_environments_path(Endpoint, :create, product.name)
 
-    conn = call(Router, :post, path, Poison.encode!(new_env), [{"content-type", "application/json"}])
+    conn = post conn(), path, new_env
 
     assert conn.status == 409
 
@@ -167,7 +169,7 @@ defmodule OpenAperture.Manager.Controllers.ProductEnvironmentsTest do
 
     path = product_environments_path(Endpoint, :create, product.name)
 
-    conn = call(Router, :post, path, Poison.encode!(new_env), [{"content-type", "application/json"}])
+    conn = post conn(), path, new_env
 
     assert conn.status == 400
 
@@ -183,7 +185,7 @@ defmodule OpenAperture.Manager.Controllers.ProductEnvironmentsTest do
 
     path = product_environments_path(Endpoint, :create, product.name)
 
-    conn = call(Router, :post, path, Poison.encode!(new_env), [{"content-type", "application/json"}])
+    conn = post conn(), path, new_env
 
     assert conn.status == 400
 
@@ -198,7 +200,7 @@ defmodule OpenAperture.Manager.Controllers.ProductEnvironmentsTest do
 
     path = product_environments_path(Endpoint, :update, product.name, env.name)
 
-    conn = call(Router, :put, path, Poison.encode!(new_env), [{"content-type", "application/json"}])
+    conn = put conn(), path, new_env
 
     assert conn.status == 204
 
@@ -220,7 +222,7 @@ defmodule OpenAperture.Manager.Controllers.ProductEnvironmentsTest do
 
     path = product_environments_path(Endpoint, :update, product.name, env1.name)
 
-    conn = call(Router, :put, path, Poison.encode!(new_env), [{"content-type", "application/json"}])
+    conn = put conn(), path, new_env
 
     assert conn.status == 409
   end
@@ -232,7 +234,7 @@ defmodule OpenAperture.Manager.Controllers.ProductEnvironmentsTest do
 
     path = product_environments_path(Endpoint, :update, "not a real product name", env.name)
 
-    conn = call(Router, :put, path, Poison.encode!(new_env), [{"content-type", "application/json"}])
+    conn = put conn(), path, new_env
 
     assert conn.status == 404
   end
@@ -244,7 +246,7 @@ defmodule OpenAperture.Manager.Controllers.ProductEnvironmentsTest do
 
     path = product_environments_path(Endpoint, :update, product.name, "not a real environment name")
 
-    conn = call(Router, :put, path, Poison.encode!(new_env), [{"content-type", "application/json"}])
+    conn = put conn(), path, new_env
 
     assert conn.status == 404
   end
@@ -257,7 +259,7 @@ defmodule OpenAperture.Manager.Controllers.ProductEnvironmentsTest do
 
     path = product_environments_path(Endpoint, :update, product.name, env.name)
 
-    conn = call(Router, :put, path, Poison.encode!(new_env), [{"content-type", "application/json"}])
+    conn = put conn(), path, new_env
 
     assert conn.status == 400
   end
@@ -271,7 +273,7 @@ defmodule OpenAperture.Manager.Controllers.ProductEnvironmentsTest do
 
     path = product_environments_path(Endpoint, :destroy, product.name, env.name)
 
-    conn = call(Router, :delete, path)
+    conn = delete conn(), path
 
     assert conn.status == 204
 
@@ -289,7 +291,7 @@ defmodule OpenAperture.Manager.Controllers.ProductEnvironmentsTest do
 
     path = product_environments_path(Endpoint, :destroy, product.name, new_env.name)
 
-    conn = call(Router, :delete, path)
+    conn = delete conn(), path
 
     assert conn.status == 204
 
@@ -305,7 +307,7 @@ defmodule OpenAperture.Manager.Controllers.ProductEnvironmentsTest do
 
     path = product_environments_path(Endpoint, :destroy, product.name, "not a real environment name")
 
-    conn = call(Router, :delete, path)
+    conn = delete conn(), path
 
     assert conn.status == 404
 
@@ -321,7 +323,7 @@ defmodule OpenAperture.Manager.Controllers.ProductEnvironmentsTest do
 
     path = product_environments_path(Endpoint, :destroy, "not a real product name", env.name)
 
-    conn = call(Router, :delete, path)
+    conn = delete conn(), path
 
     assert conn.status == 404
 

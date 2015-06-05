@@ -7,7 +7,6 @@ defmodule OpenAperture.Manager.Controllers.EtcdClustersTest do
   alias OpenAperture.Manager.DB.Models.EtcdCluster
   alias OpenAperture.Manager.DB.Models.Product
   alias OpenAperture.Manager.DB.Queries.EtcdCluster, as: EtcdClusterQuery
-  alias OpenAperture.Manager.Router
   alias OpenAperture.Manager.DB.Models.CloudProvider
 
   alias OpenAperture.Manager.Messaging.FleetManagerPublisher
@@ -38,10 +37,12 @@ defmodule OpenAperture.Manager.Controllers.EtcdClustersTest do
             end
   end
 
+  @endpoint OpenAperture.Manager.Endpoint
+
   test "index" do
     clusters = [%EtcdCluster{etcd_token: "abc123"}]
     :meck.expect(OpenAperture.Manager.Repo, :all, 1, clusters)
-    conn = call(Router, :get, "/clusters")
+    conn = get conn(), "/clusters"
 
     assert conn.status == 200
 
@@ -61,7 +62,7 @@ defmodule OpenAperture.Manager.Controllers.EtcdClustersTest do
     non_build_cluster = EtcdCluster.new(%{etcd_token: "#{UUID.uuid1()}", allow_docker_builds: false}) |> Repo.insert
     cluster = EtcdCluster.new(%{etcd_token: "#{UUID.uuid1()}"}) |> Repo.insert
 
-    conn = call(Router, :get, "/clusters?allow_docker_builds=true")
+    conn = get conn(), "/clusters?allow_docker_builds=true"
 
     assert conn.status == 200
 
@@ -76,7 +77,7 @@ defmodule OpenAperture.Manager.Controllers.EtcdClustersTest do
 
   test "index returns empty list if no clusters" do
     :meck.expect(OpenAperture.Manager.Repo, :all, 1, [])
-    conn = call(Router, :get, "/clusters")
+    conn = get conn(), "/clusters"
 
     assert conn.status == 200
 
@@ -88,7 +89,7 @@ defmodule OpenAperture.Manager.Controllers.EtcdClustersTest do
   test "show returns 404 if a matching cluster wasn't found" do
     :meck.expect(EtcdClusterQuery, :get_by_etcd_token, 1, nil)
 
-    conn = call(Router, :get, "/clusters/some_etcd_token")
+    conn = get conn(), "/clusters/some_etcd_token"
 
     assert conn.status == 404
   end
@@ -97,7 +98,7 @@ defmodule OpenAperture.Manager.Controllers.EtcdClustersTest do
     cluster = %EtcdCluster{etcd_token: "abc123"}
     :meck.expect(EtcdClusterQuery, :get_by_etcd_token, 1, cluster)
 
-    conn = call(Router, :get, "/clusters/some_etcd_token")
+    conn = get conn(), "/clusters/some_etcd_token"
 
     assert conn.status == 200
     body = Poison.decode!(conn.resp_body)
@@ -106,7 +107,7 @@ defmodule OpenAperture.Manager.Controllers.EtcdClustersTest do
   end
 
   test "register action - bad request if no etcd_token is provided" do
-    conn = call(Router, :post, "/clusters", Poison.encode!(%{}), [{"content-type", "application/json"}])
+    conn = post conn(), "/clusters", %{}
 
     assert conn.status == 400
 
@@ -118,7 +119,7 @@ defmodule OpenAperture.Manager.Controllers.EtcdClustersTest do
   test "register action -- success" do
     cluster = %EtcdCluster{id: 1, etcd_token: "token"}
     :meck.expect(Repo, :insert, 1, cluster)
-    conn = call(Router, :post, "/clusters", Poison.encode!(cluster), [{"content-type", "application/json"}])
+    conn = post conn(), "/clusters", Map.from_struct(cluster)
 
     assert conn.status == 201
 
@@ -132,7 +133,7 @@ defmodule OpenAperture.Manager.Controllers.EtcdClustersTest do
     cluster = %EtcdCluster{id: 1, etcd_token: "token", hosting_provider_id: 1}
     :meck.expect(Repo, :get, 2, nil)
     :meck.expect(Repo, :insert, 1, cluster)
-    conn = call(Router, :post, "/clusters", Poison.encode!(cluster), [{"content-type", "application/json"}])
+    conn = post conn(), "/clusters", Map.from_struct(cluster)
 
     assert conn.status == 400
 
@@ -144,7 +145,7 @@ defmodule OpenAperture.Manager.Controllers.EtcdClustersTest do
     cluster = %EtcdCluster{id: 1, etcd_token: "token", hosting_provider_id: 1}
     :meck.expect(Repo, :get, 2, %CloudProvider{id: 1})
     :meck.expect(Repo, :insert, 1, cluster)
-    conn = call(Router, :post, "/clusters", Poison.encode!(cluster), [{"content-type", "application/json"}])
+    conn = post conn(), "/clusters", Map.from_struct(cluster)
 
     assert conn.status == 201
 
@@ -157,7 +158,7 @@ defmodule OpenAperture.Manager.Controllers.EtcdClustersTest do
   test "destroy action -- not found" do
     :meck.expect(EtcdClusterQuery, :get_by_etcd_token, 1, nil)
 
-    conn = call(Router, :delete, "/clusters/some_etcd_token")
+    conn = delete conn(), "/clusters/some_etcd_token"
 
     assert conn.status == 404
   end
@@ -166,7 +167,7 @@ defmodule OpenAperture.Manager.Controllers.EtcdClustersTest do
     :meck.expect(EtcdClusterQuery, :get_by_etcd_token, 1, %EtcdCluster{id: 1, etcd_token: "some_etcd_token"})
     :meck.expect(Repo, :delete, 1, 1)
 
-    conn = call(Router, :delete, "/clusters/some_etcd_token")
+    conn = delete conn(), "/clusters/some_etcd_token"
 
     assert conn.status == 204
   end
@@ -183,7 +184,7 @@ defmodule OpenAperture.Manager.Controllers.EtcdClustersTest do
     :meck.expect(EtcdClusterQuery, :get_by_etcd_token, 1, cluster)
     :meck.expect(Repo, :all, 1, products)
 
-    conn = call(Router, :get, "/clusters/#{cluster.etcd_token}/products")
+    conn = get conn(), "/clusters/#{cluster.etcd_token}/products"
 
     assert conn.status == 200
 
@@ -202,7 +203,7 @@ defmodule OpenAperture.Manager.Controllers.EtcdClustersTest do
     :meck.expect(EtcdClusterQuery, :get_by_etcd_token, 1, cluster)
     :meck.expect(Repo, :all, 1, [])
 
-    conn = call(Router, :get, "/clusters/#{cluster.etcd_token}/products")
+    conn = get conn(), "/clusters/#{cluster.etcd_token}/products"
 
     assert conn.status == 200
 
@@ -213,7 +214,7 @@ defmodule OpenAperture.Manager.Controllers.EtcdClustersTest do
   test "associated products to invalid etcd token results in 404" do
     :meck.expect(EtcdClusterQuery, :get_by_etcd_token, 1, nil)
 
-    conn = call(Router, :get, "/clusters/some_etcd_token/products")
+    conn = get conn(), "/clusters/some_etcd_token/products"
 
     assert conn.status == 404
   end
@@ -226,7 +227,7 @@ defmodule OpenAperture.Manager.Controllers.EtcdClustersTest do
     :meck.expect(FleetManagerPublisher, :list_machines!, fn _,_ -> %{} end)
     :meck.expect(RpcHandler, :get_response, fn _ -> {:ok, []} end)
 
-    conn = call(Router, :get, "/clusters/some_etcd_token/machines")
+    conn = get conn(), "/clusters/some_etcd_token/machines"
 
     assert conn.status == 200
   end
@@ -234,7 +235,7 @@ defmodule OpenAperture.Manager.Controllers.EtcdClustersTest do
   test "get machines not found" do
     :meck.expect(EtcdClusterQuery, :get_by_etcd_token, 1, nil)
 
-    conn = call(Router, :get, "/clusters/some_etcd_token/machines")
+    conn = get conn(), "/clusters/some_etcd_token/machines"
 
     assert conn.status == 404
   end
@@ -244,7 +245,7 @@ defmodule OpenAperture.Manager.Controllers.EtcdClustersTest do
     :meck.expect(FleetManagerPublisher, :list_machines!, fn _,_ -> %{} end)
     :meck.expect(RpcHandler, :get_response, fn _ -> {:error, "bad news bears"} end)
 
-    conn = call(Router, :get, "/clusters/some_etcd_token/machines")
+    conn = get conn(), "/clusters/some_etcd_token/machines"
     assert conn.status == 500
   end
 
@@ -253,7 +254,7 @@ defmodule OpenAperture.Manager.Controllers.EtcdClustersTest do
     :meck.expect(FleetManagerPublisher, :list_machines!, fn _,_ -> %{} end)
     :meck.expect(RpcHandler, :get_response, fn _ -> {:ok, nil} end)
 
-    conn = call(Router, :get, "/clusters/some_etcd_token/machines")
+    conn = get conn(), "/clusters/some_etcd_token/machines"
     assert conn.status == 500
   end
 
@@ -265,14 +266,14 @@ defmodule OpenAperture.Manager.Controllers.EtcdClustersTest do
     :meck.expect(FleetManagerPublisher, :list_units!, fn _,_ -> %{} end)
     :meck.expect(RpcHandler, :get_response, fn _ -> {:ok, []} end)
 
-    conn = call(Router, :get, "/clusters/some_etcd_token/units")
+    conn = get conn(), "/clusters/some_etcd_token/units"
     assert conn.status == 200
   end
 
   test "get units not found" do
     :meck.expect(EtcdClusterQuery, :get_by_etcd_token, 1, nil)
 
-    conn = call(Router, :get, "/clusters/some_etcd_token/units")
+    conn = get conn(), "/clusters/some_etcd_token/units"
 
     assert conn.status == 404
   end
@@ -282,7 +283,7 @@ defmodule OpenAperture.Manager.Controllers.EtcdClustersTest do
     :meck.expect(FleetManagerPublisher, :list_units!, fn _,_ -> %{} end)
     :meck.expect(RpcHandler, :get_response, fn _ -> {:error, "bad news bears"} end)
 
-    conn = call(Router, :get, "/clusters/some_etcd_token/units")
+    conn = get conn(), "/clusters/some_etcd_token/units"
     assert conn.status == 500
   end
 
@@ -291,7 +292,7 @@ defmodule OpenAperture.Manager.Controllers.EtcdClustersTest do
     :meck.expect(FleetManagerPublisher, :list_units!, fn _,_ -> %{} end)
     :meck.expect(RpcHandler, :get_response, fn _ -> {:ok, nil} end)
 
-    conn = call(Router, :get, "/clusters/some_etcd_token/units")
+    conn = get conn(), "/clusters/some_etcd_token/units"
     assert conn.status == 500
   end
 
@@ -303,14 +304,14 @@ defmodule OpenAperture.Manager.Controllers.EtcdClustersTest do
     :meck.expect(FleetManagerPublisher, :list_unit_states!, fn _,_ -> %{} end)
     :meck.expect(RpcHandler, :get_response, fn _ -> {:ok, []} end)
 
-     conn = call(Router, :get, "/clusters/some_etcd_token/state")
+     conn = get conn(), "/clusters/some_etcd_token/state"
      assert conn.status == 200
   end
 
   test "get units_state not found" do
     :meck.expect(EtcdClusterQuery, :get_by_etcd_token, 1, nil)
 
-    conn = call(Router, :get, "/clusters/some_etcd_token/state")
+    conn = get conn(), "/clusters/some_etcd_token/state"
 
     assert conn.status == 404
   end
@@ -320,7 +321,7 @@ defmodule OpenAperture.Manager.Controllers.EtcdClustersTest do
     :meck.expect(FleetManagerPublisher, :list_unit_states!, fn _,_ -> %{} end)
     :meck.expect(RpcHandler, :get_response, fn _ -> {:error, "bad news bears"} end)
 
-    conn = call(Router, :get, "/clusters/some_etcd_token/state")
+    conn = get conn(), "/clusters/some_etcd_token/state"
     assert conn.status == 500
   end
 
@@ -329,7 +330,7 @@ defmodule OpenAperture.Manager.Controllers.EtcdClustersTest do
     :meck.expect(FleetManagerPublisher, :list_unit_states!, fn _,_ -> %{} end)
     :meck.expect(RpcHandler, :get_response, fn _ -> {:ok, nil} end)
 
-    conn = call(Router, :get, "/clusters/some_etcd_token/state")
+    conn = get conn(), "/clusters/some_etcd_token/state"
     assert conn.status == 500
   end
 
@@ -341,7 +342,7 @@ defmodule OpenAperture.Manager.Controllers.EtcdClustersTest do
     :meck.expect(FleetManagerPublisher, :unit_logs!, fn _,_,_ -> %{} end)
     :meck.expect(RpcHandler, :get_response, fn _ -> {:ok, ""} end)
 
-    conn = call(Router, :get, "/clusters/some_etcd_token/machines/123/units/test/logs")
+    conn = get conn(), "/clusters/some_etcd_token/machines/123/units/test/logs"
     assert conn.status == 200
   end
 
@@ -350,7 +351,7 @@ defmodule OpenAperture.Manager.Controllers.EtcdClustersTest do
     :meck.expect(FleetManagerPublisher, :unit_logs!, fn _,_,_ -> %{} end)
     :meck.expect(RpcHandler, :get_response, fn _ -> {:error, "bad news bears"} end)
 
-    conn = call(Router, :get, "/clusters/some_etcd_token/machines/123/units/test/logs")
+    conn = get conn(), "/clusters/some_etcd_token/machines/123/units/test/logs"
     assert conn.status == 500
   end
 
@@ -359,14 +360,14 @@ defmodule OpenAperture.Manager.Controllers.EtcdClustersTest do
     :meck.expect(FleetManagerPublisher, :unit_logs!, fn _,_,_ -> %{} end)
     :meck.expect(RpcHandler, :get_response, fn _ -> {:ok, nil} end)
 
-    conn = call(Router, :get, "/clusters/some_etcd_token/machines/123/units/test/logs")
+    conn = get conn(), "/clusters/some_etcd_token/machines/123/units/test/logs"
     assert conn.status == 500
   end
 
   test "get unit_logs no cluster" do
     :meck.expect(EtcdClusterQuery, :get_by_etcd_token, 1, nil)
 
-    conn = call(Router, :get, "/clusters/some_etcd_token/machines/123/units/test/logs")
+    conn = get conn(), "/clusters/some_etcd_token/machines/123/units/test/logs"
 
     assert conn.status == 404
   end

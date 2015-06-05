@@ -42,8 +42,8 @@ defmodule OpenAperture.Mixfile do
     [
       {:ex_doc, "0.7.3", only: :test},
       {:earmark, "0.1.17", only: :test},
-      {:phoenix, "~> 0.11.0"},
-      {:phoenix_live_reload, "~> 0.3"},
+      {:phoenix, "~> 0.13.1"},
+      {:phoenix_live_reload, "~> 0.4.0"},
       {:cowboy, "~> 1.0"},
       {:ecto, "~> 0.10.1"},
       {:uuid, "~> 0.1.5" },

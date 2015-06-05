@@ -7,7 +7,6 @@ defmodule OpenAperture.Manager.Controllers.ProductDeploymentsTest do
 
   alias OpenAperture.Manager.Endpoint
   alias OpenAperture.Manager.Repo
-  alias OpenAperture.Manager.Router
 
   alias OpenAperture.Manager.DB.Models.Product
   alias OpenAperture.Manager.DB.Models.ProductDeployment
@@ -48,12 +47,14 @@ defmodule OpenAperture.Manager.Controllers.ProductDeploymentsTest do
     {:ok, product: product, pdp1: pdp1, pd1: pd1, pd2: pd2}
   end
 
+  @endpoint OpenAperture.Manager.Endpoint
+
   test "index action -- success", context do
     product = context[:product]
 
     path = product_deployments_path(Endpoint, :index, product.name)
 
-    conn = call(Router, :get, path)
+    conn = get conn(), path
 
     assert conn.status == 200
     body = Poison.decode!(conn.resp_body)
@@ -63,7 +64,7 @@ defmodule OpenAperture.Manager.Controllers.ProductDeploymentsTest do
   test "index action -- product not found" do
     path = product_deployments_path(Endpoint, :index, "not a real product name")
 
-    conn = call(Router, :get, path)
+    conn = get conn(), path
     assert conn.status == 404
   end
 
@@ -73,7 +74,7 @@ defmodule OpenAperture.Manager.Controllers.ProductDeploymentsTest do
 
     path = product_deployments_path(Endpoint, :show, product.name, pd.id)
 
-    conn = call(Router, :get, path)
+    conn = get conn(), path
     assert conn.status == 200
     body = Poison.decode!(conn.resp_body)
 
@@ -86,7 +87,7 @@ defmodule OpenAperture.Manager.Controllers.ProductDeploymentsTest do
 
     path = product_deployments_path(Endpoint, :show, product.name, 123456789)
 
-    conn = call(Router, :get, path)
+    conn = get conn(), path
     assert conn.status == 404
   end
 
@@ -95,7 +96,7 @@ defmodule OpenAperture.Manager.Controllers.ProductDeploymentsTest do
 
     path = product_deployments_path(Endpoint, :show, "not a real product name", pd.id)
 
-    conn = call(Router, :get, path)
+    conn = get conn(), path
     assert conn.status == 404
   end
 
@@ -111,7 +112,7 @@ defmodule OpenAperture.Manager.Controllers.ProductDeploymentsTest do
       plan_name: pdp.name,
     }
 
-    conn = call(Router, :post, path, Poison.encode!(deployment), [{"content-type", "application/json"}])
+    conn = post conn(), path, deployment
     assert conn.status == 201
 
     assert List.keymember?(conn.resp_headers, "location", 0)
@@ -132,7 +133,7 @@ defmodule OpenAperture.Manager.Controllers.ProductDeploymentsTest do
       plan_name: "not a real deployment plan name",
     }
 
-    conn = call(Router, :post, path, Poison.encode!(deployment), [{"content-type", "application/json"}])
+    conn = post conn(), path, deployment
     assert conn.status == 404
 
     assert num_deployments == length(Repo.all(ProductDeployment))
@@ -147,7 +148,7 @@ defmodule OpenAperture.Manager.Controllers.ProductDeploymentsTest do
       plan_name: "",
     }
 
-    conn = call(Router, :post, path, Poison.encode!(deployment), [{"content-type", "application/json"}])
+    conn = post conn(), path, deployment
     assert conn.status == 404
 
     assert num_deployments == length(Repo.all(ProductDeployment))
@@ -162,7 +163,7 @@ defmodule OpenAperture.Manager.Controllers.ProductDeploymentsTest do
       plan_name: pdp.name,
     }
 
-    conn = call(Router, :post, path, Poison.encode!(deployment), [{"content-type", "application/json"}])
+    conn = post conn(), path, deployment
     assert conn.status == 404
 
     assert num_deployments == length(Repo.all(ProductDeployment))
@@ -176,7 +177,7 @@ defmodule OpenAperture.Manager.Controllers.ProductDeploymentsTest do
 
     path = product_deployments_path(Endpoint, :destroy, product.name, pd.id)
 
-    conn = call(Router, :delete, path)
+    conn = delete conn(), path
     assert conn.status == 204
 
     assert num_deployments - 1 == length(Repo.all(ProductDeployment))
@@ -190,7 +191,7 @@ defmodule OpenAperture.Manager.Controllers.ProductDeploymentsTest do
 
     path = product_deployments_path(Endpoint, :destroy, product.name, 1234567890)
 
-    conn = call(Router, :delete, path)
+    conn = delete conn(), path
     assert conn.status == 404
 
     assert num_deployments == length(Repo.all(ProductDeployment))
@@ -204,7 +205,7 @@ defmodule OpenAperture.Manager.Controllers.ProductDeploymentsTest do
 
     path = product_deployments_path(Endpoint, :destroy, "not a real product name", pd.id)
 
-    conn = call(Router, :delete, path)
+    conn = delete conn(), path
     assert conn.status == 404
 
     assert num_deployments == length(Repo.all(ProductDeployment))
@@ -217,7 +218,7 @@ defmodule OpenAperture.Manager.Controllers.ProductDeploymentsTest do
 
     path = product_deployments_path(Endpoint, :index_steps, product.name, pd.id)
 
-    conn = call(Router, :get, path)
+    conn = get conn(), path
     assert conn.status == 200
 
     body = Poison.decode!(conn.resp_body)
@@ -230,7 +231,7 @@ defmodule OpenAperture.Manager.Controllers.ProductDeploymentsTest do
 
     path = product_deployments_path(Endpoint, :index_steps, product.name, pd.id)
 
-    conn = call(Router, :get, path)
+    conn = get conn(), path
     assert conn.status == 200
 
     body = Poison.decode!(conn.resp_body)
@@ -242,7 +243,7 @@ defmodule OpenAperture.Manager.Controllers.ProductDeploymentsTest do
 
     path = product_deployments_path(Endpoint, :index_steps, product.name, 123456789)
 
-    conn = call(Router, :get, path)
+    conn = get conn(), path
     assert conn.status == 404
   end
 
@@ -251,7 +252,7 @@ defmodule OpenAperture.Manager.Controllers.ProductDeploymentsTest do
 
     path = product_deployments_path(Endpoint, :index_steps, "not a real product name", pd.id)
 
-    conn = call(Router, :get, path)
+    conn = get conn(), path
     assert conn.status == 404
   end
 end

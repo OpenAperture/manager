@@ -8,9 +8,10 @@ defmodule OpenAperture.Manager.Controllers.MessagingBrokersTest do
   alias OpenAperture.Manager.DB.Models.MessagingBroker
   alias OpenAperture.Manager.DB.Models.MessagingBrokerConnection
   alias OpenAperture.Manager.Repo
-  alias OpenAperture.Manager.Router
 
   import Ecto.Query
+
+  @endpoint OpenAperture.Manager.Endpoint
 
   setup_all _context do
     :meck.new(OpenAperture.Manager.Plugs.Authentication, [:passthrough])
@@ -34,7 +35,8 @@ defmodule OpenAperture.Manager.Controllers.MessagingBrokersTest do
   end
 
   test "index - no brokers" do
-    conn = call(Router, :get, "/messaging/brokers")
+    conn = get conn(), "/messaging/brokers"
+
     assert conn.status == 200
 
     body = Poison.decode!(conn.resp_body)
@@ -46,7 +48,8 @@ defmodule OpenAperture.Manager.Controllers.MessagingBrokersTest do
     changeset = MessagingBroker.new(%{name: "#{UUID.uuid1()}"})
     broker = Repo.insert(changeset)
 
-    conn = call(Router, :get, "/messaging/brokers")
+    conn = get conn(), "/messaging/brokers"
+
     assert conn.status == 200
 
     body = Poison.decode!(conn.resp_body)
@@ -58,14 +61,16 @@ defmodule OpenAperture.Manager.Controllers.MessagingBrokersTest do
   end
 
   test "show - invalid broker" do
-    conn = call(Router, :get, "/messaging/brokers/1234567890")
+    conn = get conn(), "/messaging/brokers/1234567890"
+
     assert conn.status == 404
   end
 
   test "show - valid broker" do
     broker = Repo.insert(MessagingBroker.new(%{name: "#{UUID.uuid1()}"}))
 
-    conn = call(Router, :get, "/messaging/brokers/#{broker.id}")
+    conn = get conn(), "/messaging/brokers/#{broker.id}"
+
     assert conn.status == 200
 
     returned_broker = Poison.decode!(conn.resp_body)
@@ -76,13 +81,13 @@ defmodule OpenAperture.Manager.Controllers.MessagingBrokersTest do
 
   test "create - conflict" do
     broker = Repo.insert(MessagingBroker.new(%{name: "#{UUID.uuid1()}"}))
+    conn = post conn(), "/messaging/brokers", [name: broker.name]
 
-    conn = call(Router, :post, "/messaging/brokers", %{"name" => broker.name})
     assert conn.status == 409
   end
 
   test "create - bad request" do
-    conn = call(Router, :post, "/messaging/brokers", %{})
+    conn = post conn(), "/messaging/brokers", []
     assert conn.status == 400
     assert conn.resp_body != nil
   end
@@ -91,8 +96,7 @@ defmodule OpenAperture.Manager.Controllers.MessagingBrokersTest do
     :meck.new(Repo, [:passthrough])
     :meck.expect(Repo, :all, fn _ -> [] end)
     :meck.expect(Repo, :insert, fn _ -> raise "bad news bears" end)
-
-    conn = call(Router, :post, "/messaging/brokers", %{"name" => "#{UUID.uuid1()}"})
+    conn = post conn(), "/messaging/brokers", [name: "#{UUID.uuid1()}"]
     assert conn.status == 500
   after
     :meck.unload(Repo)
@@ -100,7 +104,8 @@ defmodule OpenAperture.Manager.Controllers.MessagingBrokersTest do
 
   test "create - success" do
     name = "#{UUID.uuid1()}"
-    conn = call(Router, :post, "/messaging/brokers", %{"name" => name})
+    conn = post conn(), "/messaging/brokers", [name: name]
+
     assert conn.status == 201
     location_header = Enum.reduce conn.resp_headers, nil, fn ({key, value}, location_header) ->
       if key == "location" do
@@ -117,14 +122,15 @@ defmodule OpenAperture.Manager.Controllers.MessagingBrokersTest do
     broker = Repo.insert(MessagingBroker.new(%{name: "#{UUID.uuid1()}"}))
     broker2 = Repo.insert(MessagingBroker.new(%{name: "#{UUID.uuid1()}"}))
 
-    conn = call(Router, :put, "/messaging/brokers/#{broker.id}", %{"name" => broker2.name})
+    conn = put conn(), "/messaging/brokers/#{broker.id}", [name: broker2.name]
+    
     assert conn.status == 409
   end
 
   test "update - bad request" do
     broker = Repo.insert(MessagingBroker.new(%{name: "#{UUID.uuid1()}"}))
 
-    conn = call(Router, :put, "/messaging/brokers/#{broker.id}", %{})
+    conn = put conn(), "/messaging/brokers/#{broker.id}", []
     assert conn.status == 400
     assert conn.resp_body != nil
   end
@@ -136,7 +142,8 @@ defmodule OpenAperture.Manager.Controllers.MessagingBrokersTest do
     :meck.expect(Repo, :all, fn _ -> [] end)
     :meck.expect(Repo, :update, fn _ -> raise "bad news bears" end)
 
-    conn = call(Router, :put, "/messaging/brokers/#{broker.id}", %{"name" => "#{UUID.uuid1()}"})
+    conn = put conn(), "/messaging/brokers/#{broker.id}", [name: "#{UUID.uuid1()}"]
+    
     assert conn.status == 500
   after
     :meck.unload(Repo)
@@ -146,7 +153,8 @@ defmodule OpenAperture.Manager.Controllers.MessagingBrokersTest do
     broker = Repo.insert(MessagingBroker.new(%{name: "#{UUID.uuid1()}"}))
 
     name = "#{UUID.uuid1()}"
-    conn = call(Router, :put, "/messaging/brokers/#{broker.id}", %{"name" => name})
+    conn = put conn(), "/messaging/brokers/#{broker.id}", [name: name]
+
     assert conn.status == 204
     location_header = Enum.reduce conn.resp_headers, nil, fn ({key, value}, location_header) ->
       if key == "location" do
@@ -162,14 +170,16 @@ defmodule OpenAperture.Manager.Controllers.MessagingBrokersTest do
   end
 
   test "destroy - invalid broker" do
-    conn = call(Router, :delete, "/messaging/brokers/1234567890")
+    conn = delete conn(), "/messaging/brokers/1234567890"
+    
     assert conn.status == 404
   end
 
   test "destroy - valid broker" do
     broker = Repo.insert(MessagingBroker.new(%{name: "#{UUID.uuid1()}"}))
 
-    conn = call(Router, :delete, "/messaging/brokers/#{broker.id}")
+    conn = delete conn(), "/messaging/brokers/#{broker.id}"
+
     assert conn.status == 204
 
     assert Repo.get(MessagingBroker, broker.id) == nil
@@ -178,12 +188,13 @@ defmodule OpenAperture.Manager.Controllers.MessagingBrokersTest do
   test "create_connection - success" do
     broker = Repo.insert(MessagingBroker.new(%{name: "#{UUID.uuid1()}"}))
 
-    conn = call(Router, :post, "/messaging/brokers/#{broker.id}/connections", %{
-      "username" => "username",
-      "password" => "123abc",
-      "host" => "host",
-      "virtual_host" => "vhost"
-    })
+    conn = post conn(), "/messaging/brokers/#{broker.id}/connections", [
+      username: "username",
+      password: "123abc",
+      host: "host",
+      virtual_host: "vhost"
+    ]
+
     assert conn.status == 201
     location_header = Enum.reduce conn.resp_headers, nil, fn ({key, value}, location_header) ->
       if key == "location" do
@@ -215,13 +226,12 @@ defmodule OpenAperture.Manager.Controllers.MessagingBrokersTest do
 
   test "get_connections - success" do
     broker = Repo.insert(MessagingBroker.new(%{name: "#{UUID.uuid1()}"}))
-
-    conn = call(Router, :post, "/messaging/brokers/#{broker.id}/connections", %{
-      "username" => "username",
-      "password" => "123abc",
-      "host" => "host",
-      "virtual_host" => "vhost"
-    })
+    conn = post conn(), "/messaging/brokers/#{broker.id}/connections", [
+      username: "username",
+      password: "123abc",
+      host: "host",
+      virtual_host: "vhost"
+    ]
     assert conn.status == 201
     location_header = Enum.reduce conn.resp_headers, nil, fn ({key, value}, location_header) ->
       if key == "location" do
@@ -233,7 +243,7 @@ defmodule OpenAperture.Manager.Controllers.MessagingBrokersTest do
     assert location_header != nil
     assert String.contains?(location_header, "/connections")
     
-    conn = call(Router, :get, "/messaging/brokers/#{broker.id}/connections", %{})
+    conn = get conn(), "/messaging/brokers/#{broker.id}/connections", %{}
     assert conn.status == 200
     connections = Poison.decode!(conn.resp_body)
     assert connections != nil

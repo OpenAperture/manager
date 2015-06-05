@@ -5,7 +5,6 @@ defmodule OpenAperture.Manager.Controllers.MessagingRpcRequestsTest do
 
   alias OpenAperture.Manager.DB.Models.MessagingRpcRequest
   alias OpenAperture.Manager.Repo
-  alias OpenAperture.Manager.Router
 
   setup_all _context do
     :meck.new(OpenAperture.Manager.Plugs.Authentication, [:passthrough])
@@ -25,8 +24,10 @@ defmodule OpenAperture.Manager.Controllers.MessagingRpcRequestsTest do
     end
   end
 
+  @endpoint OpenAperture.Manager.Endpoint
+
   test "index - no requests" do
-    conn = call(Router, :get, "/messaging/rpc_requests")
+    conn = get conn(), "/messaging/rpc_requests"
     assert conn.status == 200
 
     body = Poison.decode!(conn.resp_body)
@@ -38,7 +39,7 @@ defmodule OpenAperture.Manager.Controllers.MessagingRpcRequestsTest do
     changeset = MessagingRpcRequest.new(%{status: to_string(:not_started)})
     request = Repo.insert(changeset)
 
-    conn = call(Router, :get, "/messaging/rpc_requests")
+    conn = get conn(), "/messaging/rpc_requests"
     assert conn.status == 200
 
     body = Poison.decode!(conn.resp_body)
@@ -49,14 +50,14 @@ defmodule OpenAperture.Manager.Controllers.MessagingRpcRequestsTest do
   end
 
   test "show - invalid request" do
-    conn = call(Router, :get, "/messaging/rpc_requests/1234567890")
+    conn = get conn(), "/messaging/rpc_requests/1234567890"
     assert conn.status == 404
   end
 
   test "show - valid request" do
     request = Repo.insert(MessagingRpcRequest.new(%{status: to_string(:not_started)}))
 
-    conn = call(Router, :get, "/messaging/rpc_requests/#{request.id}")
+    conn = get conn(), "/messaging/rpc_requests/#{request.id}"
     assert conn.status == 200
 
     returned_request = Poison.decode!(conn.resp_body)
@@ -77,7 +78,7 @@ defmodule OpenAperture.Manager.Controllers.MessagingRpcRequestsTest do
       }),
     }))
 
-    conn = call(Router, :get, "/messaging/rpc_requests/#{request.id}")
+    conn = get conn(), "/messaging/rpc_requests/#{request.id}"
     assert conn.status == 200
 
     returned_request = Poison.decode!(conn.resp_body)
@@ -88,7 +89,7 @@ defmodule OpenAperture.Manager.Controllers.MessagingRpcRequestsTest do
   end
 
   test "create - bad request" do
-    conn = call(Router, :post, "/messaging/rpc_requests", %{})
+    conn = post conn(), "/messaging/rpc_requests", %{}
     assert conn.status == 400
     assert conn.resp_body != nil
   end
@@ -98,14 +99,14 @@ defmodule OpenAperture.Manager.Controllers.MessagingRpcRequestsTest do
     :meck.expect(Repo, :all, fn _ -> [] end)
     :meck.expect(Repo, :insert, fn _ -> raise "bad news bears" end)
 
-    conn = call(Router, :post, "/messaging/rpc_requests", %{"status" => "not_started", "request_body" => %{}})
+    conn = post conn(), "/messaging/rpc_requests", %{"status" => "not_started", "request_body" => %{}}
     assert conn.status == 500
   after
     :meck.unload(Repo)
   end
 
   test "create - success" do
-    conn = call(Router, :post, "/messaging/rpc_requests", %{"status" => "not_started", "request_body" => %{}})
+    conn = post conn(), "/messaging/rpc_requests", %{"status" => "not_started", "request_body" => %{}}
     assert conn.status == 201
     location_header = Enum.reduce conn.resp_headers, nil, fn ({key, value}, location_header) ->
       if key == "location" do
@@ -121,7 +122,7 @@ defmodule OpenAperture.Manager.Controllers.MessagingRpcRequestsTest do
   test "update - bad request" do
     request = Repo.insert(MessagingRpcRequest.new(%{status: to_string(:not_started)}))
 
-    conn = call(Router, :put, "/messaging/rpc_requests/#{request.id}", %{})
+    conn = put conn(), "/messaging/rpc_requests/#{request.id}", %{}
     assert conn.status == 400
     assert conn.resp_body != nil
   end
@@ -133,7 +134,7 @@ defmodule OpenAperture.Manager.Controllers.MessagingRpcRequestsTest do
     :meck.expect(Repo, :all, fn _ -> [] end)
     :meck.expect(Repo, :update, fn _ -> raise "bad news bears" end)
 
-    conn = call(Router, :put, "/messaging/rpc_requests/#{request.id}", %{"status" => "not_started", "request_body" => %{}})
+    conn = put conn(), "/messaging/rpc_requests/#{request.id}", %{"status" => "not_started", "request_body" => %{}}
     assert conn.status == 500
   after
     :meck.unload(Repo)
@@ -142,7 +143,7 @@ defmodule OpenAperture.Manager.Controllers.MessagingRpcRequestsTest do
   test "update - success" do
     request = Repo.insert(MessagingRpcRequest.new(%{status: to_string(:not_started)}))
 
-    conn = call(Router, :put, "/messaging/rpc_requests/#{request.id}", %{"status" => "not_started", "request_body" => %{}})
+    conn = put conn(), "/messaging/rpc_requests/#{request.id}", %{"status" => "not_started", "request_body" => %{}}
     assert conn.status == 204
     location_header = Enum.reduce conn.resp_headers, nil, fn ({key, value}, location_header) ->
       if key == "location" do
@@ -158,14 +159,14 @@ defmodule OpenAperture.Manager.Controllers.MessagingRpcRequestsTest do
   end
 
   test "destroy - invalid request" do
-    conn = call(Router, :delete, "/messaging/rpc_requests/1234567890")
+    conn = delete conn(), "/messaging/rpc_requests/1234567890"
     assert conn.status == 404
   end
 
   test "destroy - valid request" do
     request = Repo.insert(MessagingRpcRequest.new(%{status: to_string(:not_started)}))
 
-    conn = call(Router, :delete, "/messaging/rpc_requests/#{request.id}")
+    conn = delete conn(), "/messaging/rpc_requests/#{request.id}"
     assert conn.status == 204
 
     assert Repo.get(MessagingRpcRequest, request.id) == nil

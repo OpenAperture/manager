@@ -26,6 +26,8 @@ defmodule OpenAperture.Manager.Controllers.ProductComponentsTest do
     :ok
   end
 
+  @endpoint OpenAperture.Manager.Endpoint
+
   setup do
     etcd_cluster = EtcdCluster.new(%{etcd_token: "test_token"})
                    |> Repo.insert
@@ -83,7 +85,7 @@ defmodule OpenAperture.Manager.Controllers.ProductComponentsTest do
   test "index action -- product exists, has associated components", context do
     path = product_components_path(Endpoint, :index, context[:product].name)
 
-    conn = call(Router, :get, path)
+    conn = get conn(), path
 
     assert conn.status == 200
 
@@ -111,7 +113,7 @@ defmodule OpenAperture.Manager.Controllers.ProductComponentsTest do
     product = Product.new(%{name: "ProductComponentTest2"}) |> Repo.insert
     path = product_components_path(Endpoint, :index, product.name)
 
-    conn = call(Router, :get, path)
+    conn = get conn(), path
 
     assert conn.status == 200
 
@@ -121,7 +123,7 @@ defmodule OpenAperture.Manager.Controllers.ProductComponentsTest do
   end
 
   test "index action -- product doesn't exist" do
-    conn = call(Router, :get, "products/not_a_product_name/components")
+    conn = get conn(), "products/not_a_product_name/components"
 
     assert conn.status == 404
   end
@@ -132,7 +134,7 @@ defmodule OpenAperture.Manager.Controllers.ProductComponentsTest do
 
     path = product_components_path(Endpoint, :show, product.name, component.name)
 
-    conn = call(Router, :get, path)
+    conn = get conn(), path
 
     assert conn.status == 200
 
@@ -148,7 +150,7 @@ defmodule OpenAperture.Manager.Controllers.ProductComponentsTest do
 
     path = product_components_path(Endpoint, :show, product.name, component.name)
 
-    conn = call(Router, :get, path)
+    conn = get conn(), path
 
     assert conn.status == 200
 
@@ -162,7 +164,7 @@ defmodule OpenAperture.Manager.Controllers.ProductComponentsTest do
     product = context[:product]
     path = product_components_path(Endpoint, :show, product.name, "not a real component name")
 
-    conn = call(Router, :get, path)
+    conn = get conn(), path
 
     assert conn.status == 404
   end
@@ -170,14 +172,14 @@ defmodule OpenAperture.Manager.Controllers.ProductComponentsTest do
   test "show action -- product doesn't exist", context do
     component = context[:component1]
     path = product_components_path(Endpoint, :show, "not a real product name", component.name)
-    conn = call(Router, :get, path)
+    conn = get conn(), path
     assert conn.status == 404
   end
 
   test "create action -- product doesn't exist" do
     path = product_components_path(Endpoint, :create, "not a real product name")
 
-    conn = call(Router, :post, path, Poison.encode!(%{name: "test_component", type: "web_server"}), [{"content-type", "application/json"}])
+    conn = post conn(), path, %{name: "test_component", type: "web_server"}
     assert conn.status == 404
   end
 
@@ -189,7 +191,7 @@ defmodule OpenAperture.Manager.Controllers.ProductComponentsTest do
     new_component = %{name: existing_component.name,
                   type: "web_server"}
 
-    conn = call(Router, :post, path, Poison.encode!(new_component), [{"content-type", "application/json"}])
+    conn = post conn(), path, new_component
     assert conn.status == 409
   end
 
@@ -199,7 +201,7 @@ defmodule OpenAperture.Manager.Controllers.ProductComponentsTest do
 
     new_component = %{name: "test", type: "not a valid type"}
     
-    conn = call(Router, :post, path, Poison.encode!(new_component), [{"content-type", "application/json"}])
+    conn = post conn(), path, new_component
     assert conn.status == 400
 
     assert conn.resp_body == "{\"errors\":[{\"message\":\"One or more fields for ProductComponent were invalid\"},{\"type\":\"is invalid\"}]}"
@@ -211,7 +213,7 @@ defmodule OpenAperture.Manager.Controllers.ProductComponentsTest do
 
     new_component = %{type: "web_server"}
     
-    conn = call(Router, :post, path, Poison.encode!(new_component), [{"content-type", "application/json"}])
+    conn = post conn(), path, new_component
     assert conn.status == 400
 
     assert conn.resp_body ==  "{\"errors\":[{\"message\":\"One or more fields for ProductComponent were invalid\"},{\"name\":\"can't be blank\"}]}"
@@ -226,7 +228,7 @@ defmodule OpenAperture.Manager.Controllers.ProductComponentsTest do
       type: "web_server",
       options: [%{"value" => "ugh"}]}
 
-    conn = call(Router, :post, path, Poison.encode!(new_component), [{"content-type", "application/json"}])
+    conn = post conn(), path, new_component
 
     assert conn.status == 400
   end
@@ -239,7 +241,7 @@ defmodule OpenAperture.Manager.Controllers.ProductComponentsTest do
       name: "TestComponentCreateTest",
       type: "web_server"}
 
-    conn = call(Router, :post, path, Poison.encode!(new_component), [{"content-type", "application/json"}])
+    conn = post conn(), path, new_component
 
     assert conn.status == 201
 
@@ -260,7 +262,7 @@ defmodule OpenAperture.Manager.Controllers.ProductComponentsTest do
       options: [%{"name" => "test", "value" => "ugh"},
                 %{"name" => "test2", "value" => "ugh2"}]}
 
-    conn = call(Router, :post, path, Poison.encode!(new_component), [{"content-type", "application/json"}])
+    conn = post conn(), path, new_component
 
     assert conn.status == 201
 
@@ -274,7 +276,7 @@ defmodule OpenAperture.Manager.Controllers.ProductComponentsTest do
   test "destroy action -- product not found" do
     path = product_components_path(Endpoint, :destroy, "not a real product name")
 
-    conn = call(Router, :delete, path)
+    conn = delete conn(), path
     assert conn.status == 404
   end
 
@@ -282,7 +284,7 @@ defmodule OpenAperture.Manager.Controllers.ProductComponentsTest do
     product = context[:product]
     path = product_components_path(Endpoint, :destroy, product.name)
 
-    conn = call(Router, :delete, path)
+    conn = delete conn(), path
 
     assert conn.status == 204
 
