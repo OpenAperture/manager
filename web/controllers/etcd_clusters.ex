@@ -283,7 +283,7 @@ defmodule OpenAperture.Manager.Controllers.EtcdClusters do
         |> put_status(:not_found)
         |> json ResponseBodyFormatter.error_body(:not_found, "EtcdCluster")
       cluster ->
-        handler = FleetManagerPublisher.unit_logs!(token, cluster.messaging_exchange_id, unit_name)
+        handler = FleetManagerPublisher.unit_logs!(token, cluster.messaging_exchange_id, URI.decode(unit_name))
         case RpcHandler.get_response(handler) do
           {:ok, output} ->
             if output == nil do
