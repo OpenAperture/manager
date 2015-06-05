@@ -171,7 +171,6 @@ defmodule OpenAperture.Manager.Controllers.EtcdClusters do
               |> put_status(:internal_server_error)
               |> json ResponseBodyFormatter.error_body(:internal_server_error, "EtcdCluster")
             else
-              Logger.debug("====>hosts:  #{inspect hosts}")
               conn
               |> json hosts
             end
