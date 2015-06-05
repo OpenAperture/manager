@@ -34,7 +34,7 @@ config :logger, level: :debug
 #
 
 config OpenAperture.Manager, OpenAperture.Manager.Repo,
-  database: System.get_env("MANAGER_DATABASE_NAME") || "openaperture_manager_staging",
+  database: System.get_env("MANAGER_DATABASE_NAME") || "openaperture_manager_staging"
 
 config :openaperture_manager_api, 
   manager_url: System.get_env("MANAGER_URL"),
