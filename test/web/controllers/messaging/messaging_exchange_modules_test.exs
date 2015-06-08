@@ -6,7 +6,6 @@ defmodule OpenAperture.Manager.Controllers.MessagingExchangeModulesTest do
   alias OpenAperture.Manager.DB.Models.MessagingExchange
   alias OpenAperture.Manager.DB.Models.MessagingExchangeModule
   alias OpenAperture.Manager.Repo
-  alias OpenAperture.Manager.Router
 
   setup_all _context do
     :meck.new(OpenAperture.Manager.Plugs.Authentication, [:passthrough])
@@ -27,15 +26,19 @@ defmodule OpenAperture.Manager.Controllers.MessagingExchangeModulesTest do
     end
   end
 
+  @endpoint OpenAperture.Manager.Endpoint
+
   test "index - invalid exchange" do
-    conn = call(Router, :get, "/messaging/exchanges/1234567890/modules")
+    conn = get conn(), "/messaging/exchanges/1234567890/modules"
+
     assert conn.status == 404
   end
 
   test "index - valid exchange no modules" do
     exchange = Repo.insert(MessagingExchange.new(%{name: "#{UUID.uuid1()}"}))
 
-    conn = call(Router, :get, "/messaging/exchanges/#{exchange.id}/modules")
+    conn = get conn(), "/messaging/exchanges/#{exchange.id}/modules"
+  
     assert conn.status == 200
 
     returned_modules = Poison.decode!(conn.resp_body)
@@ -54,7 +57,8 @@ defmodule OpenAperture.Manager.Controllers.MessagingExchangeModulesTest do
       workload: "[]",
     }))
 
-    conn = call(Router, :get, "/messaging/exchanges/#{exchange.id}/modules")
+    conn = get conn(), "/messaging/exchanges/#{exchange.id}/modules"
+    
     assert conn.status == 200
 
     returned_modules = Poison.decode!(conn.resp_body)
@@ -71,14 +75,16 @@ defmodule OpenAperture.Manager.Controllers.MessagingExchangeModulesTest do
   end
 
   test "show - invalid exchange" do
-    conn = call(Router, :get, "/messaging/exchanges/1234567890/modules/badnewsbears")
+    conn = get conn(), "/messaging/exchanges/1234567890/modules/badnewsbears"
+    
     assert conn.status == 404
   end
 
   test "show - valid exchange no modules" do
     exchange = Repo.insert(MessagingExchange.new(%{name: "#{UUID.uuid1()}"}))
 
-    conn = call(Router, :get, "/messaging/exchanges/#{exchange.id}/modules/badnewsbears")
+    conn = get conn(), "/messaging/exchanges/#{exchange.id}/modules/badnewsbears"
+    
     assert conn.status == 404
   end
 
@@ -93,7 +99,8 @@ defmodule OpenAperture.Manager.Controllers.MessagingExchangeModulesTest do
       workload: "[]",
     }))
 
-    conn = call(Router, :get, "/messaging/exchanges/#{exchange.id}/modules/#{module.hostname}")
+    conn = get conn(), "/messaging/exchanges/#{exchange.id}/modules/#{module.hostname}"
+    
     assert conn.status == 200
 
     returned_module = Poison.decode!(conn.resp_body)
@@ -106,14 +113,14 @@ defmodule OpenAperture.Manager.Controllers.MessagingExchangeModulesTest do
   end  
 
   test "destroy - invalid exchange" do
-    conn = call(Router, :delete, "/messaging/exchanges/1234567890/modules/badnewsbears")
+    conn = delete conn(), "/messaging/exchanges/1234567890/modules/badnewsbears"
     assert conn.status == 404
   end
 
   test "destroy - valid exchange no modules" do
     exchange = Repo.insert(MessagingExchange.new(%{name: "#{UUID.uuid1()}"}))
 
-    conn = call(Router, :delete, "/messaging/exchanges/#{exchange.id}/modules/badnewsbears")
+    conn = delete conn(), "/messaging/exchanges/#{exchange.id}/modules/badnewsbears"
     assert conn.status == 404
   end
 
@@ -128,19 +135,19 @@ defmodule OpenAperture.Manager.Controllers.MessagingExchangeModulesTest do
       workload: "[]",
     }))
 
-    conn = call(Router, :delete, "/messaging/exchanges/#{exchange.id}/modules/#{module.hostname}")
+    conn = delete conn(), "/messaging/exchanges/#{exchange.id}/modules/#{module.hostname}"
     assert conn.status == 204
   end  
 
   test "create - invalid exchange" do
-    conn = call(Router, :post, "/messaging/exchanges/1234567890/modules")
+    conn = post conn(), "/messaging/exchanges/1234567890/modules"
     assert conn.status == 404
   end
 
   test "create - valid exchange no modules" do
     exchange = Repo.insert(MessagingExchange.new(%{name: "#{UUID.uuid1()}"}))
 
-    conn = call(Router, :post, "/messaging/exchanges/#{exchange.id}/modules")
+    conn = post conn(), "/messaging/exchanges/#{exchange.id}/modules"
     assert conn.status == 400
   end
 
@@ -154,7 +161,7 @@ defmodule OpenAperture.Manager.Controllers.MessagingExchangeModulesTest do
       workload: "[]",
     }
 
-    conn = call(Router, :post, "/messaging/exchanges/#{exchange.id}/modules", module_params)
+    conn = post conn(), "/messaging/exchanges/#{exchange.id}/modules", module_params
     assert conn.status == 201
 
     location_header = Enum.reduce conn.resp_headers, nil, fn ({key, value}, location_header) ->

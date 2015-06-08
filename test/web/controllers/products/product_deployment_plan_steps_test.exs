@@ -57,6 +57,8 @@ defmodule OpenAperture.Manager.Controllers.ProductDeploymentPlanStepsTest do
     {:ok, product: product, pdp1: pdp1, pdp2: pdp2, pdps1: pdps1, pdps2: pdps2, pdps3: pdps3, pdps4: pdps4, pdpso1: pdpso1, pdpso2: pdpso2, pdpso3: pdpso3}
   end
 
+  @endpoint OpenAperture.Manager.Endpoint
+
   test "index action -- success", context do
     product = context[:product]
     plan = context[:pdp1]
@@ -92,7 +94,7 @@ defmodule OpenAperture.Manager.Controllers.ProductDeploymentPlanStepsTest do
 
     path = product_deployment_plan_steps_path(Endpoint, :index, "not a real product name", plan.name)
 
-    conn = call(Router, :get, path)
+    conn = get conn(), path
 
     assert conn.status == 404
   end
@@ -102,7 +104,7 @@ defmodule OpenAperture.Manager.Controllers.ProductDeploymentPlanStepsTest do
 
     path = product_deployment_plan_steps_path(Endpoint, :index, product.name, "not a real deployment plan name")
 
-    conn = call(Router, :get, path)
+    conn = get conn(), path
 
     assert conn.status == 404
   end
@@ -119,7 +121,7 @@ defmodule OpenAperture.Manager.Controllers.ProductDeploymentPlanStepsTest do
     step1_error = %{type: "execute_plan", product_deployment_plan_id: plan.id}
     step1_build = %{type: "build_component", product_deployment_plan_id: plan.id, on_success_step: step1_deploy, on_failure_step: step1_error}
 
-    conn = call(Router, :post, path, Poison.encode!(step1_build), [{"content-type", "application/json"}])
+    conn = post conn(), path, step1_build
 
     assert conn.status == 201
 
@@ -142,7 +144,7 @@ defmodule OpenAperture.Manager.Controllers.ProductDeploymentPlanStepsTest do
 
     step1_deploy = %{type: "deploy_component", product_deployment_plan_id: plan.id}
 
-    conn = call(Router, :post, path, Poison.encode!(step1_deploy), [{"content-type", "application/json"}])
+    conn = post conn(), path, step1_deploy
 
     assert conn.status == 201
 
@@ -173,7 +175,7 @@ defmodule OpenAperture.Manager.Controllers.ProductDeploymentPlanStepsTest do
     step1_error = %{type: "execute_plan", product_deployment_plan_id: plan.id, options: [step2_option1]}
     step1_build = %{type: "build_component", product_deployment_plan_id: plan.id, on_success_step: step1_deploy, on_failure_step: step1_error, options: [step3_option1]}
 
-    conn = call(Router, :post, path, Poison.encode!(step1_build), [{"content-type", "application/json"}])
+    conn = post conn(), path, step1_build
 
     assert conn.status == 201
 
@@ -202,7 +204,7 @@ defmodule OpenAperture.Manager.Controllers.ProductDeploymentPlanStepsTest do
 
     step1_deploy = %{type: "deploy_component", product_deployment_plan_id: plan.id, options: [step1_option1, step1_option2, step1_option3]}
 
-    conn = call(Router, :post, path, Poison.encode!(step1_deploy), [{"content-type", "application/json"}])
+    conn = post conn(), path, step1_deploy
 
     assert conn.status == 201
 
@@ -228,7 +230,7 @@ defmodule OpenAperture.Manager.Controllers.ProductDeploymentPlanStepsTest do
     step1_error = %{type: "execute_plan", product_deployment_plan_id: plan.id}
     step1_build = %{type: "build_component", product_deployment_plan_id: plan.id, on_success_step: step1_deploy, on_failure_step: step1_error}
 
-    conn = call(Router, :post, path, Poison.encode!(step1_build), [{"content-type", "application/json"}])
+    conn = post conn(), path, step1_build
 
     assert conn.status == 400
     assert step_count == length(Repo.all(ProductDeploymentPlanStep))
@@ -246,7 +248,7 @@ defmodule OpenAperture.Manager.Controllers.ProductDeploymentPlanStepsTest do
     step1_error = %{type: "execute_plan", product_deployment_plan_id: plan.id}
     step1_build = %{type: "NOT A REAL STEP TYPE", product_deployment_plan_id: plan.id, on_success_step: step1_deploy, on_failure_step: step1_error}
 
-    conn = call(Router, :post, path, Poison.encode!(step1_build), [{"content-type", "application/json"}])
+    conn = post conn(), path, step1_build
 
     assert conn.status == 400
     assert step_count == length(Repo.all(ProductDeploymentPlanStep))
@@ -262,7 +264,7 @@ defmodule OpenAperture.Manager.Controllers.ProductDeploymentPlanStepsTest do
 
     step1_deploy = %{type: "NOT A VALID STEP TYPE", product_deployment_plan_id: plan.id}
 
-    conn = call(Router, :post, path, Poison.encode!(step1_deploy), [{"content-type", "application/json"}])
+    conn = post conn(), path, step1_deploy
 
     assert conn.status == 400
     assert step_count == length(Repo.all(ProductDeploymentPlanStep))
@@ -286,7 +288,7 @@ defmodule OpenAperture.Manager.Controllers.ProductDeploymentPlanStepsTest do
     step1_error = %{type: "execute_plan", product_deployment_plan_id: plan.id, options: [step2_option1]}
     step1_build = %{type: "build_component", product_deployment_plan_id: plan.id, on_success_step: step1_deploy, on_failure_step: step1_error, options: [step3_option1]}
 
-    conn = call(Router, :post, path, Poison.encode!(step1_build), [{"content-type", "application/json"}])
+    conn = post conn(), path, step1_build
 
     assert conn.status == 400
     assert step_count == length(Repo.all(ProductDeploymentPlanStep))
@@ -308,7 +310,7 @@ defmodule OpenAperture.Manager.Controllers.ProductDeploymentPlanStepsTest do
 
     step1_deploy = %{type: "deploy_component", product_deployment_plan_id: plan.id, options: [step1_option1, step1_option2, step1_option3]}
 
-    conn = call(Router, :post, path, Poison.encode!(step1_deploy), [{"content-type", "application/json"}])
+    conn = post conn(), path, step1_deploy
 
     assert conn.status == 400
     assert step_count == length(Repo.all(ProductDeploymentPlanStep))
@@ -321,7 +323,7 @@ defmodule OpenAperture.Manager.Controllers.ProductDeploymentPlanStepsTest do
 
     path = product_deployment_plan_steps_path(Endpoint, :destroy, product.name, plan.name)
 
-    conn = call(Router, :delete, path)
+    conn = delete conn(), path
 
     assert conn.status == 204
 
@@ -346,7 +348,7 @@ defmodule OpenAperture.Manager.Controllers.ProductDeploymentPlanStepsTest do
 
     path = product_deployment_plan_steps_path(Endpoint, :destroy, product.name, plan.name)
 
-    conn = call(Router, :delete, path)
+    conn = delete conn(), path
 
     assert conn.status == 204
 
@@ -360,7 +362,7 @@ defmodule OpenAperture.Manager.Controllers.ProductDeploymentPlanStepsTest do
     plan = context[:pdp2]
     path = product_deployment_plan_steps_path(Endpoint, :destroy, "not a real product name", plan.name)
 
-    conn = call(Router, :delete, path)
+    conn = delete conn(), path
 
     assert conn.status == 404
   end
@@ -369,7 +371,7 @@ defmodule OpenAperture.Manager.Controllers.ProductDeploymentPlanStepsTest do
     product = context[:product]
     path = product_deployment_plan_steps_path(Endpoint, :destroy, product.name, "not a real plan name")
 
-    conn = call(Router, :delete, path)
+    conn = delete conn(), path
 
     assert conn.status == 404
   end

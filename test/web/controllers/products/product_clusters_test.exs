@@ -5,7 +5,6 @@ defmodule OpenAperture.Manager.Controllers.ProductClustersTest do
 
   alias OpenAperture.Manager.DB.Models.Product
   alias OpenAperture.Manager.DB.Models.ProductCluster
-  alias OpenAperture.Manager.Router
 
   setup_all _context do
     :meck.new OpenAperture.Manager.Repo
@@ -21,6 +20,8 @@ defmodule OpenAperture.Manager.Controllers.ProductClustersTest do
     :ok
   end
 
+  @endpoint OpenAperture.Manager.Endpoint 
+
   test "index action -- product exists" do
     product = %Product{name: "test1", id: 1}
     :meck.expect(OpenAperture.Manager.Repo, :one, 1, product)
@@ -29,7 +30,7 @@ defmodule OpenAperture.Manager.Controllers.ProductClustersTest do
 
     :meck.expect(OpenAperture.Manager.Repo, :all, 1, clusters)
 
-    conn = call(Router, :get, "/products/test1/clusters")
+    conn = get conn(), "/products/test1/clusters"
 
     assert conn.status == 200
 
@@ -46,7 +47,7 @@ defmodule OpenAperture.Manager.Controllers.ProductClustersTest do
 
     :meck.expect(OpenAperture.Manager.Repo, :all, 1, [])
 
-    conn = call(Router, :get, "/products/test1/clusters")
+    conn = get conn(), "/products/test1/clusters"
 
     assert conn.status == 200
 
@@ -58,7 +59,7 @@ defmodule OpenAperture.Manager.Controllers.ProductClustersTest do
   test "index action -- product does not exist" do
     :meck.expect(OpenAperture.Manager.Repo, :one, 1, nil)
 
-    conn = call(Router, :get, "products/test1/clusters")
+    conn = get conn(), "products/test1/clusters"
 
     assert conn.status == 404
   end
@@ -71,7 +72,7 @@ defmodule OpenAperture.Manager.Controllers.ProductClustersTest do
     :meck.expect(OpenAperture.Manager.Repo, :delete_all, 1, 0)
     :meck.expect(OpenAperture.Manager.Repo, :transaction, 1, {:ok, :ok})
 
-    conn = call(Router, :post, "products/test1/clusters", Poison.encode!(%{clusters: [%{id: 1}, %{id: 2}, %{id: 3}]}), [{"content-type", "application/json"}])
+    conn = post conn(), "products/test1/clusters", %{clusters: [%{id: 1}, %{id: 2}, %{id: 3}]}
 
     assert conn.status == 201
   end
@@ -79,7 +80,7 @@ defmodule OpenAperture.Manager.Controllers.ProductClustersTest do
   test "create action -- product not found" do
     :meck.expect(OpenAperture.Manager.Repo, :one, 1, nil)
 
-    conn = call(Router, :post, "products/test1/clusters", Poison.encode!(%{clusters: [%{id: 1}, %{id: 2}]}), [{"content-type", "application/json"}])
+    conn = post conn(), "products/test1/clusters", %{clusters: [%{id: 1}, %{id: 2}]}
 
     assert conn.status == 404
   end
@@ -90,7 +91,7 @@ defmodule OpenAperture.Manager.Controllers.ProductClustersTest do
     :meck.expect(OpenAperture.Manager.Repo, :one, 1, product)
     :meck.expect(OpenAperture.Manager.Repo, :all, 1, [1, 2])
 
-    conn = call(Router, :post, "products/test1/clusters", Poison.encode!(%{clusters: [%{id: 1}, %{id: 2}, %{id: 3}]}), [{"content-type", "application/json"}])
+    conn = post conn(), "products/test1/clusters", %{clusters: [%{id: 1}, %{id: 2}, %{id: 3}]}
 
     assert conn.status == 400
   end
@@ -101,7 +102,7 @@ defmodule OpenAperture.Manager.Controllers.ProductClustersTest do
     :meck.expect(OpenAperture.Manager.Repo, :one, 1, product)
     :meck.expect(OpenAperture.Manager.Repo, :delete_all, 1, 1)
 
-    conn = call(Router, :delete, "products/test1/clusters")
+    conn = delete conn(), "products/test1/clusters"
 
     assert conn.status == 204
   end
@@ -109,7 +110,7 @@ defmodule OpenAperture.Manager.Controllers.ProductClustersTest do
   test "destroy action -- product not found" do
     :meck.expect(OpenAperture.Manager.Repo, :one, 1, nil)
 
-    conn = call(Router, :delete, "products/test1/clusters")
+    conn = delete conn(), "products/test1/clusters"
 
     assert conn.status == 404
   end

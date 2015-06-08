@@ -1,18 +1,20 @@
 defmodule OpenAperture.Manager.Controllers.CloudProvidersTest do
   use ExUnit.Case
   use Plug.Test
+  use Phoenix.ConnTest
   use OpenAperture.Manager.Test.ConnHelper
 
   alias OpenAperture.Manager.DB.Models.CloudProvider
   alias OpenAperture.Manager.DB.Models.EtcdCluster
-  alias OpenAperture.Manager.Router
   alias OpenAperture.Manager.Repo
 
-  setup _context do
+  @endpoint OpenAperture.Manager.Endpoint
+
+  setup context do
     :meck.new(OpenAperture.Manager.Plugs.Authentication, [:passthrough])
     :meck.expect(OpenAperture.Manager.Plugs.Authentication, :call, fn conn, _opts -> conn end)
 
-    on_exit _context, fn ->
+    on_exit context, fn ->
       try do
         :meck.unload
       rescue _ -> IO.puts "" end
@@ -26,7 +28,7 @@ defmodule OpenAperture.Manager.Controllers.CloudProvidersTest do
     provider1 = CloudProvider.new(%{id: 1, name: "aws", type: "aws", configuration: "{}"}) |> Repo.insert
     provider2 = CloudProvider.new(%{id: 2, name: "azure", type: "azure", configuration: "{}"}) |> Repo.insert
 
-    conn = call(Router, :get, "/cloud_providers")
+    conn = get conn(), "/cloud_providers"
 
     assert conn.status == 200
 
@@ -47,7 +49,7 @@ defmodule OpenAperture.Manager.Controllers.CloudProvidersTest do
   test "show action - found" do
     provider = CloudProvider.new(%{name: "aws", type: "aws", configuration: "{}"}) |> Repo.insert
 
-    conn = call(Router, :get, "/cloud_providers/#{provider.id}")
+    conn = get conn, "/cloud_providers/#{provider.id}"
 
     assert conn.status == 200
 
@@ -57,13 +59,14 @@ defmodule OpenAperture.Manager.Controllers.CloudProvidersTest do
   end
 
   test "show action -- not found" do
-    conn = call(Router, :get, "/cloud_providers/1")
+    conn = get conn(), "/cloud_providers/1"
+
 
     assert conn.status == 404
   end
 
   test "create action -- success" do
-    conn = call(Router, :post, "/cloud_providers", Poison.encode!(%{name: "aws", type: "aws", configuration: "{}"}), [{"content-type", "application/json"}])
+    conn = post conn(), "/cloud_providers", [name: "aws", type: "aws", configuration: "{}"]
 
     assert conn.status == 201
 
@@ -75,8 +78,7 @@ defmodule OpenAperture.Manager.Controllers.CloudProvidersTest do
   end
 
   test "create action -- bad request on invalid values" do
-    conn = call(Router, :post, "/cloud_providers", Poison.encode!(%{name: "", type: "", configuration: ""}), [{"content-type", "application/json"}])
-    
+    conn = post conn(), "/cloud_providers", [name: "", type: "", configuration: ""]
     assert conn.status == 400
 
     assert String.contains?(conn.resp_body, "name")
@@ -87,13 +89,13 @@ defmodule OpenAperture.Manager.Controllers.CloudProvidersTest do
   test "delete action -- success" do
     provider = CloudProvider.new(%{name: "aws", type: "aws", configuration: "{}"}) |> Repo.insert
 
-    conn = call(Router, :delete, "/cloud_providers/#{provider.id}")
+    conn = delete conn(), "/cloud_providers/#{provider.id}"
 
     assert conn.status == 204
   end
 
   test "delete action -- not found" do
-    conn = call(Router, :delete, "/cloud_providers/1")
+    conn = delete conn(), "/cloud_providers/1"
 
     assert conn.status == 404
   end
@@ -101,8 +103,8 @@ defmodule OpenAperture.Manager.Controllers.CloudProvidersTest do
   test "update action -- success" do
     provider = CloudProvider.new(%{name: "aws", type: "aws", configuration: "{}"}) |> Repo.insert
 
-    conn = call(Router, :put, "/cloud_providers/#{provider.id}", Poison.encode!(%{name: "azure", type: "azure", configuration: "{some_config}"}), [{"content-type", "application/json"}])
-
+    conn = put conn(), "/cloud_providers/#{provider.id}", [name: "azure", type: "azure", configuration: "{some_config}"]
+    
     assert conn.status == 204
 
     assert List.keymember?(conn.resp_headers, "location", 0)
@@ -113,16 +115,14 @@ defmodule OpenAperture.Manager.Controllers.CloudProvidersTest do
   end
 
   test "update action -- not found" do
-    conn = call(Router, :put, "/cloud_providers/1", Poison.encode!(%{name: "azure", type: "azure", configuration: "{some_config}"}), [{"content-type", "application/json"}])
-
+    conn = put conn(), "/cloud_providers/1", name: "azure", type: "azure", configuration: "{some_config}"
     assert conn.status == 404
   end
 
   test "update action -- fails on invalid change" do
     provider = CloudProvider.new(%{name: "aws", type: "aws", configuration: "{}"}) |> Repo.insert
 
-    conn = call(Router, :put, "/cloud_providers/#{provider.id}", Poison.encode!(%{name: "", type: "", configuration: ""}), [{"content-type", "application/json"}])
-
+    conn = put conn(), "/cloud_providers/#{provider.id}", [name: "", type: "", configuration: ""]
     assert conn.status == 400
 
     assert String.contains?(conn.resp_body, "name")
@@ -135,7 +135,7 @@ defmodule OpenAperture.Manager.Controllers.CloudProvidersTest do
     _cluster1 = EtcdCluster.new(%{etcd_token: "abc125", hosting_provider_id: provider.id}) |> Repo.insert
     _cluster2 = EtcdCluster.new(%{etcd_token: "abc126", hosting_provider_id: provider.id}) |> Repo.insert
 
-    conn = call(Router, :get, "/cloud_providers/#{provider.id}/clusters")
+    conn = get conn(), "/cloud_providers/#{provider.id}/clusters"
 
     assert conn.status == 200
 
@@ -150,7 +150,7 @@ defmodule OpenAperture.Manager.Controllers.CloudProvidersTest do
     _cluster1 = EtcdCluster.new(%{etcd_token: "abc125", hosting_provider_id: provider2.id}) |> Repo.insert
     _cluster2 = EtcdCluster.new(%{etcd_token: "abc126", hosting_provider_id: provider2.id}) |> Repo.insert
 
-    conn = call(Router, :get, "/cloud_providers/#{provider1.id}/clusters")
+    conn = get conn(), "/cloud_providers/#{provider1.id}/clusters"
 
     assert conn.status == 200
 
@@ -163,8 +163,8 @@ defmodule OpenAperture.Manager.Controllers.CloudProvidersTest do
     provider = CloudProvider.new(%{name: "a", type: "a", configuration: "{}"}) |> Repo.insert
     _cluster1 = EtcdCluster.new(%{etcd_token: "abc125", hosting_provider_id: provider.id}) |> Repo.insert
     _cluster2 = EtcdCluster.new(%{etcd_token: "abc126", hosting_provider_id: provider.id}) |> Repo.insert
-
-    conn = call(Router, :get, "/cloud_providers/-1/clusters")
+    
+    conn = get conn(), "/cloud_providers/-1/clusters"
 
     assert conn.status == 200
 

@@ -1,15 +1,26 @@
 defmodule OpenAperture.Manager.Test.ConnHelper do
   defmacro __using__(_) do
     quote do
-      import Plug.Test
+      import Phoenix.ConnTest
 
       def call(router, verb, path, params \\ nil, headers \\ []) do
-        add_headers(conn(verb, path, params), headers)
+        add_headers(Phoenix.ConnTest.conn(verb, path, params), headers)
         |> Plug.Conn.fetch_params
         |> Plug.Parsers.call(parsers: [Plug.Parsers.JSON],
                         pass: ["*/*"],
                         json_decoder: Poison)
         |> router.call(router.init([]))
+      end
+
+      def call_phoenix(router, verb, path, params \\ nil, headers \\ []) do
+        conn = add_headers(Phoenix.ConnTest.conn(verb, path, params), headers)
+        |> Plug.Conn.fetch_params
+        |> Plug.Parsers.call(parsers: [Plug.Parsers.JSON],
+                        pass: ["*/*"],
+                        json_decoder: Poison)
+        |> IO.inspect
+        |> recycle
+        |> Phoenix.ConnTest.dispatch(router, verb, path, params)
       end
 
       defp add_headers(connection, []) do

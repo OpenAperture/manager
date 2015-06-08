@@ -21,6 +21,8 @@ defmodule OpenAperture.Manager.Controllers.ProductDeploymentPlansTest do
     on_exit fn -> :meck.unload end
   end
 
+  @endpoint OpenAperture.Manager.Endpoint
+
   setup do
     product = Product.new(%{name: "test_pdp_product"})
               |> Repo.insert
@@ -53,7 +55,7 @@ defmodule OpenAperture.Manager.Controllers.ProductDeploymentPlansTest do
 
     path = product_deployment_plans_path(Endpoint, :index, product.name)
 
-    conn = call(Router, :get, path)
+    conn = get conn(), path
 
     assert conn.status == 200
 
@@ -68,7 +70,7 @@ defmodule OpenAperture.Manager.Controllers.ProductDeploymentPlansTest do
 
     path = product_deployment_plans_path(Endpoint, :index, product.name)
 
-    conn = call(Router, :get, path)
+    conn = get conn(), path
 
     assert conn.status == 200
 
@@ -80,7 +82,7 @@ defmodule OpenAperture.Manager.Controllers.ProductDeploymentPlansTest do
   test "index action -- product doesn't exist" do
     path = product_deployment_plans_path(Endpoint, :index, "not a real product name")
 
-    conn = call(Router, :get, path)
+    conn = get conn(), path
 
     assert conn.status == 404
   end
@@ -91,7 +93,7 @@ defmodule OpenAperture.Manager.Controllers.ProductDeploymentPlansTest do
 
     path = product_deployment_plans_path(Endpoint, :show, product.name, plan.name)
 
-    conn = call(Router, :get, path)
+    conn = get conn(), path
 
     assert conn.status == 200
 
@@ -110,7 +112,7 @@ defmodule OpenAperture.Manager.Controllers.ProductDeploymentPlansTest do
     name_encoded = URI.encode(name, &URI.char_unreserved?/1)
     path = product_deployment_plans_path(Endpoint, :show, product.name, name_encoded)
 
-    conn = call(Router, :get, path)
+    conn = get conn(), path
 
     assert conn.status == 200
 
@@ -123,7 +125,7 @@ defmodule OpenAperture.Manager.Controllers.ProductDeploymentPlansTest do
     plan = context[:pdp1]
     path = product_deployment_plans_path(Endpoint, :show, "not a real product name", plan.name)
 
-    conn = call(Router, :get, path)
+    conn = get conn(), path
 
     assert conn.status == 404
   end
@@ -132,7 +134,7 @@ defmodule OpenAperture.Manager.Controllers.ProductDeploymentPlansTest do
     product = context[:product]
     path = product_deployment_plans_path(Endpoint, :show, product.name, "not a real deployment plan name")
 
-    conn = call(Router, :get, path)
+    conn = get conn(), path
 
     assert conn.status == 404
   end
@@ -143,7 +145,7 @@ defmodule OpenAperture.Manager.Controllers.ProductDeploymentPlansTest do
 
     new_plan = %{name: "test_plan"}
 
-    conn = call(Router, :post, path, Poison.encode!(new_plan), [{"content-type", "application/json"}])
+    conn = post conn(), path, new_plan
 
     assert conn.status == 201
 
@@ -171,7 +173,7 @@ defmodule OpenAperture.Manager.Controllers.ProductDeploymentPlansTest do
 
     new_plan = %{name: "test_plan"}
 
-    conn = call(Router, :post, path, Poison.encode!(new_plan), [{"content-type", "application/json"}])
+    conn = post conn(), path, new_plan
 
     assert conn.status == 404
   end
@@ -182,19 +184,19 @@ defmodule OpenAperture.Manager.Controllers.ProductDeploymentPlansTest do
 
     new_plan = %{}
 
-    conn = call(Router, :post, path, Poison.encode!(new_plan), [{"content-type", "application/json"}])
+    conn = post conn(), path, new_plan
 
     assert conn.status == 400
   end
 
   test "update action -- success", context do
-    product = context[:product]
-    plan = context[:pdp1]
+    product = Map.from_struct(context[:product])
+    plan = Map.from_struct(context[:pdp1])
 
     path = product_deployment_plans_path(Endpoint, :update, product.name, plan.name)
 
     updated_plan = %{plan | name: "some_new_name"}
-    conn = call(Router, :put, path, Poison.encode!(updated_plan), [{"content-type", "application/json"}])
+    conn = put conn(), path, updated_plan
 
     assert conn.status == 204
 
@@ -212,16 +214,16 @@ defmodule OpenAperture.Manager.Controllers.ProductDeploymentPlansTest do
   test "update action -- success and deletes existing plan if conflicting name", context do
     # Update plan2 with plan1's name, which should delete plan1 (and it's
     # associated step and option).
-    product = context[:product]
-    plan1 = context[:pdp1]
-    plan2 = context[:pdp2]
-    step = context[:step1]
-    option = context[:option1]
+    product = Map.from_struct(context[:product])
+    plan1 = Map.from_struct(context[:pdp1])
+    plan2 = Map.from_struct(context[:pdp2])
+    step = Map.from_struct(context[:step1])
+    option = Map.from_struct(context[:option1])
 
     path = product_deployment_plans_path(Endpoint, :update, product.name, plan2.name)
 
     updated_plan = %{plan2 | name: plan1.name}
-    conn = call(Router, :put, path, Poison.encode!(updated_plan), [{"content-type", "application/json"}])
+    conn = put conn(), path, updated_plan
 
     assert conn.status == 204
 
@@ -236,18 +238,18 @@ defmodule OpenAperture.Manager.Controllers.ProductDeploymentPlansTest do
     path = product_deployment_plans_path(Endpoint, :update, product.name, "not a real plan name")
 
     updated_plan = %{name: "some name"}
-    conn = call(Router, :put, path, Poison.encode!(updated_plan), [{"content-type", "application/json"}])
+    conn =  put conn(), path, updated_plan
 
     assert conn.status == 404
   end
 
   test "update action -- product not found", context do
-    plan = context[:pdp1]
+    plan = Map.from_struct(context[:pdp1])
 
     path = product_deployment_plans_path(Endpoint, :update, "not a real product name", plan.name)
 
     updated_plan = %{plan| name: "some name"}
-    conn = call(Router, :put, path, Poison.encode!(updated_plan), [{"content-type", "application/json"}])
+    conn =  put conn(), path, updated_plan
 
     assert conn.status == 404
   end
@@ -260,7 +262,7 @@ defmodule OpenAperture.Manager.Controllers.ProductDeploymentPlansTest do
 
     path = product_deployment_plans_path(Endpoint, :destroy_all_plans, product.name)
 
-    conn = call(Router, :delete, path)
+    conn =  delete conn(), path
 
     assert conn.status == 204
 
@@ -277,7 +279,7 @@ defmodule OpenAperture.Manager.Controllers.ProductDeploymentPlansTest do
 
     path = product_deployment_plans_path(Endpoint, :destroy_all_plans, product.name)
 
-    conn = call(Router, :delete, path)
+    conn = delete conn(), path
 
     assert conn.status == 204
 
@@ -289,7 +291,7 @@ defmodule OpenAperture.Manager.Controllers.ProductDeploymentPlansTest do
   test "destroy_all_plans -- product not found" do
     path = product_deployment_plans_path(Endpoint, :destroy_all_plans, "not a real product name")
 
-    conn = call(Router, :delete, path)
+    conn = delete conn(), path
 
     assert conn.status == 404
   end
@@ -300,7 +302,7 @@ defmodule OpenAperture.Manager.Controllers.ProductDeploymentPlansTest do
 
     path = product_deployment_plans_path(Endpoint, :destroy_plan, product.name, plan2.name)
 
-    conn = call(Router, :delete, path)
+    conn = delete conn(), path
 
     assert conn.status == 204
 
@@ -315,7 +317,7 @@ defmodule OpenAperture.Manager.Controllers.ProductDeploymentPlansTest do
 
     path = product_deployment_plans_path(Endpoint, :destroy_plan, product.name, plan1.name)
 
-    conn = call(Router, :delete, path)
+    conn = delete conn(), path
 
     assert conn.status == 204
 
@@ -329,7 +331,7 @@ defmodule OpenAperture.Manager.Controllers.ProductDeploymentPlansTest do
 
     path = product_deployment_plans_path(Endpoint, :destroy_plan, product.name, "not a real plan name")
 
-    conn = call(Router, :delete, path)
+    conn = delete conn(), path
 
     assert conn.status == 404
   end
@@ -339,7 +341,7 @@ defmodule OpenAperture.Manager.Controllers.ProductDeploymentPlansTest do
 
     path = product_deployment_plans_path(Endpoint, :destroy_plan, "not a real product name", plan.name)
 
-    conn = call(Router, :delete, path)
+    conn = delete conn(), path
 
     assert conn.status == 404
   end

@@ -20,11 +20,13 @@ defmodule OpenAperture.Manager.Controllers.ProductsTest do
     :ok
   end
 
+  @endpoint OpenAperture.Manager.Endpoint
+
   test "index action" do
     products = [%Product{name: "test1"}, %Product{name: "test2"}]
     :meck.expect(OpenAperture.Manager.Repo, :all, 1, products)
 
-    conn = call(Router, :get, "/products")
+    conn = get conn(), "/products"
 
     assert conn.status == 200
 
@@ -40,7 +42,7 @@ defmodule OpenAperture.Manager.Controllers.ProductsTest do
     product = %Product{name: "test1"}
     :meck.expect(OpenAperture.Manager.Repo, :one, 1, product)
 
-    conn = call(Router, :get, "/products/test1")
+    conn = get conn(), "/products/test1"
 
     assert conn.status == 200
 
@@ -62,7 +64,7 @@ defmodule OpenAperture.Manager.Controllers.ProductsTest do
     :meck.expect(OpenAperture.Manager.Repo, :one, 1, nil)
     :meck.expect(OpenAperture.Manager.Repo, :insert, 1, product)
 
-    conn = call(Router, :post, "/products", Poison.encode!(%{name: "test1"}), [{"content-type", "application/json"}])
+    conn = post conn(), "/products", %{name: "test1"}
 
     assert conn.status == 201
 
@@ -77,7 +79,7 @@ defmodule OpenAperture.Manager.Controllers.ProductsTest do
     product = %Product{name: "test1", id: 1}
     :meck.expect(OpenAperture.Manager.Repo, :one, 1, product)
 
-    conn = call(Router, :post, "/products", Poison.encode!(%{name: "test1"}), [{"content-type", "application/json"}])
+    conn = post conn(), "/products", %{name: "test1"}
 
     assert conn.status == 409
   end
@@ -85,7 +87,7 @@ defmodule OpenAperture.Manager.Controllers.ProductsTest do
   test "create action -- bad request on invalid product name" do
     :meck.expect(OpenAperture.Manager.Repo, :one, 1, nil)
 
-    conn = call(Router, :post, "/products", Poison.encode!(%{name: ""}), [{"content-type", "application/json"}])
+    conn = post conn(), "/products", %{name: ""}
 
     assert conn.status == 400
   end
@@ -95,7 +97,7 @@ defmodule OpenAperture.Manager.Controllers.ProductsTest do
     :meck.expect(OpenAperture.Manager.Repo, :one, 1, product)
     :meck.expect(OpenAperture.Manager.Repo, :delete, 1, product)
 
-    conn = call(Router, :delete, "/products/test1")
+    conn = delete conn(), "/products/test1"
 
     assert conn.status == 204
   end
@@ -103,7 +105,7 @@ defmodule OpenAperture.Manager.Controllers.ProductsTest do
   test "delete action -- not found" do
     :meck.expect(OpenAperture.Manager.Repo, :one, 1, nil)
 
-    conn = call(Router, :delete, "/products/test1")
+    conn = delete conn(), "/products/test1"
 
     assert conn.status == 404
   end
@@ -125,7 +127,7 @@ defmodule OpenAperture.Manager.Controllers.ProductsTest do
 
     :meck.expect(OpenAperture.Manager.Repo, :update, 1, updated_product)
 
-    conn = call(Router, :put, "/products/original_test1", Poison.encode!(%{name: "updated_test1"}), [{"content-type", "application/json"}])
+    conn = put conn(), "/products/original_test1", %{name: "updated_test1"}
 
     assert conn.status == 204
 
@@ -139,7 +141,7 @@ defmodule OpenAperture.Manager.Controllers.ProductsTest do
   test "update action -- not found" do
     :meck.expect(OpenAperture.Manager.Repo, :one, 1, nil)
 
-    conn = call(Router, :put, "/products/test1", Poison.encode!(%{name: "updated_test1"}), [{"content-type", "application/json"}])
+    conn = put conn(), "/products/test1", %{name: "updated_test1"}
 
     assert conn.status == 404
   end
@@ -158,7 +160,7 @@ defmodule OpenAperture.Manager.Controllers.ProductsTest do
       if res, do: product, else: nil
     end)
 
-    conn = call(Router, :put, "/products/original_test1", Poison.encode!(%{name: ""}), [{"content-type", "application/json"}])
+    conn = put conn(), "/products/original_test1", %{name: ""}
 
     assert conn.status == 400
   end
@@ -179,7 +181,7 @@ defmodule OpenAperture.Manager.Controllers.ProductsTest do
       if res, do: product1, else: product2
     end)
 
-    conn = call(Router, :put, "/products/original_test1", Poison.encode!(%{name: ""}), [{"content-type", "application/json"}])
+    conn = put conn(), "/products/original_test1", %{name: ""}
 
     assert conn.status == 400
   end
