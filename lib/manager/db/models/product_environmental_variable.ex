@@ -17,4 +17,12 @@ defmodule OpenAperture.Manager.DB.Models.ProductEnvironmentalVariable do
     cast(model_or_changeset,  params, @required_fields, @optional_fields)
     |> validate_length(:name, min: 1)
   end
+
+  def destroy_for_product(product) do
+    OpenAperture.Manager.Repo.delete_all assoc(product, :environmental_variables)
+  end
+
+  def destroy_for_environment(env) do
+    OpenAperture.Manager.Repo.delete_all assoc(env, :environmental_variables)
+  end
 end
