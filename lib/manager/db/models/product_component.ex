@@ -21,7 +21,7 @@ defmodule OpenAperture.Manager.DB.Models.ProductComponent do
 
   def destroy_for_product(product) do
     q = assoc(product, :product_components)
-    q |> Repo.all |> Enum.map &ProductComponentOption.destroy_for_environment(&1)
+    q |> Repo.all |> Enum.map &Models.ProductComponentOption.destroy_for_environment(&1)
     Repo.delete_all q
   end
 end
