@@ -1,13 +1,11 @@
 defmodule OpenAperture.Manager.Controllers.ProductDeploymentPlansTest do
   use ExUnit.Case, async: false
-  use Plug.Test
-  use OpenAperture.Manager.Test.ConnHelper
+  use Phoenix.ConnTest
 
   import OpenAperture.Manager.Router.Helpers
 
   alias OpenAperture.Manager.Endpoint
   alias OpenAperture.Manager.Repo
-  alias OpenAperture.Manager.Router
 
   alias OpenAperture.Manager.DB.Models.Product
   alias OpenAperture.Manager.DB.Models.ProductDeploymentPlan
@@ -163,7 +161,9 @@ defmodule OpenAperture.Manager.Controllers.ProductDeploymentPlansTest do
 
     new_plan = %{name: plan.name}
 
-    conn = call(Router, :post, path, Poison.encode!(new_plan), [{"content-type", "application/json"}])
+    conn = conn()
+           |> Phoenix.ConnTest.put_req_header("content-type", "application/json")
+           |> post(path, Poison.encode!(new_plan))
 
     assert conn.status == 409
   end

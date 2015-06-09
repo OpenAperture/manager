@@ -1,8 +1,6 @@
 defmodule OpenAperture.Manager.Controllers.CloudProvidersTest do
   use ExUnit.Case
-  use Plug.Test
   use Phoenix.ConnTest
-  use OpenAperture.Manager.Test.ConnHelper
 
   alias OpenAperture.Manager.DB.Models.CloudProvider
   alias OpenAperture.Manager.DB.Models.EtcdCluster

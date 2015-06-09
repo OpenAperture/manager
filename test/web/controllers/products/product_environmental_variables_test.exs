@@ -1,7 +1,6 @@
 defmodule OpenAperture.Manager.Controllers.ProductEnvironmentalVariablesTest do
   use ExUnit.Case, async: false
-  use Plug.Test
-  use OpenAperture.Manager.Test.ConnHelper
+  use Phoenix.ConnTest
 
   import OpenAperture.Manager.Router.Helpers
 

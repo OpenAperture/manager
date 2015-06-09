@@ -1,7 +1,6 @@
 defmodule OpenAperture.Manager.Controllers.WorkflowsTest do
   use ExUnit.Case
-  use Plug.Test
-  use OpenAperture.Manager.Test.ConnHelper
+  use Phoenix.ConnTest
 
   alias OpenAperture.Manager.Repo
 

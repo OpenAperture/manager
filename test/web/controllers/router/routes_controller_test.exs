@@ -1,7 +1,6 @@
 defmodule OpenAperture.Manager.Controllers.Router.RoutesController.Test do
   use ExUnit.Case, async: false
-  use Plug.Test
-  use OpenAperture.Manager.Test.ConnHelper
+  use Phoenix.ConnTest
 
   import OpenAperture.Manager.Router.Helpers
 
@@ -10,7 +9,8 @@ defmodule OpenAperture.Manager.Controllers.Router.RoutesController.Test do
   alias OpenAperture.Manager.DB.Models.Router.Route
   alias OpenAperture.Manager.Endpoint
   alias OpenAperture.Manager.Repo
-  alias OpenAperture.Manager.Router
+
+  @endpoint OpenAperture.Manager.Endpoint
 
   setup do
     :meck.new(OpenAperture.Manager.Plugs.Authentication, [:passthrough])
@@ -51,7 +51,7 @@ defmodule OpenAperture.Manager.Controllers.Router.RoutesController.Test do
 
   test "GET /router/routes" do
     path = routes_path(Endpoint, :index)
-    conn = call(Router, :get, path)
+    conn = get conn(), path
 
     assert conn.status == 200
     body = Poison.decode!(conn.resp_body)
@@ -66,7 +66,7 @@ defmodule OpenAperture.Manager.Controllers.Router.RoutesController.Test do
 
   test "retrieve only updated routes -- no updates" do
     path = routes_path(Endpoint, :index)
-    conn = call(Router, :get, path)
+    conn = get conn(), path
     
     assert conn.status == 200
     body = Poison.decode!(conn.resp_body)
@@ -76,7 +76,7 @@ defmodule OpenAperture.Manager.Controllers.Router.RoutesController.Test do
     # Wait a second...
     :timer.sleep(1000)
     path = routes_path(Endpoint, :index, updated_since: timestamp)
-    conn = call(Router, :get, path)
+    conn = get conn(), path
     assert conn.status == 200
     body = Poison.decode!(conn.resp_body)
     assert length(Map.keys(body)) == 1
@@ -97,7 +97,7 @@ defmodule OpenAperture.Manager.Controllers.Router.RoutesController.Test do
     timestamp = megas * 1_000_000 + secs
 
     path = routes_path(Endpoint, :index)
-    conn = call(Router, :get, path, updated_since: timestamp)
+    conn = get conn(), path, updated_since: timestamp
 
     assert conn.status == 200
     body = Poison.decode!(conn.resp_body)
@@ -107,7 +107,7 @@ defmodule OpenAperture.Manager.Controllers.Router.RoutesController.Test do
 
   test "retrieve all deleted routes" do
     path = routes_path(Endpoint, :index_deleted)
-    conn = call(Router, :get, path)
+    conn = get conn(), path
 
     assert conn.status == 200
     body = Poison.decode!(conn.resp_body)
@@ -119,7 +119,7 @@ defmodule OpenAperture.Manager.Controllers.Router.RoutesController.Test do
 
   test "retrieve only newly-deleted routes -- none" do
     path = routes_path(Endpoint, :index)
-    conn = call(Router, :get, path)
+    conn = get conn(), path
 
     assert conn.status == 200
     body = Poison.decode!(conn.resp_body)
@@ -128,7 +128,7 @@ defmodule OpenAperture.Manager.Controllers.Router.RoutesController.Test do
     # Wait a second...
     :timer.sleep(1000)
     path = routes_path(Endpoint, :index_deleted, updated_since: timestamp)
-    conn = call(Router, :get, path)
+    conn = get conn(), path
     assert conn.status == 200
     body = Poison.decode!(conn.resp_body)
 
@@ -137,7 +137,7 @@ defmodule OpenAperture.Manager.Controllers.Router.RoutesController.Test do
 
   test "retrieve newly-deleted routes" do
     path = routes_path(Endpoint, :index)
-    conn = call(Router, :get, path)
+    conn = get conn(), path
 
     assert conn.status == 200
     body = Poison.decode!(conn.resp_body)
@@ -147,7 +147,7 @@ defmodule OpenAperture.Manager.Controllers.Router.RoutesController.Test do
     deleted_authority = Repo.insert(%DeletedAuthority{hostname: "test", port: 9})
 
     path = routes_path(Endpoint, :index_deleted, updated_since: timestamp)
-    conn = call(Router, :get, path)
+    conn = get conn(), path
     assert conn.status == 200
     body = Poison.decode!(conn.resp_body)
 

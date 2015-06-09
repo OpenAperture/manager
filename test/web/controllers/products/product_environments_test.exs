@@ -1,13 +1,11 @@
 defmodule OpenAperture.Manager.Controllers.ProductEnvironmentsTest do
   use ExUnit.Case, async: false
-  use Plug.Test
-  use OpenAperture.Manager.Test.ConnHelper
+  use Phoenix.ConnTest
 
   import OpenAperture.Manager.Router.Helpers
 
   alias OpenAperture.Manager.Endpoint
   alias OpenAperture.Manager.Repo
-  alias OpenAperture.Manager.Router
 
   alias OpenAperture.Manager.DB.Models.Product
   alias OpenAperture.Manager.DB.Models.ProductEnvironment
@@ -106,7 +104,7 @@ defmodule OpenAperture.Manager.Controllers.ProductEnvironmentsTest do
 
     path = product_environments_path(Endpoint, :show, product.name, "not a real environment name")
 
-    conn = call(Router, :get, path)
+    conn = get conn(), path
 
     assert conn.status == 404
   end

@@ -1,7 +1,6 @@
 defmodule OpenAperture.Manager.Plugs.Params.Test do
   use ExUnit.Case
   use Plug.Test
-  use OpenAperture.Manager.Test.ConnHelper
 
   import OpenAperture.Manager.Plugs.Params
 
