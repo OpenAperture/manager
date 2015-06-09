@@ -1,7 +1,6 @@
 defmodule OpenAperture.Manager.Controllers.ProductClustersTest do
   use ExUnit.Case
-  use Plug.Test
-  use OpenAperture.Manager.Test.ConnHelper
+  use Phoenix.ConnTest
 
   alias OpenAperture.Manager.DB.Models.Product
   alias OpenAperture.Manager.DB.Models.ProductCluster

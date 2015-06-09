@@ -1,13 +1,11 @@
 defmodule OpenAperture.Manager.Controllers.ProductDeploymentPlanStepsTest do
   use ExUnit.Case, async: false
-  use Plug.Test
-  use OpenAperture.Manager.Test.ConnHelper
+  use Phoenix.ConnTest
 
   import OpenAperture.Manager.Router.Helpers
 
   alias OpenAperture.Manager.Endpoint
   alias OpenAperture.Manager.Repo
-  alias OpenAperture.Manager.Router
 
   alias OpenAperture.Manager.DB.Models.Product
   alias OpenAperture.Manager.DB.Models.ProductDeploymentPlan
@@ -65,7 +63,7 @@ defmodule OpenAperture.Manager.Controllers.ProductDeploymentPlanStepsTest do
 
     path = product_deployment_plan_steps_path(Endpoint, :index, product.name, plan.name)
 
-    conn = call(Router, :get, path)
+    conn = get conn(), path
 
     assert conn.status == 200
 
@@ -82,7 +80,7 @@ defmodule OpenAperture.Manager.Controllers.ProductDeploymentPlanStepsTest do
 
     path = product_deployment_plan_steps_path(Endpoint, :index, product.name, plan.name)
 
-    conn = call(Router, :get, path)
+    conn = get conn(), path
 
     assert conn.status == 204
 

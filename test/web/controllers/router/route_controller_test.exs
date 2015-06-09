@@ -1,7 +1,6 @@
 defmodule OpenAperture.Manager.Controllers.Router.RouteController.Test do
   use ExUnit.Case, async: false
-  use Plug.Test
-  use OpenAperture.Manager.Test.ConnHelper
+  use Phoenix.ConnTest
 
   import OpenAperture.Manager.Router.Helpers
 
@@ -9,7 +8,8 @@ defmodule OpenAperture.Manager.Controllers.Router.RouteController.Test do
   alias OpenAperture.Manager.DB.Models.Router.Route
   alias OpenAperture.Manager.Endpoint
   alias OpenAperture.Manager.Repo
-  alias OpenAperture.Manager.Router
+
+  @endpoint OpenAperture.Manager.Endpoint
 
   setup do
     :meck.new(OpenAperture.Manager.Plugs.Authentication, [:passthrough])
@@ -38,7 +38,7 @@ defmodule OpenAperture.Manager.Controllers.Router.RouteController.Test do
     a1 = context[:a1]
 
     path = route_path(Endpoint, :index, a1.id, hostspec: "#{route.hostname}:#{route.port}")
-    conn = call(Router, :get, path)
+    conn = get conn(), path
 
     assert conn.status == 200
     body = Poison.decode!(conn.resp_body)
@@ -51,7 +51,7 @@ defmodule OpenAperture.Manager.Controllers.Router.RouteController.Test do
     a1 = context[:a1]
 
     path = route_path(Endpoint, :index, a1.id, hostspec: "#{route.hostname}%3A#{route.port}")
-    conn = call(Router, :get, path)
+    conn = get conn(), path
 
     assert conn.status == 200
     body = Poison.decode!(conn.resp_body)
@@ -64,7 +64,7 @@ defmodule OpenAperture.Manager.Controllers.Router.RouteController.Test do
     a1 = context[:a1]
 
     path = route_path(Endpoint, :index, a1.id, hostspec: "#{route.hostname}%3a#{route.port}")
-    conn = call(Router, :get, path)
+    conn = get conn(), path
 
     assert conn.status == 200
     body = Poison.decode!(conn.resp_body)
@@ -77,7 +77,7 @@ defmodule OpenAperture.Manager.Controllers.Router.RouteController.Test do
     a1 = context[:a1]
 
     path = route_path(Endpoint, :index, a1.id, hostspec: "#{route.hostname}^#{route.port}")
-    conn = call(Router, :get, path)
+    conn = get conn(), path
 
     assert conn.status == 400
   end
@@ -86,7 +86,7 @@ defmodule OpenAperture.Manager.Controllers.Router.RouteController.Test do
     a1 = context[:a1]
 
     path = route_path(Endpoint, :index, a1.id, hostspec: "bad_hostname:80")
-    conn = call(Router, :get, path)
+    conn = get conn(), path
 
     assert conn.status == 404
   end
@@ -95,7 +95,7 @@ defmodule OpenAperture.Manager.Controllers.Router.RouteController.Test do
     route = context[:route1]
 
     path = route_path(Endpoint, :index, 123456789, hostspec: "#{route.hostname}:#{route.port}")
-    conn = call(Router, :get, path)
+    conn = get conn(), path
 
     assert conn.status == 404
   end
@@ -104,7 +104,7 @@ defmodule OpenAperture.Manager.Controllers.Router.RouteController.Test do
     a1 = context[:a1]
 
     path = route_path(Endpoint, :index, a1.id)
-    conn = call(Router, :get, path)
+    conn = get conn(), path
 
     assert conn.status == 200
     body = Poison.decode!(conn.resp_body)
@@ -115,7 +115,7 @@ defmodule OpenAperture.Manager.Controllers.Router.RouteController.Test do
     a2 = context[:a2]
 
     path = route_path(Endpoint, :index, a2.id)
-    conn = call(Router, :get, path)
+    conn = get conn(), path
 
     assert conn.status == 200
     body = Poison.decode!(conn.resp_body)
@@ -128,7 +128,7 @@ defmodule OpenAperture.Manager.Controllers.Router.RouteController.Test do
     a1 = context[:a1]
 
     path = route_path(Endpoint, :clear, a1.id)
-    conn = call(Router, :delete, path)
+    conn = delete conn(), path
 
     assert conn.status == 204
 
@@ -139,7 +139,7 @@ defmodule OpenAperture.Manager.Controllers.Router.RouteController.Test do
     route_count = Route |> Repo.all |> length
 
     path = route_path(Endpoint, :clear, 1234567890)
-    conn = call(Router, :delete, path)
+    conn = delete conn(), path
 
     assert conn.status == 404
 
@@ -153,7 +153,7 @@ defmodule OpenAperture.Manager.Controllers.Router.RouteController.Test do
     :timer.sleep(1000)
 
     path = route_path(Endpoint, :clear, a1.id)
-    conn = call(Router, :delete, path)
+    conn = delete conn(), path
 
     assert conn.status == 204
 
@@ -167,7 +167,7 @@ defmodule OpenAperture.Manager.Controllers.Router.RouteController.Test do
     route_count = Route |> Repo.all |> length
 
     path = route_path(Endpoint, :delete, route1.authority_id, route1.id)
-    conn = call(Router, :delete, path)
+    conn = delete conn(), path
 
     assert conn.status == 204
 
@@ -182,7 +182,7 @@ defmodule OpenAperture.Manager.Controllers.Router.RouteController.Test do
     :timer.sleep(1000)
 
     path = route_path(Endpoint, :delete, route1.authority_id, route1.id)
-    conn = call(Router, :delete, path)
+    conn = delete conn(), path
 
     assert conn.status == 204
 
@@ -195,7 +195,7 @@ defmodule OpenAperture.Manager.Controllers.Router.RouteController.Test do
     route_count = Route |> Repo.all |> length
 
     path = route_path(Endpoint, :delete, a1.id, 1234567890)
-    conn = call(Router, :delete, path)
+    conn = delete conn(), path
 
     assert conn.status == 404
 
@@ -207,7 +207,7 @@ defmodule OpenAperture.Manager.Controllers.Router.RouteController.Test do
     route_count = Route |> Repo.all |> length
 
     path = route_path(Endpoint, :delete, 1234567890, route1.id)
-    conn = call(Router, :delete, path)
+    conn = delete conn(), path
 
     assert conn.status == 404
 
@@ -220,7 +220,7 @@ defmodule OpenAperture.Manager.Controllers.Router.RouteController.Test do
     route = %{hostname: "staging.test", port: 80}
 
     path = route_path(Endpoint, :create, a1.id)
-    conn = call(Router, :post, path, route)
+    conn = post conn(), path, route
 
     assert conn.status == 201
     assert List.keymember?(conn.resp_headers, "location", 0)
@@ -237,7 +237,7 @@ defmodule OpenAperture.Manager.Controllers.Router.RouteController.Test do
     :timer.sleep(1000)
 
     path = route_path(Endpoint, :create, a1.id)
-    conn = call(Router, :post, path, route)
+    conn = post conn(), path, route
 
     assert conn.status == 201
     a1 = Repo.get(Authority, a1.id)
@@ -249,7 +249,7 @@ defmodule OpenAperture.Manager.Controllers.Router.RouteController.Test do
     route = %{hostname: "staging.test", port: 80}
 
     path = route_path(Endpoint, :create, 1234567890)
-    conn = call(Router, :post, path, route)
+    conn = post conn(), path, route
 
     assert conn.status == 404
   end
@@ -260,7 +260,7 @@ defmodule OpenAperture.Manager.Controllers.Router.RouteController.Test do
     route = %{hostname: route1.hostname, port: route1.port}
 
     path = route_path(Endpoint, :create, route1.authority_id)
-    conn = call(Router, :post, path, route)
+    conn = post conn(), path, route
 
     assert conn.status == 409
   end
@@ -270,7 +270,7 @@ defmodule OpenAperture.Manager.Controllers.Router.RouteController.Test do
     route = %{port: 1234}
 
     path = route_path(Endpoint, :create, a1.id)
-    conn = call(Router, :post, path, route)
+    conn = post conn(), path, route
 
     assert conn.status == 400
   end
@@ -280,7 +280,7 @@ defmodule OpenAperture.Manager.Controllers.Router.RouteController.Test do
     route = %{hostname: "new_test"}
 
     path = route_path(Endpoint, :create, a1.id)
-    conn = call(Router, :post, path, route)
+    conn = post conn(), path, route
 
     assert conn.status == 400
   end
@@ -290,7 +290,7 @@ defmodule OpenAperture.Manager.Controllers.Router.RouteController.Test do
     route = %{hostname: "new_test", port: 99999}
 
     path = route_path(Endpoint, :create, a1.id)
-    conn = call(Router, :post, path, route)
+    conn = post conn(), path, route
 
     assert conn.status == 400
   end
@@ -300,7 +300,7 @@ defmodule OpenAperture.Manager.Controllers.Router.RouteController.Test do
     route = %{hostname: 1234, port: 1234}
 
     path = route_path(Endpoint, :create, a1.id)
-    conn = call(Router, :post, path, route)
+    conn = post conn(), path, route
 
     assert conn.status == 400
   end
@@ -310,7 +310,7 @@ defmodule OpenAperture.Manager.Controllers.Router.RouteController.Test do
     updated_route = %{hostname: "test_updated"}
 
     path = route_path(Endpoint, :update, route1.authority_id, route1.id)
-    conn = call(Router, :put, path, updated_route)
+    conn = put conn(), path, updated_route
 
     assert conn.status == 204
 
@@ -327,7 +327,7 @@ defmodule OpenAperture.Manager.Controllers.Router.RouteController.Test do
 
     updated_route = %{hostname: "test_updated"}
     path = route_path(Endpoint, :update, route1.authority_id, route1.id)
-    conn = call(Router, :put, path, updated_route)
+    conn = put conn(), path, updated_route
 
     assert conn.status == 204
 
@@ -340,7 +340,7 @@ defmodule OpenAperture.Manager.Controllers.Router.RouteController.Test do
     updated_route = %{hostname: "test_updated"}
 
     path = route_path(Endpoint, :update, 1234567890, route1.id)
-    conn = call(Router, :put, path, updated_route)
+    conn = put conn(), path, updated_route
 
     assert conn.status == 404
   end
@@ -350,7 +350,7 @@ defmodule OpenAperture.Manager.Controllers.Router.RouteController.Test do
     updated_route = %{hostname: "test_updated"}
 
     path = route_path(Endpoint, :update, route1.authority_id, 1234567890)
-    conn = call(Router, :put, path, updated_route)
+    conn = put conn(), path, updated_route
 
     assert conn.status == 404
   end
@@ -360,7 +360,7 @@ defmodule OpenAperture.Manager.Controllers.Router.RouteController.Test do
     updated_route = %{hostname: 1234}
 
     path = route_path(Endpoint, :update, route1.authority_id, route1.id)
-    conn = call(Router, :put, path, updated_route)
+    conn = put conn(), path, updated_route
 
     assert conn.status == 400
   end
@@ -370,7 +370,7 @@ defmodule OpenAperture.Manager.Controllers.Router.RouteController.Test do
     updated_route = %{port: 99999}
 
     path = route_path(Endpoint, :update, route1.authority_id, route1.id)
-    conn = call(Router, :put, path, updated_route)
+    conn = put conn(), path, updated_route
 
     assert conn.status == 400
   end
@@ -381,7 +381,7 @@ defmodule OpenAperture.Manager.Controllers.Router.RouteController.Test do
     updated_route = %{hostname: route2.hostname, port: route2.port}
 
     path = route_path(Endpoint, :update, route1.authority_id, route1.id)
-    conn = call(Router, :put, path, updated_route)
+    conn = put conn(), path, updated_route
 
     assert conn.status == 409
   end

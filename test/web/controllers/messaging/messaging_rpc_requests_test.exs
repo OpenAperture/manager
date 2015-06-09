@@ -1,7 +1,6 @@
 defmodule OpenAperture.Manager.Controllers.MessagingRpcRequestsTest do
   use ExUnit.Case
-  use Plug.Test
-  use OpenAperture.Manager.Test.ConnHelper
+  use Phoenix.ConnTest
 
   alias OpenAperture.Manager.DB.Models.MessagingRpcRequest
   alias OpenAperture.Manager.Repo

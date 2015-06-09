@@ -1,7 +1,6 @@
 defmodule OpenAperture.Manager.Controllers.ProductComponentsTest do
   use ExUnit.Case, async: false
-  use Plug.Test
-  use OpenAperture.Manager.Test.ConnHelper
+  use Phoenix.ConnTest
 
   import OpenAperture.Manager.Router.Helpers
 
@@ -12,7 +11,6 @@ defmodule OpenAperture.Manager.Controllers.ProductComponentsTest do
   alias OpenAperture.Manager.DB.Models.Product
   alias OpenAperture.Manager.DB.Models.ProductComponent
   alias OpenAperture.Manager.DB.Models.ProductComponentOption
-  alias OpenAperture.Manager.Router
 
   setup_all _context do
     :meck.new(OpenAperture.Manager.Plugs.Authentication, [:passthrough])
@@ -289,7 +287,7 @@ defmodule OpenAperture.Manager.Controllers.ProductComponentsTest do
     assert conn.status == 204
 
     path = product_components_path(Endpoint, :index, product.name)
-    conn = call(Router, :get, path)
+    conn = get conn(), path
 
     assert conn.status == 200
     body = Poison.decode!(conn.resp_body)
@@ -300,7 +298,7 @@ defmodule OpenAperture.Manager.Controllers.ProductComponentsTest do
     component = context[:component1]
     path = product_components_path(Endpoint, :destroy_component, "not a real product name", component.name)
 
-    conn = call(Router, :delete, path)
+    conn = delete conn(), path
 
     assert conn.status == 404
   end
@@ -309,7 +307,7 @@ defmodule OpenAperture.Manager.Controllers.ProductComponentsTest do
     product = context[:product]
     path = product_components_path(Endpoint, :destroy_component, product.name, "not a real component name")
 
-    conn = call(Router, :delete, path)
+    conn = delete conn(), path
     assert conn.status == 404
   end
 
@@ -318,7 +316,7 @@ defmodule OpenAperture.Manager.Controllers.ProductComponentsTest do
     component = context[:component1]
     path = product_components_path(Endpoint, :destroy_component, product.name, component.name)
 
-    conn = call(Router, :delete, path)
+    conn = delete conn(), path
     assert conn.status == 204
 
     assert nil == Repo.get(ProductComponent, component.id)
@@ -336,7 +334,10 @@ defmodule OpenAperture.Manager.Controllers.ProductComponentsTest do
       type: "web_server",
       options: [%{"name" => "test", "value" => "ugh"},
                 %{"name" => "test2", "value" => "ugh2"}]}
-    conn = call(Router, :put, path, Poison.encode!(new_component), [{"content-type", "application/json"}])
+
+    conn = conn()
+           |> put_req_header("content-type", "application/json")
+           |> put(path, Poison.encode!(new_component))
 
     assert conn.status == 404
   end
@@ -350,7 +351,10 @@ defmodule OpenAperture.Manager.Controllers.ProductComponentsTest do
       type: "web_server",
       options: [%{"name" => "test", "value" => "ugh"},
                 %{"name" => "test2", "value" => "ugh2"}]}
-    conn = call(Router, :put, path, Poison.encode!(new_component), [{"content-type", "application/json"}])
+
+    conn = conn()
+           |> put_req_header("content-type", "application/json")
+           |> put(path, Poison.encode!(new_component))
 
     assert conn.status == 404
   end
@@ -365,7 +369,10 @@ defmodule OpenAperture.Manager.Controllers.ProductComponentsTest do
       type: "not a valid type",
       options: [%{"name" => "test", "value" => "ugh"},
                 %{"name" => "test2", "value" => "ugh2"}]}
-    conn = call(Router, :put, path, Poison.encode!(new_component), [{"content-type", "application/json"}])
+
+    conn = conn()
+           |> put_req_header("content-type", "application/json")
+           |> put(path, Poison.encode!(new_component))
 
     assert conn.status == 400
   end
@@ -380,7 +387,10 @@ defmodule OpenAperture.Manager.Controllers.ProductComponentsTest do
       type: "not a valid type",
       options: [%{"value" => "ugh"},
                 %{"name" => "test2", "value" => "ugh2"}]}
-    conn = call(Router, :put, path, Poison.encode!(new_component), [{"content-type", "application/json"}])
+
+    conn = conn()
+           |> put_req_header("content-type", "application/json")
+           |> put(path, Poison.encode!(new_component))
 
     assert conn.status == 400
   end
@@ -395,7 +405,10 @@ defmodule OpenAperture.Manager.Controllers.ProductComponentsTest do
       type: "db",
       options: [%{"name" => "test", "value" => "ugh"},
                 %{"name" => "test2", "value" => "ugh2"}]}
-    conn = call(Router, :put, path, Poison.encode!(new_component), [{"content-type", "application/json"}])
+
+    conn = conn()
+           |> put_req_header("content-type", "application/json")
+           |> put(path, Poison.encode!(new_component))
 
     assert conn.status == 204
   end

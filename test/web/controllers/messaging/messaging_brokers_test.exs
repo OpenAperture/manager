@@ -1,7 +1,6 @@
 defmodule OpenAperture.Manager.Controllers.MessagingBrokersTest do
   use ExUnit.Case
-  use Plug.Test
-  use OpenAperture.Manager.Test.ConnHelper
+  use Phoenix.ConnTest
 
   alias OpenAperture.Manager.DB.Models.MessagingExchange
   alias OpenAperture.Manager.DB.Models.MessagingExchangeBroker

@@ -1,10 +1,8 @@
 defmodule OpenAperture.Manager.Controllers.ProductsTest do
   use ExUnit.Case
-  use Plug.Test
-  use OpenAperture.Manager.Test.ConnHelper
+  use Phoenix.ConnTest
 
   alias OpenAperture.Manager.DB.Models.Product
-  alias OpenAperture.Manager.Router
 
   setup_all _context do
     :meck.new(OpenAperture.Manager.Plugs.Authentication, [:passthrough])
@@ -54,7 +52,7 @@ defmodule OpenAperture.Manager.Controllers.ProductsTest do
   test "show action -- not found" do
     :meck.expect(OpenAperture.Manager.Repo, :one, 1, nil)
 
-    conn = call(Router, :get, "/products/test1")
+    conn = get conn(), "/products/test1"
 
     assert conn.status == 404
   end
