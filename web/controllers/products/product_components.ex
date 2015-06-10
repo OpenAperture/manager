@@ -105,7 +105,7 @@ defmodule OpenAperture.Manager.Controllers.ProductComponents do
         # i guess let's do that...
 
         # Look for a component with the new name
-        existing = get_component_by_name(product.id, params["name"])
+        existing = get_component_by_name(product.id, params["component_name"])
         result = if existing != nil do
           # If a component with this name exists, kill it with fire!
           delete_component(existing)
