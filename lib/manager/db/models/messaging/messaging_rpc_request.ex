@@ -1,5 +1,7 @@
 defmodule OpenAperture.Manager.DB.Models.MessagingRpcRequest do
-  use Ecto.Model
+  @required_fields [:status]
+  @optional_fields [:request_body, :response_body]
+  use OpenAperture.Manager.DB.Models.BaseModel
 
   schema "messaging_rpc_requests" do
     field :request_body
@@ -8,13 +10,8 @@ defmodule OpenAperture.Manager.DB.Models.MessagingRpcRequest do
     timestamps
   end
 
-  ## Changesets
-  def new(params \\ nil) do
-    changeset(%__MODULE__{}, params)
-  end
-
-  def changeset(model_or_changeset, params \\ nil) do
-    cast(model_or_changeset, params, ~w(status), ~w(request_body response_body))
+  def validate_changes(model_or_changeset, params) do
+    cast(model_or_changeset,  params, @required_fields, @optional_fields)
   end
 
   def destroy(model) do

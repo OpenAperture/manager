@@ -230,7 +230,7 @@ defmodule OpenAperture.Manager.Controllers.MessagingExchanges do
           |> put_status(:conflict) 
           |> json ResponseBodyFormatter.error_body(:conflict, "MessagingExchange")  
         else
-          changeset = MessagingExchange.changeset(exchange, Map.take(params, @updatable_exchange_fields))
+          changeset = MessagingExchange.update(exchange, Map.take(params, @updatable_exchange_fields))
           if changeset.valid? do
             try do
               Repo.update(changeset)

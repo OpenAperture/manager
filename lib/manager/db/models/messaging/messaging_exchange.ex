@@ -1,5 +1,7 @@
 defmodule OpenAperture.Manager.DB.Models.MessagingExchange do
-  use Ecto.Model
+  @required_fields [:name]
+  @optional_fields [:failover_exchange_id, :parent_exchange_id, :routing_key_fragment]
+  use OpenAperture.Manager.DB.Models.BaseModel
 
   alias OpenAperture.Manager.DB.Models.MessagingExchangeBroker
   alias OpenAperture.Manager.DB.Models.MessagingExchangeModule
@@ -14,13 +16,9 @@ defmodule OpenAperture.Manager.DB.Models.MessagingExchange do
     timestamps
   end
 
-  ## Changesets
-  def new(params \\ nil) do
-    changeset(%__MODULE__{}, params)
-  end
-
-  def changeset(model_or_changeset, params \\ nil) do
-    cast(model_or_changeset, params, ~w(name), ~w(failover_exchange_id parent_exchange_id routing_key_fragment))
+  def validate_changes(model_or_changeset, params) do
+    cast(model_or_changeset,  params, @required_fields, @optional_fields)
+    |> validate_length(:name, min: 1)
   end
 
   def destroy(model) do

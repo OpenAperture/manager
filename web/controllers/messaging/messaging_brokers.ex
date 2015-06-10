@@ -159,7 +159,7 @@ defmodule OpenAperture.Manager.Controllers.MessagingBrokers do
 
         case Repo.all(query) do
           [] ->
-          	changeset = MessagingBroker.changeset(broker, Map.take(params, @updatable_broker_fields))
+          	changeset = MessagingBroker.update(broker, Map.take(params, @updatable_broker_fields))
 
           	try do
 	            Repo.update(changeset)
