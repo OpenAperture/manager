@@ -124,16 +124,10 @@ defmodule OpenAperture.Manager.Controllers.ProductDeployments do
         |> put_status(:not_found)
         |> json ResponseBodyFormatter.error_body(:not_found, "ProductDeployment")
       pd ->
-        result = Repo.transaction(fn ->
-          steps_query = ProductDeploymentStep
-                        |> where([pdps], pdps.product_deployment_id == ^pd.id)
-
-          Repo.delete_all(steps_query)
-          Repo.delete(pd)
-        end)
+        result = ProductDeployment.destroy(pd)
 
         case result do
-          {:ok, _} ->
+          :ok ->
             conn
             |> resp :no_content, ""
           {:error, _reason} ->

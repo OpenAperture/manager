@@ -22,4 +22,8 @@ defmodule OpenAperture.Manager.DB.Models.MessagingExchange do
   def changeset(model_or_changeset, params \\ nil) do
     cast(model_or_changeset, params, ~w(name), ~w(failover_exchange_id parent_exchange_id routing_key_fragment))
   end
+
+  def destroy(model) do
+    Repo.delete model
+  end
 end

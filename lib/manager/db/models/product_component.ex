@@ -9,6 +9,7 @@ defmodule OpenAperture.Manager.DB.Models.ProductComponent do
   schema "product_components" do
     belongs_to :product,                 Models.Product
     has_many :product_component_options, Models.ProductComponentOption
+    has_many :etcd_cluster_ports,        Models.EtcdClusterPort
     field :name,                         :string
     field :type,                         :string
     timestamps
@@ -19,9 +20,13 @@ defmodule OpenAperture.Manager.DB.Models.ProductComponent do
       |> validate_inclusion(:type, ["web_server", "db"])
   end
 
-  def destroy_for_product(product) do
-    q = assoc(product, :product_components)
-    q |> Repo.all |> Enum.map &Models.ProductComponentOption.destroy_for_environment(&1)
-    Repo.delete_all q
+  def destroy_for_product(product), do: destroy_for_association(product, :product_components)
+
+  def destroy(pc) do
+    Repo.transaction(fn ->
+      Models.ProductComponentOption.destroy_for_product_component(pc)
+      Models.EtcdClusterPort.destroy_for_product_component(pc)
+      Repo.delete(pc)
+    end) |> transaction_return
   end
 end

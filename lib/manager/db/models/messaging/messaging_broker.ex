@@ -18,4 +18,8 @@ defmodule OpenAperture.Manager.DB.Models.MessagingBroker do
   def changeset(model_or_changeset, params \\ nil) do
     cast(model_or_changeset, params, ~w(name), ~w(failover_broker_id))
   end
+
+  def destroy(model) do
+    Repo.delete model
+  end
 end

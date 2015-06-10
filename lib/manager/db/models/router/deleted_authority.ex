@@ -22,4 +22,8 @@ defmodule OpenAperture.Manager.DB.Models.Router.DeletedAuthority do
     model_or_changeset
     |> cast(params, @required_fields, @optional_fields)
   end
+
+  def destroy(model) do
+    Repo.delete model
+  end
 end

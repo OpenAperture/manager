@@ -18,9 +18,12 @@ defmodule OpenAperture.Manager.DB.Models.ProductEnvironment do
     |> validate_length(:name, min: 1)
   end
 
-  def destroy_for_product(product) do
-    q = assoc(product, :environments)
-    q |> Repo.all |> Enum.map &Models.ProductEnvironmentalVariable.destroy_for_environment(&1)
-    Repo.delete_all q
+  def destroy_for_product(product), do: destroy_for_association(product, :environments)
+
+  def destroy(pe) do
+    Repo.transaction(fn ->
+      Models.ProductEnvironmentalVariable.destroy_for_environment(pe)
+      Repo.delete(pe)
+    end) |> transaction_return
   end
 end

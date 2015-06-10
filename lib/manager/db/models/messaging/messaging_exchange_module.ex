@@ -20,4 +20,8 @@ defmodule OpenAperture.Manager.DB.Models.MessagingExchangeModule do
   def changeset(model_or_changeset, params \\ nil) do
     cast(model_or_changeset, params, ~w(messaging_exchange_id hostname type status workload))
   end
+
+  def destroy(model) do
+    Repo.delete model
+  end
 end

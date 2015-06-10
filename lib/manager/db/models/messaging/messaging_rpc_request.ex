@@ -16,4 +16,8 @@ defmodule OpenAperture.Manager.DB.Models.MessagingRpcRequest do
   def changeset(model_or_changeset, params \\ nil) do
     cast(model_or_changeset, params, ~w(status), ~w(request_body response_body))
   end
+
+  def destroy(model) do
+    Repo.delete model
+  end
 end

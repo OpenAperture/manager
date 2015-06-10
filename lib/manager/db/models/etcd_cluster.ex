@@ -34,6 +34,10 @@ defmodule OpenAperture.Manager.DB.Models.EtcdCluster do
     end
   end
 
+  def destroy(model) do
+    Repo.delete model
+  end
+
   def allocate_ports(etcd_cluster, component, port_idx, etcd_ports) do
     if port_idx == 0 do
       etcd_ports

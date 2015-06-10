@@ -27,4 +27,8 @@ defmodule OpenAperture.Manager.DB.Models.Router.Authority do
     |> validate_length(:hostname, min: 1, message: "hostname cannot be blank")
     |> validate_inclusion(:port, 1..65535, message: "invalid port number")
   end
+
+  def destroy(model) do
+    Repo.delete model
+  end
 end

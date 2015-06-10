@@ -6,8 +6,6 @@ defmodule OpenAperture.Manager.DB.Models.ProductCluster do
 
   alias OpenAperture.Manager.DB.Models.Product
   alias OpenAperture.Manager.DB.Models.EtcdCluster
-  alias OpenAperture.Manager.Repo
-
 
   schema "product_clusters" do
     belongs_to :product,                Product
@@ -18,6 +16,12 @@ defmodule OpenAperture.Manager.DB.Models.ProductCluster do
 
   def validate_changes(model_or_changeset, params) do
     cast(model_or_changeset,  params, @required_fields, @optional_fields)
+  end
+
+  def destroy_for_product(product), do: destroy_for_association(product, :product_clusters)
+
+  def destroy(pc) do
+    Repo.delete(pc)
   end
   
 
@@ -37,9 +41,5 @@ defmodule OpenAperture.Manager.DB.Models.ProductCluster do
     else
       []
     end
-  end
-
-  def destroy_for_product(product) do
-    Repo.delete_all assoc(product, :product_clusters)
   end
 end

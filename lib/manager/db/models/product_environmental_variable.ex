@@ -4,6 +4,7 @@ defmodule OpenAperture.Manager.DB.Models.ProductEnvironmentalVariable do
   use OpenAperture.Manager.DB.Models.BaseModel
 
   alias OpenAperture.Manager.DB.Models
+  alias OpenAperture.Manager.Repo
 
   schema "product_environmental_variables" do
     belongs_to :product,              Models.Product
@@ -18,11 +19,10 @@ defmodule OpenAperture.Manager.DB.Models.ProductEnvironmentalVariable do
     |> validate_length(:name, min: 1)
   end
 
-  def destroy_for_product(product) do
-    OpenAperture.Manager.Repo.delete_all assoc(product, :environmental_variables)
-  end
+  def destroy_for_product(product), do: destroy_for_association(product, :environmental_variables)
+  def destroy_for_environment(env), do: destroy_for_association(env, :environmental_variables)
 
-  def destroy_for_environment(env) do
-    OpenAperture.Manager.Repo.delete_all assoc(env, :environmental_variables)
+  def destroy(pev) do
+    Repo.delete pev
   end
 end

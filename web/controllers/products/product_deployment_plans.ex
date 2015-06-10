@@ -14,8 +14,6 @@ defmodule OpenAperture.Manager.Controllers.ProductDeploymentPlans do
   alias OpenAperture.Manager.DB.Queries.Product, as: ProductQuery
   alias OpenAperture.Manager.DB.Models.ProductDeploymentPlan
   alias OpenAperture.Manager.DB.Queries.ProductDeploymentPlan, as: PDPQuery
-  alias OpenAperture.Manager.DB.Models.ProductDeploymentPlanStep
-  alias OpenAperture.Manager.DB.Models.ProductDeploymentPlanStepOption
 
   @sendable_fields [:id, :product_id, :name, :inserted_at, :updated_at]
 
@@ -104,7 +102,7 @@ defmodule OpenAperture.Manager.Controllers.ProductDeploymentPlans do
                    |> Repo.one
         if existing != nil && existing.id != deployment_plan.id do
           # If a conflicting plan exists, blow it away
-          delete_deployment_plan(existing)
+          ProductDeploymentPlan.destroy(existing)
         end
 
         changeset = ProductDeploymentPlan.update(deployment_plan, params)
@@ -141,7 +139,7 @@ defmodule OpenAperture.Manager.Controllers.ProductDeploymentPlans do
         |> put_status(:not_found)
         |> json ResponseBodyFormatter.error_body(:not_found, "ProductDeploymentPlan")
       product ->
-        case delete_deployment_plans_for_product(product.id) do
+        case ProductDeploymentPlan.destroy_for_product(product) do
           :ok ->
             conn
             |> resp :no_content, ""
@@ -161,7 +159,7 @@ defmodule OpenAperture.Manager.Controllers.ProductDeploymentPlans do
         |> put_status(:not_found)
         |> json ResponseBodyFormatter.error_body(:not_found, "ProductDeploymentPlan")
       {_product, deployment_plan} ->
-        case delete_deployment_plan(deployment_plan) do
+        case ProductDeploymentPlan.destroy(deployment_plan) do
           :ok ->
             conn
             |> resp :no_content, ""
@@ -170,56 +168,6 @@ defmodule OpenAperture.Manager.Controllers.ProductDeploymentPlans do
             |> put_status(:not_found)
             |> json ResponseBodyFormatter.error_body(:internal_server_error, "ProductDeploymentPlan")
         end
-    end
-  end
-
-  @spec delete_deployment_plans_for_product(integer) :: :ok | {:error, any}
-  defp delete_deployment_plans_for_product(product_id) do
-    result = Repo.transaction(fn ->
-      plan_ids = ProductDeploymentPlan
-                 |> where([pdp], pdp.product_id == ^product_id)
-                 |> select([pdp], pdp.id)
-                 |> Repo.all
-
-      step_options_query = ProductDeploymentPlanStepOption
-                           |> join(:inner, [pdpso], pdps in ProductDeploymentPlanStep, pdpso.product_deployment_plan_step_id == pdps.id)
-                           |> where([pdpso, pdps], pdps.product_deployment_plan_id in ^plan_ids)
-      steps_query = ProductDeploymentPlanStep
-                    |> where([pdps], pdps.product_deployment_plan_id in ^plan_ids)
-
-      plans_query = ProductDeploymentPlan
-                    |> where([pdp], pdp.id in ^plan_ids)
-
-      Repo.delete_all(step_options_query)
-      Repo.delete_all(steps_query)
-      Repo.delete_all(plans_query)
-    end)
-
-    case result do
-      {:ok, _} -> :ok
-      error -> error
-    end
-  end
-
-  @spec delete_deployment_plan(ProductDeploymentPlan.t) :: :ok | {:error, any}
-  defp delete_deployment_plan(plan) do
-    result = Repo.transaction(fn ->
-      # Delete deployment plan step option, 
-      # deployment plan steps, and the deployment plan itself
-      step_options_query = ProductDeploymentPlanStepOption
-                           |> join(:inner, [pdpso], pdps in ProductDeploymentPlanStep, pdpso.product_deployment_plan_step_id == pdps.id)
-                           |> where([pdpso, pdps], pdps.product_deployment_plan_id == ^plan.id)
-      step_query = ProductDeploymentPlanStep
-                   |> where([pdps], pdps.product_deployment_plan_id == ^plan.id)
-
-      Repo.delete_all(step_options_query)
-      Repo.delete_all(step_query)
-      Repo.delete(plan)
-    end)
-
-    case result do
-      {:ok, _} -> :ok
-      error -> error
     end
   end
 

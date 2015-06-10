@@ -260,7 +260,7 @@ defmodule OpenAperture.Manager.Controllers.Workflows do
       nil -> resp(conn, :not_found, "")
       workflow ->
         Repo.transaction(fn ->
-          Repo.delete(workflow)
+          WorkflowDB.destroy(workflow)
         end)
         resp(conn, :no_content, "")
     end

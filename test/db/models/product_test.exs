@@ -73,7 +73,7 @@ defmodule DB.Models.Product.Test do
     assert length(product.environmental_variables) == 2
   end
 
-  test "deletes environmental variables on delete" do
+  test "deletes environmental variables on destroy" do
     product = Product.new(%{name: "test product"}) |> Repo.insert
 
     _var1 = ProductEnvironmentalVariable.new(%{product_id: product.id, name: "var1", value: "value1"}) |> Repo.insert
@@ -91,7 +91,7 @@ defmodule DB.Models.Product.Test do
     assert length(env_vars) == 0
   end
 
-  test "deletes environments on delete" do
+  test "deletes environments on destroy" do
     product = Product.new(%{name: "test product"}) |> Repo.insert
 
     _env1 = ProductEnvironment.new(%{product_id: product.id, name: "test1"}) |> Repo.insert

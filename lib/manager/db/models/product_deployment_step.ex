@@ -23,4 +23,10 @@ defmodule OpenAperture.Manager.DB.Models.ProductDeploymentStep do
   def validate_changes(model_or_changeset, params) do
     cast(model_or_changeset,  params, @required_fields, @optional_fields)
   end
+
+  def destroy_for_deployment(pd), do: destroy_for_association(pd, :product_deployment_steps)
+
+  def destroy(pds) do
+    Repo.delete(pds)
+  end
 end

@@ -60,7 +60,7 @@ defmodule OpenAperture.Manager.Controllers.ProductClusters do
           _ ->
             result = Repo.transaction(fn ->
               # blow away the existing ProductCluster records for this product
-              delete_associated_product_clusters(product.id)
+              ProductCluster.destroy_for_product(product)
 
               # Now create the new ProductCluster records
               create_new_product_clusters(product.id, ids)
@@ -99,7 +99,7 @@ defmodule OpenAperture.Manager.Controllers.ProductClusters do
         |> put_status(:not_found)
         |> json ResponseBodyFormatter.error_body(:not_found, "ProductCluster")
       product ->
-        delete_associated_product_clusters(product.id)
+        ProductCluster.destroy_for_product(product)
         conn
         |> resp :no_content, ""
     end
@@ -116,15 +116,6 @@ defmodule OpenAperture.Manager.Controllers.ProductClusters do
                 |> Repo.all
 
     for id <- etcd_cluster_ids, !(id in valid_ids), do: id
-  end
-
-  # Delete all ProductCluster records with a product_id field equal to the
-  # specified product id.
-  @spec delete_associated_product_clusters(integer) :: integer | no_return
-  defp delete_associated_product_clusters(product_id) do
-    ProductCluster
-    |> where([pc], pc.product_id == ^product_id)
-    |> Repo.delete_all
   end
 
   # Create new ProductCluster records for the list of Etcd Cluster IDs, using
