@@ -4,7 +4,6 @@ defmodule OpenAperture.Manager.DB.Models.ProductComponent do
   use OpenAperture.Manager.DB.Models.BaseModel
 
   alias OpenAperture.Manager.DB.Models
-  alias OpenAperture.Manager.Repo
 
   schema "product_components" do
     belongs_to :product,                 Models.Product

@@ -155,8 +155,8 @@ defmodule OpenAperture.Manager.Controllers.ProductEnvironments do
         |> put_status(:not_found)
         |> json ResponseBodyFormatter.error_body(:not_found, "ProductEnvironment")
       pe ->
-        case Repo.transaction(fn -> ProductEnvironment.destroy(pe) end) do
-          {:ok, _} ->
+        case ProductEnvironment.destroy(pe) do
+          :ok ->
             conn
             |> resp :no_content, ""
           {:error, _reason} ->

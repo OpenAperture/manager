@@ -10,8 +10,6 @@ defmodule OpenAperture.Manager.DB.Models.EtcdCluster do
   alias OpenAperture.Manager.DB.Models.MessagingExchange
   alias OpenAperture.Manager.DB.Models.CloudProvider
 
-  alias OpenAperture.Manager.Repo
-
   schema "etcd_clusters" do
     has_many :etcd_cluster_ports,   EtcdClusterPort
     field :etcd_token               # defaults to type :string
