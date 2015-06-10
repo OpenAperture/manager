@@ -22,7 +22,7 @@ defmodule OpenAperture.Manager.DB.Models.BaseModel do
       def destroy_for_association(model, assoc_atom) do
         assoc(model, assoc_atom)
         |> Repo.all
-        |> Enum.map &destroy(&1)
+        |> Enum.map &__MODULE__.destroy/1
         :ok
       end
 
