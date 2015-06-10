@@ -14,6 +14,11 @@ defmodule OpenAperture.Manager.Endpoint do
 
   plug Plug.Logger
 
+  if code_reloading? do   
+    plug Phoenix.LiveReloader    
+    plug Phoenix.CodeReloader    
+  end    
+   
   plug Plug.Parsers,
     parsers: [:urlencoded, :multipart, :json],
     pass: ["*/*"],
