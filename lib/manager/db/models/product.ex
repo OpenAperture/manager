@@ -31,6 +31,7 @@ defmodule OpenAperture.Manager.DB.Models.Product do
       Models.ProductCluster.destroy_for_product(product)
       Models.ProductComponent.destroy_for_product(product)
       OpenAperture.Manager.Repo.delete(product)
-    end) |> transaction_return
+    end)
+    |> transaction_return
   end
 end

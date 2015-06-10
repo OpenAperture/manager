@@ -4,6 +4,7 @@ defmodule OpenAperture.Manager.DB.Models.BaseModel do
     quote do
       use Ecto.Model
       use Behaviour
+      alias OpenAperture.Manager.Repo
 
       @type params :: %{binary => any} | %{atom => any} | nil
 

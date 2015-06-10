@@ -27,7 +27,8 @@ defmodule OpenAperture.Manager.DB.Models.ProductDeployment do
     Repo.transaction(fn ->
       Models.ProductDeploymentStep.destroy_for_deployment(pd)
       Repo.delete(pd)
-    end) |> transaction_return
+    end)
+    |> transaction_return
   end
   
 end

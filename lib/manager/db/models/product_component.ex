@@ -27,6 +27,7 @@ defmodule OpenAperture.Manager.DB.Models.ProductComponent do
       Models.ProductComponentOption.destroy_for_product_component(pc)
       Models.EtcdClusterPort.destroy_for_product_component(pc)
       Repo.delete(pc)
-    end) |> transaction_return
+    end)
+    |> transaction_return
   end
 end
