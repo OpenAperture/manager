@@ -37,7 +37,6 @@ defmodule OpenAperture.Manager.DB.Models.BaseModel do
 
       @doc "validates changes for insert or update"
       defcallback validate_changes(Ecto.Model.t | Ecto.Changeset.t, params) :: Ecto.Changeset.t
-      defcallback validate_changes(Ecto.Model.t | Ecto.Changeset.t, params) :: Ecto.Changeset.t
 
     end
   end
