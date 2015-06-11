@@ -22,6 +22,16 @@ defmodule OpenAperture.Manager.DB.Models.ProductDeploymentPlanStep do
       |> validate_inclusion(:type, ~w(build_component deploy_component build_deploy_component component_script deploy_script execute_plan))
   end
 
+  def destroy_for_deployment_plan(pdp), do: destroy_for_association(pdp, :product_deployment_plan_steps)
+
+  def destroy(pdps) do
+    Repo.transaction(fn ->
+      Models.ProductDeploymentPlanStepOption.destroy_for_deployment_plan_step(pdps)
+      Repo.delete(pdps)
+    end)
+    |> transaction_return
+  end
+
   @doc """
   Method to convert a flattened array of OpenAperture.Manager.DB.Models.ProductDeploymentPlanSteps into
   a hierarchical Map

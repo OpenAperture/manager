@@ -20,4 +20,8 @@ defmodule OpenAperture.Manager.DB.Models.CloudProvider do
     |> validate_length(:type, min: 1)
     |> validate_length(:configuration, min: 1)
   end
+
+  def destroy(model) do
+    Repo.delete model
+  end
 end

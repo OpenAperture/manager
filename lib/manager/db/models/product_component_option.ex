@@ -15,4 +15,10 @@ defmodule OpenAperture.Manager.DB.Models.ProductComponentOption do
   def validate_changes(model_or_changeset, params) do
     cast(model_or_changeset,  params, @required_fields, @optional_fields)
   end
+
+  def destroy_for_product_component(pc), do: destroy_for_association(pc, :product_component_options)
+
+  def destroy(pco) do
+    Repo.delete(pco)
+  end
 end

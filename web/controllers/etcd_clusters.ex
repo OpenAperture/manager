@@ -100,7 +100,7 @@ defmodule OpenAperture.Manager.Controllers.EtcdClusters do
         |> json ResponseBodyFormatter.error_body(:not_found, "EtcdCluster")
       cluster ->
         try do
-          Repo.delete(cluster)
+          EtcdCluster.destroy(cluster)
           conn
           |> resp :no_content, ""
         rescue

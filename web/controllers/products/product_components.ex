@@ -10,7 +10,6 @@ defmodule OpenAperture.Manager.Controllers.ProductComponents do
 
   
   alias OpenAperture.Manager.Endpoint
-  alias OpenAperture.Manager.DB.Models.EtcdClusterPort
   alias OpenAperture.Manager.DB.Models.Product
   alias OpenAperture.Manager.DB.Queries.Product, as: ProductQuery
   alias OpenAperture.Manager.DB.Models.ProductComponent
@@ -108,7 +107,7 @@ defmodule OpenAperture.Manager.Controllers.ProductComponents do
         existing = get_component_by_name(product.id, params["name"])
         result = if existing != nil do
           # If a component with this name exists, kill it with fire!
-          delete_component(existing)
+          ProductComponent.destroy(existing)
         else
           :ok
         end
@@ -149,7 +148,7 @@ defmodule OpenAperture.Manager.Controllers.ProductComponents do
         |> put_status(:not_found)
         |> json ResponseBodyFormatter.error_body(:not_found, "ProductComponent")
       product ->
-        case delete_components_for_product(product) do
+        case ProductComponent.destroy_for_product(product) do
           :ok ->
             conn
             |> resp :no_content, ""
@@ -170,7 +169,7 @@ defmodule OpenAperture.Manager.Controllers.ProductComponents do
         |> put_status(:not_found)
         |> json ResponseBodyFormatter.error_body(:not_found, "ProductComponent")
       {_product, product_component} ->
-        case delete_component(product_component) do
+        case ProductComponent.destroy(product_component) do
           :ok ->
             conn
             |> resp :no_content, ""
@@ -179,74 +178,6 @@ defmodule OpenAperture.Manager.Controllers.ProductComponents do
             |> put_status(:internal_server_error)
             |> json ResponseBodyFormatter.error_body(:internal_server_error, "ProductComponent")
         end
-    end
-  end
-
-  @spec delete_components_for_product(Product.t) :: :ok | {:error, any}
-  defp delete_components_for_product(product) do
-    component_ids = ProductComponent
-                 |> where([pc], pc.product_id == ^product.id)
-                 |> select([pc], pc.id)
-                 |> Repo.all
-
-    etcd_cluster_ports_query = EtcdClusterPort
-                               |> where([e], e.product_component_id in ^component_ids)
-
-    component_options_query = ProductComponentOption
-                              |> where([pco], pco.product_component_id in ^component_ids)
-
-    result = Repo.transaction(fn ->
-      # Delete the EtcdClusterPort records
-      Repo.delete_all(etcd_cluster_ports_query)
-      # Delete the ProductComponentOption records
-      Repo.delete_all(component_options_query)
-
-      ProductComponent
-      |> where([pc], pc.id in ^component_ids)
-      |> Repo.delete_all
-    end)
-
-    case result do
-      {:ok, _} -> :ok
-      error -> error
-    end
-  end
-
-  @spec delete_component(ProductComponent.t) :: :ok | {:error, any}
-  defp delete_component(product_component) do
-    result = Repo.transaction(fn ->
-      case delete_component_associations(product_component.id) do
-        :ok ->
-          Repo.delete(product_component)
-        {:error, reason} ->
-          Repo.rollback(reason)
-      end
-    end)
-
-    case result do
-      {:ok, _} -> :ok
-      error -> error
-    end
-  end
-
-  @spec delete_component_associations(integer) :: :ok | {:error, any}
-  defp delete_component_associations(product_component_id) do
-    etcd_cluster_ports_query = EtcdClusterPort
-                               |> where([e], e.product_component_id == ^product_component_id)
-
-    component_options_query = ProductComponentOption
-                              |> where([pco], pco.product_component_id == ^product_component_id)
-
-    result = Repo.transaction(fn ->
-      # Delete the EtcdClusterPort records
-      Repo.delete_all(etcd_cluster_ports_query)
-      # Delete the ProductComponentOption records
-      Repo.delete_all(component_options_query)
-    end)
-
-    case result do
-      {:ok, _count} -> :ok
-      error -> error
     end
   end
 

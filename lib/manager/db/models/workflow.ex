@@ -31,4 +31,8 @@ defmodule OpenAperture.Manager.DB.Models.Workflow do
   def validate_changes(model_or_changeset, params) do
     cast(model_or_changeset,  params, @required_fields, @optional_fields)
   end
+
+  def destroy(model) do
+    Repo.delete model
+  end
 end

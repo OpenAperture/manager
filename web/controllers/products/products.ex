@@ -80,7 +80,7 @@ defmodule OpenAperture.Manager.Controllers.Products do
         |> put_status(:not_found)
         |> json ResponseBodyFormatter.error_body(:not_found, "Product")
       product ->
-        Repo.delete(product)
+        Product.destroy(product)
         conn
         |> resp :no_content, ""
     end

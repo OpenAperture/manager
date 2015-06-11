@@ -1,5 +1,7 @@
 defmodule OpenAperture.Manager.DB.Models.MessagingBrokerConnection do
-  use Ecto.Model
+  @required_fields [:messaging_broker_id, :username, :password, :host]
+  @optional_fields [:virtual_host, :port]
+  use OpenAperture.Manager.DB.Models.BaseModel
 
   alias OpenAperture.Manager.DB.Models.MessagingBroker
 
@@ -13,12 +15,11 @@ defmodule OpenAperture.Manager.DB.Models.MessagingBrokerConnection do
     timestamps
   end
 
-  ## Changesets
-  def new(params \\ nil) do
-    changeset(%__MODULE__{}, params)
+  def validate_changes(model_or_changeset, params) do
+    cast(model_or_changeset,  params, @required_fields, @optional_fields)
   end
 
-  def changeset(model_or_changeset, params \\ nil) do
-    cast(model_or_changeset, params, ~w(messaging_broker_id username password host), ~w(virtual_host port))
+  def destroy(model) do
+    Repo.delete model
   end
 end

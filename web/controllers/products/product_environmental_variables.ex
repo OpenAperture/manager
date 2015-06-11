@@ -278,7 +278,7 @@ defmodule OpenAperture.Manager.Controllers.ProductEnvironmentalVariables do
         |> put_status(:not_found)
         |> json ResponseBodyFormatter.error_body(:not_found, "ProductEnvironmentalVariable")
       env_var ->
-        Repo.delete(env_var)
+        ProductEnvironmentalVariable.destroy(env_var)
         conn
         |> resp :no_content, ""
     end
@@ -297,7 +297,7 @@ defmodule OpenAperture.Manager.Controllers.ProductEnvironmentalVariables do
         |> put_status(:not_found)
         |> json ResponseBodyFormatter.error_body(:not_found, "ProductEnvironmentalVariable")
       env_var ->
-        Repo.delete(env_var)
+        ProductEnvironmentalVariable.destroy(env_var)
         conn
         |> resp :no_content, ""
     end

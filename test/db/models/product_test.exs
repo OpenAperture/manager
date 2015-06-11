@@ -9,6 +9,7 @@ defmodule DB.Models.Product.Test do
 
   setup _context do
     on_exit _context, fn ->
+      Repo.delete_all(ProductEnvironmentalVariable)
       Repo.delete_all(ProductEnvironment)
       Repo.delete_all(Product)
     end
@@ -62,8 +63,21 @@ defmodule DB.Models.Product.Test do
   test "retrieve associated product environmental variables" do
     product = Product.new(%{name: "test product"}) |> Repo.insert
 
-    var1 = ProductEnvironmentalVariable.new(%{product_id: product.id, name: "var1", value: "value1"}) |> Repo.insert
-    var2 = ProductEnvironmentalVariable.new(%{product_id: product.id, name: "var2", value: "value2"}) |> Repo.insert
+    _var1 = ProductEnvironmentalVariable.new(%{product_id: product.id, name: "var1", value: "value1"}) |> Repo.insert
+    _var2 = ProductEnvironmentalVariable.new(%{product_id: product.id, name: "var2", value: "value2"}) |> Repo.insert
+
+    [product] = Repo.all(from p in Product,
+                         where: p.id == ^product.id,
+                         preload: :environmental_variables)
+
+    assert length(product.environmental_variables) == 2
+  end
+
+  test "deletes environmental variables on destroy" do
+    product = Product.new(%{name: "test product"}) |> Repo.insert
+
+    _var1 = ProductEnvironmentalVariable.new(%{product_id: product.id, name: "var1", value: "value1"}) |> Repo.insert
+    _var2 = ProductEnvironmentalVariable.new(%{product_id: product.id, name: "var2", value: "value2"}) |> Repo.insert
 
     [product] = Repo.all(from p in Product,
                          where: p.id == ^product.id,
@@ -71,7 +85,27 @@ defmodule DB.Models.Product.Test do
 
     assert length(product.environmental_variables) == 2
 
-    Repo.delete(var1)
-    Repo.delete(var2)
+    Product.destroy(product)
+    env_vars =  Repo.all(from pev in ProductEnvironmentalVariable,
+                           where: pev.product_id == ^product.id)
+    assert length(env_vars) == 0
+  end
+
+  test "deletes environments on destroy" do
+    product = Product.new(%{name: "test product"}) |> Repo.insert
+
+    _env1 = ProductEnvironment.new(%{product_id: product.id, name: "test1"}) |> Repo.insert
+    _env2 = ProductEnvironment.new(%{product_id: product.id, name: "test2"}) |> Repo.insert
+
+    [product] = Repo.all(from p in Product,
+                         where: p.id == ^product.id,
+                         preload: :environments)
+
+    assert length(product.environments) == 2
+
+    Product.destroy(product)
+    envs =  Repo.all(from pe in ProductEnvironment,
+                           where: pe.product_id == ^product.id)
+    assert length(envs) == 0
   end
 end

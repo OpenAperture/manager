@@ -78,7 +78,7 @@ defmodule OpenAperture.Manager.Controllers.ProductDeploymentPlanSteps do
   def destroy(conn, %{"product_name" => product_name, "plan_name" => plan_name}) do
     case get_product_and_plan_by_name(product_name, plan_name) do
       {_, plan} when plan != nil ->
-        case delete_steps_for_plan(plan.id) do
+        case ProductDeploymentPlanStep.destroy_for_deployment_plan(plan) do
           :ok ->
             conn
             |> resp :no_content, ""
@@ -158,29 +158,6 @@ defmodule OpenAperture.Manager.Controllers.ProductDeploymentPlanSteps do
     case result do
       {:ok, step} -> {:ok, step}
       {:error, {:invalid, reason}} -> {:invalid, reason}
-      error -> error
-    end
-  end
-
-  @spec delete_steps_for_plan(integer) :: :ok | {:error, any}
-  defp delete_steps_for_plan(plan_id) do
-    result = Repo.transaction(fn ->
-      step_query = ProductDeploymentPlanStep
-                   |> where([pdps], pdps.product_deployment_plan_id == ^plan_id)
-
-      step_ids = step_query
-                 |> select([pdps], pdps.id)
-                 |> Repo.all
-
-      options_query = ProductDeploymentPlanStepOption
-                      |> where([pdpso], pdpso.product_deployment_plan_step_id in ^step_ids)
-
-      Repo.delete_all(options_query)
-      Repo.delete_all(step_query)
-    end)
-
-    case result do
-      {:ok, _} -> :ok
       error -> error
     end
   end

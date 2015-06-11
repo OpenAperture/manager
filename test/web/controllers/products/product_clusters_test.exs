@@ -100,6 +100,8 @@ defmodule OpenAperture.Manager.Controllers.ProductClustersTest do
 
     :meck.expect(OpenAperture.Manager.Repo, :one, 1, product)
     :meck.expect(OpenAperture.Manager.Repo, :delete_all, 1, 1)
+    :meck.expect(OpenAperture.Manager.Repo, :delete, 1, 1)
+    :meck.expect(OpenAperture.Manager.Repo, :all, 1, [])
 
     conn = delete conn(), "products/test1/clusters"
 

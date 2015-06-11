@@ -176,7 +176,7 @@ defmodule OpenAperture.Manager.Controllers.MessagingRpcRequests do
         nil
       end
 
-      changeset = MessagingRpcRequest.changeset(request, %{
+      changeset = MessagingRpcRequest.update(request, %{
         "status" => params["status"],
         "request_body" => request_body,
         "response_body" => response_body,

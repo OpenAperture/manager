@@ -13,7 +13,6 @@ defmodule OpenAperture.Manager.Controllers.ProductEnvironments do
   alias OpenAperture.Manager.DB.Models.Product
   alias OpenAperture.Manager.DB.Models.ProductEnvironment
   alias OpenAperture.Manager.DB.Queries.ProductEnvironment, as: EnvQuery
-  alias OpenAperture.Manager.DB.Models.ProductEnvironmentalVariable
 
   @sendable_fields [:id, :name, :product_id, :inserted_at, :updated_at]
 
@@ -156,17 +155,8 @@ defmodule OpenAperture.Manager.Controllers.ProductEnvironments do
         |> put_status(:not_found)
         |> json ResponseBodyFormatter.error_body(:not_found, "ProductEnvironment")
       pe ->
-        # We need to delete any associated product environment variables too
-        result = Repo.transaction(fn ->
-          variables_query = ProductEnvironmentalVariable
-                            |> where([pev], pev.product_environment_id == ^pe.id)
-
-          Repo.delete_all(variables_query)
-          Repo.delete(pe)
-        end)
-
-        case result do
-          {:ok, _} ->
+        case ProductEnvironment.destroy(pe) do
+          :ok ->
             conn
             |> resp :no_content, ""
           {:error, _reason} ->

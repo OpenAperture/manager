@@ -88,7 +88,7 @@ defmodule OpenAperture.Manager.Controllers.CloudProviders do
         conn
         |> resp :not_found, ""
       provider ->
-        Repo.delete(provider)
+        CloudProvider.destroy(provider)
         conn
         |> resp :no_content, ""
     end
