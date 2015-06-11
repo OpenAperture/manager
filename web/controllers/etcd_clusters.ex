@@ -65,7 +65,8 @@ defmodule OpenAperture.Manager.Controllers.EtcdClusters do
     cluster = EtcdCluster.new(%{:etcd_token => params["etcd_token"], 
                                 :hosting_provider_id => params["hosting_provider_id"],
                                 :allow_docker_builds => params["allow_docker_builds"],
-                                :messaging_exchange_id => params["messaging_exchange_id"]})
+                                :messaging_exchange_id => params["messaging_exchange_id"],
+                                :name => params["name"]})
     if cluster.valid? do
       try do
         cluster = Repo.insert(cluster)
