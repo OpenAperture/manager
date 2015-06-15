@@ -71,7 +71,7 @@ defmodule OpenAperture.Manager.Controllers.Users do
   end
 
   # DELETE /users/:id"
-  def delete(conn, %{"id" => id} = params) do
+  def delete(conn, %{"id" => id}) do
     user = Repo.get(User, id)
 
     if user do
