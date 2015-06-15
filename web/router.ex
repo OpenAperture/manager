@@ -72,7 +72,7 @@ defmodule OpenAperture.Manager.Router do
       get    "/:id/modules", MessagingExchangeModules, :index
       post   "/:id/modules", MessagingExchangeModules, :create
       get    "/:id/modules/:hostname", MessagingExchangeModules, :show
-      delete "/:id/modules/:hostname", MessagingExchangeModules, :destroy    
+      delete "/:id/modules/:hostname", MessagingExchangeModules, :destroy
     end
 
     scope "/rpc_requests" do
@@ -82,7 +82,7 @@ defmodule OpenAperture.Manager.Router do
       get "/:id", MessagingRpcRequests, :show
       put "/:id", MessagingRpcRequests, :update
       delete "/:id", MessagingRpcRequests, :destroy
-    end    
+    end
   end
 
   scope "/products", OpenAperture.Manager.Controllers do
@@ -181,7 +181,7 @@ defmodule OpenAperture.Manager.Router do
     get "/:id", Workflows, :show
     put "/:id", Workflows, :update
     delete "/:id", Workflows, :destroy
-    
+
     post "/:id/execute", Workflows, :execute
   end
 
@@ -206,12 +206,18 @@ defmodule OpenAperture.Manager.Router do
 
     get "/", CloudProviders, :index
     post "/", CloudProviders, :create
-    
+
     get "/:id", CloudProviders, :show
     put "/:id", CloudProviders, :update
     delete "/:id", CloudProviders, :destroy
 
     get "/:id/clusters", CloudProviders, :clusters
+  end
 
+  scope "/", OpenAperture.Manager.Controllers do
+    pipe_through :api
+    pipe_through :secure
+
+    resources "users", Users, except: [:new, :edit]
   end
 end

@@ -3,7 +3,8 @@
 erl_crash.dump
 *.ez
 sftp-config.json
-manager.sublime-workspace
+*.sublime-workspace
 config/system.exs
 /doc
 swagger/
+.DS_Store
