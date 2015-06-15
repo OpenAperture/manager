@@ -1,10 +1,15 @@
 defmodule OpenAperture.Manager.DB.Models.User do
   use OpenAperture.Manager.DB.Models.BaseModel
 
+  alias OpenAperture.Manager.DB.Models.AuthSourceUserRelation
+
   schema "users" do
     field :first_name
     field :last_name
     field :email
+
+    has_many :auth_source_relations, AuthSourceUserRelation
+    has_many :auth_sources, through: [:auth_source_relations, :auth_source]
 
     timestamps
   end
