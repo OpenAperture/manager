@@ -47,7 +47,7 @@ defmodule OpenAperture.Manager.Controllers.UsersTest do
   end
 
   test "show action - not found" do
-    assert get(conn, "users/1").status == 404
+    assert get(conn, "users/0").status == 404
   end
 
   test "create action - success" do
@@ -67,15 +67,15 @@ defmodule OpenAperture.Manager.Controllers.UsersTest do
   end
 
   test "update action - success" do
-    user = User.new(%{@params | email: "up@mail.com"}) |> Repo.insert
+    user   = User.new(%{@params | email: "up@mail.com"}) |> Repo.insert
     update = %{first_name: "Johanna", last_name: "Dawn", email: "jdawn@mail.com"}
-    conn = put(conn, "users/#{user.id}", update)
+    conn   = put(conn, "users/#{user.id}", update)
 
     assert conn.status == 204
   end
 
-  test "update action - no user found" do
-    assert put(conn, "users/1").status == 404
+  test "update action - not found" do
+    assert put(conn, "users/0").status == 404
   end
 
   test "update action - fails on invalid values", %{user: user} do
@@ -91,6 +91,6 @@ defmodule OpenAperture.Manager.Controllers.UsersTest do
   end
 
   test "delete action - not found" do
-    assert delete(conn, "users/1").status == 404
+    assert delete(conn, "users/0").status == 404
   end
 end

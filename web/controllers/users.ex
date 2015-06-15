@@ -7,7 +7,7 @@ defmodule OpenAperture.Manager.Controllers.Users do
 
   @no_user_error "No user with such ID found"
 
-  @doc "GET /users"
+  # GET /users
   def index(conn, _params) do
     users = User
       |> Repo.all
@@ -16,7 +16,7 @@ defmodule OpenAperture.Manager.Controllers.Users do
     json conn, users
   end
 
-  @doc "POST /users"
+  # POST /users
   def create(conn, params) do
     new_user = User.new(params)
 
@@ -33,7 +33,7 @@ defmodule OpenAperture.Manager.Controllers.Users do
     end
   end
 
-  @doc "GET /users/:id"
+  # GET /users/:id
   def show(conn, %{"id" => id}) do
     user = Repo.get(User, id)
 
@@ -46,7 +46,7 @@ defmodule OpenAperture.Manager.Controllers.Users do
     end
   end
 
-  @doc "PUT /users/:id"
+  # PUT /users/:id
   def update(conn, %{"id" => id} = params) do
     user = Repo.get(User, id)
 
@@ -70,7 +70,7 @@ defmodule OpenAperture.Manager.Controllers.Users do
     end
   end
 
-  @doc "DELETE /users/:id"
+  # DELETE /users/:id"
   def delete(conn, %{"id" => id} = params) do
     user = Repo.get(User, id)
 
