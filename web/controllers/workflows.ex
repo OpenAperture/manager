@@ -149,9 +149,9 @@ defmodule OpenAperture.Manager.Controllers.Workflows do
 
     changeset = WorkflowDB.new(%{
       :id => raw_workflow_id,
-      :deployment_repo => params["deployment_repo"],
+      :deployment_repo => trimTrailing(params["deployment_repo"]),
       :deployment_repo_git_ref => params["deployment_repo_git_ref"],
-      :source_repo => params["source_repo"],
+      :source_repo => trimTrailing(params["source_repo"]),
       :source_repo_git_ref => params["source_repo_git_ref"],
       :source_commit_hash => params["source_commit_hash"],
       :milestones => milestones,
@@ -164,7 +164,7 @@ defmodule OpenAperture.Manager.Controllers.Workflows do
       :workflow_completed => workflow_completed,
       :event_log => event_log,
     })
-
+    IO.inspect(changeset)
     if changeset.valid? do
       try do
         raw_workflow = Repo.insert(changeset)
@@ -185,6 +185,17 @@ defmodule OpenAperture.Manager.Controllers.Workflows do
       |> json FormatHelper.keywords_to_map(changeset.errors)
     end
   end
+
+  defp trimTrailing(param) when is_bitstring(param) do
+    param
+    |> String.strip
+    |> String.rstrip(?/)
+    |> String.rstrip(?\\)
+  end
+
+  defp trimTrailing(param), do: param
+
+
 
   @doc """
   PUT/PATCH /workflows/:id - Update a Workflow
