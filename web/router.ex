@@ -13,7 +13,9 @@ defmodule OpenAperture.Manager.Router do
   end
 
   pipeline :secure do
-    plug OpenAperture.Manager.Plugs.Authentication
+    import OpenAperture.Manager.Plugs.Authentication
+    plug :fetch_access_token
+    plug :authenticate_user, [token_info_url: Application.get_env(OpenAperture.Manager, :oauth_validate_url)]
   end
 
   scope "/", OpenAperture.Manager.Controllers do

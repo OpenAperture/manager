@@ -1,5 +1,5 @@
 defmodule OpenAperture.Manager.Controllers.CloudProvidersTest do
-  use ExUnit.Case
+  use ExUnit.Case, async: false
   use Phoenix.ConnTest
 
   alias OpenAperture.Manager.DB.Models.CloudProvider
@@ -10,12 +10,10 @@ defmodule OpenAperture.Manager.Controllers.CloudProvidersTest do
 
   setup context do
     :meck.new(OpenAperture.Manager.Plugs.Authentication, [:passthrough])
-    :meck.expect(OpenAperture.Manager.Plugs.Authentication, :call, fn conn, _opts -> conn end)
+    :meck.expect(OpenAperture.Manager.Plugs.Authentication, :authenticate_user, fn conn, _opts -> conn end)
 
     on_exit context, fn ->
-      try do
-        :meck.unload
-      rescue _ -> IO.puts "" end
+      :meck.unload
       Repo.delete_all(EtcdCluster)
       Repo.delete_all(CloudProvider)
     end    

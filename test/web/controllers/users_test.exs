@@ -1,5 +1,5 @@
 defmodule OpenAperture.Manager.Controllers.UsersTest do
-  use ExUnit.Case, [async: true]
+  use ExUnit.Case, [async: false]
   use Phoenix.ConnTest
 
   alias OpenAperture.Manager
@@ -14,7 +14,7 @@ defmodule OpenAperture.Manager.Controllers.UsersTest do
     user = User.new(@params) |> Repo.insert
 
     :meck.new(Authentication, [:passthrough])
-    :meck.expect(Authentication, :call, fn conn, _opts -> conn end)
+    :meck.expect(Authentication, :authenticate_user, fn conn, _opts -> conn end)
 
     on_exit fn ->
       :meck.unload

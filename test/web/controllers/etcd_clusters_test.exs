@@ -1,5 +1,5 @@
 defmodule OpenAperture.Manager.Controllers.EtcdClustersTest do
-  use ExUnit.Case
+  use ExUnit.Case, async: false
   use Phoenix.ConnTest
 
   alias OpenAperture.Manager.Repo
@@ -11,29 +11,16 @@ defmodule OpenAperture.Manager.Controllers.EtcdClustersTest do
   alias OpenAperture.Manager.Messaging.FleetManagerPublisher
   alias OpenAperture.Messaging.AMQP.RpcHandler
 
-  setup_all _context do
-    :meck.new(OpenAperture.Manager.Plugs.Authentication, [:passthrough])
-    :meck.expect(OpenAperture.Manager.Plugs.Authentication, :call, fn conn, _opts -> conn end)
-
-    on_exit _context, fn ->
-      try do
-        :meck.unload
-      rescue _ -> IO.puts "" end
-    end    
-    :ok
-  end
-
   setup do
+    :meck.new(OpenAperture.Manager.Plugs.Authentication, [:passthrough])
+    :meck.expect(OpenAperture.Manager.Plugs.Authentication, :authenticate_user, fn conn, _opts -> conn end)
     :meck.new OpenAperture.Manager.Repo
     :meck.new FleetManagerPublisher
     :meck.new RpcHandler
     on_exit fn ->
-              try do
-                :meck.unload OpenAperture.Manager.Repo
-                :meck.unload FleetManagerPublisher
-                :meck.unload RpcHandler
-              rescue _ -> IO.puts "" end
-            end
+      :meck.unload
+    end
+    :ok
   end
 
   @endpoint OpenAperture.Manager.Endpoint
