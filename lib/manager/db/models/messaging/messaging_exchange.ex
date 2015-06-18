@@ -5,10 +5,12 @@ defmodule OpenAperture.Manager.DB.Models.MessagingExchange do
 
   alias OpenAperture.Manager.DB.Models.MessagingExchangeBroker
   alias OpenAperture.Manager.DB.Models.MessagingExchangeModule
+  alias OpenAperture.Manager.DB.Models.SystemComponent
 
   schema "messaging_exchanges" do
     has_many :messaging_exchange_brokers, MessagingExchangeBroker
     has_many :messaging_exchange_modules, MessagingExchangeModule
+    has_many :system_components, SystemComponent
     field :name
     field :failover_exchange_id, :integer
     field :parent_exchange_id, :integer
