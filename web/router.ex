@@ -223,4 +223,28 @@ defmodule OpenAperture.Manager.Router do
 
     resources "users", Users, except: [:new, :edit]
   end
+
+  scope "/system_component_refs", OpenAperture.Manager.Controllers do
+    pipe_through :api
+    pipe_through :secure
+
+    get "/", SystemComponentRefs, :index
+    post "/", SystemComponentRefs, :create
+
+    get "/:type", SystemComponentRefs, :show
+    put "/:type", SystemComponentRefs, :update
+    delete "/:type", SystemComponentRefs, :destroy
+  end
+
+  scope "/system_components", OpenAperture.Manager.Controllers do
+    pipe_through :api
+    pipe_through :secure
+
+    get "/", SystemComponents, :index
+    post "/", SystemComponents, :create
+
+    get "/:id", SystemComponents, :show
+    put "/:id", SystemComponents, :update
+    delete "/:id", SystemComponents, :destroy
+  end  
 end

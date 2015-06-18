@@ -16,6 +16,7 @@ defmodule OpenAperture.Manager.Controllers.MessagingExchanges do
   alias OpenAperture.Manager.DB.Models.MessagingExchangeBroker
   alias OpenAperture.Manager.DB.Models.MessagingExchangeModule
   alias OpenAperture.Manager.DB.Models.EtcdCluster
+  alias OpenAperture.Manager.DB.Models.SystemComponent
 
   alias OpenAperture.Manager.Controllers.FormatHelper
   alias OpenAperture.Manager.Controllers.ResponseBodyFormatter
@@ -286,7 +287,8 @@ defmodule OpenAperture.Manager.Controllers.MessagingExchanges do
           Repo.update_all(from(e in MessagingExchange, where: e.failover_exchange_id  == ^id), failover_exchange_id: nil)
           Repo.update_all(from(e in MessagingExchange, where: e.parent_exchange_id == ^id), parent_exchange_id: nil)
           Repo.delete_all(from(b in MessagingExchangeBroker, where: b.messaging_exchange_id  == ^id))
-          Repo.delete_all(from(m in MessagingExchangeModule, where: m.messaging_exchange_id  == ^id))          
+          Repo.delete_all(from(m in MessagingExchangeModule, where: m.messaging_exchange_id  == ^id))
+          Repo.delete_all(from(sc in SystemComponent, where: sc.messaging_exchange_id  == ^id))
           Repo.delete(exchange)
         end)
         resp(conn, :no_content, "")

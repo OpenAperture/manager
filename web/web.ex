@@ -35,6 +35,8 @@ defmodule OpenAperture.Manager.Web do
       import OpenAperture.Manager.Router.Helpers
 
       alias OpenAperture.Manager.Endpoint
+
+      use OpenAperture.Manager.Controllers.ResponseFormatter
     end
   end
 

@@ -26,7 +26,20 @@ defmodule OpenAperture.Manager.Controllers.MessagingExchangeModules do
   This module contains the controllers for managing MessagingExchangeModules
   """  
 
-  @sendable_fields [:id, :messaging_exchange_id, :hostname, :type, :status, :workload, :inserted_at, :updated_at]
+  @sendable_fields [
+    :id, 
+    :messaging_exchange_id, 
+    :hostname, 
+    :type, 
+    :status, 
+    :workload, 
+    :source_repo, 
+    :source_repo_git_ref, 
+    :deployment_repo, 
+    :deployment_repo_git_ref, 
+    :inserted_at, 
+    :updated_at
+  ]
 
 
   @doc """
@@ -146,7 +159,11 @@ defmodule OpenAperture.Manager.Controllers.MessagingExchangeModules do
           "hostname" => params["hostname"],
           "type" => params["type"],
           "status" => params["status"],
-          "workload" => workload
+          "workload" => workload,
+          "source_repo" => params["source_repo"],
+          "source_repo_git_ref" => params["source_repo_git_ref"],
+          "deployment_repo" => params["deployment_repo"],
+          "deployment_repo_git_ref" => params["deployment_repo_git_ref"],
         })
         unless changeset.valid? do
           conn 
