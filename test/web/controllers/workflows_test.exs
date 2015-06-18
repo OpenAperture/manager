@@ -1,5 +1,5 @@
 defmodule OpenAperture.Manager.Controllers.WorkflowsTest do
-  use ExUnit.Case
+  use ExUnit.Case, async: false
   use Phoenix.ConnTest
 
   alias OpenAperture.Manager.Repo
@@ -8,15 +8,13 @@ defmodule OpenAperture.Manager.Controllers.WorkflowsTest do
 
   alias OpenAperture.WorkflowOrchestratorApi.WorkflowOrchestrator.Publisher, as: OrchestratorPublisher
 
-  setup_all _context do
+  setup_all do
     :meck.new(OpenAperture.Manager.Plugs.Authentication, [:passthrough])
-    :meck.expect(OpenAperture.Manager.Plugs.Authentication, :call, fn conn, _opts -> conn end)
+    :meck.expect(OpenAperture.Manager.Plugs.Authentication, :authenticate_user, fn conn, _opts -> conn end)
 
-    on_exit _context, fn ->
+    on_exit fn ->
       Repo.delete_all(WorkflowDB)
-      try do
-        :meck.unload
-      rescue _ -> IO.puts "" end
+      :meck.unload
     end    
     :ok
   end

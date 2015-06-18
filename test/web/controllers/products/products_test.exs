@@ -6,14 +6,11 @@ defmodule OpenAperture.Manager.Controllers.ProductsTest do
 
   setup_all _context do
     :meck.new(OpenAperture.Manager.Plugs.Authentication, [:passthrough])
-    :meck.expect(OpenAperture.Manager.Plugs.Authentication, :call, fn conn, _opts -> conn end)
+    :meck.expect(OpenAperture.Manager.Plugs.Authentication, :authenticate_user, fn conn, _opts -> conn end)
     :meck.new OpenAperture.Manager.Repo
 
     on_exit _context, fn ->
-      try do
-        :meck.unload(OpenAperture.Manager.Plugs.Authentication)
-        :meck.unload
-      rescue _ -> IO.puts "" end
+      :meck.unload
     end    
     :ok
   end

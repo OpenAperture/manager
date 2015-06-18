@@ -13,7 +13,7 @@ defmodule OpenAperture.Manager.Controllers.ProductEnvironmentsTest do
   
   setup_all do
     :meck.new(OpenAperture.Manager.Plugs.Authentication, [:passthrough])
-    :meck.expect(OpenAperture.Manager.Plugs.Authentication, :call, fn conn, _opts -> conn end)
+    :meck.expect(OpenAperture.Manager.Plugs.Authentication, :authenticate_user, fn conn, _opts -> conn end)
 
     on_exit fn -> :meck.unload end
   end

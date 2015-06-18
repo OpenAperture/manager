@@ -10,21 +10,12 @@ defmodule OpenAperture.Manager.Controllers.MessagingExchangesTest do
 
   import Ecto.Query
 
-  setup_all _context do
-    :meck.new(OpenAperture.Manager.Plugs.Authentication, [:passthrough])
-    :meck.expect(OpenAperture.Manager.Plugs.Authentication, :call, fn conn, _opts -> conn end)
-
-    on_exit _context, fn ->
-      try do
-        :meck.unload(OpenAperture.Manager.Plugs.Authentication)
-      rescue _ -> IO.puts "" end
-    end    
-    :ok
-  end
-
-
   setup do
-    on_exit fn -> 
+    :meck.new(OpenAperture.Manager.Plugs.Authentication, [:passthrough])
+    :meck.expect(OpenAperture.Manager.Plugs.Authentication, :authenticate_user, fn conn, _opts -> conn end)
+
+    on_exit fn ->
+      :meck.unload
       Repo.delete_all(MessagingExchangeBroker)
       Repo.delete_all(MessagingBroker)
       Repo.delete_all(EtcdCluster)

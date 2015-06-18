@@ -14,7 +14,7 @@ defmodule OpenAperture.Manager.Controllers.Router.RoutesController.Test do
 
   setup do
     :meck.new(OpenAperture.Manager.Plugs.Authentication, [:passthrough])
-    :meck.expect(OpenAperture.Manager.Plugs.Authentication, :call, fn conn, _opts -> conn end)
+    :meck.expect(OpenAperture.Manager.Plugs.Authentication, :authenticate_user, fn conn, _opts -> conn end)
 
     # Make the entries old
     datetime = Ecto.DateTime.from_date_and_time(
@@ -41,9 +41,7 @@ defmodule OpenAperture.Manager.Controllers.Router.RoutesController.Test do
       Repo.delete_all(DeletedAuthority)
       Repo.delete_all(Authority)
 
-      try do
-        :meck.unload(OpenAperture.Manager.Plugs.Authentication)
-      rescue _ -> IO.puts "" end
+      :meck.unload
     end
 
     {:ok, a1: a1, a2: a2}

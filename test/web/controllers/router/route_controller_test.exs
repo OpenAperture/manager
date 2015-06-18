@@ -13,7 +13,7 @@ defmodule OpenAperture.Manager.Controllers.Router.RouteController.Test do
 
   setup do
     :meck.new(OpenAperture.Manager.Plugs.Authentication, [:passthrough])
-    :meck.expect(OpenAperture.Manager.Plugs.Authentication, :call, fn conn, _opts -> conn end)
+    :meck.expect(OpenAperture.Manager.Plugs.Authentication, :authenticate_user, fn conn, _opts -> conn end)
 
     a1 = Repo.insert(%Authority{hostname: "test", port: 80})
     a2 = Repo.insert(%Authority{hostname: "test2", port: 80})
@@ -25,9 +25,7 @@ defmodule OpenAperture.Manager.Controllers.Router.RouteController.Test do
       Repo.delete_all(Route)
       Repo.delete_all(Authority)
 
-      try do
-        :meck.unload(OpenAperture.Manager.Plugs.Authentication)
-      rescue _ -> IO.puts "" end
+      :meck.unload
     end
 
     {:ok, a1: a1, a2: a2, route1: route1, route2: route2}
