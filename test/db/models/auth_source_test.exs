@@ -15,7 +15,7 @@ defmodule DB.Models.AuthSource.Test do
   end
 
   test "can load associated users through has_many relation" do
-    auth_source = AuthSource.new(%{token_info_url: "http://test/token", email_field_name: "email"})
+    auth_source = AuthSource.new(%{token_info_url: "http://test/token", email_field_name: "email", first_name_field_name: "first_name", last_name_field_name: "last_name"})
                   |> Repo.insert
 
     user1 = User.new(%{first_name: "test", last_name: "user", email: "test.user@test.com"})
