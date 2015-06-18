@@ -5,7 +5,7 @@ defmodule OpenAperture.Manager.Controllers.UsersTest do
   alias OpenAperture.Manager
   alias Manager.DB.Models.User
   alias Manager.Repo
-  alias Manager.Plugs.Authentication
+  alias OpenAperture.Manager.Plugs.Authentication
 
   @endpoint OpenAperture.Manager.Endpoint
   @params %{first_name: "John", last_name: "Doe", email: "jdoe@mail.com"}

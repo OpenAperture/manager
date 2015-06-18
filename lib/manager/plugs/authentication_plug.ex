@@ -175,7 +175,7 @@ defmodule OpenAperture.Manager.Plugs.Authentication do
   # Ex: If field name is "level1/level2/level3", will effectively perform
   # a lookup like token_info["level1"]["level2"]["level3"]
   @spec get_field_from_token_info(Map.t, String.t, any) :: any
-  defp get_field_from_token_info(token_info, field_name, default \\ nil) do
+  defp get_field_from_token_info(token_info, field_name, default) do
     parts = String.split(field_name, "/")
     case get_in(token_info, parts) do
       nil -> default

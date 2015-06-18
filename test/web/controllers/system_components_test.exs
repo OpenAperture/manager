@@ -1,28 +1,28 @@
 defmodule OpenAperture.Manager.Controllers.SystemComponentTest do
-  use ExUnit.Case
+  use ExUnit.Case, async: false
   use Phoenix.ConnTest
 
   alias OpenAperture.Manager.DB.Models.MessagingExchange
   alias OpenAperture.Manager.DB.Models.SystemComponent
   alias OpenAperture.Manager.Repo
+  alias OpenAperture.Manager.Plugs.Authentication
 
   require Repo
   import Ecto.Query  
 
-  setup_all _context do
+  setup_all do
     exchange = Repo.insert(MessagingExchange.new(%{name: "test exchange"}))
 
-    :meck.new(OpenAperture.Manager.Plugs.Authentication, [:passthrough])
-    :meck.expect(OpenAperture.Manager.Plugs.Authentication, :call, fn conn, _opts -> conn end)
+    :meck.new(Authentication, [:passthrough])
+    :meck.expect(Authentication, :authenticate_user, fn conn, _opts -> conn end)
 
-    on_exit _context, fn ->
-      try do
-        :meck.unload(OpenAperture.Manager.Plugs.Authentication)
-      rescue _ -> IO.puts "" end
+    on_exit fn ->
+      :meck.unload
 
       Repo.delete_all(SystemComponent)
       Repo.delete_all(MessagingExchange)
-    end    
+    end
+
     {:ok, [exchange: exchange]}
   end
 
