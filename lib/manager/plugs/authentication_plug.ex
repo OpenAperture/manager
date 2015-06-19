@@ -19,7 +19,6 @@ defmodule OpenAperture.Manager.Plugs.Authentication do
   """
   @spec fetch_access_token(Plug.Conn.t, [any]) :: Plug.Conn.t
   def fetch_access_token(conn, _opts) do
-    Logger.debug("Fetching access token from auth header")
     case get_req_header(conn, "authorization") do
       [auth_header] when is_binary(auth_header) ->
         access_token = auth_header
@@ -28,7 +27,6 @@ defmodule OpenAperture.Manager.Plugs.Authentication do
                        |> String.strip
 
         if access_token != "" do
-          Logger.debug("storing access_token:  #{inspect access_token}")
           conn = put_private(conn, :auth_access_token, access_token)
         end
 
@@ -56,9 +54,7 @@ defmodule OpenAperture.Manager.Plugs.Authentication do
         |> send_resp(:unauthorized, "Unauthorized")
         |> halt
       access_token ->
-        Logger.debug("retrieved access_token:  #{inspect access_token}")
         token_string = build_token_string(access_token)
-        Logger.debug("token_string:  #{inspect token_string}")
         case validate_token?(token_info_url, token_string) do
           true ->
             Logger.debug("Access token was validated")
@@ -74,7 +70,6 @@ defmodule OpenAperture.Manager.Plugs.Authentication do
 
   def authenticate_user(conn, _opts) do
     url = System.get_env("MANAGER_OAUTH_VALIDATE_URL") || Application.get_env(OpenAperture.Manager, :oauth_validate_url)
-    Logger.debug("MANAGER_OAUTH_VALIDATE_URL:  #{System.get_env("MANAGER_OAUTH_VALIDATE_URL")}, url:  #{url}")
     authenticate_user(conn, [token_info_url: url])
   end
 
@@ -102,6 +97,11 @@ defmodule OpenAperture.Manager.Plugs.Authentication do
         end
     end
   end
+
+  def fetch_user(conn, _opts) do
+    url = System.get_env("MANAGER_OAUTH_VALIDATE_URL") || Application.get_env(OpenAperture.Manager, :oauth_validate_url)
+    fetch_user(conn, [token_info_url: url])
+  end  
 
   @spec build_token_string(String.t) :: String.t
   defp build_token_string(token), do: "access_token=" <> token

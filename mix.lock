@@ -17,7 +17,7 @@
   "json": {:hex, :json, "0.3.2"},
   "jsx": {:hex, :jsx, "2.4.0"},
   "meck": {:hex, :meck, "0.8.2"},
-  "openaperture_auth": {:git, "https://github.com/OpenAperture/auth.git", "98c28a350bf6dbbbb5cef9f0896049def3e49715", [ref: "98c28a350bf6dbbbb5cef9f0896049def3e49715"]},
+  "openaperture_auth": {:git, "https://github.com/OpenAperture/auth.git", "dc7a0813b335d3013dff60d271ae1f51fc4b5049", [ref: "dc7a0813b335d3013dff60d271ae1f51fc4b5049"]},
   "openaperture_fleet": {:git, "https://github.com/OpenAperture/fleet.git", "7aeca4655225fa0dd63f1465c0af30b0992b94b5", [ref: "7aeca4655225fa0dd63f1465c0af30b0992b94b5"]},
   "openaperture_manager_api": {:git, "https://github.com/OpenAperture/manager_api.git", "8e2f6bdbf9f93dcae2540b1313f9d6dfc0a254a6", [ref: "8e2f6bdbf9f93dcae2540b1313f9d6dfc0a254a6"]},
   "openaperture_messaging": {:git, "https://github.com/OpenAperture/messaging.git", "bb4caba09def51ccb77edfe72899e6135010a322", [ref: "bb4caba09def51ccb77edfe72899e6135010a322"]},
