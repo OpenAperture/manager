@@ -28,6 +28,7 @@ defmodule OpenAperture.Manager.Plugs.Authentication do
                        |> String.strip
 
         if access_token != "" do
+          Logger.debug("storing access_token:  #{inspect access_token}")
           conn = put_private(conn, :auth_access_token, access_token)
         end
 
@@ -55,7 +56,9 @@ defmodule OpenAperture.Manager.Plugs.Authentication do
         |> send_resp(:unauthorized, "Unauthorized")
         |> halt
       access_token ->
+        Logger.debug("retrieved access_token:  #{inspect access_token}")
         token_string = build_token_string(access_token)
+        Logger.debug("token_string:  #{inspect token_string}")
         case validate_token?(token_info_url, token_string) do
           true ->
             Logger.debug("Access token was validated")
