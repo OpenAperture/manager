@@ -20,7 +20,7 @@
   "openaperture_auth": {:git, "https://github.com/OpenAperture/auth.git", "dc7a0813b335d3013dff60d271ae1f51fc4b5049", [ref: "dc7a0813b335d3013dff60d271ae1f51fc4b5049"]},
   "openaperture_fleet": {:git, "https://github.com/OpenAperture/fleet.git", "7aeca4655225fa0dd63f1465c0af30b0992b94b5", [ref: "7aeca4655225fa0dd63f1465c0af30b0992b94b5"]},
   "openaperture_manager_api": {:git, "https://github.com/OpenAperture/manager_api.git", "8e2f6bdbf9f93dcae2540b1313f9d6dfc0a254a6", [ref: "8e2f6bdbf9f93dcae2540b1313f9d6dfc0a254a6"]},
-  "openaperture_messaging": {:git, "https://github.com/OpenAperture/messaging.git", "0da69f5ad74ec3aa6eaef24eabf2bd488b9309b9", [ref: "0da69f5ad74ec3aa6eaef24eabf2bd488b9309b9"]},
+  "openaperture_messaging": {:git, "https://github.com/OpenAperture/messaging.git", "e48c52b98abc86f4404954e7b4c85b090e83c69c", [ref: "e48c52b98abc86f4404954e7b4c85b090e83c69c"]},
   "openaperture_overseer_api": {:git, "https://github.com/OpenAperture/overseer_api.git", "25c779ea50565cdb3f783cba644294e6238ed72a", [ref: "25c779ea50565cdb3f783cba644294e6238ed72a"]},
   "openaperture_workflow_orchestrator_api": {:git, "https://github.com/OpenAperture/workflow_orchestrator_api.git", "c9c4175117f4807fb312637374d8119772913e3e", [ref: "c9c4175117f4807fb312637374d8119772913e3e"]},
   "phoenix": {:hex, :phoenix, "0.13.1"},
