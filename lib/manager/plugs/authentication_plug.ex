@@ -73,7 +73,7 @@ defmodule OpenAperture.Manager.Plugs.Authentication do
   end
 
   def authenticate_user(conn, _opts) do
-    url = Application.get_env(OpenAperture.Manager, :oauth_validate_url)
+    url = System.get_env("MANAGER_OAUTH_VALIDATE_URL") || Application.get_env(OpenAperture.Manager, :oauth_validate_url)
     authenticate_user(conn, [token_info_url: url])
   end
 
