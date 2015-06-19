@@ -48,7 +48,7 @@ defmodule OpenAperture.Manager.Plugs.Authentication do
   """
   @spec authenticate_user(Plug.Conn.t, [any]) :: Plug.Conn.t
   def authenticate_user(conn, [token_info_url: token_info_url]) do
-    Logger.debug("Validating access token...")
+    Logger.debug("Validating access token against url #{token_info_url}...")
 
     case conn.private[:auth_access_token] do
       nil ->
@@ -74,7 +74,6 @@ defmodule OpenAperture.Manager.Plugs.Authentication do
 
   def authenticate_user(conn, _opts) do
     url = System.get_env("MANAGER_OAUTH_VALIDATE_URL") || Application.get_env(OpenAperture.Manager, :oauth_validate_url)
-    Logger.debug("MANAGER_OAUTH_VALIDATE_URL:  #{System.get_env("MANAGER_OAUTH_VALIDATE_URL")}, url:  #{url}")
     authenticate_user(conn, [token_info_url: url])
   end
 
