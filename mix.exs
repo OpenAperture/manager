@@ -22,12 +22,12 @@ defmodule OpenAperture.Mixfile do
     [
       mod: {OpenAperture.Manager, []},
       applications: [
-        :phoenix, 
-        :cowboy, 
-        :logger, 
-        :ecto, 
-        :crypto, 
-        :openaperture_auth, 
+        :phoenix,
+        :cowboy,
+        :logger,
+        :ecto,
+        :crypto,
+        :openaperture_auth,
         :openaperture_messaging,
         :openaperture_manager_api,
         :openaperture_workflow_orchestrator_api
@@ -42,6 +42,10 @@ defmodule OpenAperture.Mixfile do
     [
       {:ex_doc, "0.7.3", only: :test},
       {:earmark, "0.1.17", only: :test},
+      {:excheck, "~>0.2", only: :test},
+      {:triq, github: "krestenkrab/triq", only: :test},
+      {:meck, "0.8.2", only: :test},
+
       {:phoenix, "~> 0.13.1"},
       {:phoenix_live_reload, "~> 0.4.0"},
       {:cowboy, "~> 1.0"},
@@ -56,12 +60,10 @@ defmodule OpenAperture.Mixfile do
       {:openaperture_manager_api, git: "https://github.com/OpenAperture/manager_api.git",  ref: "8e2f6bdbf9f93dcae2540b1313f9d6dfc0a254a6", override: true},
       {:openaperture_overseer_api, git: "https://github.com/OpenAperture/overseer_api.git", ref: "25c779ea50565cdb3f783cba644294e6238ed72a", override: true},
       {:openaperture_workflow_orchestrator_api, git: "https://github.com/OpenAperture/workflow_orchestrator_api.git", ref: "c9c4175117f4807fb312637374d8119772913e3e", override: true},
-
-      {:meck, "0.8.2", only: :test},        
    ]
   end
 
- # Specifies which paths to compile per environment
+  # Specifies which paths to compile per environment
   defp elixirc_paths(:test), do: ["lib", "web", "test/support"]
-  defp elixirc_paths(_),     do: ["lib", "web"]  
+  defp elixirc_paths(_),     do: ["lib", "web"]
 end

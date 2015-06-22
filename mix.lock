@@ -7,6 +7,7 @@
   "ecto": {:hex, :ecto, "0.10.3"},
   "ex_doc": {:hex, :ex_doc, "0.7.3"},
   "exactor": {:hex, :exactor, "2.1.2"},
+  "excheck": {:hex, :excheck, "0.2.3"},
   "exjsx": {:hex, :exjsx, "3.1.0"},
   "exvcr": {:git, "git://github.com/parroty/exvcr.git", "e23652efbaa21e863f679baf040470018a1c9d20", []},
   "fleet_api": {:hex, :fleet_api, "0.0.6"},
@@ -36,4 +37,5 @@
   "ssl_verify_hostname": {:hex, :ssl_verify_hostname, "1.0.5"},
   "timex": {:hex, :timex, "0.13.4"},
   "timex_extensions": {:git, "https://github.com/OpenAperture/timex_extensions.git", "904f65f7f9f5d4e52619859e886c2e9a73b96bc0", [ref: "904f65f7f9f5d4e52619859e886c2e9a73b96bc0"]},
+  "triq": {:git, "git://github.com/krestenkrab/triq.git", "2fe1529bc1460e0a8cd356ef7a8fda9e43120445", []},
   "uuid": {:hex, :uuid, "0.1.5"}}
