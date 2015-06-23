@@ -74,6 +74,72 @@ defmodule OpenAperture.Manager.Controllers.ProductDeploymentPlanSteps do
     end
   end
 
+  # PUT "/products/:product_name/deployment_plans/:plan_name/steps/:step_id"
+  def update(conn, %{"product_name" => product_name, "plan_name" => plan_name, "step_id" => step_id} = params) do
+    case Repo.get(ProductDeploymentPlanStep, step_id) do
+      nil ->
+        conn
+        |> resp :not_found, ""
+      step ->
+        changeset = ProductDeploymentPlanStep.update(step, params)
+        if changeset.valid? do
+          Repo.update(changeset)
+          conn
+          |> put_resp_header("location", product_deployment_plans_path(Endpoint, :show, product_name, plan_name))
+          |> resp :no_content, ""
+        else
+          conn
+          |> put_status(:bad_request)
+          |> json inspect(changeset.errors)
+        end
+    end
+  end
+
+  # DELETE /products/:product_name/deployment_plans/:plan_name/steps/:plan_id
+  # Deletes SINGLE deployment plan step and all descending children instead of all steps in a plan.
+  def destroy(conn, %{"product_name" => product_name, "plan_name" => plan_name, "step_id" => step_id}) do
+    case Repo.get(ProductDeploymentPlanStep, step_id) do
+      step when step != nil ->
+        #If step has parent step update the reference to nil to maintain integrity
+        int_id = String.to_integer(step_id)
+        case StepQuery.get_parent_step(step_id) |> Repo.one  do 
+          parent_step = %ProductDeploymentPlanStep{on_success_step_id: ^int_id} ->
+            params = %{"product_name" => product_name, "plan_name" => plan_name, "step_id" => parent_step.id, "on_success_step_id" => nil}
+            changeset = ProductDeploymentPlanStep.update(parent_step, params)
+            if changeset.valid? do
+              Repo.update(changeset)
+            end
+          parent_step = %ProductDeploymentPlanStep{on_failure_step_id: ^int_id} ->
+            params = %{"product_name" => product_name, "plan_name" => plan_name, "step_id" => parent_step.id, "on_failure_step_id" => nil}
+            changeset = ProductDeploymentPlanStep.update(parent_step, params)
+            if changeset.valid? do
+              Repo.update(changeset)
+            end
+          nil ->
+        end
+
+        #Delete all children
+        result =  Repo.transaction(fn ->
+          recursive_step_delete(step.id)
+        end)
+
+        case result do
+          {:ok, _} ->
+            conn
+            |> resp :no_content, ""
+          {:error, reason} ->
+            Logger.error(reason)
+            conn
+            |> put_status(:internal_server_error)
+            |> json ResponseBodyFormatter.error_body(:internal_server_error, "ProductDeploymentPlanStep")
+        end
+      _ ->
+        conn
+        |> put_status(:not_found)
+        |> json ResponseBodyFormatter.error_body(:not_found, "ProductDeploymentPlanStep")
+    end
+  end
+
   # DELETE /products/:product_name/deployment_plans/:plan_name/steps
   def destroy(conn, %{"product_name" => product_name, "plan_name" => plan_name}) do
     case get_product_and_plan_by_name(product_name, plan_name) do
@@ -188,4 +254,18 @@ defmodule OpenAperture.Manager.Controllers.ProductDeploymentPlanSteps do
     |> select([p, pdp], {p, pdp})
     |> Repo.one
   end  
+
+  defp recursive_step_delete(plan_step_id) when is_nil(plan_step_id) do
+    :ok
+  end
+
+  defp recursive_step_delete(plan_step_id) do
+    #Delete self
+    plan_step = Repo.get(ProductDeploymentPlanStep, plan_step_id)
+    ProductDeploymentPlanStep.destroy(plan_step)
+
+    #Delete children
+    recursive_step_delete(plan_step.on_success_step_id)
+    recursive_step_delete(plan_step.on_failure_step_id)
+  end
 end
