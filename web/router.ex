@@ -130,6 +130,11 @@ defmodule OpenAperture.Manager.Router do
             get "/", ProductDeploymentPlanSteps, :index
             post "/", ProductDeploymentPlanSteps, :create
             delete "/", ProductDeploymentPlanSteps, :destroy
+
+            scope "/:step_id" do 
+              put "/", ProductDeploymentPlanSteps, :update
+              delete "/", ProductDeploymentPlanSteps, :destroy
+            end
           end
         end
       end

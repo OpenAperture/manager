@@ -32,17 +32,23 @@ defmodule OpenAperture.Manager.Controllers.ProductDeploymentPlanStepsTest do
             |> Repo.insert
     pdps2 = ProductDeploymentPlanStep.new(%{product_deployment_plan_id: pdp1.id, type: "deploy_component"})
             |> Repo.insert
+    pdps6 = ProductDeploymentPlanStep.new(%{product_deployment_plan_id: pdp1.id, type: "deploy_component"})
+            |> Repo.insert
     pdps3 = ProductDeploymentPlanStep.new(%{product_deployment_plan_id: pdp1.id, type: "build_deploy_component", on_success_step_id: pdps1.id, on_failure_step_id: pdps2.id})
             |> Repo.insert
-    pdps4 = ProductDeploymentPlanStep.new(%{product_deployment_plan_id: pdp1.id, type: "build_deploy_component", on_success_step_id: pdps1.id, on_failure_step_id: pdps2.id})
+    pdps4 = ProductDeploymentPlanStep.new(%{product_deployment_plan_id: pdp1.id, type: "build_deploy_component", on_success_step_id: pdps6.id})
+            |> Repo.insert
+    pdps5 = ProductDeploymentPlanStep.new(%{product_deployment_plan_id: pdp1.id, type: "build_deploy_component", on_success_step_id: pdps3.id, on_failure_step_id: pdps4.id})
             |> Repo.insert
 
 
-    pdpso1 = ProductDeploymentPlanStepOption.new(%{product_deployment_plan_step_id: pdps4.id, name: "test_option1"})
+    pdpso1 = ProductDeploymentPlanStepOption.new(%{product_deployment_plan_step_id: pdps5.id, name: "test_option1"})
              |> Repo.insert
-    pdpso2 = ProductDeploymentPlanStepOption.new(%{product_deployment_plan_step_id: pdps4.id, name: "test_option2", value: "TWO"})
+    pdpso2 = ProductDeploymentPlanStepOption.new(%{product_deployment_plan_step_id: pdps5.id, name: "test_option2", value: "TWO"})
              |> Repo.insert
-    pdpso3 = ProductDeploymentPlanStepOption.new(%{product_deployment_plan_step_id: pdps4.id, name: "test_option3", value: "three"})
+    pdpso3 = ProductDeploymentPlanStepOption.new(%{product_deployment_plan_step_id: pdps5.id, name: "test_option3", value: "three"})
+             |> Repo.insert
+    pdpso5 = ProductDeploymentPlanStepOption.new(%{product_deployment_plan_step_id: pdps1.id, name: "test_option5", value: "cinco"})
              |> Repo.insert
 
     on_exit fn ->
@@ -52,7 +58,7 @@ defmodule OpenAperture.Manager.Controllers.ProductDeploymentPlanStepsTest do
       Repo.delete_all(Product)
     end
 
-    {:ok, product: product, pdp1: pdp1, pdp2: pdp2, pdps1: pdps1, pdps2: pdps2, pdps3: pdps3, pdps4: pdps4, pdpso1: pdpso1, pdpso2: pdpso2, pdpso3: pdpso3}
+    {:ok, product: product, pdp1: pdp1, pdp2: pdp2, pdps1: pdps1, pdps2: pdps2, pdps3: pdps3, pdps4: pdps4, pdps5: pdps5, pdpso1: pdpso1, pdpso2: pdpso2, pdpso3: pdpso3, pdpso5: pdpso5}
   end
 
   @endpoint OpenAperture.Manager.Endpoint
@@ -315,7 +321,52 @@ defmodule OpenAperture.Manager.Controllers.ProductDeploymentPlanStepsTest do
     assert option_count == length(Repo.all(ProductDeploymentPlanStepOption))
   end
 
-  test "delete action -- success", context do
+  test "update action -- success", context do 
+    product = context[:product]
+    plan = context[:pdp1]
+    step1 = context[:pdps1]
+
+   # path = product_deployment_plan_steps_path(Endpoint, :destroy, product.name, plan.name, step1.id)
+    path = "/products/#{product.name}/deployment_plans/#{plan.name}/steps/#{step1.id}"
+
+    conn = put conn(), path, %{type: "deploy_component"}
+
+    assert conn.status == 204
+
+    assert "deploy_component" = Repo.get(ProductDeploymentPlanStep, step1.id).type
+  end
+
+  test "update action -- step not found", context do 
+    product = context[:product]
+    plan = context[:pdp1]
+    step1 = context[:pdps1]
+
+   # path = product_deployment_plan_steps_path(Endpoint, :destroy, product.name, plan.name, step1.id)
+    path = "/products/#{product.name}/deployment_plans/#{plan.name}/steps/-1"
+
+    conn = put conn(), path, %{type: "deploy_component"}
+
+    assert conn.status == 404
+
+    assert "build_component" = Repo.get(ProductDeploymentPlanStep, step1.id).type
+  end
+
+  test "update action -- invalid change", context do
+    product = context[:product]
+    plan = context[:pdp1]
+    step1 = context[:pdps1]
+
+   # path = product_deployment_plan_steps_path(Endpoint, :destroy, product.name, plan.name, step1.id)
+    path = "/products/#{product.name}/deployment_plans/#{plan.name}/steps/#{step1.id}"
+
+    conn = put conn(), path, %{type: "not a valid type"}
+
+    assert conn.status == 400
+
+    assert "build_component" = Repo.get(ProductDeploymentPlanStep, step1.id).type
+  end
+
+  test "delete action, all steps for plan -- success", context do
     product = context[:product]
     plan = context[:pdp1]
 
@@ -340,7 +391,7 @@ defmodule OpenAperture.Manager.Controllers.ProductDeploymentPlanStepsTest do
     assert nil = Repo.get(ProductDeploymentPlanStepOption, option3.id)
   end
 
-  test "delete action -- success for plan with no associated steps", context do
+  test "delete action, all steps for plan -- success for plan with no associated steps", context do
     product = context[:product]
     plan = context[:pdp2]
 
@@ -356,7 +407,7 @@ defmodule OpenAperture.Manager.Controllers.ProductDeploymentPlanStepsTest do
     assert Repo.get(ProductDeploymentPlanStep, step1.id) != nil
   end
 
-  test "delete action -- product not found", context do
+  test "delete action, all steps for plan -- product not found", context do
     plan = context[:pdp2]
     path = product_deployment_plan_steps_path(Endpoint, :destroy, "not a real product name", plan.name)
 
@@ -365,7 +416,82 @@ defmodule OpenAperture.Manager.Controllers.ProductDeploymentPlanStepsTest do
     assert conn.status == 404
   end
 
-  test "delete action -- plan not found", context do
+  test "delete action, all steps for plan -- plan not found", context do
+    product = context[:product]
+    path = product_deployment_plan_steps_path(Endpoint, :destroy, product.name, "not a real plan name")
+
+    conn = delete conn(), path
+
+    assert conn.status == 404
+  end
+
+  test "delete action, single step, no children, has parent -- success", context do
+    product = context[:product]
+    plan = context[:pdp1]
+    step1 = context[:pdps1]
+    step3 = context[:pdps3]
+
+   # path = product_deployment_plan_steps_path(Endpoint, :destroy, product.name, plan.name, step1.id)
+    path = "/products/#{product.name}/deployment_plans/#{plan.name}/steps/#{step1.id}"
+
+    conn = delete conn(), path
+
+    assert conn.status == 204
+
+    assert nil = Repo.get(ProductDeploymentPlanStep, step1.id)
+    assert nil = Repo.get(ProductDeploymentPlanStep, step3.id).on_success_step_id
+  end
+
+  test "delete action, single step, has children, no parent -- success", context do
+    product = context[:product]
+    plan = context[:pdp1]
+    step3 = context[:pdps3]
+    option3 = context[:pdpso3]
+    step5 = context[:pdps5]
+    option5 = context[:pdpso5]
+
+    #path = product_deployment_plan_steps_path(Endpoint, :destroy, product.name, plan.name, step5.id)
+    path = "/products/#{product.name}/deployment_plans/#{plan.name}/steps/#{step5.id}"
+
+    conn = delete conn(), path
+
+    assert conn.status == 204
+
+    assert nil = Repo.get(ProductDeploymentPlanStep, step3.id)
+    assert nil = Repo.get(ProductDeploymentPlanStepOption, option3.id)
+    assert nil = Repo.get(ProductDeploymentPlanStep, step5.id)
+    assert nil = Repo.get(ProductDeploymentPlanStepOption, option5.id)
+  end
+
+  test "delete action, single step, has children, has parent -- success", context do
+    product = context[:product]
+    plan = context[:pdp1]
+    step1 = context[:pdps1]
+    step3 = context[:pdps3]
+    step5 = context[:pdps5]
+
+    #path = product_deployment_plan_steps_path(Endpoint, :destroy, product.name, plan.name, step3.id)
+    path = "/products/#{product.name}/deployment_plans/#{plan.name}/steps/#{step3.id}"
+
+    conn = delete conn(), path
+
+    assert conn.status == 204
+
+    assert nil = Repo.get(ProductDeploymentPlanStep, step3.id)
+    assert nil = Repo.get(ProductDeploymentPlanStep, step1.id)
+    assert nil = Repo.get(ProductDeploymentPlanStep, step5.id).on_success_step_id
+  end
+
+  test "delete action, single step -- product not found", context do
+    plan = context[:pdp2]
+    path = product_deployment_plan_steps_path(Endpoint, :destroy, "not a real product name", plan.name)
+
+    conn = delete conn(), path
+
+    assert conn.status == 404
+  end
+
+  test "delete action, single step -- plan not found", context do
     product = context[:product]
     path = product_deployment_plan_steps_path(Endpoint, :destroy, product.name, "not a real plan name")
 

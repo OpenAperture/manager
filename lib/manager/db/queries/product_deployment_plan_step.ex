@@ -40,4 +40,11 @@ defmodule OpenAperture.Manager.DB.Queries.ProductDeploymentPlanStep do
       where: pdpso.product_deployment_plan_step_id == ^step_id,
       select: pdpso
   end
+
+  def get_parent_step(child_step_id) do 
+    from pdps in ProductDeploymentPlanStep,
+    where: pdps.on_success_step_id == ^child_step_id or pdps.on_failure_step_id == ^child_step_id,
+    select: pdps
+  end
+
 end
