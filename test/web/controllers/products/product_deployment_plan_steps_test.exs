@@ -3,6 +3,7 @@ defmodule OpenAperture.Manager.Controllers.ProductDeploymentPlanStepsTest do
   use Phoenix.ConnTest
 
   import OpenAperture.Manager.Router.Helpers
+  import Ecto.Query
 
   alias OpenAperture.Manager.Endpoint
   alias OpenAperture.Manager.Repo
@@ -159,6 +160,33 @@ defmodule OpenAperture.Manager.Controllers.ProductDeploymentPlanStepsTest do
     assert location == path
 
     assert step_count + 1 == length(Repo.all(ProductDeploymentPlanStep))
+  end
+
+  test "create action -- success, single step as child", context do
+    product = context[:product]
+    plan = context[:pdp1]
+    step1 = context[:pdps1]
+
+    path = product_deployment_plan_steps_path(Endpoint, :create, product.name, plan.name)
+
+    step_count = length(Repo.all(ProductDeploymentPlanStep))
+
+    step1_deploy = %{type: "deploy_component", product_deployment_plan_id: plan.id, parent_step_id: step1.id, step_case: "success"}
+
+    conn = post conn(), path, step1_deploy
+
+    assert conn.status == 201
+
+
+
+    assert List.keymember?(conn.resp_headers, "location", 0)
+
+    {_, location} = List.keyfind(conn.resp_headers, "location", 0)
+
+    assert location == path
+
+    assert step_count + 1 == length(Repo.all(ProductDeploymentPlanStep))
+    assert nil != Repo.get(ProductDeploymentPlanStep, step1.id).on_success_step_id
   end
 
   test "create action -- success, nested steps, with options", context do
@@ -321,19 +349,52 @@ defmodule OpenAperture.Manager.Controllers.ProductDeploymentPlanStepsTest do
     assert option_count == length(Repo.all(ProductDeploymentPlanStepOption))
   end
 
-  test "update action -- success", context do 
+  test "update action -- success, destroys all options", context do 
     product = context[:product]
     plan = context[:pdp1]
-    step1 = context[:pdps1]
+    step5 = context[:pdps5]
+    option1 = context[:pdpso1]
+    option2 = context[:pdpso2]
+    option3 = context[:pdpso3]
 
    # path = product_deployment_plan_steps_path(Endpoint, :destroy, product.name, plan.name, step1.id)
-    path = "/products/#{product.name}/deployment_plans/#{plan.name}/steps/#{step1.id}"
+    path = "/products/#{product.name}/deployment_plans/#{plan.name}/steps/#{step5.id}"
 
     conn = put conn(), path, %{type: "deploy_component"}
 
     assert conn.status == 204
 
-    assert "deploy_component" = Repo.get(ProductDeploymentPlanStep, step1.id).type
+    assert "deploy_component" = Repo.get(ProductDeploymentPlanStep, step5.id).type
+    assert nil = Repo.get(ProductDeploymentPlanStepOption, option1.id)
+    assert nil = Repo.get(ProductDeploymentPlanStepOption, option2.id)
+    assert nil = Repo.get(ProductDeploymentPlanStepOption, option3.id)
+  end
+  test "update action -- success, destroys options and remakes them", context do 
+    product = context[:product]
+    plan = context[:pdp1]
+    step5 = context[:pdps5]
+    option1 = context[:pdpso1]
+    option2 = context[:pdpso2]
+    option3 = context[:pdpso3]
+
+   # path = product_deployment_plan_steps_path(Endpoint, :destroy, product.name, plan.name, step1.id)
+    path = "/products/#{product.name}/deployment_plans/#{plan.name}/steps/#{step5.id}"
+
+    conn = put conn(), path, %{type: "deploy_component", options: [Map.from_struct(option1), Map.from_struct(option2), Map.from_struct(option3)]}
+
+    assert conn.status == 204
+
+    assert "deploy_component" = Repo.get(ProductDeploymentPlanStep, step5.id).type
+    assert nil = Repo.get(ProductDeploymentPlanStepOption, option1.id)
+    assert nil = Repo.get(ProductDeploymentPlanStepOption, option2.id)
+    assert nil = Repo.get(ProductDeploymentPlanStepOption, option3.id)
+
+    options = Repo.all(  
+      from pdpso in ProductDeploymentPlanStepOption,
+      where: pdpso.product_deployment_plan_step_id == ^step5.id,
+      select: pdpso
+    )
+    assert 3 = length(options)
   end
 
   test "update action -- step not found", context do 
