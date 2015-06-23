@@ -76,6 +76,8 @@ defmodule OpenAperture.Manager.Router do
       post   "/:id/modules", MessagingExchangeModules, :create
       get    "/:id/modules/:hostname", MessagingExchangeModules, :show
       delete "/:id/modules/:hostname", MessagingExchangeModules, :destroy
+
+      get "/:id/system_components", MessagingExchanges, :show_components      
     end
 
     scope "/rpc_requests" do

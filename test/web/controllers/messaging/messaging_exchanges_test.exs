@@ -5,6 +5,7 @@ defmodule OpenAperture.Manager.Controllers.MessagingExchangesTest do
   alias OpenAperture.Manager.DB.Models.MessagingExchange
   alias OpenAperture.Manager.DB.Models.MessagingBroker
   alias OpenAperture.Manager.DB.Models.MessagingExchangeBroker
+  alias OpenAperture.Manager.DB.Models.SystemComponent
   alias OpenAperture.Manager.Repo
   alias OpenAperture.Manager.DB.Models.EtcdCluster
 
@@ -19,6 +20,7 @@ defmodule OpenAperture.Manager.Controllers.MessagingExchangesTest do
       Repo.delete_all(MessagingExchangeBroker)
       Repo.delete_all(MessagingBroker)
       Repo.delete_all(EtcdCluster)
+      Repo.delete_all(SystemComponent)
       Repo.delete_all(MessagingExchange)
     end
   end
@@ -413,4 +415,48 @@ defmodule OpenAperture.Manager.Controllers.MessagingExchangesTest do
     conn = get conn(), "/messaging/exchanges/1234567980/clusters", %{}
     assert conn.status == 404
   end
+
+  # =============================
+  # show_components tests
+
+  test "show_components - not found" do
+    conn = get conn(), "/messaging/exchanges/1234567890/system_components"
+    assert conn.status == 404
+  end
+
+  test "show_components - no components" do
+    changeset = MessagingExchange.new(%{name: "#{UUID.uuid1()}"})
+    exchange = Repo.insert(changeset)
+
+    conn = get conn(), "/messaging/exchanges/#{exchange.id}/system_components"
+    assert conn.status == 200
+
+    body = Poison.decode!(conn.resp_body)
+    assert length(body) == 0
+  end  
+
+  test "show_components - components" do
+    changeset = MessagingExchange.new(%{name: "#{UUID.uuid1()}"})
+    exchange = Repo.insert(changeset)
+
+    component = Repo.insert(SystemComponent.new(%{messaging_exchange_id: exchange.id, type: "test", source_repo: "https://github.com/test/test.git", source_repo_git_ref: "123abc", upgrade_strategy: "manual", deployment_repo: "https://github.com/test/test.git", deployment_repo_git_ref: "123abc"}))
+    component2 = Repo.insert(SystemComponent.new(%{messaging_exchange_id: exchange.id, type: "test2", source_repo: "https://github.com/test/test.git", source_repo_git_ref: "123abc", upgrade_strategy: "manual", deployment_repo: "https://github.com/test/test.git", deployment_repo_git_ref: "123abc"}))
+
+    conn = get conn(), "/messaging/exchanges/#{exchange.id}/system_components"
+    assert conn.status == 200
+
+    body = Poison.decode!(conn.resp_body)
+    assert length(body) == 2
+    assert Enum.reduce body, true, fn (returned_component, success) ->
+      if success do
+        cond do 
+          returned_component["id"] == component.id -> true
+          returned_component["id"] == component2.id -> true
+          true -> false
+        end
+      else
+        success
+      end
+    end
+  end  
 end

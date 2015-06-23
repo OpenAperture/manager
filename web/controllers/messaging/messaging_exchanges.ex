@@ -57,6 +57,19 @@ defmodule OpenAperture.Manager.Controllers.MessagingExchanges do
     :updated_at
   ]
 
+  @sendable_system_component_fields [
+    :id, 
+    :messaging_exchange_id,
+    :type, 
+    :source_repo, 
+    :source_repo_git_ref, 
+    :deployment_repo,
+    :deployment_repo_git_ref,
+    :upgrade_strategy,
+    :inserted_at, 
+    :updated_at
+  ]  
+
   @doc """
   GET /messaging/exchanges - Retrieve all MessagingExchanges
 
@@ -460,6 +473,29 @@ defmodule OpenAperture.Manager.Controllers.MessagingExchanges do
           end
           json conn, sendable_clusters
       end
+    end
+  end
+
+  @doc """
+  GET /messaging/exchanges/:id/system_components - Retrieve associated SystemComponents
+
+  ## Options
+  The `conn` option defines the underlying HTTP connection.
+  The `params` option defines an array of arguments.
+
+  ## Return Values
+
+  Underlying HTTP connection
+  """
+  @spec show_components(term, [any]) :: term
+  def show_components(conn, %{"id" => id}) do
+    case Repo.get(MessagingExchange, id) do
+      nil -> not_found(conn, "MessagingExchange #{id}")
+      exchange -> 
+        query = from sc in SystemComponent,
+          where: sc.messaging_exchange_id == ^id,
+          select: sc
+        ok(conn, Repo.all(query), @sendable_system_component_fields)
     end
   end
 end
