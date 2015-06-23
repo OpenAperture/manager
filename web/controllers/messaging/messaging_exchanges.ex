@@ -491,7 +491,7 @@ defmodule OpenAperture.Manager.Controllers.MessagingExchanges do
   def show_components(conn, %{"id" => id}) do
     case Repo.get(MessagingExchange, id) do
       nil -> not_found(conn, "MessagingExchange #{id}")
-      exchange -> 
+      _exchange -> 
         query = from sc in SystemComponent,
           where: sc.messaging_exchange_id == ^id,
           select: sc
