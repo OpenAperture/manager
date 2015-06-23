@@ -52,11 +52,42 @@ defmodule OpenAperture.Manager.Controllers.ProductDeploymentPlanSteps do
     case get_product_and_plan_by_name(product_name, plan_name) do
       {_, plan} when plan != nil ->
         case create_step(plan.id, params) do
-          {:ok, _step} ->
+          {:ok, step} ->
             path = product_deployment_plan_steps_path(Endpoint, :index, product_name, plan_name)
-            conn
-            |> put_resp_header("location", path)
-            |> resp :created, ""
+            if params["parent_step_id"] != nil and params["step_case"] != nil do 
+              case Repo.get(ProductDeploymentPlanStep, params["parent_step_id"]) do
+                nil ->
+                  conn
+                  |> put_status(:bad_request)
+                  |> json ResponseBodyFormatter.error_body("{'msg': 'parent step not found'}", "ProductDeploymentPlanStep")
+                parent_step ->
+                  case params["step_case"] do 
+                    "success" ->
+                      params = %{on_success_step_id: step.id}
+                    "failure" ->
+                      params = %{on_failure_step_id: step.id}
+                    _ ->
+                      params = %{}
+                  end
+
+                  Map.put(params, :product_deployment_plan_step_options, parent_step.product_deployment_plan_step_options) 
+                  changeset = ProductDeploymentPlanStep.update(parent_step, params)
+                  if changeset.valid? do
+                    Repo.update(changeset)
+                    conn
+                    |> put_resp_header("location", path)
+                    |> resp :created, ""
+                  else
+                    conn
+                    |> put_status(:bad_request)
+                    |> json ResponseBodyFormatter.error_body(changeset.errors, "ProductDeploymentPlanStep")
+                  end
+              end
+            else 
+              conn
+              |> put_resp_header("location", path)
+              |> resp :created, ""
+            end
           {:invalid, errors} ->
             conn
             |> put_status(:bad_request)
@@ -81,16 +112,46 @@ defmodule OpenAperture.Manager.Controllers.ProductDeploymentPlanSteps do
         conn
         |> resp :not_found, ""
       step ->
-        changeset = ProductDeploymentPlanStep.update(step, params)
-        if changeset.valid? do
-          Repo.update(changeset)
-          conn
-          |> put_resp_header("location", product_deployment_plans_path(Endpoint, :show, product_name, plan_name))
-          |> resp :no_content, ""
-        else
-          conn
-          |> put_status(:bad_request)
-          |> json inspect(changeset.errors)
+        result = Repo.transaction(fn ->
+          try do
+            changeset = ProductDeploymentPlanStep.update(step, params)
+            if changeset.valid? do
+              Repo.update(changeset)
+              ProductDeploymentPlanStepOption.destroy_for_deployment_plan_step(step)
+              if params["options"] != nil do
+                Enum.each(params["options"], fn option ->
+                  option = Map.put(option, "product_deployment_plan_step_id", step.id)
+                  changeset = ProductDeploymentPlanStepOption.new(option)
+                  if changeset.valid? do
+                    Repo.insert(changeset)
+                  else
+                    throw({:invalid, changeset.errors})
+                  end
+                end)
+              end
+            else
+              throw({:invalid, changeset.errors})
+            end
+          catch
+            {:invalid, errors} ->
+              Repo.rollback({:invalid, errors})
+            {:error, error} ->
+              Repo.rollback(error)
+          end
+        end)
+        case result do
+          {:ok, _} ->
+            conn
+            |> put_resp_header("location", product_deployment_plans_path(Endpoint, :show, product_name, plan_name))
+            |> resp :no_content, ""
+          {:invalid, reason} ->
+            conn
+            |> put_status(:bad_request)
+            |> json inspect(reason)
+          {:error, reason} ->
+            conn
+            |> put_status(:bad_request)
+            |> json inspect(reason)
         end
     end
   end
