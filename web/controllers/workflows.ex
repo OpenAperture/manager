@@ -113,7 +113,7 @@ defmodule OpenAperture.Manager.Controllers.Workflows do
 
   def process_milestones(milestones) do
     if milestones != nil do
-      if !has_milestone?(milestones, :build) && !has_milestone?(milestones, :config) do
+      if !has_milestone?(milestones, "build") && !has_milestone?(milestones, "config") do
         [:config | milestones]
       else
         milestones

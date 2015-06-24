@@ -261,9 +261,9 @@ defmodule OpenAperture.Manager.Controllers.WorkflowsTest do
   end
 
   test "process_milestones - success" do
-    assert Workflows.process_milestones([:deploy]) == Poison.encode! [:config, :deploy]
-    assert Workflows.process_milestones([:build]) == Poison.encode! [:build]
-    assert Workflows.process_milestones([:config, :deploy]) == Poison.encode! [:config, :deploy]
-    assert Workflows.process_milestones([:build, :deploy]) == Poison.encode! [:build, :deploy]
+    assert Workflows.process_milestones(["deploy"]) == Poison.encode! ["config", "deploy"]
+    assert Workflows.process_milestones(["build"]) == Poison.encode! ["build"]
+    assert Workflows.process_milestones(["config", "deploy"]) == Poison.encode! ["config", "deploy"]
+    assert Workflows.process_milestones(["build", "deploy"]) == Poison.encode! ["build", "deploy"]
   end
 end
