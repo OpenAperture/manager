@@ -69,20 +69,27 @@ defmodule OpenAperture.Manager.DB.Models.ProductDeploymentPlanStep do
             node_links = []
           end
           node_links = node_links ++ [map_step.id]
+          IO.inspect(node_links)
           map_node_links = Map.put(map_node_links, map_step[:on_success_step_id], node_links)
+          IO.puts("I had a success step, id: #{map_step[:on_success_step_id]}")
+          
         end
 
         if (map_step[:on_failure_step_id] != nil) do
           map_child_ids = Map.put(map_child_ids, map_step[:on_failure_step_id], true)
 
           #update the array of who is using the nodes
-          node_links = map_node_links[map_step[:on_success_step_id]]
+          node_links = map_node_links[map_step[:on_failure_step_id]]
           if (node_links == nil) do
             node_links = []
           end
-          node_links = node_links ++ [map_step]
-          map_node_links = Map.put(map_node_links, map_step[:on_success_step_id], node_links)
+          node_links = node_links ++ [map_step.id]
+          IO.inspect(node_links)
+          map_node_links = Map.put(map_node_links, map_step[:on_failure_step_id], node_links)
+          IO.puts("I had a failure step, id: #{map_step[:on_failure_step_id]}")
         end
+
+
 
         {map_steps, map_child_ids, map_node_links}
       end
@@ -114,6 +121,10 @@ defmodule OpenAperture.Manager.DB.Models.ProductDeploymentPlanStep do
 
         {map_steps, map_node_links, root_step_id}
       end
+
+      IO.inspect(map_steps)
+      IO.inspect(map_node_links)
+      IO.inspect(root_step_id)
 
       if (root_step_id == nil) do
         nil
