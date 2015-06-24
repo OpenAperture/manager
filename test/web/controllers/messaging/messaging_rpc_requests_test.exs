@@ -9,6 +9,7 @@ defmodule OpenAperture.Manager.Controllers.MessagingRpcRequestsTest do
     :meck.new(OpenAperture.Manager.Plugs.Authentication, [:passthrough])
     :meck.expect(OpenAperture.Manager.Plugs.Authentication, :authenticate_user, fn conn, _opts -> conn end)
 
+    Repo.delete_all(MessagingRpcRequest)
     on_exit fn ->
       :meck.unload
       Repo.delete_all(MessagingRpcRequest)

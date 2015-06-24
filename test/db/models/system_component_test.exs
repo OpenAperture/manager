@@ -34,16 +34,16 @@ defmodule DB.Models.SystemComponent.Test do
     assert Keyword.has_key?(changeset.errors, :type)
   end
 
-  test "source_repo is required", context do
+  test "source_repo is optional", context do
     changeset = SystemComponent.new(%{messaging_exchange_id: context[:exchange].id, type: "a_type"})
     refute changeset.valid?
-    assert Keyword.has_key?(changeset.errors, :source_repo)
+    refute Keyword.has_key?(changeset.errors, :source_repo)
   end
 
-  test "source_repo_git_ref is required", context do
+  test "source_repo_git_ref is optional", context do
     changeset = SystemComponent.new(%{messaging_exchange_id: context[:exchange].id, type: "a_type", source_repo: "https://github.com/test/test.git"})
     refute changeset.valid?
-    assert Keyword.has_key?(changeset.errors, :source_repo_git_ref)
+    refute Keyword.has_key?(changeset.errors, :source_repo_git_ref)
   end
 
   test "deployment_repo is required", context do
