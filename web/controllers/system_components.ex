@@ -86,13 +86,13 @@ defmodule OpenAperture.Manager.Controllers.SystemComponents do
   @spec create(Plug.Conn.t, [any]) :: Plug.Conn.t
   def create(conn, params) do
     changeset = SystemComponent.new(%{
-      "messaging_exchange_id" => params["messaging_exchange_id"],
-      "type" => params["type"],
-      "source_repo" => params["source_repo"],
-      "source_repo_git_ref" => params["source_repo_git_ref"],
-      "deployment_repo" => params["deployment_repo"],
-      "deployment_repo_git_ref" => params["deployment_repo_git_ref"],      
-      "upgrade_strategy" => params["upgrade_strategy"]
+      messaging_exchange_id: params["messaging_exchange_id"],
+      type: params["type"],
+      source_repo: params["source_repo"],
+      source_repo_git_ref: params["source_repo_git_ref"],
+      deployment_repo: params["deployment_repo"],
+      deployment_repo_git_ref: params["deployment_repo_git_ref"],      
+      upgrade_strategy: params["upgrade_strategy"]
     })
     if changeset.valid? do
       try do
@@ -133,13 +133,13 @@ defmodule OpenAperture.Manager.Controllers.SystemComponents do
       nil -> not_found(conn, "SystemComponent #{params["id"]}")
       component ->
         changeset = SystemComponent.new(%{
-          "messaging_exchange_id" => params["messaging_exchange_id"],
-          "type" => params["type"],
-          "source_repo" => params["source_repo"],
-          "source_repo_git_ref" => params["source_repo_git_ref"],
-          "deployment_repo" => params["deployment_repo"],
-          "deployment_repo_git_ref" => params["deployment_repo_git_ref"],      
-          "upgrade_strategy" => params["upgrade_strategy"]
+          messaging_exchange_id: params["messaging_exchange_id"],
+          type: params["type"],
+          source_repo: params["source_repo"],
+          source_repo_git_ref: params["source_repo_git_ref"],
+          deployment_repo: params["deployment_repo"],
+          deployment_repo_git_ref: params["deployment_repo_git_ref"],      
+          upgrade_strategy: params["upgrade_strategy"]
         })
 
         if changeset.valid? do

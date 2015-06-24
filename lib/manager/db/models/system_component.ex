@@ -34,8 +34,6 @@ defmodule OpenAperture.Manager.DB.Models.SystemComponent do
 
     changeset
     |> validate_length(:type, min: 1)
-    |> validate_length(:source_repo, min: 1)
-    |> validate_length(:source_repo_git_ref, min: 1)
     |> validate_length(:deployment_repo, min: 1)
     |> validate_length(:deployment_repo_git_ref, min: 1)    
   end
