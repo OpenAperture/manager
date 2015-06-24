@@ -7,6 +7,7 @@ defmodule OpenAperture.Manager.Controllers.SystemComponents do
   import Ecto.Query
 
   alias OpenAperture.Manager.DB.Models.SystemComponent
+  alias OpenAperture.Manager.DB.Models.MessagingExchange
   
   plug :action
 
@@ -144,8 +145,11 @@ defmodule OpenAperture.Manager.Controllers.SystemComponents do
 
         if changeset.valid? do
           try do
+            original_exchange = Repo.get(MessagingExchange, component.messaging_exchange_id)
+            new_exchange = Repo.get(MessagingExchange, params["messaging_exchange_id"])
+
             #the component needs to be reviewed to ensure it's not violating any constraints
-            conflict = if params["type"] != component.type || params["messaging_exchange_id"] != component.messaging_exchange_id do
+            conflict = if params["type"] != component.type || new_exchange.id != original_exchange.id do
               query = from sc in SystemComponent,
                 where: sc.type == ^params["type"] and sc.messaging_exchange_id == ^params["messaging_exchange_id"],
                 select: sc
