@@ -3,7 +3,7 @@ defmodule OpenAperture.Manager.Controllers.WorkflowsTest do
   use Phoenix.ConnTest
 
   alias OpenAperture.Manager.Repo
-
+  alias OpenAperture.Manager.Controllers.Workflows
   alias OpenAperture.Manager.DB.Models.Workflow, as: WorkflowDB
 
   alias OpenAperture.WorkflowOrchestratorApi.WorkflowOrchestrator.Publisher, as: OrchestratorPublisher
@@ -258,5 +258,12 @@ defmodule OpenAperture.Manager.Controllers.WorkflowsTest do
     assert conn.status == 202
   after
     :meck.unload(OrchestratorPublisher)    
-  end  
+  end
+
+  test "process_milestones - success" do
+    assert Workflows.process_milestones([:deploy]) == Poison.encode! [:config, :deploy]
+    assert Workflows.process_milestones([:build]) == Poison.encode! [:build]
+    assert Workflows.process_milestones([:config, :deploy]) == Poison.encode! [:config, :deploy]
+    assert Workflows.process_milestones([:build, :deploy]) == Poison.encode! [:build, :deploy]
+  end
 end

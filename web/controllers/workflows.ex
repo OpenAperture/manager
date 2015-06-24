@@ -107,6 +107,23 @@ defmodule OpenAperture.Manager.Controllers.Workflows do
     end
   end
 
+  defp has_milestone?(milestones, milestone) do
+    length(Enum.filter(milestones, &(&1 == milestone))) > 0
+  end
+
+  def process_milestones(milestones) do
+    if milestones != nil do
+      if !has_milestone?(milestones, :build) && !has_milestone?(milestones, :config) do
+        [:config | milestones]
+      else
+        milestones
+      end
+      |> Poison.encode!
+    else 
+      nil
+    end
+  end
+
   @doc """
   POST /workflows - Create a Workflow
 
@@ -123,11 +140,7 @@ defmodule OpenAperture.Manager.Controllers.Workflows do
     id = "#{UUID.uuid1()}"
     raw_workflow_id = string_to_uuid(id)
 
-    milestones = if params["milestones"] != nil do
-      Poison.encode!(params["milestones"])
-    else 
-      nil
-    end
+    milestones = process_milestones(params["milestones"])
 
     workflow_step_durations = if params["workflow_step_durations"] != nil do
       Poison.encode!(params["workflow_step_durations"])
