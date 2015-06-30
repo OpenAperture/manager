@@ -66,7 +66,7 @@ defmodule OpenAperture.Manager.Controllers.SystemComponentTest do
   end
 
   test "show - valid component", context do
-    component = Repo.insert(SystemComponent.new(%{messaging_exchange_id: context[:exchange].id, type: "test", source_repo: "https://github.com/test/test.git", source_repo_git_ref: "123abc", upgrade_strategy: "manual", deployment_repo: "https://github.com/test/test.git", deployment_repo_git_ref: "123abc"}))
+    component = Repo.insert(SystemComponent.new(%{messaging_exchange_id: context[:exchange].id, type: "test", source_repo: "https://github.com/test/test.git", source_repo_git_ref: "123abc", upgrade_strategy: "manual", deployment_repo: "https://github.com/test/test.git", deployment_repo_git_ref: "123abc", status: to_string(:available), upgrade_status: Poison.encode!(%{workflow_ids: []})}))
 
     conn = get conn(), "/system_components/#{component.id}"
     assert conn.status == 200
@@ -109,7 +109,7 @@ defmodule OpenAperture.Manager.Controllers.SystemComponentTest do
   end
 
   test "create - success", context do
-    conn = post conn(), "/system_components", %{"messaging_exchange_id" => context[:exchange].id, "type" => "test", "source_repo" => "https://github.com/test/test.git", "source_repo_git_ref" => "123abc", "upgrade_strategy" => "manaul", "deployment_repo"=> "https://github.com/test/test.git", "deployment_repo_git_ref"=> "123abc"}
+    conn = post conn(), "/system_components", %{"messaging_exchange_id" => context[:exchange].id, "type" => "test", "source_repo" => "https://github.com/test/test.git", "source_repo_git_ref" => "123abc", "upgrade_strategy" => "manaul", "deployment_repo"=> "https://github.com/test/test.git", "deployment_repo_git_ref"=> "123abc", status: to_string(:available), upgrade_status: %{workflow_ids: []}}
     
     assert conn.status == 201
     location_header = Enum.reduce conn.resp_headers, nil, fn ({key, value}, location_header) ->
@@ -155,7 +155,7 @@ defmodule OpenAperture.Manager.Controllers.SystemComponentTest do
   end
 
   test "update - success", context do
-    component = Repo.insert(SystemComponent.new(%{messaging_exchange_id: context[:exchange].id, type: "test", source_repo: "https://github.com/test/test.git", source_repo_git_ref: "123abc", upgrade_strategy: "manual", deployment_repo: "https://github.com/test/test.git", deployment_repo_git_ref: "123abc"}))
+    component = Repo.insert(SystemComponent.new(%{messaging_exchange_id: context[:exchange].id, type: "test", source_repo: "https://github.com/test/test.git", source_repo_git_ref: "123abc", upgrade_strategy: "manual", deployment_repo: "https://github.com/test/test.git", deployment_repo_git_ref: "123abc", status: to_string(:available), upgrade_status: Poison.encode!(%{workflow_ids: []})}))
 
     conn = put conn(), "/system_components/#{component.id}", %{"messaging_exchange_id" => context[:exchange].id, "type" => "test", "source_repo" => "https://github.com/test/test.git", "source_repo_git_ref"=> "123abc", "upgrade_strategy"=> "hourly", "deployment_repo"=> "https://github.com/test/test.git", "deployment_repo_git_ref"=> "123abc"}
     assert conn.status == 204

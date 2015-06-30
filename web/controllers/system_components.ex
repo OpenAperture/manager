@@ -51,7 +51,7 @@ defmodule OpenAperture.Manager.Controllers.SystemComponents do
   """
   @spec index(Plug.Conn.t, [any]) :: Plug.Conn.t
   def index(conn, _params) do
-    ok(conn, Repo.all(SystemComponent), @sendable_fields)
+    json conn, convert_raw_components(Repo.all(SystemComponent))
  end  
 
   @doc """
@@ -69,7 +69,8 @@ defmodule OpenAperture.Manager.Controllers.SystemComponents do
   def show(conn, params) do
     case Repo.get(SystemComponent, params["id"]) do
       nil -> not_found(conn, "SystemComponent #{params["id"]}")
-      component -> ok(conn, component, @sendable_fields)
+      component -> 
+        json conn, List.first(convert_raw_components([component]))
     end
   end
 
@@ -86,6 +87,12 @@ defmodule OpenAperture.Manager.Controllers.SystemComponents do
   """
   @spec create(Plug.Conn.t, [any]) :: Plug.Conn.t
   def create(conn, params) do
+    upgrade_status = if params["upgrade_status"] != nil do
+      Poison.encode!(params["upgrade_status"])
+    else
+      nil
+    end
+
     changeset = SystemComponent.new(%{
       messaging_exchange_id: params["messaging_exchange_id"],
       type: params["type"],
@@ -93,7 +100,9 @@ defmodule OpenAperture.Manager.Controllers.SystemComponents do
       source_repo_git_ref: params["source_repo_git_ref"],
       deployment_repo: params["deployment_repo"],
       deployment_repo_git_ref: params["deployment_repo_git_ref"],      
-      upgrade_strategy: params["upgrade_strategy"]
+      upgrade_strategy: params["upgrade_strategy"],
+      status: params["status"],
+      upgrade_status: upgrade_status
     })
     if changeset.valid? do
       try do
@@ -133,6 +142,12 @@ defmodule OpenAperture.Manager.Controllers.SystemComponents do
     case Repo.get(SystemComponent, params["id"]) do
       nil -> not_found(conn, "SystemComponent #{params["id"]}")
       component ->
+        upgrade_status = if params["upgrade_status"] != nil do
+          Poison.encode!(params["upgrade_status"])
+        else
+          nil
+        end
+
         changeset = SystemComponent.new(%{
           messaging_exchange_id: params["messaging_exchange_id"],
           type: params["type"],
@@ -140,7 +155,9 @@ defmodule OpenAperture.Manager.Controllers.SystemComponents do
           source_repo_git_ref: params["source_repo_git_ref"],
           deployment_repo: params["deployment_repo"],
           deployment_repo_git_ref: params["deployment_repo_git_ref"],      
-          upgrade_strategy: params["upgrade_strategy"]
+          upgrade_strategy: params["upgrade_strategy"],
+          status: params["status"],
+          upgrade_status: upgrade_status
         })
 
         if changeset.valid? do
@@ -164,7 +181,9 @@ defmodule OpenAperture.Manager.Controllers.SystemComponents do
             if conflict do
               conflict(conn, "SystemComponent #{inspect params["type"]}")
             else
-            	changeset = SystemComponent.update(component, Map.take(params, @updatable_fields))
+              new_fields = Map.take(params, @updatable_fields)
+              new_fields = Map.put(new_fields, "upgrade_status", upgrade_status)
+            	changeset = SystemComponent.update(component, new_fields)
               Repo.update(changeset)
               path = OpenAperture.Manager.Router.Helpers.system_components_path(Endpoint, :show, component.id)
 
@@ -202,4 +221,36 @@ defmodule OpenAperture.Manager.Controllers.SystemComponents do
         no_content(conn)
     end
   end  
+
+  @doc false
+  # Method to convert an array of DB.Models.SystemComponents into an array of List of SystemComponents
+  #
+  # Options
+  #
+  # The `raw_workflows` option defines the array of structs of the DB.Models.SystemComponents to be parsed
+  #
+  ## Return Values
+  #
+  # List of parsed SystemComponents
+  #
+  def convert_raw_components(raw_components) do
+    case raw_components do
+      nil -> []
+      [] -> []
+      _ ->
+        Enum.reduce raw_components, [], fn(raw_component, components) -> 
+          component = FormatHelper.to_sendable(raw_component, @sendable_fields)
+          if (component != nil) do
+            #stored as String in the db
+            if (component[:upgrade_status] != nil) do
+              component = Map.put(component, :upgrade_status, Poison.decode!(component[:upgrade_status]))
+            end
+
+            components = components ++ [component]
+          end
+
+          components
+        end
+    end
+  end
 end
