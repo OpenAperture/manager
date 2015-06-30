@@ -5,6 +5,7 @@ erl_crash.dump
 sftp-config.json
 *.sublime-workspace
 config/system.exs
+config/mac.exs
 /doc
 swagger/
 .DS_Store

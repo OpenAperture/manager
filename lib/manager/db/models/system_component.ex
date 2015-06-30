@@ -1,6 +1,6 @@
 defmodule OpenAperture.Manager.DB.Models.SystemComponent do
   @required_fields [:type, :messaging_exchange_id, :deployment_repo, :deployment_repo_git_ref, :upgrade_strategy]
-  @optional_fields [:source_repo, :source_repo_git_ref]
+  @optional_fields [:source_repo, :source_repo_git_ref, :status, :upgrade_status]
 
   use OpenAperture.Manager.DB.Models.BaseModel
 
@@ -14,6 +14,8 @@ defmodule OpenAperture.Manager.DB.Models.SystemComponent do
     field :deployment_repo
     field :deployment_repo_git_ref    
     field :upgrade_strategy
+    field :status
+    field :upgrade_status
     timestamps
   end
 

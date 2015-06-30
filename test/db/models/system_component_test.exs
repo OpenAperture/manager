@@ -62,4 +62,14 @@ defmodule DB.Models.SystemComponent.Test do
     changeset = SystemComponent.new(%{messaging_exchange_id: context[:exchange].id, type: "a_type", source_repo: "https://github.com/test/test.git", source_repo_git_ref: "123abc", deployment_repo: "https://github.com/test/test_deploy.git", deployment_repo_git_ref: "234xyz", upgrade_strategy: to_string(:manual)})
     assert changeset.valid?
   end    
+
+  test "status optional", context do
+    changeset = SystemComponent.new(%{messaging_exchange_id: context[:exchange].id, type: "a_type", source_repo: "https://github.com/test/test.git", source_repo_git_ref: "123abc", deployment_repo: "https://github.com/test/test_deploy.git", deployment_repo_git_ref: "234xyz", upgrade_strategy: to_string(:manual), status: to_string(:available)})
+    assert changeset.valid?
+  end    
+
+  test "upgrade_status optional", context do
+    changeset = SystemComponent.new(%{messaging_exchange_id: context[:exchange].id, type: "a_type", source_repo: "https://github.com/test/test.git", source_repo_git_ref: "123abc", deployment_repo: "https://github.com/test/test_deploy.git", deployment_repo_git_ref: "234xyz", upgrade_strategy: to_string(:manual), upgrade_status: to_string(:available)})
+    assert changeset.valid?
+  end 
 end
