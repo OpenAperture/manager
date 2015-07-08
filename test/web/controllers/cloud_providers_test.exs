@@ -79,7 +79,6 @@ defmodule OpenAperture.Manager.Controllers.CloudProvidersTest do
 
     assert String.contains?(conn.resp_body, "name")
     assert String.contains?(conn.resp_body, "type")
-    assert String.contains?(conn.resp_body, "configuration") 
   end
 
   test "delete action -- success" do
@@ -123,7 +122,6 @@ defmodule OpenAperture.Manager.Controllers.CloudProvidersTest do
 
     assert String.contains?(conn.resp_body, "name")
     assert String.contains?(conn.resp_body, "type")
-    assert String.contains?(conn.resp_body, "configuration") 
   end
 
   test "clusters action -- provider found" do 

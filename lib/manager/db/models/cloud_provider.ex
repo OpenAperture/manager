@@ -18,7 +18,6 @@ defmodule OpenAperture.Manager.DB.Models.CloudProvider do
     cast(model_or_changeset,  params, @required_fields, @optional_fields)
     |> validate_length(:name, min: 1)
     |> validate_length(:type, min: 1)
-    |> validate_length(:configuration, min: 1)
   end
 
   def destroy(model) do
