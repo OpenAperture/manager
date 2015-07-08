@@ -32,6 +32,7 @@ defmodule OpenAperture.Manager.Controllers.CloudProviders do
       cloud_provider ->
         cloud_provider = case cloud_provider.configuration do
           nil -> cloud_provider
+          ""  -> %{cloud_provider | configuration: nil}
           config -> %{cloud_provider | configuration: Poison.decode!(config)}
         end
         json conn, cloud_provider |> FormatHelper.to_sendable(@sendable_fields)
@@ -42,7 +43,7 @@ defmodule OpenAperture.Manager.Controllers.CloudProviders do
   def create(conn, params) do
     params = case params["configuration"] do
       nil -> params
-      "" -> params
+      "" -> Map.update(params, "configuration", "", fn _ -> nil end)
       _ -> Map.update(params, "configuration", "", fn _ -> Poison.encode!(params["configuration"]) end)
     end
 
