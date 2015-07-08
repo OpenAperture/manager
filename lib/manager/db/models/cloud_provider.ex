@@ -1,6 +1,6 @@
 defmodule OpenAperture.Manager.DB.Models.CloudProvider do
-  @required_fields [:name, :type, :configuration]
-  @optional_fields []
+  @required_fields [:name, :type]
+  @optional_fields [:configuration]
 
   use OpenAperture.Manager.DB.Models.BaseModel
 

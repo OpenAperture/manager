@@ -29,7 +29,12 @@ defmodule OpenAperture.Manager.Controllers.CloudProviders do
   def show(conn, %{"id" => id}) do
     case Repo.get(CloudProvider, id) do
       nil -> resp(conn, :not_found, "")
-      cloud_provider -> json conn, cloud_provider |> FormatHelper.to_sendable(@sendable_fields)
+      cloud_provider ->
+        cloud_provider = case cloud_provider.configuration do
+          nil -> cloud_provider
+          config -> %{cloud_provider | configuration: Poison.decode!(config)}
+        end
+        json conn, cloud_provider |> FormatHelper.to_sendable(@sendable_fields)
     end
   end
 
