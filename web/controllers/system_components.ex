@@ -8,6 +8,9 @@ defmodule OpenAperture.Manager.Controllers.SystemComponents do
 
   alias OpenAperture.Manager.DB.Models.SystemComponent
   alias OpenAperture.Manager.DB.Models.MessagingExchange
+
+  alias OpenAperture.OverseerApi.Publisher, as: OverseerPublisher
+  alias OpenAperture.OverseerApi.Request, as: OverseerRequest
   
   plug :action
 
@@ -218,6 +221,30 @@ defmodule OpenAperture.Manager.Controllers.SystemComponents do
         Repo.transaction(fn ->
           Repo.delete(component)
         end)
+        no_content(conn)
+    end
+  end  
+
+  @doc """
+  POST /system_components/:id/upgrade - Request an upgrade of a SystemComponent
+
+  ## Options
+  The `conn` option defines the underlying HTTP connection.
+  The `params` option defines an array of arguments.
+
+  ## Return Values
+
+  Underlying HTTP connection
+  """
+  @spec upgrade(Plug.Conn.t, [any]) :: Plug.Conn.t
+  def upgrade(conn, params) do
+    case Repo.get(SystemComponent, params["id"]) do
+      nil -> not_found(conn, "SystemComponent #{params["id"]}")
+      component ->
+        OverseerPublisher.publish_request(
+          %OverseerRequest{action: :upgrade_request, options: %{component_type: component.type}},
+          component.messaging_exchange_id
+        )
         no_content(conn)
     end
   end  

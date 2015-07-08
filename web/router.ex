@@ -253,5 +253,6 @@ defmodule OpenAperture.Manager.Router do
     get "/:id", SystemComponents, :show
     put "/:id", SystemComponents, :update
     delete "/:id", SystemComponents, :destroy
+    post "/:id/upgrade", SystemComponents, :upgrade
   end  
 end

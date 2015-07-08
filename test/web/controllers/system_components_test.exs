@@ -7,6 +7,8 @@ defmodule OpenAperture.Manager.Controllers.SystemComponentTest do
   alias OpenAperture.Manager.Repo
   alias OpenAperture.Manager.Plugs.Authentication
 
+  alias OpenAperture.OverseerApi.Publisher, as: OverseerPublisher
+
   require Repo
   import Ecto.Query  
 
@@ -189,5 +191,28 @@ defmodule OpenAperture.Manager.Controllers.SystemComponentTest do
       nil -> assert true == true
       component -> assert component != nil
     end
+  end
+
+
+  test "upgrade - invalid component" do
+    conn = post conn(), "/system_components/0123456789/upgrade"
+    assert conn.status == 404
+  end
+
+  test "upgrade - valid component", context do
+    :meck.new(OverseerPublisher, [:passthrough])
+    :meck.expect(OverseerPublisher, :publish_request, fn _,_ -> :ok end)
+
+    component = Repo.insert(SystemComponent.new(%{messaging_exchange_id: context[:exchange].id, type: "test", source_repo: "https://github.com/test/test.git", source_repo_git_ref: "123abc", upgrade_strategy: "manual", deployment_repo: "https://github.com/test/test.git", deployment_repo_git_ref: "123abc"}))
+
+    conn = post conn(), "/system_components/#{component.id}/upgrade"
+    assert conn.status == 204
+
+    case Repo.get(SystemComponent, component.id) do
+      nil -> assert true == true
+      component -> assert component != nil
+    end
+  after
+    :meck.unload(OverseerPublisher)
   end
 end
