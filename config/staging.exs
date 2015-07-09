@@ -44,3 +44,7 @@ config :openaperture_manager_api,
 
 config :openaperture_manager_overseer_api,
   autostart: true
+
+config :openaperture_overseer_api,
+  exchange_id: System.get_env("EXCHANGE_ID"),
+  broker_id: System.get_env("BROKER_ID")
