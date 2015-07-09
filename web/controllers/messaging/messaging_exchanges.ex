@@ -67,7 +67,9 @@ defmodule OpenAperture.Manager.Controllers.MessagingExchanges do
     :deployment_repo_git_ref,
     :upgrade_strategy,
     :inserted_at, 
-    :updated_at
+    :updated_at,
+    :status,
+    :upgrade_status
   ]  
 
   @doc """
