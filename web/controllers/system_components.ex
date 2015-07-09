@@ -28,7 +28,9 @@ defmodule OpenAperture.Manager.Controllers.SystemComponents do
     :deployment_repo_git_ref,
     :upgrade_strategy,
     :inserted_at, 
-    :updated_at
+    :updated_at,
+    :status,
+    :upgrade_status
   ]
 
   @updatable_fields [
@@ -38,7 +40,9 @@ defmodule OpenAperture.Manager.Controllers.SystemComponents do
     "source_repo_git_ref", 
     "deployment_repo",
     "deployment_repo_git_ref",
-    "upgrade_strategy"
+    "upgrade_strategy",
+    "status",
+    "upgrade_status"
   ]
 
   @doc """
