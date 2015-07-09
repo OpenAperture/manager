@@ -15,7 +15,10 @@ defmodule OpenAperture.Manager do
       worker(OpenAperture.Manager.OverseerApi.ModuleRegistration, []),
       worker(OpenAperture.Manager.OverseerApi.Heartbeat, []),
       worker(OpenAperture.Manager.Messaging.RpcRequestsCleanup, []),
-      worker(OpenAperture.Manager.Messaging.FleetManagerPublisher, [])
+      worker(OpenAperture.Manager.Messaging.FleetManagerPublisher, []),
+
+      #explicilty start just the OverseerApi publisher for publishing SystemComponent upgrades
+      worker(OpenAperture.OverseerApi.Publisher, [])
     ]
 
     # See http://elixir-lang.org/docs/stable/elixir/Supervisor.html
