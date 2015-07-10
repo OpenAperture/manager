@@ -497,7 +497,39 @@ defmodule OpenAperture.Manager.Controllers.MessagingExchanges do
         query = from sc in SystemComponent,
           where: sc.messaging_exchange_id == ^id,
           select: sc
-        ok(conn, Repo.all(query), @sendable_system_component_fields)
+        ok(conn, convert_raw_components(Repo.all(query)))
+    end
+  end
+
+  @doc false
+  # Method to convert an array of DB.Models.SystemComponents into an array of List of SystemComponents
+  #
+  # Options
+  #
+  # The `raw_workflows` option defines the array of structs of the DB.Models.SystemComponents to be parsed
+  #
+  ## Return Values
+  #
+  # List of parsed SystemComponents
+  #
+  def convert_raw_components(raw_components) do
+    case raw_components do
+      nil -> []
+      [] -> []
+      _ ->
+        Enum.reduce raw_components, [], fn(raw_component, components) -> 
+          component = FormatHelper.to_sendable(raw_component, @sendable_system_component_fields)
+          if (component != nil) do
+            #stored as String in the db
+            if (component[:upgrade_status] != nil) do
+              component = Map.put(component, :upgrade_status, Poison.decode!(component[:upgrade_status]))
+            end
+
+            components = components ++ [component]
+          end
+
+          components
+        end
     end
   end
 end
