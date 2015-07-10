@@ -497,7 +497,7 @@ defmodule OpenAperture.Manager.Controllers.MessagingExchanges do
         query = from sc in SystemComponent,
           where: sc.messaging_exchange_id == ^id,
           select: sc
-        ok(conn, convert_raw_components(Repo.all(query)))
+        json conn, convert_raw_components(Repo.all(query))
     end
   end
 
