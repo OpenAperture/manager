@@ -177,7 +177,6 @@ defmodule OpenAperture.Manager.Controllers.Workflows do
       :workflow_completed => workflow_completed,
       :event_log => event_log,
     })
-    IO.inspect(changeset)
     if changeset.valid? do
       try do
         raw_workflow = Repo.insert(changeset)
