@@ -7,7 +7,7 @@ defmodule OpenAperture.Manager.BuildLogMonitor do
   alias OpenAperture.Messaging.AMQP.SubscriptionHandler
   alias OpenAperture.ManagerApi
   alias OpenAperture.Manager.Configuration
-  alias OpenAperture.Manager.Util
+  alias OpenAperture.Manager.RoutingKey
 
   @connection_options nil
   use OpenAperture.Messaging
@@ -29,7 +29,7 @@ defmodule OpenAperture.Manager.BuildLogMonitor do
 	end
 
   def init(:ok) do
-    {routing_key, _} = Util.build_route_hierarchy(Configuration.get_current_exchange_id, nil, nil)
+    {routing_key, _} = RoutingKey.build_hierarchy(Configuration.get_current_exchange_id, nil, nil)
 
     queue = QueueBuilder.build(ManagerApi.get_api,
                                "#{routing_key}.manager.build_logs.#{UUID.uuid1()}",

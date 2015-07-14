@@ -20,7 +20,7 @@ defmodule OpenAperture.Manager.Controllers.MessagingExchanges do
 
   alias OpenAperture.Manager.Controllers.FormatHelper
   alias OpenAperture.Manager.Controllers.ResponseBodyFormatter
-  alias OpenAperture.Manager.Util
+  alias OpenAperture.Manager.RoutingKey
   
   import Ecto.Query
 
@@ -125,7 +125,7 @@ defmodule OpenAperture.Manager.Controllers.MessagingExchanges do
   end
 
   def resolve_hierachy([exchange | remaining_exchanges], updated_exchanges) do
-    {routing_key, root_exchange} = Util.build_route_hierarchy(exchange[:id], nil, nil)
+    {routing_key, root_exchange} = RoutingKey.build_hierarchy(exchange[:id], nil, nil)
     exchange = Map.put(exchange, :routing_key, to_string(routing_key))
     exchange = Map.put(exchange, :root_exchange_name, root_exchange.name)
 
