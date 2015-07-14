@@ -20,6 +20,7 @@ defmodule OpenAperture.Manager.Controllers.MessagingExchanges do
 
   alias OpenAperture.Manager.Controllers.FormatHelper
   alias OpenAperture.Manager.Controllers.ResponseBodyFormatter
+  alias OpenAperture.Manager.Util
   
   import Ecto.Query
 
@@ -124,24 +125,11 @@ defmodule OpenAperture.Manager.Controllers.MessagingExchanges do
   end
 
   def resolve_hierachy([exchange | remaining_exchanges], updated_exchanges) do
-    {routing_key, root_exchange} = build_route_hierarchy(exchange[:id], nil, nil)
+    {routing_key, root_exchange} = Util.build_route_hierarchy(exchange[:id], nil, nil)
     exchange = Map.put(exchange, :routing_key, to_string(routing_key))
     exchange = Map.put(exchange, :root_exchange_name, root_exchange.name)
 
     resolve_hierachy(remaining_exchanges, updated_exchanges ++ [exchange])
-  end
-
-  def build_route_hierarchy(exchange_id, routing_key, root_exchange) do
-    if exchange_id == nil do
-      {routing_key, root_exchange}
-    else
-      exchange = Repo.get(MessagingExchange, exchange_id)
-      cond do
-        exchange == nil -> build_route_hierarchy(routing_key.parent_exchange_id, routing_key, root_exchange)
-        routing_key == nil -> build_route_hierarchy(exchange.parent_exchange_id, exchange.routing_key_fragment, exchange)
-        true -> build_route_hierarchy(exchange.parent_exchange_id, "#{exchange.routing_key_fragment}.#{routing_key}", exchange)
-      end
-    end
   end
 
   @doc """
