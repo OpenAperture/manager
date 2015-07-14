@@ -15,7 +15,9 @@
                        "${project}/_build/dev/lib/ecto/ebin",
                        "${project}/_build/dev/lib/timex/ebin",
                        "${project}/_build/dev/lib/plug/ebin",
-                       "${project}/_build/dev/lib/Elixir.OpenAperture.Manager/ebin"]
+                       "${project}/_build/dev/lib/Elixir.OpenAperture.Manager/ebin",
+                       "${project}/_build/dev/lib/openaperture_messaging/ebin",
+                       "${project}/_build/dev/lib/amqp/ebin"]
             }
         }
     }

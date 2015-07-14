@@ -39,6 +39,10 @@ config OpenAperture.Manager, OpenAperture.Manager.Repo,
 	password: System.get_env("MANAGER_PASSWORD"),
   hostname: System.get_env("MANAGER_DATABASE_HOST")
 
+config OpenAperture.Manager,
+  build_log_monitor_autostart: true
+
+#
 config :openaperture_manager_api, 
 	manager_url: System.get_env("MANAGER_URL"),
 	oauth_login_url: System.get_env("OAUTH_LOGIN_URL"),
