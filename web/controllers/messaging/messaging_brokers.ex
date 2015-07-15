@@ -319,7 +319,7 @@ defmodule OpenAperture.Manager.Controllers.MessagingBrokers do
   # The decrypted password
   #
   @spec decrypt_password(String.t()) :: String.t()
-  defp decrypt_password(encrypted_password) do
+  def decrypt_password(encrypted_password) do
   	try do
   		keyfile =  Application.get_env(:openaperture_messaging, :private_key)
   		if File.exists?(keyfile) do  		
