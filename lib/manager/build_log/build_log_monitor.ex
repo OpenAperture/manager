@@ -66,14 +66,16 @@ defmodule OpenAperture.Manager.BuildLogMonitor do
 
     if broker.failover_broker_id != nil do
       failover_broker = Repo.get(MessagingBrokerModel, broker.failover_broker_id)
+      failover_connection_options_list = MessagingBrokerQuery.get_connections_for_broker(failover_broker)
+      failover_connection_options = OpenAperture.Messaging.ConnectionOptionsResolver.resolve_connection_option_for_broker(failover_connection_options_list)
     
       options_map = %{options_map |
-                    failover_id: failover_broker.id, 
-                    failover_username: failover_broker.username, 
-                    failover_password: OpenAperture.Manager.Controllers.MessagingBrokers.decrypt_password(failover_broker.password), 
-                    failover_host: failover_broker.host, 
-                    failover_port: failover_broker.port, 
-                    failover_virtual_host: failover_broker.virtual_host}
+                    failover_id: failover_connection_options.id, 
+                    failover_username: failover_connection_options.username, 
+                    failover_password: OpenAperture.Manager.Controllers.MessagingBrokers.decrypt_password(failover_connection_options.password), 
+                    failover_host: failover_connection_options.host, 
+                    failover_port: failover_connection_options.port, 
+                    failover_virtual_host: failover_connection_options.virtual_host}
     end
     
     subscribe(options_map, queue, fn(payload, _meta, %{subscription_handler: subscription_handler, delivery_tag: delivery_tag}) -> 
