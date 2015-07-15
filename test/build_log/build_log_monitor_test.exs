@@ -1,4 +1,4 @@
-defmodule OpenAperture.ManagerTest do
+defmodule OpenAperture.Manager.BuildLogs.BuildLogMonitor do
   use ExUnit.Case
 
   alias OpenAperture.Manager.RoutingKey
@@ -16,25 +16,79 @@ defmodule OpenAperture.ManagerTest do
   alias OpenAperture.Messaging.AMQP.ConnectionPool
 
   test "init" do
+    exchange =  %OpenAperture.Messaging.AMQP.Exchange{auto_declare: false,
+                   failover_name: "my_exchange_name",
+                   failover_root_exchange_name: "root_exchange_name",
+                   failover_routing_key: "a:b:c", name: "my_exchange_name", options: [:durable],
+                   root_exchange_name: "my_exchange_name", routing_key: "my_routing_key",
+                   type: :direct}
+
   	:meck.new(RoutingKey, [:passthrough])
     :meck.expect(RoutingKey, :build_hierarchy, fn _, _, _ -> {"a:b:c", %{name: "root_exchange_name"}} end)
-    :meck.new(Repo, [:passthrough])
-    :meck.expect(Repo, :get, fn type, _ ->
-                        case type do
-                          MessagingExchangeModel ->
-                            %{name: "my_exchange_name", failover_exchange_id: 1}
-                          MessagingBrokerModel ->
-                            %{name: "my_broker_name", failover_broker_id: 1}
-                        end
-  										end)
     :meck.new(QueueBuilder, [:passthrough])
     :meck.expect(QueueBuilder, :build_with_exchange, fn queue_name, exchange_model, _, [routing_key: routing_key] ->
                       assert String.starts_with?(queue_name, "a:b:c.manager.build_logs.")
                       assert exchange_model.name == "my_exchange_name"
                       assert exchange_model.failover_name == "my_exchange_name"
                       assert routing_key == "a:b:c.build_logs"
-                      %Queue{name: "my_queue_name"}
+                      %Queue{name: "my_queue_name", exchange: exchange}
                     end)
+    :meck.new(MessagingBrokerQuery, [:passthrough])
+    :meck.expect(MessagingBrokerQuery, :get_connections_for_broker, fn _ -> [] end)
+    :meck.new(ConnectionPools, [:passthrough])
+    :meck.expect(ConnectionPools, :get_pool, fn _ -> :pool end)
+    :meck.new(ConnectionPool, [:passthrough])
+    :meck.expect(ConnectionPool, :subscribe, fn _, exchange, queue, _ ->
+                          assert exchange.name == "my_exchange_name"
+                          assert exchange.failover_name == "my_exchange_name"
+                          assert queue.auto_declare == true
+                          assert queue.name == "my_queue_name"
+                          IO.puts "got here"
+                        end)
+    :meck.new(BuildLogMonitor, [:passthrough])
+    :meck.expect(BuildLogMonitor, :get_exchange_model, fn _,_ ->
+                 exchange
+                end)
+    :meck.expect(BuildLogMonitor, :get_connection_options, fn ->
+                      %OpenAperture.Messaging.AMQP.ConnectionOptions{failover_heartbeat: 60,
+                         failover_host: "myhost.co", failover_id: 1234,
+                         failover_password: "decrypted_password", failover_port: 12345,
+                         failover_username: "un", failover_virtual_host: "myvhost", heartbeat: 60,
+                         host: "myhost.co", id: 1234, password: "decrypted_password", port: 12345,
+                         username: "un", virtual_host: "myvhost"}
+                    end)
+
+
+
+    BuildLogMonitor.init(:ok)
+
+  after
+    :meck.unload(BuildLogMonitor)
+    :meck.unload(ConnectionPool)
+    :meck.unload(ConnectionPools)
+    :meck.unload(MessagingBrokerQuery)
+    :meck.unload(QueueBuilder)
+    :meck.unload(RoutingKey)
+  end
+
+  test "get_exchange_model - success" do
+    :meck.new(Repo, [:passthrough])
+    :meck.expect(Repo, :get, fn _, _ -> %{name: "my_exchange_name", failover_exchange_id: 1} end)
+    :meck.new(RoutingKey, [:passthrough])
+    :meck.expect(RoutingKey, :build_hierarchy, fn _, _, _ -> {"a:b:c", %{name: "root_exchange_name"}} end)
+
+    exchange_model = BuildLogMonitor.get_exchange_model("my_routing_key", %{name: "my_exchange_name", failover_exchange_id: 1})
+    assert exchange_model.name == "my_exchange_name"
+    assert exchange_model.failover_name == "my_exchange_name"
+    assert exchange_model.routing_key == "my_routing_key"
+  after
+    :meck.unload(Repo)
+    :meck.unload(RoutingKey)
+  end
+
+  test "get_connection_options - success" do
+    :meck.new(Repo, [:passthrough])
+    :meck.expect(Repo, :get, fn _, _ -> %{name: "my_broker_name", failover_broker_id: 1} end)
     :meck.new(MessagingBrokerQuery, [:passthrough])
     :meck.expect(MessagingBrokerQuery, :get_connections_for_broker, fn _ -> [] end)
     :meck.new(ConnectionOptionsResolver, [:passthrough])
@@ -48,38 +102,18 @@ defmodule OpenAperture.ManagerTest do
                                           end)
     :meck.new(MessagingBrokers, [:passthrough])
     :meck.expect(MessagingBrokers, :decrypt_password, fn _ -> "decrypted_password" end)
-    :meck.new(ConnectionPools, [:passthrough])
-    :meck.expect(ConnectionPools, :get_pool, fn _ -> :pool end)
-    :meck.new(ConnectionPool, [:passthrough])
-    :meck.expect(ConnectionPool, :subscribe, fn _, exchange, queue, _ ->
-                          assert exchange.name == "my_exchange_name"
-                          assert exchange.failover_name == "my_exchange_name"
-                          assert queue.auto_declare == true
-                          assert queue.name == "my_queue_name"
-                          IO.puts "got here"
-                        end)
-    :meck.new(ConnectionOptions, [:passthroug])
-    :meck.expect(ConnectionOptions, :type, fn options ->
-                                            assert options.id == 1234
-                                            assert options.username == "un"
-                                            assert options.password == "decrypted_password"
-                                            assert options.host == "myhost.co"
-                                            assert options.port == 12345
-                                            assert options.virtual_host == "myvhost"                                            
-                                           end)
-
-    BuildLogMonitor.init(:ok)
-
+    connection_options = BuildLogMonitor.get_connection_options
+    assert connection_options.id == 1234
+    assert connection_options.username == "un"
+    assert connection_options.password == "decrypted_password"
+    assert connection_options.host == "myhost.co"
+    assert connection_options.port == 12345
+    assert connection_options.virtual_host == "myvhost"   
   after
-    :meck.unload(ConnectionOptions)
-    :meck.unload(ConnectionPool)
-    :meck.unload(ConnectionPools)
+    :meck.unload(Repo)
+    :meck.unload(MessagingBrokerQuery) 
+    :meck.unload(ConnectionOptionsResolver) 
     :meck.unload(MessagingBrokers)
-    :meck.unload(ConnectionOptionsResolver)
-    :meck.unload(MessagingBrokerQuery)
-    :meck.unload(QueueBuilder)
-    :meck.unload(RoutingKey)
-  	:meck.unload(Repo)
   end
 
 end

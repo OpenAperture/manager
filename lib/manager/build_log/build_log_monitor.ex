@@ -33,14 +33,14 @@ defmodule OpenAperture.Manager.BuildLogMonitor do
 
   def init(:ok) do
     {routing_key, root_exchange} = RoutingKey.build_hierarchy(Configuration.get_current_exchange_id, nil, nil)
-    exchange_model = get_exchange_model routing_key, root_exchange
+    exchange_model = __MODULE__.get_exchange_model routing_key, root_exchange
     queue = %{ QueueBuilder.build_with_exchange("#{routing_key}.manager.build_logs.#{UUID.uuid1()}",
                                exchange_model,
                                [auto_delete: true],
                                [routing_key: "#{routing_key}.build_logs"])
               | auto_declare: true}
 
-    connection_options = get_connection_options
+    connection_options = __MODULE__.get_connection_options
     
     subscribe(connection_options, queue, fn(payload, _meta, %{subscription_handler: subscription_handler, delivery_tag: delivery_tag}) -> 
       Logger.info("build log monitor: #{inspect payload}")
