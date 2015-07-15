@@ -10,6 +10,7 @@ defmodule OpenAperture.Manager.BuildLogMonitor do
   alias OpenAperture.Manager.RoutingKey
   alias OpenAperture.Manager.DB.Queries.MessagingBroker, as: MessagingBrokerQuery
   alias OpenAperture.Manager.DB.Models.MessagingBroker, as: MessagingBrokerModel
+  alias OpenAperture.Manager.DB.Models.MessagingExchange, as: MessagingExchangeModel
   alias OpenAperture.Manager.Repo
 
   @connection_options nil
@@ -32,11 +33,23 @@ defmodule OpenAperture.Manager.BuildLogMonitor do
 	end
 
   def init(:ok) do
-    {routing_key, _} = RoutingKey.build_hierarchy(Configuration.get_current_exchange_id, nil, nil)
-
-    queue = QueueBuilder.build(ManagerApi.get_api,
-                               "#{routing_key}.manager.build_logs.#{UUID.uuid1()}",
-                               Configuration.get_current_exchange_id,
+    {routing_key, root_exchange} = RoutingKey.build_hierarchy(Configuration.get_current_exchange_id, nil, nil)
+    exchange_db = Repo.get(MessagingExchangeModel, Configuration.get_current_exchange_id)
+    exchange_model = %OpenAperture.Messaging.AMQP.Exchange{
+                                name: exchange_db.name,
+                                routing_key: routing_key, 
+                                root_exchange_name: root_exchange.name
+    }
+    if exchange_db.failover_exchange_id != nil do
+      {failover_routing_key, failover_root_exchange} = RoutingKey.build_hierarchy(exchange_db.failover_exchange_id, nil, nil)
+      failover_exchange_db = Repo.get(MessagingExchangeModel, exchange_db.failover_exchange_id)
+      exchange_model = %{exchange_model |
+                                failover_name: failover_exchange_db.name, 
+                                failover_routing_key: failover_routing_key, 
+                                failover_root_exchange_name: failover_root_exchange.name}
+    end
+    queue = QueueBuilder.build_with_exchange("#{routing_key}.manager.build_logs.#{UUID.uuid1()}",
+                               exchange_model,
                                [auto_delete: true],
                                [routing_key: "#{routing_key}.build_logs"])
     queue = %{queue | auto_declare: true}
