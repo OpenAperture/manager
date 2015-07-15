@@ -5,7 +5,6 @@ defmodule OpenAperture.Manager.BuildLogMonitor do
 
   alias OpenAperture.Messaging.AMQP.QueueBuilder
   alias OpenAperture.Messaging.AMQP.SubscriptionHandler
-  alias OpenAperture.ManagerApi
   alias OpenAperture.Manager.Configuration
   alias OpenAperture.Manager.RoutingKey
   alias OpenAperture.Manager.DB.Queries.MessagingBroker, as: MessagingBrokerQuery
