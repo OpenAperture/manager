@@ -33,6 +33,23 @@ defmodule OpenAperture.Manager.BuildLogMonitor do
 
   def init(:ok) do
     {routing_key, root_exchange} = RoutingKey.build_hierarchy(Configuration.get_current_exchange_id, nil, nil)
+    exchange_model = get_exchange_model routing_key, root_exchange
+    queue = %{ QueueBuilder.build_with_exchange("#{routing_key}.manager.build_logs.#{UUID.uuid1()}",
+                               exchange_model,
+                               [auto_delete: true],
+                               [routing_key: "#{routing_key}.build_logs"])
+              | auto_declare: true}
+
+    connection_options = get_connection_options
+    
+    subscribe(connection_options, queue, fn(payload, _meta, %{subscription_handler: subscription_handler, delivery_tag: delivery_tag}) -> 
+      Logger.info("build log monitor: #{inspect payload}")
+      SubscriptionHandler.acknowledge(subscription_handler, delivery_tag)
+    end)
+    {:ok, nil}
+  end
+
+  def get_exchange_model(routing_key, root_exchange) do
     exchange_db = Repo.get(MessagingExchangeModel, Configuration.get_current_exchange_id)
     exchange_model = %OpenAperture.Messaging.AMQP.Exchange{
                                 name: exchange_db.name,
@@ -47,29 +64,27 @@ defmodule OpenAperture.Manager.BuildLogMonitor do
                                 failover_routing_key: failover_routing_key, 
                                 failover_root_exchange_name: failover_root_exchange.name}
     end
-    queue = QueueBuilder.build_with_exchange("#{routing_key}.manager.build_logs.#{UUID.uuid1()}",
-                               exchange_model,
-                               [auto_delete: true],
-                               [routing_key: "#{routing_key}.build_logs"])
-    queue = %{queue | auto_declare: true}
+    exchange_model
+  end
 
+  def get_connection_options do
     broker = Repo.get(MessagingBrokerModel, Configuration.get_current_broker_id)
     connection_options_list = MessagingBrokerQuery.get_connections_for_broker(broker)
-    connection_options = OpenAperture.Messaging.ConnectionOptionsResolver.resolve_connection_option_for_broker(connection_options_list)
-    options_map = %OpenAperture.Messaging.AMQP.ConnectionOptions{
-                    id: connection_options.id, 
-                    username: connection_options.username, 
-                    password: OpenAperture.Manager.Controllers.MessagingBrokers.decrypt_password(connection_options.password), 
-                    host: connection_options.host, 
-                    port: connection_options.port, 
-                    virtual_host: connection_options.virtual_host}
+    connection_options_map = OpenAperture.Messaging.ConnectionOptionsResolver.resolve_connection_option_for_broker(connection_options_list)
+    connection_options = %OpenAperture.Messaging.AMQP.ConnectionOptions{
+                    id: connection_options_map.id, 
+                    username: connection_options_map.username, 
+                    password: OpenAperture.Manager.Controllers.MessagingBrokers.decrypt_password(connection_options_map.password), 
+                    host: connection_options_map.host, 
+                    port: connection_options_map.port, 
+                    virtual_host: connection_options_map.virtual_host}
 
     if broker.failover_broker_id != nil do
       failover_broker = Repo.get(MessagingBrokerModel, broker.failover_broker_id)
       failover_connection_options_list = MessagingBrokerQuery.get_connections_for_broker(failover_broker)
       failover_connection_options = OpenAperture.Messaging.ConnectionOptionsResolver.resolve_connection_option_for_broker(failover_connection_options_list)
     
-      options_map = %{options_map |
+      connection_options = %{connection_options |
                     failover_id: failover_connection_options.id, 
                     failover_username: failover_connection_options.username, 
                     failover_password: OpenAperture.Manager.Controllers.MessagingBrokers.decrypt_password(failover_connection_options.password), 
@@ -77,11 +92,6 @@ defmodule OpenAperture.Manager.BuildLogMonitor do
                     failover_port: failover_connection_options.port, 
                     failover_virtual_host: failover_connection_options.virtual_host}
     end
-    
-    subscribe(options_map, queue, fn(payload, _meta, %{subscription_handler: subscription_handler, delivery_tag: delivery_tag}) -> 
-      Logger.info("build log monitor: #{inspect payload}")
-      SubscriptionHandler.acknowledge(subscription_handler, delivery_tag)
-    end)
-    {:ok, nil}
+    connection_options
   end
 end
