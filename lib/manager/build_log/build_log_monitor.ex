@@ -51,6 +51,9 @@ defmodule OpenAperture.Manager.BuildLogMonitor do
 
   def get_exchange_model(routing_key, root_exchange) do
     exchange_db = Repo.get(MessagingExchangeModel, Configuration.get_current_exchange_id)
+    if exchange_db == nil do
+      raise "Exchange #{Configuration.get_current_exchange_id} not found"
+    end
     exchange_model = %OpenAperture.Messaging.AMQP.Exchange{
                                 name: exchange_db.name,
                                 routing_key: routing_key, 
@@ -59,6 +62,9 @@ defmodule OpenAperture.Manager.BuildLogMonitor do
     if exchange_db.failover_exchange_id != nil do
       {failover_routing_key, failover_root_exchange} = RoutingKey.build_hierarchy(exchange_db.failover_exchange_id, nil, nil)
       failover_exchange_db = Repo.get(MessagingExchangeModel, exchange_db.failover_exchange_id)
+      if failover_exchange_db == nil do
+        raise "Failover Exchange #{exchange_db.failover_exchange_id} not found"
+      end
       exchange_model = %{exchange_model |
                                 failover_name: failover_exchange_db.name, 
                                 failover_routing_key: failover_routing_key, 
@@ -69,6 +75,9 @@ defmodule OpenAperture.Manager.BuildLogMonitor do
 
   def get_connection_options do
     broker = Repo.get(MessagingBrokerModel, Configuration.get_current_broker_id)
+    if broker == nil do
+      raise "Broker #{Configuration.get_current_broker_id} not found"
+    end
     connection_options_list = MessagingBrokerQuery.get_connections_for_broker(broker)
     connection_options_map = OpenAperture.Messaging.ConnectionOptionsResolver.resolve_connection_option_for_broker(connection_options_list)
     connection_options = %OpenAperture.Messaging.AMQP.ConnectionOptions{
@@ -81,9 +90,11 @@ defmodule OpenAperture.Manager.BuildLogMonitor do
 
     if broker.failover_broker_id != nil do
       failover_broker = Repo.get(MessagingBrokerModel, broker.failover_broker_id)
+      if failover_broker == nil do
+        raise "Failover Broker #{broker.failover_broker_id} not found"
+      end
       failover_connection_options_list = MessagingBrokerQuery.get_connections_for_broker(failover_broker)
       failover_connection_options = OpenAperture.Messaging.ConnectionOptionsResolver.resolve_connection_option_for_broker(failover_connection_options_list)
-    
       connection_options = %{connection_options |
                     failover_id: failover_connection_options.id, 
                     failover_username: failover_connection_options.username, 

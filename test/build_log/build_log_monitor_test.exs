@@ -8,6 +8,7 @@ defmodule OpenAperture.Manager.BuildLogs.BuildLogMonitor do
   alias OpenAperture.Manager.DB.Models.MessagingBroker, as: MessagingBrokerModel
   alias OpenAperture.Manager.BuildLogMonitor
   alias OpenAperture.Manager.Controllers.MessagingBrokers
+  alias OpenAperture.Manager.Configuration
   alias OpenAperture.Messaging.AMQP.QueueBuilder
   alias OpenAperture.Messaging.Queue
   alias OpenAperture.Messaging.ConnectionOptionsResolver
@@ -43,7 +44,6 @@ defmodule OpenAperture.Manager.BuildLogs.BuildLogMonitor do
                           assert exchange.failover_name == "my_exchange_name"
                           assert queue.auto_declare == true
                           assert queue.name == "my_queue_name"
-                          IO.puts "got here"
                         end)
     :meck.new(BuildLogMonitor, [:passthrough])
     :meck.expect(BuildLogMonitor, :get_exchange_model, fn _,_ ->
@@ -57,8 +57,6 @@ defmodule OpenAperture.Manager.BuildLogs.BuildLogMonitor do
                          host: "myhost.co", id: 1234, password: "decrypted_password", port: 12345,
                          username: "un", virtual_host: "myvhost"}
                     end)
-
-
 
     BuildLogMonitor.init(:ok)
 
@@ -84,6 +82,17 @@ defmodule OpenAperture.Manager.BuildLogs.BuildLogMonitor do
   after
     :meck.unload(Repo)
     :meck.unload(RoutingKey)
+  end
+
+  test "get_exchange_model - failure" do
+    :meck.new(Repo, [:passthrough])
+    :meck.expect(Repo, :get, fn _, _ -> nil end)
+    :meck.new(Configuration, [:passthrough])
+    :meck.expect(Configuration, :get_current_exchange_id, fn -> 99 end)
+    assert_raise RuntimeError, "Exchange 99 not found", fn -> BuildLogMonitor.get_exchange_model("my_routing_key", %{}) end
+  after
+    :meck.unload(Configuration)
+    :meck.unload(Repo)
   end
 
   test "get_connection_options - success" do
@@ -114,6 +123,17 @@ defmodule OpenAperture.Manager.BuildLogs.BuildLogMonitor do
     :meck.unload(MessagingBrokerQuery) 
     :meck.unload(ConnectionOptionsResolver) 
     :meck.unload(MessagingBrokers)
+  end
+
+  test "get_connection_options - failure" do
+    :meck.new(Repo, [:passthrough])
+    :meck.expect(Repo, :get, fn _, _ -> nil end)
+    :meck.new(Configuration, [:passthrough])
+    :meck.expect(Configuration, :get_current_broker_id, fn -> 999 end)
+    assert_raise RuntimeError, "Broker 999 not found", &BuildLogMonitor.get_connection_options/0
+  after
+    :meck.unload(Configuration)
+    :meck.unload(Repo)
   end
 
 end
