@@ -16,3 +16,6 @@ config OpenAperture.Manager, OpenAperture.Manager.Endpoint,
 config :logger, :console, format: "[$level] $message\n"
 
 config :logger, level: :debug
+
+#config OpenAperture.Manager,
+#  build_log_monitor_autostart: true
