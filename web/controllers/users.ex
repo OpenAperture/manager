@@ -21,11 +21,14 @@ defmodule OpenAperture.Manager.Controllers.Users do
     new_user = User.new(params)
 
     if new_user.valid? do
-      record = Repo.insert(new_user)
-      Logger.info("New user created: #{inspect record}")
+      user = Repo.insert(new_user)
+      path = users_path(Endpoint, :show, user.id)
+      Logger.info("New user created: #{inspect user}")
+
       conn
+      |> put_resp_header("location", path)
       |> put_status(:created)
-      |> json "Created user #{new_user.changes.email}"
+      |> json "Created user #{user.id}"
     else
       conn
       |> put_status(:bad_request)
@@ -59,9 +62,13 @@ defmodule OpenAperture.Manager.Controllers.Users do
         changeset = User.validate_changes(user, params)
 
         if changeset.valid? do
-          record = Repo.update(changeset)
-          Logger.info("User has been updates: #{inspect record}")
-          resp(conn, :no_content, "")
+          user = Repo.update(changeset)
+          path = users_path(Endpoint, :show, user.id)
+          Logger.info("User has been updates: #{inspect user}")
+
+          conn
+          |> put_resp_header("location", path)
+          |> resp :no_content, ""
         else
           conn
           |> put_status(:bad_request)
