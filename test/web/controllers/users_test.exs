@@ -51,11 +51,14 @@ defmodule OpenAperture.Manager.Controllers.UsersTest do
   end
 
   test "create action - success" do
-    params =
-      %{id: 2, first_name: "Josh", last_name: "Done", email: "jdone@mail.com"}
-
-    conn = post(conn, "users", params)
+    params = %{first_name: "Josh", last_name: "Done", email: "jdone@mail.com"}
+    conn   = post(conn, "users", params)
     assert conn.status == 201
+
+    assert List.keymember?(conn.resp_headers, "location", 0)
+
+    {_, location} = List.keyfind(conn.resp_headers, "location", 0)
+    assert location =~ ~r(/users/\d+)
   end
 
   test "create action - bad request on invalid values" do
@@ -70,8 +73,12 @@ defmodule OpenAperture.Manager.Controllers.UsersTest do
     user   = User.new(%{@params | email: "up@mail.com"}) |> Repo.insert
     update = %{first_name: "Johanna", last_name: "Dawn", email: "jdawn@mail.com"}
     conn   = put(conn, "users/#{user.id}", update)
-
     assert conn.status == 204
+
+    assert List.keymember?(conn.resp_headers, "location", 0)
+
+    {_, location} = List.keyfind(conn.resp_headers, "location", 0)
+    assert location =~ ~r(/users/\d+)
   end
 
   test "update action - not found" do

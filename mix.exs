@@ -56,7 +56,7 @@ defmodule OpenAperture.Mixfile do
       
       {:plug_cors, git: "https://github.com/bryanjos/plug_cors", tag: "v0.7.0"},
       {:openaperture_auth, git: "https://github.com/OpenAperture/auth.git", ref: "dc7a0813b335d3013dff60d271ae1f51fc4b5049", override: true},
-      {:openaperture_messaging, git: "https://github.com/OpenAperture/messaging.git", ref: "e48c52b98abc86f4404954e7b4c85b090e83c69c", override: true},
+      {:openaperture_messaging, git: "https://github.com/OpenAperture/messaging.git", ref: "584353928f56777227ff0d70277ba25ceff725ab", override: true},
       {:openaperture_manager_api, git: "https://github.com/OpenAperture/manager_api.git",  ref: "8e2f6bdbf9f93dcae2540b1313f9d6dfc0a254a6", override: true},
       {:openaperture_overseer_api, git: "https://github.com/OpenAperture/overseer_api.git", ref: "4b9146507ab50789fec4696b96f79642add2b502", override: true},
       {:openaperture_workflow_orchestrator_api, git: "https://github.com/OpenAperture/workflow_orchestrator_api.git", ref: "c9c4175117f4807fb312637374d8119772913e3e", override: true},

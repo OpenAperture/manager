@@ -23,7 +23,8 @@ config OpenAperture.Manager, OpenAperture.Manager.Repo,
   hostname: System.get_env("MANAGER_DATABASE_HOST") || "localhost"
 
 config OpenAperture.Manager,
-  oauth_validate_url: System.get_env("MANAGER_OAUTH_VALIDATE_URL") || "https://www.googleapis.com/oauth2/v1/tokeninfo"
+  oauth_validate_url: System.get_env("MANAGER_OAUTH_VALIDATE_URL") || "https://www.googleapis.com/oauth2/v1/tokeninfo",
+  build_log_monitor_autostart: false
 
 # Configures Elixir's Logger
 config :logger, :console,
