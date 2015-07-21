@@ -25,7 +25,7 @@ defmodule OpenAperture.Manager.Controllers.ProductDeployments do
   plug :action
 
   # GET /products/:product_name/deployments
-  def index(conn, %{"product_name" => product_name} = params) do
+  def index(conn, %{"product_name" => product_name} = _params) do
     product_name
     |> URI.decode
     |> get_product_by_name
@@ -34,7 +34,6 @@ defmodule OpenAperture.Manager.Controllers.ProductDeployments do
         conn
         |> put_status(:not_found)
         |> json ResponseBodyFormatter.error_body(:not_found, "ProductDeployment")
-<<<<<<< HEAD
       _product ->
 #        if params["page"] == nil do 
 #          params["page"] = 0
@@ -49,29 +48,7 @@ defmodule OpenAperture.Manager.Controllers.ProductDeployments do
 #          |> Enum.map(&to_sendable(&1, @deployment_sendable_fields))
 
 #        json conn, %{deployments: deployments, total_pages: page.total_pages, total_deployments: page.total_entries}
-      json conn, %{}
-=======
-      product ->
-        if params["page"] == nil do 
-          params = Map.put(params, "page", 0)
-        end
-
-        product_id = product.id
-
-        pd_query = from pd in ProductDeployment,
-                where: pd.product_id == ^product_id,
-                order_by: [pd.inserted_at],
-                select: pd
-
-        page = pd_query |> Repo.paginate(page: params["page"])
-                
-
-        deployments = page.entries
-        |> Enum.map(&to_sendable(&1, @deployment_sendable_fields))
-
-        conn
-        |> json %{deployments: deployments, total_pages: page.total_pages, total_deployments: page.total_entries}
->>>>>>> 423a2da65021c0d22bd0e0492dbc10ee5a8d268c
+        json conn, %{}
     end
   end
 
@@ -190,40 +167,6 @@ defmodule OpenAperture.Manager.Controllers.ProductDeployments do
     end
   end
 
-<<<<<<< HEAD
-  @spec execute(term, [any]) :: term
-  def execute(conn, %{"id" => id} = params) do
-#    raw_workflow = get_workflow(id)
-    
-    raw_workflow = %{}
-
-    cond do
-      #raw_workflow == nil -> resp(conn, :not_found, "")
-      raw_workflow.workflow_completed == true -> resp(conn, :conflict, "Workflow has already completed")
-      raw_workflow.current_step != nil -> resp(conn, :conflict, "Workflow has already been started")
-      true ->
-        #payload = List.first(convert_raw_workflows([raw_workflow]))
-        payload = nil
-        if params["force_build"] != nil do
-          payload = Map.put(payload, :force_build, params["force_build"])
-        end
-
-        build_messaging_exchange_id = to_string(params["build_messaging_exchange_id"])
-        if String.length(build_messaging_exchange_id) > 0 do
-          payload = case Integer.parse(build_messaging_exchange_id) do
-            {messaging_exchange_id, _} -> Map.put(payload, :build_messaging_exchange_id, messaging_exchange_id)
-            :error -> payload
-          end
-        end
-
-        deploy_messaging_exchange_id = to_string(params["deploy_messaging_exchange_id"])
-        if String.length(deploy_messaging_exchange_id) > 0 do
-          payload = case Integer.parse(deploy_messaging_exchange_id) do
-            {messaging_exchange_id, _} -> Map.put(payload, :deploy_messaging_exchange_id, messaging_exchange_id)
-            :error -> payload
-          end
-        end        
-=======
   # @spec execute(term, [any]) :: term
   # def execute(conn, %{"id" => id} = params) do
   #   raw_workflow = get_workflow(id)
@@ -253,7 +196,6 @@ defmodule OpenAperture.Manager.Controllers.ProductDeployments do
   #           :error -> payload
   #         end
   #       end        
->>>>>>> 423a2da65021c0d22bd0e0492dbc10ee5a8d268c
                 
   #       request = OrchestratorRequest.from_payload(payload)
   #       request = %{request | notifications_exchange_id: Configuration.get_current_exchange_id}
