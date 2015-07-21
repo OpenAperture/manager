@@ -55,7 +55,7 @@ defmodule OpenAperture.Manager.Controllers.ProductEnvironments do
   end
 
   # POST /products/:product_name/environments
-  def create(conn, %{"product_name" => product_name, "name" => environment_name} = params) do
+  def create(conn, %{"product_name" => product_name, "name" => environment_name} = _params) do
     product_name = URI.decode(product_name)
 
     # guard against nil "name" param

@@ -256,7 +256,7 @@ defmodule OpenAperture.Manager.Controllers.MessagingBrokers do
 		        })
 		        if changeset.valid? do
 		          try do
-		            connection = Repo.insert(changeset)
+		            _connection = Repo.insert(changeset)
 		            path = OpenAperture.Manager.Router.Helpers.messaging_brokers_path(Endpoint, :get_connections, broker.id)
 
 		            # Set location header

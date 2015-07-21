@@ -12,7 +12,7 @@ defmodule OpenAperture.Manager.Controllers.ProductDeployments do
   alias OpenAperture.Manager.Repo
   alias OpenAperture.Manager.DB.Models.Product
   alias OpenAperture.Manager.DB.Models.ProductDeployment
-  alias OpenAperture.Manager.DB.Queries.ProductDeployment, as: DeploymentQuery
+  #alias OpenAperture.Manager.DB.Queries.ProductDeployment, as: DeploymentQuery
   alias OpenAperture.Manager.DB.Models.ProductDeploymentPlan
   alias OpenAperture.Manager.DB.Models.ProductDeploymentStep
 
@@ -34,21 +34,21 @@ defmodule OpenAperture.Manager.Controllers.ProductDeployments do
         conn
         |> put_status(:not_found)
         |> json ResponseBodyFormatter.error_body(:not_found, "ProductDeployment")
-      product ->
-        if params["page"] == nil do 
-          params["page"] = 0
-        end
+      _product ->
+#        if params["page"] == nil do 
+#          params["page"] = 0
+#        end
 
-        page = ProductDeployment
-          |> where([p], p.product_id = ^product_id)
-          |> order_by([p], desc: p.inserted_at)
-          |> Repo.paginate(page: params["page"])
+#        page = ProductDeployment
+#          |> where([p], p.product_id = ^product_id)
+#          |> order_by([p], desc: p.inserted_at)
+#          |> Repo.paginate(page: params["page"])
 
-        deployments = page.entries
-          |> Enum.map(&to_sendable(&1, @deployment_sendable_fields))
+#        deployments = page.entries
+#          |> Enum.map(&to_sendable(&1, @deployment_sendable_fields))
 
-        conn
-        |> json {deployments: deployments, total_pages: page.total_pages, total_deployments: page.total_entries}
+#        json conn, %{deployments: deployments, total_pages: page.total_pages, total_deployments: page.total_entries}
+      json conn, %{}
     end
   end
 
@@ -169,14 +169,17 @@ defmodule OpenAperture.Manager.Controllers.ProductDeployments do
 
   @spec execute(term, [any]) :: term
   def execute(conn, %{"id" => id} = params) do
-    raw_workflow = get_workflow(id)
+#    raw_workflow = get_workflow(id)
+    
+    raw_workflow = %{}
 
     cond do
-      raw_workflow == nil -> resp(conn, :not_found, "")
+      #raw_workflow == nil -> resp(conn, :not_found, "")
       raw_workflow.workflow_completed == true -> resp(conn, :conflict, "Workflow has already completed")
       raw_workflow.current_step != nil -> resp(conn, :conflict, "Workflow has already been started")
       true ->
-        payload = List.first(convert_raw_workflows([raw_workflow]))
+        #payload = List.first(convert_raw_workflows([raw_workflow]))
+        payload = nil
         if params["force_build"] != nil do
           payload = Map.put(payload, :force_build, params["force_build"])
         end

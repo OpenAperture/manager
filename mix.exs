@@ -31,7 +31,7 @@ defmodule OpenAperture.Mixfile do
         :openaperture_messaging,
         :openaperture_manager_api,
         :openaperture_workflow_orchestrator_api,
-        :openaperture_product_deployment_orchestrator
+        #:openaperture_product_deployment_orchestrator
     ]
    ]
   end
@@ -46,13 +46,13 @@ defmodule OpenAperture.Mixfile do
       {:phoenix, "~> 0.13.1"},
       {:phoenix_live_reload, "~> 0.4.0"},
       {:cowboy, "~> 1.0"},
-      {:ecto, "~> 0.13.0"},
+      {:ecto, "0.11.3"},
       {:uuid, "~> 0.1.5" },
       {:timex, "~> 0.13.3", override: true},
       {:postgrex, "~> 0.8.0"},
       {:rsa, "~> 0.0.1"},
       {:poison, "~> 1.4.0", override: true},
-      {:scrivener, "~> 0.10.0", override: true},
+      #{:scrivener, "~> 0.10.0", override: true},
       
       {:plug_cors, git: "https://github.com/bryanjos/plug_cors", tag: "v0.7.0"},
       {:openaperture_auth, git: "https://github.com/OpenAperture/auth.git", ref: "dc7a0813b335d3013dff60d271ae1f51fc4b5049", override: true},
