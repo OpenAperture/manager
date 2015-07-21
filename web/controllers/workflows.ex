@@ -179,7 +179,7 @@ defmodule OpenAperture.Manager.Controllers.Workflows do
     })
     if changeset.valid? do
       try do
-        raw_workflow = Repo.insert(changeset)
+        _raw_workflow = Repo.insert(changeset)
         path = OpenAperture.Manager.Router.Helpers.workflows_path(Endpoint, :show, id)
 
         # Set location header
