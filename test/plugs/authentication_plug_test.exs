@@ -122,10 +122,10 @@ defmodule OpenAperture.Manager.Plugs.Authentication.Test do
       email_field_name: "user/email",
       first_name_field_name: "user/first_name",
       last_name_field_name: "user/last_name"}
-    auth_source = Repo.insert(as)
+    auth_source = Repo.insert!(as)
 
-    user = Repo.insert(%User{first_name: "test", last_name: "user", email: "test@test.com"})
-    _relation = Repo.insert(%AuthSourceUserRelation{auth_source_id: auth_source.id, user_id: user.id})
+    user = Repo.insert!(%User{first_name: "test", last_name: "user", email: "test@test.com"})
+    _relation = Repo.insert!(%AuthSourceUserRelation{auth_source_id: auth_source.id, user_id: user.id})
 
     token_info = %{"user" => %{"first_name" => "test", "last_name" => "user", "email" => "test@test.com"}}
 
@@ -143,7 +143,7 @@ defmodule OpenAperture.Manager.Plugs.Authentication.Test do
 
   test "fetch_user adds the auth source and auth source-user relation if the auth source record doesn't exist" do
     token_info_url = "http://test.com/token"
-    user = Repo.insert(%User{first_name: "test", last_name: "user", email: "test@test.com"})
+    user = Repo.insert!(%User{first_name: "test", last_name: "user", email: "test@test.com"})
 
     token_info = %{"resource_owner" => %{"email" => "test@test.com", "custom_attributes" => %{"first_name" => "test", "last_name" => "user"}}}
 
@@ -171,7 +171,7 @@ defmodule OpenAperture.Manager.Plugs.Authentication.Test do
       email_field_name: "user/email",
       first_name_field_name: "user/first_name",
       last_name_field_name: "user/last_name"}
-    auth_source = Repo.insert(as)
+    auth_source = Repo.insert!(as)
 
     token_info = %{"user" => %{"first_name" => "test", "last_name" => "user", "email" => "test@test.com"}}
 

@@ -22,35 +22,35 @@ defmodule OpenAperture.Manager.Controllers.ProductDeploymentPlanStepsTest do
 
   setup do
     product = Product.new(%{name: "test_pdps_product"})
-              |> Repo.insert
+              |> Repo.insert!
 
     pdp1 = ProductDeploymentPlan.new(%{name: "test_pdps_pdp1", product_id: product.id})
-           |> Repo.insert
+           |> Repo.insert!
     pdp2 = ProductDeploymentPlan.new(%{name: "test_pdps_pdp2", product_id: product.id})
-           |> Repo.insert
+           |> Repo.insert!
 
     pdps1 = ProductDeploymentPlanStep.new(%{product_deployment_plan_id: pdp1.id, type: "build_component"})
-            |> Repo.insert
+            |> Repo.insert!
     pdps2 = ProductDeploymentPlanStep.new(%{product_deployment_plan_id: pdp1.id, type: "deploy_component"})
-            |> Repo.insert
+            |> Repo.insert!
     pdps6 = ProductDeploymentPlanStep.new(%{product_deployment_plan_id: pdp1.id, type: "deploy_component"})
-            |> Repo.insert
+            |> Repo.insert!
     pdps3 = ProductDeploymentPlanStep.new(%{product_deployment_plan_id: pdp1.id, type: "build_deploy_component", on_success_step_id: pdps1.id, on_failure_step_id: pdps2.id})
-            |> Repo.insert
+            |> Repo.insert!
     pdps4 = ProductDeploymentPlanStep.new(%{product_deployment_plan_id: pdp1.id, type: "build_deploy_component", on_success_step_id: pdps6.id})
-            |> Repo.insert
+            |> Repo.insert!
     pdps5 = ProductDeploymentPlanStep.new(%{product_deployment_plan_id: pdp1.id, type: "build_deploy_component", on_success_step_id: pdps3.id, on_failure_step_id: pdps4.id})
-            |> Repo.insert
+            |> Repo.insert!
 
 
     pdpso1 = ProductDeploymentPlanStepOption.new(%{product_deployment_plan_step_id: pdps5.id, name: "test_option1"})
-             |> Repo.insert
+             |> Repo.insert!
     pdpso2 = ProductDeploymentPlanStepOption.new(%{product_deployment_plan_step_id: pdps5.id, name: "test_option2", value: "TWO"})
-             |> Repo.insert
+             |> Repo.insert!
     pdpso3 = ProductDeploymentPlanStepOption.new(%{product_deployment_plan_step_id: pdps5.id, name: "test_option3", value: "three"})
-             |> Repo.insert
+             |> Repo.insert!
     pdpso5 = ProductDeploymentPlanStepOption.new(%{product_deployment_plan_step_id: pdps1.id, name: "test_option5", value: "cinco"})
-             |> Repo.insert
+             |> Repo.insert!
 
     on_exit fn ->
       Repo.delete_all(ProductDeploymentPlanStepOption)

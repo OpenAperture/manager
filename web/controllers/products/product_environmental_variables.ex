@@ -139,7 +139,7 @@ defmodule OpenAperture.Manager.Controllers.ProductEnvironmentalVariables do
             |> put_status(:conflict)
             |> json ResponseBodyFormatter.error_body(:conflict, "ProductEnvironmentalVariable")
           else
-            new_var = Repo.insert(changeset)
+            new_var = Repo.insert!(changeset)
             path = product_environmental_variables_path(Endpoint, :show_environment, product_name, environment_name, new_var.name)
 
             conn
@@ -176,7 +176,7 @@ defmodule OpenAperture.Manager.Controllers.ProductEnvironmentalVariables do
             |> put_status(:conflict)
             |> json ResponseBodyFormatter.error_body(:conflict, "ProductEnvironmentalVariable")
           else
-            updated_var = Repo.update(changeset)
+            updated_var = Repo.update!(changeset)
             path = product_environmental_variables_path(Endpoint, :show_environment, product_name, environment_name, updated_var.name)
 
             conn
@@ -214,7 +214,7 @@ defmodule OpenAperture.Manager.Controllers.ProductEnvironmentalVariables do
             |> put_status(:conflict)
             |> json ResponseBodyFormatter.error_body(:not_found, "ProductEnvironmentalVariable")
           else
-            new_var = Repo.insert(changeset)
+            new_var = Repo.insert!(changeset)
             path = product_environmental_variables_path(Endpoint, :show_default, product_name, new_var.name)
 
             conn
@@ -250,7 +250,7 @@ defmodule OpenAperture.Manager.Controllers.ProductEnvironmentalVariables do
             |> put_status(:conflict)
             |> json ResponseBodyFormatter.error_body(:conflict, "ProductEnvironmentalVariable")
           else
-            updated_var = Repo.update(changeset)
+            updated_var = Repo.update!(changeset)
             path = product_environmental_variables_path(Endpoint, :show_default, product_name, updated_var.name)
 
             conn

@@ -201,7 +201,7 @@ defmodule OpenAperture.Manager.Plugs.Authentication do
   defp transactional_insert(model, unique_query) do
     tx_result = Repo.transaction(fn ->
       try do
-        Repo.insert(model)
+        Repo.insert!(model)
       rescue _ ->
         Repo.rollback(:error)
       end

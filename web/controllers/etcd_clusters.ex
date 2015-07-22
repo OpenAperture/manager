@@ -69,7 +69,7 @@ defmodule OpenAperture.Manager.Controllers.EtcdClusters do
                                 :name => params["name"]})
     if cluster.valid? do
       try do
-        cluster = Repo.insert(cluster)
+        cluster = Repo.insert!(cluster)
         path = etcd_clusters_path(Endpoint, :show, cluster.etcd_token)
 
         conn

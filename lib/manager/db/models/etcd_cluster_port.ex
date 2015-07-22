@@ -20,7 +20,7 @@ defmodule OpenAperture.Manager.DB.Models.EtcdClusterPort do
   def destroy_for_product_component(pc), do: destroy_for_association(pc, :etcd_cluster_ports)
 
   def destroy(model) do
-    Repo.delete model
+    Repo.delete! model
   end
 
 end

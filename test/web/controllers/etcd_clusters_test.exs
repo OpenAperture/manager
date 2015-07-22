@@ -44,9 +44,9 @@ defmodule OpenAperture.Manager.Controllers.EtcdClustersTest do
     :meck.unload(OpenAperture.Manager.Repo)
     Repo.delete_all(EtcdCluster)
 
-    build_cluster = EtcdCluster.new(%{etcd_token: "#{UUID.uuid1()}", allow_docker_builds: true}) |> Repo.insert
-    non_build_cluster = EtcdCluster.new(%{etcd_token: "#{UUID.uuid1()}", allow_docker_builds: false}) |> Repo.insert
-    cluster = EtcdCluster.new(%{etcd_token: "#{UUID.uuid1()}"}) |> Repo.insert
+    build_cluster = EtcdCluster.new(%{etcd_token: "#{UUID.uuid1()}", allow_docker_builds: true}) |> Repo.insert!
+    non_build_cluster = EtcdCluster.new(%{etcd_token: "#{UUID.uuid1()}", allow_docker_builds: false}) |> Repo.insert!
+    cluster = EtcdCluster.new(%{etcd_token: "#{UUID.uuid1()}"}) |> Repo.insert!
 
     conn = get conn(), "/clusters?allow_docker_builds=true"
 
@@ -104,7 +104,7 @@ defmodule OpenAperture.Manager.Controllers.EtcdClustersTest do
 
   test "register action -- success" do
     cluster = %EtcdCluster{id: 1, etcd_token: "token"}
-    :meck.expect(Repo, :insert, 1, cluster)
+    :meck.expect(Repo, :insert!, 1, cluster)
     conn = post conn(), "/clusters", Map.from_struct(cluster)
 
     assert conn.status == 201
@@ -118,7 +118,7 @@ defmodule OpenAperture.Manager.Controllers.EtcdClustersTest do
   test "register action -- provided invalid hosting_provider_id" do
     cluster = %EtcdCluster{id: 1, etcd_token: "token", hosting_provider_id: 1}
     :meck.expect(Repo, :get, 2, nil)
-    :meck.expect(Repo, :insert, 1, cluster)
+    :meck.expect(Repo, :insert!, 1, cluster)
     conn = post conn(), "/clusters", Map.from_struct(cluster)
 
     assert conn.status == 400
@@ -130,7 +130,7 @@ defmodule OpenAperture.Manager.Controllers.EtcdClustersTest do
   test "register action -- provided valid hosting_provider_id" do
     cluster = %EtcdCluster{id: 1, etcd_token: "token", hosting_provider_id: 1}
     :meck.expect(Repo, :get, 2, %CloudProvider{id: 1})
-    :meck.expect(Repo, :insert, 1, cluster)
+    :meck.expect(Repo, :insert!, 1, cluster)
     conn = post conn(), "/clusters", Map.from_struct(cluster)
 
     assert conn.status == 201
@@ -151,7 +151,7 @@ defmodule OpenAperture.Manager.Controllers.EtcdClustersTest do
 
   test "destroy action -- success" do
     :meck.expect(EtcdClusterQuery, :get_by_etcd_token, 1, %EtcdCluster{id: 1, etcd_token: "some_etcd_token"})
-    :meck.expect(Repo, :delete, 1, 1)
+    :meck.expect(Repo, :delete!, 1, 1)
 
     conn = delete conn(), "/clusters/some_etcd_token"
 

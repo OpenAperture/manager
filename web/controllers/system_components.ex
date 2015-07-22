@@ -118,7 +118,7 @@ defmodule OpenAperture.Manager.Controllers.SystemComponents do
           select: sc
         case Repo.all(query) do
           [] -> 
-            component = Repo.insert(changeset)
+            component = Repo.insert!(changeset)
             path = OpenAperture.Manager.Router.Helpers.system_components_path(Endpoint, :show, component.id)
 
             # Set location header
@@ -191,7 +191,7 @@ defmodule OpenAperture.Manager.Controllers.SystemComponents do
               new_fields = Map.take(params, @updatable_fields)
               new_fields = Map.put(new_fields, "upgrade_status", upgrade_status)
             	changeset = SystemComponent.update(component, new_fields)
-              Repo.update(changeset)
+              Repo.update!(changeset)
               path = OpenAperture.Manager.Router.Helpers.system_components_path(Endpoint, :show, component.id)
 
               # Set location header
@@ -223,7 +223,7 @@ defmodule OpenAperture.Manager.Controllers.SystemComponents do
       nil -> not_found(conn, "SystemComponent #{params["id"]}")
       component ->
         Repo.transaction(fn ->
-          Repo.delete(component)
+          Repo.delete!(component)
         end)
         no_content(conn)
     end

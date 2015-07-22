@@ -17,11 +17,11 @@ defmodule DB.Models.Product.Test do
 
   test "product names must be unique" do
     product1 = %{name: "test"}
-    Product.new(product1) |> Repo.insert
+    Product.new(product1) |> Repo.insert!
 
     assert_raise Postgrex.Error,
                  "ERROR (unique_violation): duplicate key value violates unique constraint \"products_name_index\"",
-                 fn -> Product.new(product1) |> Repo.insert end
+                 fn -> Product.new(product1) |> Repo.insert! end
   end
 
   test "product name is required" do
@@ -46,10 +46,10 @@ defmodule DB.Models.Product.Test do
   end
 
   test "retrieve associated product environments" do
-    product = Product.new(%{name: "test product"}) |> Repo.insert
+    product = Product.new(%{name: "test product"}) |> Repo.insert!
 
-    _env1 = ProductEnvironment.new(%{product_id: product.id, name: "test1"}) |> Repo.insert
-    _env2 = ProductEnvironment.new(%{product_id: product.id, name: "test2"}) |> Repo.insert
+    _env1 = ProductEnvironment.new(%{product_id: product.id, name: "test1"}) |> Repo.insert!
+    _env2 = ProductEnvironment.new(%{product_id: product.id, name: "test2"}) |> Repo.insert!
 
     # Repo.get doesn't support preload(yet), so we need to do
     # a Repo.all call.
@@ -61,10 +61,10 @@ defmodule DB.Models.Product.Test do
   end
 
   test "retrieve associated product environmental variables" do
-    product = Product.new(%{name: "test product"}) |> Repo.insert
+    product = Product.new(%{name: "test product"}) |> Repo.insert!
 
-    _var1 = ProductEnvironmentalVariable.new(%{product_id: product.id, name: "var1", value: "value1"}) |> Repo.insert
-    _var2 = ProductEnvironmentalVariable.new(%{product_id: product.id, name: "var2", value: "value2"}) |> Repo.insert
+    _var1 = ProductEnvironmentalVariable.new(%{product_id: product.id, name: "var1", value: "value1"}) |> Repo.insert!
+    _var2 = ProductEnvironmentalVariable.new(%{product_id: product.id, name: "var2", value: "value2"}) |> Repo.insert!
 
     [product] = Repo.all(from p in Product,
                          where: p.id == ^product.id,
@@ -74,10 +74,10 @@ defmodule DB.Models.Product.Test do
   end
 
   test "deletes environmental variables on destroy" do
-    product = Product.new(%{name: "test product"}) |> Repo.insert
+    product = Product.new(%{name: "test product"}) |> Repo.insert!
 
-    _var1 = ProductEnvironmentalVariable.new(%{product_id: product.id, name: "var1", value: "value1"}) |> Repo.insert
-    _var2 = ProductEnvironmentalVariable.new(%{product_id: product.id, name: "var2", value: "value2"}) |> Repo.insert
+    _var1 = ProductEnvironmentalVariable.new(%{product_id: product.id, name: "var1", value: "value1"}) |> Repo.insert!
+    _var2 = ProductEnvironmentalVariable.new(%{product_id: product.id, name: "var2", value: "value2"}) |> Repo.insert!
 
     [product] = Repo.all(from p in Product,
                          where: p.id == ^product.id,
@@ -92,10 +92,10 @@ defmodule DB.Models.Product.Test do
   end
 
   test "deletes environments on destroy" do
-    product = Product.new(%{name: "test product"}) |> Repo.insert
+    product = Product.new(%{name: "test product"}) |> Repo.insert!
 
-    _env1 = ProductEnvironment.new(%{product_id: product.id, name: "test1"}) |> Repo.insert
-    _env2 = ProductEnvironment.new(%{product_id: product.id, name: "test2"}) |> Repo.insert
+    _env1 = ProductEnvironment.new(%{product_id: product.id, name: "test1"}) |> Repo.insert!
+    _env2 = ProductEnvironment.new(%{product_id: product.id, name: "test2"}) |> Repo.insert!
 
     [product] = Repo.all(from p in Product,
                          where: p.id == ^product.id,

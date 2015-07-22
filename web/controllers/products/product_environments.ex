@@ -76,7 +76,7 @@ defmodule OpenAperture.Manager.Controllers.ProductEnvironments do
         # This is the happy path
         changeset = ProductEnvironment.new(%{name: environment_name, product_id: product.id})
         if changeset.valid? do
-          new_env = Repo.insert(changeset)
+          new_env = Repo.insert!(changeset)
 
           path = product_environments_path(Endpoint, :show, product_name, new_env.name)
 
@@ -127,7 +127,7 @@ defmodule OpenAperture.Manager.Controllers.ProductEnvironments do
             |> put_status(:conflict)
             |> json ResponseBodyFormatter.error_body(:conflict, "ProductEnvironment")
           else
-            env = Repo.update(changeset)
+            env = Repo.update!(changeset)
             path = product_environments_path(Endpoint, :show, product_name, env.name)
 
             conn

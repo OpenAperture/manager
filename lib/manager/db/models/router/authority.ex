@@ -29,6 +29,6 @@ defmodule OpenAperture.Manager.DB.Models.Router.Authority do
   end
 
   def destroy(model) do
-    Repo.delete model
+    Repo.delete! model
   end
 end

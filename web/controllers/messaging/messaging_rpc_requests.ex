@@ -125,7 +125,7 @@ defmodule OpenAperture.Manager.Controllers.MessagingRpcRequests do
     })
     if changeset.valid? do
       try do
-        request = Repo.insert(changeset)
+        request = Repo.insert!(changeset)
         path = OpenAperture.Manager.Router.Helpers.messaging_rpc_requests_path(Endpoint, :show, request.id)
 
         # Set location header
@@ -183,7 +183,7 @@ defmodule OpenAperture.Manager.Controllers.MessagingRpcRequests do
       })
       if changeset.valid? do  
         try do
-          Repo.update(changeset)
+          Repo.update!(changeset)
           path = OpenAperture.Manager.Router.Helpers.messaging_rpc_requests_path(Endpoint, :show, id)
           conn
           |> put_resp_header("location", path)
@@ -223,7 +223,7 @@ defmodule OpenAperture.Manager.Controllers.MessagingRpcRequests do
         |> json ResponseBodyFormatter.error_body(:not_found, "MessagingRpcRequest")
       request ->
         Repo.transaction(fn ->
-          Repo.delete(request)
+          Repo.delete!(request)
         end)
         resp(conn, :no_content, "")
     end

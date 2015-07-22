@@ -21,7 +21,7 @@ defmodule OpenAperture.Manager.DB.Models.ProductCluster do
   def destroy_for_product(product), do: destroy_for_association(product, :product_clusters)
 
   def destroy(pc) do
-    Repo.delete(pc)
+    Repo.delete!(pc)
   end
   
 

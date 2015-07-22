@@ -29,7 +29,7 @@ defmodule OpenAperture.Manager.Controllers.MessagingRpcRequestsTest do
 
   test "index - requests" do
     changeset = MessagingRpcRequest.new(%{status: to_string(:not_started)})
-    request = Repo.insert(changeset)
+    request = Repo.insert!(changeset)
 
     conn = get conn(), "/messaging/rpc_requests"
     assert conn.status == 200
@@ -47,7 +47,7 @@ defmodule OpenAperture.Manager.Controllers.MessagingRpcRequestsTest do
   end
 
   test "show - valid request" do
-    request = Repo.insert(MessagingRpcRequest.new(%{status: to_string(:not_started)}))
+    request = Repo.insert!(MessagingRpcRequest.new(%{status: to_string(:not_started)}))
 
     conn = get conn(), "/messaging/rpc_requests/#{request.id}"
     assert conn.status == 200
@@ -58,7 +58,7 @@ defmodule OpenAperture.Manager.Controllers.MessagingRpcRequestsTest do
   end
 
   test "show - valid request with data" do
-    request = Repo.insert(MessagingRpcRequest.new(%{
+    request = Repo.insert!(MessagingRpcRequest.new(%{
       status: to_string(:not_started),
       request_body: Poison.encode!(%{
         "etcd_token" => "123abc",
@@ -89,7 +89,7 @@ defmodule OpenAperture.Manager.Controllers.MessagingRpcRequestsTest do
   test "create - internal server error" do
     :meck.new(Repo, [:passthrough])
     :meck.expect(Repo, :all, fn _ -> [] end)
-    :meck.expect(Repo, :insert, fn _ -> raise "bad news bears" end)
+    :meck.expect(Repo, :insert!, fn _ -> raise "bad news bears" end)
 
     conn = post conn(), "/messaging/rpc_requests", %{"status" => "not_started", "request_body" => %{}}
     assert conn.status == 500
@@ -112,7 +112,7 @@ defmodule OpenAperture.Manager.Controllers.MessagingRpcRequestsTest do
   end
 
   test "update - bad request" do
-    request = Repo.insert(MessagingRpcRequest.new(%{status: to_string(:not_started)}))
+    request = Repo.insert!(MessagingRpcRequest.new(%{status: to_string(:not_started)}))
 
     conn = put conn(), "/messaging/rpc_requests/#{request.id}", %{}
     assert conn.status == 400
@@ -120,11 +120,11 @@ defmodule OpenAperture.Manager.Controllers.MessagingRpcRequestsTest do
   end
 
   test "update - internal server error" do
-    request = Repo.insert(MessagingRpcRequest.new(%{status: to_string(:not_started)}))
+    request = Repo.insert!(MessagingRpcRequest.new(%{status: to_string(:not_started)}))
 
     :meck.new(Repo, [:passthrough])
     :meck.expect(Repo, :all, fn _ -> [] end)
-    :meck.expect(Repo, :update, fn _ -> raise "bad news bears" end)
+    :meck.expect(Repo, :update!, fn _ -> raise "bad news bears" end)
 
     conn = put conn(), "/messaging/rpc_requests/#{request.id}", %{"status" => "not_started", "request_body" => %{}}
     assert conn.status == 500
@@ -133,7 +133,7 @@ defmodule OpenAperture.Manager.Controllers.MessagingRpcRequestsTest do
   end
 
   test "update - success" do
-    request = Repo.insert(MessagingRpcRequest.new(%{status: to_string(:not_started)}))
+    request = Repo.insert!(MessagingRpcRequest.new(%{status: to_string(:not_started)}))
 
     conn = put conn(), "/messaging/rpc_requests/#{request.id}", %{"status" => "not_started", "request_body" => %{}}
     assert conn.status == 204
@@ -156,7 +156,7 @@ defmodule OpenAperture.Manager.Controllers.MessagingRpcRequestsTest do
   end
 
   test "destroy - valid request" do
-    request = Repo.insert(MessagingRpcRequest.new(%{status: to_string(:not_started)}))
+    request = Repo.insert!(MessagingRpcRequest.new(%{status: to_string(:not_started)}))
 
     conn = delete conn(), "/messaging/rpc_requests/#{request.id}"
     assert conn.status == 204

@@ -99,7 +99,7 @@ defmodule OpenAperture.Manager.Controllers.SystemComponentRefs do
 	        })
 	        if changeset.valid? do
 	          try do
-	            component = Repo.insert(changeset)
+	            component = Repo.insert!(changeset)
 	            path = OpenAperture.Manager.Router.Helpers.system_component_refs_path(Endpoint, :show, component.type)
 
 	            # Set location header
@@ -148,7 +148,7 @@ defmodule OpenAperture.Manager.Controllers.SystemComponentRefs do
 	        if changeset.valid? do
 	          try do
 	          	changeset = SystemComponentRef.update(List.first(components), Map.take(params, @updatable_fields))
-	            Repo.update(changeset)
+	            Repo.update!(changeset)
 	            path = OpenAperture.Manager.Router.Helpers.system_component_refs_path(Endpoint, :show, type)
 
 	            # Set location header
@@ -183,7 +183,7 @@ defmodule OpenAperture.Manager.Controllers.SystemComponentRefs do
       [] -> not_found(conn, "SystemComponentRef #{inspect type}")
       components -> 
         Repo.transaction(fn ->
-          Repo.delete(List.first(components))
+          Repo.delete!(List.first(components))
         end)
         no_content(conn)
     end

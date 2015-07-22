@@ -8,21 +8,21 @@ defmodule DB.Queries.ProductCluster.Test do
   alias OpenAperture.Manager.DB.Queries.ProductCluster, as: PCQuery
 
   setup_all _context do
-    product = Product.new(%{name: "test product"}) |> Repo.insert
-    etcd_cluster = EtcdCluster.new(%{etcd_token: "abc123"}) |> Repo.insert
-    _product_cluster = ProductCluster.new(%{product_id: product.id, etcd_cluster_id: etcd_cluster.id}) |> Repo.insert
+    product = Product.new(%{name: "test product"}) |> Repo.insert!
+    etcd_cluster = EtcdCluster.new(%{etcd_token: "abc123"}) |> Repo.insert!
+    _product_cluster = ProductCluster.new(%{product_id: product.id, etcd_cluster_id: etcd_cluster.id}) |> Repo.insert!
 
-    product2 = Product.new(%{name: "test product2"}) |> Repo.insert
-    etcd_cluster2 = EtcdCluster.new(%{etcd_token: "bcd234"}) |> Repo.insert
-    etcd_cluster3 = EtcdCluster.new(%{etcd_token: "zyx987"}) |> Repo.insert
-    _product_cluster2 = ProductCluster.new(%{product_id: product2.id, etcd_cluster_id: etcd_cluster2.id}) |> Repo.insert
-    _product_cluster2 = ProductCluster.new(%{product_id: product2.id, etcd_cluster_id: etcd_cluster3.id}) |> Repo.insert
+    product2 = Product.new(%{name: "test product2"}) |> Repo.insert!
+    etcd_cluster2 = EtcdCluster.new(%{etcd_token: "bcd234"}) |> Repo.insert!
+    etcd_cluster3 = EtcdCluster.new(%{etcd_token: "zyx987"}) |> Repo.insert!
+    _product_cluster2 = ProductCluster.new(%{product_id: product2.id, etcd_cluster_id: etcd_cluster2.id}) |> Repo.insert!
+    _product_cluster2 = ProductCluster.new(%{product_id: product2.id, etcd_cluster_id: etcd_cluster3.id}) |> Repo.insert!
 
-    product3 = Product.new(%{name: "test product3"}) |> Repo.insert
-    product4 = Product.new(%{name: "test product4"}) |> Repo.insert
-    etcd_cluster4 = EtcdCluster.new(%{etcd_token: "#{UUID.uuid1()}"}) |> Repo.insert
-    _product_cluster3 = ProductCluster.new(%{product_id: product3.id, etcd_cluster_id: etcd_cluster4.id}) |> Repo.insert
-    _product_cluster4 = ProductCluster.new(%{product_id: product4.id, etcd_cluster_id: etcd_cluster4.id}) |> Repo.insert
+    product3 = Product.new(%{name: "test product3"}) |> Repo.insert!
+    product4 = Product.new(%{name: "test product4"}) |> Repo.insert!
+    etcd_cluster4 = EtcdCluster.new(%{etcd_token: "#{UUID.uuid1()}"}) |> Repo.insert!
+    _product_cluster3 = ProductCluster.new(%{product_id: product3.id, etcd_cluster_id: etcd_cluster4.id}) |> Repo.insert!
+    _product_cluster4 = ProductCluster.new(%{product_id: product4.id, etcd_cluster_id: etcd_cluster4.id}) |> Repo.insert!
 
     on_exit _context, fn ->
       Repo.delete_all(ProductCluster)

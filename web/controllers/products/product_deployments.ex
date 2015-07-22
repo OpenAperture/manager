@@ -96,7 +96,7 @@ defmodule OpenAperture.Manager.Controllers.ProductDeployments do
 
         changeset = ProductDeployment.new(params)
         if changeset.valid? do
-          deployment = Repo.insert(changeset)
+          deployment = Repo.insert!(changeset)
 
           #TODO: Execute deployment plan
           DeploymentPlan.execute(%{

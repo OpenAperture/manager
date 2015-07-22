@@ -13,7 +13,7 @@ defmodule OpenAperture.Manager.Controllers.SystemComponentTest do
   import Ecto.Query  
 
   setup_all do
-    exchange = Repo.insert(MessagingExchange.new(%{name: "test exchange"}))
+    exchange = Repo.insert!(MessagingExchange.new(%{name: "test exchange"}))
 
     :meck.new(Authentication, [:passthrough])
     :meck.expect(Authentication, :authenticate_user, fn conn, _opts -> conn end)
@@ -48,8 +48,8 @@ defmodule OpenAperture.Manager.Controllers.SystemComponentTest do
   end
 
   test "index - components", context do
-    Repo.insert(SystemComponent.new(%{messaging_exchange_id: context[:exchange].id, type: "test", source_repo: "https://github.com/test/test.git", source_repo_git_ref: "123abc", upgrade_strategy: "manual", deployment_repo: "https://github.com/test/test.git", deployment_repo_git_ref: "123abc"}))
-    Repo.insert(SystemComponent.new(%{messaging_exchange_id: context[:exchange].id, type: "test", source_repo: "https://github.com/test/test.git", source_repo_git_ref: "123abc", upgrade_strategy: "manual", deployment_repo: "https://github.com/test/test.git", deployment_repo_git_ref: "123abc"}))
+    Repo.insert!(SystemComponent.new(%{messaging_exchange_id: context[:exchange].id, type: "test", source_repo: "https://github.com/test/test.git", source_repo_git_ref: "123abc", upgrade_strategy: "manual", deployment_repo: "https://github.com/test/test.git", deployment_repo_git_ref: "123abc"}))
+    Repo.insert!(SystemComponent.new(%{messaging_exchange_id: context[:exchange].id, type: "test", source_repo: "https://github.com/test/test.git", source_repo_git_ref: "123abc", upgrade_strategy: "manual", deployment_repo: "https://github.com/test/test.git", deployment_repo_git_ref: "123abc"}))
 
     conn = get conn(), "/system_components"
     assert conn.status == 200
@@ -68,7 +68,7 @@ defmodule OpenAperture.Manager.Controllers.SystemComponentTest do
   end
 
   test "show - valid component", context do
-    component = Repo.insert(SystemComponent.new(%{messaging_exchange_id: context[:exchange].id, type: "test", source_repo: "https://github.com/test/test.git", source_repo_git_ref: "123abc", upgrade_strategy: "manual", deployment_repo: "https://github.com/test/test.git", deployment_repo_git_ref: "123abc", status: to_string(:available), upgrade_status: Poison.encode!(%{workflow_ids: []})}))
+    component = Repo.insert!(SystemComponent.new(%{messaging_exchange_id: context[:exchange].id, type: "test", source_repo: "https://github.com/test/test.git", source_repo_git_ref: "123abc", upgrade_strategy: "manual", deployment_repo: "https://github.com/test/test.git", deployment_repo_git_ref: "123abc", status: to_string(:available), upgrade_status: Poison.encode!(%{workflow_ids: []})}))
 
     conn = get conn(), "/system_components/#{component.id}"
     assert conn.status == 200
@@ -87,7 +87,7 @@ defmodule OpenAperture.Manager.Controllers.SystemComponentTest do
   # create tests
 
   test "create - conflict", context do
-    Repo.insert(SystemComponent.new(%{messaging_exchange_id: context[:exchange].id, type: "test", source_repo: "https://github.com/test/test.git", source_repo_git_ref: "123abc", upgrade_strategy: "manual", deployment_repo: "https://github.com/test/test.git", deployment_repo_git_ref: "123abc"}))
+    Repo.insert!(SystemComponent.new(%{messaging_exchange_id: context[:exchange].id, type: "test", source_repo: "https://github.com/test/test.git", source_repo_git_ref: "123abc", upgrade_strategy: "manual", deployment_repo: "https://github.com/test/test.git", deployment_repo_git_ref: "123abc"}))
 
     conn = post conn(), "/system_components", %{"messaging_exchange_id" => context[:exchange].id, "type" => "test", "source_repo" => "https://github.com/test/test.git", "source_repo_git_ref" => "123abc", "upgrade_strategy" => "manaul", "deployment_repo"=> "https://github.com/test/test.git", "deployment_repo_git_ref"=> "123abc"}
     assert conn.status == 409
@@ -101,7 +101,7 @@ defmodule OpenAperture.Manager.Controllers.SystemComponentTest do
 
   test "create - internal server error", context do
     :meck.new(Repo, [:passthrough])
-    :meck.expect(Repo, :insert, fn _ -> raise "bad news bears" end)
+    :meck.expect(Repo, :insert!, fn _ -> raise "bad news bears" end)
 
     conn = post conn(), "/system_components", %{"messaging_exchange_id" => context[:exchange].id, "type" => "test", "source_repo" => "https://github.com/test/test.git", "source_repo_git_ref" => "123abc", "upgrade_strategy" => "manaul", "deployment_repo"=> "https://github.com/test/test.git", "deployment_repo_git_ref"=> "123abc"}
     
@@ -129,7 +129,7 @@ defmodule OpenAperture.Manager.Controllers.SystemComponentTest do
   # update tests
 
   test "update - bad request", context do
-    component = Repo.insert(SystemComponent.new(%{messaging_exchange_id: context[:exchange].id, type: "test", source_repo: "https://github.com/test/test.git", source_repo_git_ref: "123abc", upgrade_strategy: "manual", deployment_repo: "https://github.com/test/test.git", deployment_repo_git_ref: "123abc"}))
+    component = Repo.insert!(SystemComponent.new(%{messaging_exchange_id: context[:exchange].id, type: "test", source_repo: "https://github.com/test/test.git", source_repo_git_ref: "123abc", upgrade_strategy: "manual", deployment_repo: "https://github.com/test/test.git", deployment_repo_git_ref: "123abc"}))
 
     conn = put conn(), "/system_components/#{component.id}", %{}
     assert conn.status == 400
@@ -137,10 +137,10 @@ defmodule OpenAperture.Manager.Controllers.SystemComponentTest do
   end
 
   test "update - internal server error", context do
-    component = Repo.insert(SystemComponent.new(%{messaging_exchange_id: context[:exchange].id, type: "test", source_repo: "https://github.com/test/test.git", source_repo_git_ref: "123abc", upgrade_strategy: "manual", deployment_repo: "https://github.com/test/test.git", deployment_repo_git_ref: "123abc"}))
+    component = Repo.insert!(SystemComponent.new(%{messaging_exchange_id: context[:exchange].id, type: "test", source_repo: "https://github.com/test/test.git", source_repo_git_ref: "123abc", upgrade_strategy: "manual", deployment_repo: "https://github.com/test/test.git", deployment_repo_git_ref: "123abc"}))
 
     :meck.new(Repo, [:passthrough])
-    :meck.expect(Repo, :update, fn _ -> raise "bad news bears" end)
+    :meck.expect(Repo, :update!, fn _ -> raise "bad news bears" end)
 
     conn = put conn(), "/system_components/#{component.id}", %{"messaging_exchange_id" => context[:exchange].id, "type" => "test", "source_repo" => "https://github.com/test/test.git", "source_repo_git_ref" => "123abc", "upgrade_strategy" => "manaul", "deployment_repo"=> "https://github.com/test/test.git", "deployment_repo_git_ref"=> "123abc"}
     assert conn.status == 500
@@ -149,15 +149,15 @@ defmodule OpenAperture.Manager.Controllers.SystemComponentTest do
   end
 
   test "update - conflict", context do
-    component = Repo.insert(SystemComponent.new(%{messaging_exchange_id: context[:exchange].id, type: "test", source_repo: "https://github.com/test/test.git", source_repo_git_ref: "123abc", upgrade_strategy: "manual", deployment_repo: "https://github.com/test/test.git", deployment_repo_git_ref: "123abc"}))
-    component2 = Repo.insert(SystemComponent.new(%{messaging_exchange_id: context[:exchange].id, type: "test2", source_repo: "https://github.com/test/test.git", source_repo_git_ref: "123abc", upgrade_strategy: "manual", deployment_repo: "https://github.com/test/test.git", deployment_repo_git_ref: "123abc"}))
+    component = Repo.insert!(SystemComponent.new(%{messaging_exchange_id: context[:exchange].id, type: "test", source_repo: "https://github.com/test/test.git", source_repo_git_ref: "123abc", upgrade_strategy: "manual", deployment_repo: "https://github.com/test/test.git", deployment_repo_git_ref: "123abc"}))
+    component2 = Repo.insert!(SystemComponent.new(%{messaging_exchange_id: context[:exchange].id, type: "test2", source_repo: "https://github.com/test/test.git", source_repo_git_ref: "123abc", upgrade_strategy: "manual", deployment_repo: "https://github.com/test/test.git", deployment_repo_git_ref: "123abc"}))
 
     conn = put conn(), "/system_components/#{component.id}", %{"messaging_exchange_id" => context[:exchange].id, "type" => "test2", "source_repo" => "https://github.com/test/test.git", "source_repo_git_ref" => "123abc", "upgrade_strategy" => "manaul", "deployment_repo"=> "https://github.com/test/test.git", "deployment_repo_git_ref"=> "123abc"}
     assert conn.status == 409
   end
 
   test "update - success", context do
-    component = Repo.insert(SystemComponent.new(%{messaging_exchange_id: context[:exchange].id, type: "test", source_repo: "https://github.com/test/test.git", source_repo_git_ref: "123abc", upgrade_strategy: "manual", deployment_repo: "https://github.com/test/test.git", deployment_repo_git_ref: "123abc", status: to_string(:available), upgrade_status: Poison.encode!(%{workflow_ids: []})}))
+    component = Repo.insert!(SystemComponent.new(%{messaging_exchange_id: context[:exchange].id, type: "test", source_repo: "https://github.com/test/test.git", source_repo_git_ref: "123abc", upgrade_strategy: "manual", deployment_repo: "https://github.com/test/test.git", deployment_repo_git_ref: "123abc", status: to_string(:available), upgrade_status: Poison.encode!(%{workflow_ids: []})}))
 
     conn = put conn(), "/system_components/#{component.id}", %{"messaging_exchange_id" => context[:exchange].id, "type" => "test", "source_repo" => "https://github.com/test/test.git", "source_repo_git_ref"=> "123abc", "upgrade_strategy"=> "hourly", "deployment_repo"=> "https://github.com/test/test.git", "deployment_repo_git_ref"=> "123abc"}
     assert conn.status == 204
@@ -182,7 +182,7 @@ defmodule OpenAperture.Manager.Controllers.SystemComponentTest do
   end
 
   test "destroy - valid component", context do
-    component = Repo.insert(SystemComponent.new(%{messaging_exchange_id: context[:exchange].id, type: "test", source_repo: "https://github.com/test/test.git", source_repo_git_ref: "123abc", upgrade_strategy: "manual", deployment_repo: "https://github.com/test/test.git", deployment_repo_git_ref: "123abc"}))
+    component = Repo.insert!(SystemComponent.new(%{messaging_exchange_id: context[:exchange].id, type: "test", source_repo: "https://github.com/test/test.git", source_repo_git_ref: "123abc", upgrade_strategy: "manual", deployment_repo: "https://github.com/test/test.git", deployment_repo_git_ref: "123abc"}))
 
     conn = delete conn(), "/system_components/#{component.id}"
     assert conn.status == 204
@@ -203,7 +203,7 @@ defmodule OpenAperture.Manager.Controllers.SystemComponentTest do
     :meck.new(OverseerPublisher, [:passthrough])
     :meck.expect(OverseerPublisher, :publish_request, fn _,_ -> :ok end)
 
-    component = Repo.insert(SystemComponent.new(%{messaging_exchange_id: context[:exchange].id, type: "test", source_repo: "https://github.com/test/test.git", source_repo_git_ref: "123abc", upgrade_strategy: "manual", deployment_repo: "https://github.com/test/test.git", deployment_repo_git_ref: "123abc"}))
+    component = Repo.insert!(SystemComponent.new(%{messaging_exchange_id: context[:exchange].id, type: "test", source_repo: "https://github.com/test/test.git", source_repo_git_ref: "123abc", upgrade_strategy: "manual", deployment_repo: "https://github.com/test/test.git", deployment_repo_git_ref: "123abc"}))
 
     conn = post conn(), "/system_components/#{component.id}/upgrade"
     assert conn.status == 204

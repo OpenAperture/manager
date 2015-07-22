@@ -39,7 +39,7 @@ defmodule OpenAperture.Manager.Controllers.MessagingBrokersTest do
 
   test "index - brokers" do
     changeset = MessagingBroker.new(%{name: "#{UUID.uuid1()}"})
-    broker = Repo.insert(changeset)
+    broker = Repo.insert!(changeset)
 
     conn = get conn(), "/messaging/brokers"
 
@@ -60,7 +60,7 @@ defmodule OpenAperture.Manager.Controllers.MessagingBrokersTest do
   end
 
   test "show - valid broker" do
-    broker = Repo.insert(MessagingBroker.new(%{name: "#{UUID.uuid1()}"}))
+    broker = Repo.insert!(MessagingBroker.new(%{name: "#{UUID.uuid1()}"}))
 
     conn = get conn(), "/messaging/brokers/#{broker.id}"
 
@@ -73,7 +73,7 @@ defmodule OpenAperture.Manager.Controllers.MessagingBrokersTest do
   end
 
   test "create - conflict" do
-    broker = Repo.insert(MessagingBroker.new(%{name: "#{UUID.uuid1()}"}))
+    broker = Repo.insert!(MessagingBroker.new(%{name: "#{UUID.uuid1()}"}))
     conn = post conn(), "/messaging/brokers", [name: broker.name]
 
     assert conn.status == 409
@@ -88,7 +88,7 @@ defmodule OpenAperture.Manager.Controllers.MessagingBrokersTest do
   test "create - internal server error" do
     :meck.new(Repo, [:passthrough])
     :meck.expect(Repo, :all, fn _ -> [] end)
-    :meck.expect(Repo, :insert, fn _ -> raise "bad news bears" end)
+    :meck.expect(Repo, :insert!, fn _ -> raise "bad news bears" end)
     conn = post conn(), "/messaging/brokers", [name: "#{UUID.uuid1()}"]
     assert conn.status == 500
   after
@@ -112,8 +112,8 @@ defmodule OpenAperture.Manager.Controllers.MessagingBrokersTest do
   end
 
   test "update - conflict" do
-    broker = Repo.insert(MessagingBroker.new(%{name: "#{UUID.uuid1()}"}))
-    broker2 = Repo.insert(MessagingBroker.new(%{name: "#{UUID.uuid1()}"}))
+    broker = Repo.insert!(MessagingBroker.new(%{name: "#{UUID.uuid1()}"}))
+    broker2 = Repo.insert!(MessagingBroker.new(%{name: "#{UUID.uuid1()}"}))
 
     conn = put conn(), "/messaging/brokers/#{broker.id}", [name: broker2.name]
     
@@ -121,7 +121,7 @@ defmodule OpenAperture.Manager.Controllers.MessagingBrokersTest do
   end
 
   test "update - bad request" do
-    broker = Repo.insert(MessagingBroker.new(%{name: "#{UUID.uuid1()}"}))
+    broker = Repo.insert!(MessagingBroker.new(%{name: "#{UUID.uuid1()}"}))
 
     conn = put conn(), "/messaging/brokers/#{broker.id}", []
     assert conn.status == 400
@@ -129,11 +129,11 @@ defmodule OpenAperture.Manager.Controllers.MessagingBrokersTest do
   end
 
   test "update - internal server error" do
-    broker = Repo.insert(MessagingBroker.new(%{name: "#{UUID.uuid1()}"}))
+    broker = Repo.insert!(MessagingBroker.new(%{name: "#{UUID.uuid1()}"}))
 
     :meck.new(Repo, [:passthrough])
     :meck.expect(Repo, :all, fn _ -> [] end)
-    :meck.expect(Repo, :update, fn _ -> raise "bad news bears" end)
+    :meck.expect(Repo, :update!, fn _ -> raise "bad news bears" end)
 
     conn = put conn(), "/messaging/brokers/#{broker.id}", [name: "#{UUID.uuid1()}"]
     
@@ -143,7 +143,7 @@ defmodule OpenAperture.Manager.Controllers.MessagingBrokersTest do
   end
 
   test "update - success" do
-    broker = Repo.insert(MessagingBroker.new(%{name: "#{UUID.uuid1()}"}))
+    broker = Repo.insert!(MessagingBroker.new(%{name: "#{UUID.uuid1()}"}))
 
     name = "#{UUID.uuid1()}"
     conn = put conn(), "/messaging/brokers/#{broker.id}", [name: name]
@@ -169,7 +169,7 @@ defmodule OpenAperture.Manager.Controllers.MessagingBrokersTest do
   end
 
   test "destroy - valid broker" do
-    broker = Repo.insert(MessagingBroker.new(%{name: "#{UUID.uuid1()}"}))
+    broker = Repo.insert!(MessagingBroker.new(%{name: "#{UUID.uuid1()}"}))
 
     conn = delete conn(), "/messaging/brokers/#{broker.id}"
 
@@ -179,7 +179,7 @@ defmodule OpenAperture.Manager.Controllers.MessagingBrokersTest do
   end
 
   test "create_connection - success" do
-    broker = Repo.insert(MessagingBroker.new(%{name: "#{UUID.uuid1()}"}))
+    broker = Repo.insert!(MessagingBroker.new(%{name: "#{UUID.uuid1()}"}))
 
     conn = post conn(), "/messaging/brokers/#{broker.id}/connections", [
       username: "username",
@@ -218,7 +218,7 @@ defmodule OpenAperture.Manager.Controllers.MessagingBrokersTest do
   end
 
   test "get_connections - success" do
-    broker = Repo.insert(MessagingBroker.new(%{name: "#{UUID.uuid1()}"}))
+    broker = Repo.insert!(MessagingBroker.new(%{name: "#{UUID.uuid1()}"}))
     conn = post conn(), "/messaging/brokers/#{broker.id}/connections", [
       username: "username",
       password: "123abc",

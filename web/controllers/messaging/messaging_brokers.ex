@@ -96,7 +96,7 @@ defmodule OpenAperture.Manager.Controllers.MessagingBrokers do
         })
         if changeset.valid? do
           try do
-            broker = Repo.insert(changeset)
+            broker = Repo.insert!(changeset)
             path = OpenAperture.Manager.Router.Helpers.messaging_brokers_path(Endpoint, :show, broker.id)
 
             # Set location header
@@ -162,7 +162,7 @@ defmodule OpenAperture.Manager.Controllers.MessagingBrokers do
           	changeset = MessagingBroker.update(broker, Map.take(params, @updatable_broker_fields))
 
           	try do
-	            Repo.update(changeset)
+	            Repo.update!(changeset)
 	            path = OpenAperture.Manager.Router.Helpers.messaging_brokers_path(Endpoint, :show, id)
 	            conn
 	            |> put_resp_header("location", path)
@@ -212,10 +212,10 @@ defmodule OpenAperture.Manager.Controllers.MessagingBrokers do
         |> json ResponseBodyFormatter.error_body(:not_found, "MessagingBroker")
       broker ->
         Repo.transaction(fn ->
-          Repo.update_all(from(c in MessagingBroker, where: c.failover_broker_id  == ^id), failover_broker_id: nil)
+          Repo.update_all(from(c in MessagingBroker, where: c.failover_broker_id  == ^id), set: [failover_broker_id: nil])
           Repo.delete_all(from(c in MessagingBrokerConnection, where: c.messaging_broker_id == ^id))
           Repo.delete_all(from(b in MessagingExchangeBroker, where: b.messaging_broker_id  == ^id))          
-          Repo.delete(broker)
+          Repo.delete!(broker)
         end)
         resp(conn, :no_content, "")
     end
@@ -256,7 +256,7 @@ defmodule OpenAperture.Manager.Controllers.MessagingBrokers do
 		        })
 		        if changeset.valid? do
 		          try do
-		            _connection = Repo.insert(changeset)
+		            _connection = Repo.insert!(changeset)
 		            path = OpenAperture.Manager.Router.Helpers.messaging_brokers_path(Endpoint, :get_connections, broker.id)
 
 		            # Set location header

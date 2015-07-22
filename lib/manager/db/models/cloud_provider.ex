@@ -21,6 +21,6 @@ defmodule OpenAperture.Manager.DB.Models.CloudProvider do
   end
 
   def destroy(model) do
-    Repo.delete model
+    Repo.delete! model
   end
 end

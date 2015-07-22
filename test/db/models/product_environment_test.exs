@@ -9,11 +9,11 @@ defmodule DB.Models.ProductEnvironment.Test do
   alias OpenAperture.Manager.DB.Models.ProductEnvironmentalVariable
 
   setup _context do
-    product = Product.new(%{name: "ProductEnvironmentsModelsTest"}) |> Repo.insert
+    product = Product.new(%{name: "ProductEnvironmentsModelsTest"}) |> Repo.insert!
 
     on_exit _context, fn ->
       Repo.delete_all(ProductEnvironment)
-      Repo.delete(product)
+      Repo.delete!(product)
     end
 
     {:ok, [product: product]}
@@ -31,22 +31,22 @@ defmodule DB.Models.ProductEnvironment.Test do
     
     assert_raise Postgrex.Error,
                  "ERROR (foreign_key_violation): insert or update on table \"product_environments\" violates foreign key constraint \"product_environments_product_id_fkey\"",
-                 fn -> ProductEnvironment.new(%{product_id: 98237834, name: "test"}) |> Repo.insert end
+                 fn -> ProductEnvironment.new(%{product_id: 98237834, name: "test"}) |> Repo.insert! end
   end
 
   test "product_id and environment name combo must be unique", context do
     product = context[:product]
     env_vars = %{product_id: product.id, name: "test"}
-    _env = ProductEnvironment.new(env_vars) |> Repo.insert
+    _env = ProductEnvironment.new(env_vars) |> Repo.insert!
     assert_raise Postgrex.Error,
                  "ERROR (unique_violation): duplicate key value violates unique constraint \"product_environments_product_id_name_index\"",
-                 fn -> ProductEnvironment.new(env_vars) |> Repo.insert end
+                 fn -> ProductEnvironment.new(env_vars) |> Repo.insert! end
   end
 
   test "belongs_to Product association", context do
     product = context[:product]
     
-    pe = ProductEnvironment.new(%{product_id: product.id, name: "test"}) |> Repo.insert
+    pe = ProductEnvironment.new(%{product_id: product.id, name: "test"}) |> Repo.insert!
 
     assert pe.product_id == product.id
     assert pe.name == "test"
@@ -64,10 +64,10 @@ defmodule DB.Models.ProductEnvironment.Test do
 
   test "retrieve associated product environmental variables", context do
     product = context[:product]
-    product_environment = ProductEnvironment.new(%{product_id: product.id, name: "variable test"}) |> Repo.insert
+    product_environment = ProductEnvironment.new(%{product_id: product.id, name: "variable test"}) |> Repo.insert!
 
-    var1 = ProductEnvironmentalVariable.new(%{product_id: product.id, product_environment_id: product_environment.id, name: "A", value: "test"}) |> Repo.insert
-    var2 = ProductEnvironmentalVariable.new(%{product_id: product.id, product_environment_id: product_environment.id, name: "B", value: "test"}) |> Repo.insert
+    var1 = ProductEnvironmentalVariable.new(%{product_id: product.id, product_environment_id: product_environment.id, name: "A", value: "test"}) |> Repo.insert!
+    var2 = ProductEnvironmentalVariable.new(%{product_id: product.id, product_environment_id: product_environment.id, name: "B", value: "test"}) |> Repo.insert!
 
     [product_environment] = Repo.all(from pe in ProductEnvironment,
                                      where: pe.id == ^product_environment.id,
@@ -75,8 +75,8 @@ defmodule DB.Models.ProductEnvironment.Test do
 
     assert length(product_environment.environmental_variables) == 2
 
-    Repo.delete(var1)
-    Repo.delete(var2)
+    Repo.delete!(var1)
+    Repo.delete!(var2)
   end
 
   test "validates that product name cannot be empty", context do

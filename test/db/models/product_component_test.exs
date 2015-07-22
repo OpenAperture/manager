@@ -6,9 +6,9 @@ defmodule DB.Models.ProductComponent.Test do
   alias OpenAperture.Manager.DB.Models.ProductComponent
 
   setup _context do
-    product = Product.new(%{name: "test product"}) |> Repo.insert
+    product = Product.new(%{name: "test product"}) |> Repo.insert!
 
-    product2 = Product.new(%{name: "test product2"}) |> Repo.insert
+    product2 = Product.new(%{name: "test product2"}) |> Repo.insert!
 
     on_exit _context, fn ->
       Repo.delete_all(ProductComponent)
@@ -38,7 +38,7 @@ defmodule DB.Models.ProductComponent.Test do
   end
 
   test "create component", context do
-    component = ProductComponent.new(%{product_id: context[:product].id, type: "web_server", name: "test component"}) |> Repo.insert
+    component = ProductComponent.new(%{product_id: context[:product].id, type: "web_server", name: "test component"}) |> Repo.insert!
 
     retrieved = Repo.get(ProductComponent, component.id)
     assert retrieved == component

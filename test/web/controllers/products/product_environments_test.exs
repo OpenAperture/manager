@@ -20,20 +20,20 @@ defmodule OpenAperture.Manager.Controllers.ProductEnvironmentsTest do
 
   setup do
     product = Product.new(%{name: "test_environments_product"})
-              |> Repo.insert
+              |> Repo.insert!
 
     pe1 = ProductEnvironment.new(%{name: "test_environment_1", product_id: product.id})
-          |> Repo.insert
+          |> Repo.insert!
     pe2 = ProductEnvironment.new(%{name: "test_environment_2", product_id: product.id})
-          |> Repo.insert
+          |> Repo.insert!
     pev1 = ProductEnvironmentalVariable.new(%{name: "test_variable_1", product_id: product.id, product_environment_id: pe1.id})
-           |> Repo.insert
+           |> Repo.insert!
     pev2 = ProductEnvironmentalVariable.new(%{name: "test_variable_2", product_id: product.id, product_environment_id: pe1.id})
-           |> Repo.insert
+           |> Repo.insert!
     pev3 = ProductEnvironmentalVariable.new(%{name: "test_variable_3", product_id: product.id, product_environment_id: pe2.id})
-           |> Repo.insert
+           |> Repo.insert!
     pev4 = ProductEnvironmentalVariable.new(%{name: "test_variable_4", product_id: product.id})
-           |> Repo.insert
+           |> Repo.insert!
 
     on_exit fn ->
       Repo.delete_all(ProductEnvironmentalVariable)
@@ -62,7 +62,7 @@ defmodule OpenAperture.Manager.Controllers.ProductEnvironmentsTest do
 
   test "index action -- product exists, but no environments" do
     product = Product.new(%{name: "test_environments_product_2"})
-              |> Repo.insert
+              |> Repo.insert!
 
     path = product_environments_path(Endpoint, :index, product.name)
 
@@ -282,7 +282,7 @@ defmodule OpenAperture.Manager.Controllers.ProductEnvironmentsTest do
   test "destroy action -- success for environment with no associated variable", context do
     product = context[:product]
     new_env = ProductEnvironment.new(%{name: "another_test_env", product_id: product.id})
-              |> Repo.insert
+              |> Repo.insert!
 
     num_environments = length(Repo.all(ProductEnvironment))
     num_variables = length(Repo.all(ProductEnvironmentalVariable))

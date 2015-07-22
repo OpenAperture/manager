@@ -20,7 +20,7 @@ defmodule OpenAperture.Manager.OverseerApi.ModuleRegistrationTest do
   # register_module tests
 
   test "register_module - success" do 
-    exchange = Repo.insert(MessagingExchange.new(%{name: "#{UUID.uuid1()}"}))
+    exchange = Repo.insert!(MessagingExchange.new(%{name: "#{UUID.uuid1()}"}))
 
     module = %{
       hostname: System.get_env("HOSTNAME"),
