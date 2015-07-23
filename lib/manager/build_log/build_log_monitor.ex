@@ -44,6 +44,7 @@ defmodule OpenAperture.Manager.BuildLogMonitor do
     
     subscribe(connection_options, queue, fn(payload, _meta, %{subscription_handler: subscription_handler, delivery_tag: delivery_tag}) -> 
       Logger.info("build log monitor: #{inspect payload}")
+      OpenAperture.Manager.BuildLogChannel.broadcast!("build_log:" <> payload.workflow_id, "build_log", %{logs: payload.logs})
       SubscriptionHandler.acknowledge(subscription_handler, delivery_tag)
     end)
     {:ok, nil}
