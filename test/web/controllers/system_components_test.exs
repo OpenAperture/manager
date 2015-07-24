@@ -59,6 +59,18 @@ defmodule OpenAperture.Manager.Controllers.SystemComponentTest do
     assert length(body) == 2
   end
 
+  test "index - components w/ type search", context do
+    Repo.insert(SystemComponent.new(%{messaging_exchange_id: context[:exchange].id, type: "manager", source_repo: "https://github.com/test/test.git", source_repo_git_ref: "123abc", upgrade_strategy: "manual", deployment_repo: "https://github.com/test/test.git", deployment_repo_git_ref: "123abc"}))
+    Repo.insert(SystemComponent.new(%{messaging_exchange_id: context[:exchange].id, type: "builder", source_repo: "https://github.com/test/test.git", source_repo_git_ref: "123abc", upgrade_strategy: "manual", deployment_repo: "https://github.com/test/test.git", deployment_repo_git_ref: "123abc"}))
+
+    conn = get conn(), "/system_components?type=manager"
+    assert conn.status == 200
+
+    body = Poison.decode!(conn.resp_body)
+
+    assert length(body) == 1
+  end
+
   # ==================================
   # show tests
 
