@@ -58,8 +58,6 @@ defmodule OpenAperture.Manager.Controllers.SystemComponents do
   """
   @spec index(Plug.Conn.t, [any]) :: Plug.Conn.t
   def index(conn, params) do
-    IO.puts "params:"
-    IO.inspect(params)
     components = if params["type"] == nil do
       Repo.all(SystemComponent)
     else
