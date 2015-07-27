@@ -61,7 +61,7 @@ defmodule OpenAperture.Manager.Controllers.SystemComponents do
     components = if params["type"] == nil do
       Repo.all(SystemComponent)
     else
-      Repo.all(Ecto.Query.from s in SystemComponent, where: s.type == ^params["type"])
+      Repo.all(from s in SystemComponent, where: s.type == ^params["type"])
     end
     json conn, convert_raw_components(components)
  end  

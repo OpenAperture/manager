@@ -69,6 +69,7 @@ defmodule OpenAperture.Manager.Controllers.SystemComponentTest do
     body = Poison.decode!(conn.resp_body)
 
     assert length(body) == 1
+    assert hd(body)["type"] == "manager"
   end
 
   # ==================================
