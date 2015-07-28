@@ -303,4 +303,68 @@ defmodule OpenAperture.Manager.Controllers.EtcdClusters do
         end        
     end
   end
+
+  @doc """
+  GET /clusters/:etcd_token/nodes - Retrieve node information about all machines associated with the etcd_token
+
+  ## Options
+
+  The `conn` option defines the underlying HTTP connection.
+
+  The `params` option defines an array of arguments.
+
+  ## Return Values
+
+  Plug.Conn
+  """
+  def node_info(conn, %{"etcd_token" => token}) do
+    case EtcdClusterQuery.get_by_etcd_token(token) do
+      nil ->
+        conn
+        |> put_status(:not_found)
+        |> json ResponseBodyFormatter.error_body(:not_found, "EtcdCluster")
+      cluster ->
+        handler = FleetManagerPublisher.list_machines!(token, cluster.messaging_exchange_id)
+        case RpcHandler.get_response(handler) do
+          {:ok, nil} ->
+            conn
+            |> put_status(:internal_server_error)
+            |> json ResponseBodyFormatter.error_body(:internal_server_error, "EtcdCluster")
+          {:ok, []} ->
+            conn
+            |> json %{}
+          {:ok, machines} ->
+            get_node_info(conn, cluster.messaging_exchange_id, machines)
+          {:error, reason} -> 
+            Logger.error("Received the following error retrieving hosts:  #{inspect reason}")
+            conn
+            |> put_status(:internal_server_error)
+            |> json ResponseBodyFormatter.error_body(:internal_server_error, "EtcdCluster")
+        end
+    end
+  end
+
+  defp get_node_info(conn, messaging_exchange_id, machines) do
+    nodes = Enum.reduce machines, [], fn(machine, nodes) -> 
+      nodes ++ [machine["primaryIP"]]
+    end
+
+    handler = FleetManagerPublisher.node_info!(messaging_exchange_id, nodes)
+    case RpcHandler.get_response(handler) do
+      {:ok, node_info} ->
+        if node_info == nil do
+          conn
+          |> put_status(:internal_server_error)
+          |> json ResponseBodyFormatter.error_body(:internal_server_error, "EtcdCluster")
+        else
+          conn
+          |> json node_info
+        end
+      {:error, reason} -> 
+        Logger.error("Received the following error retrieving node_info:  #{inspect reason}")
+        conn
+        |> put_status(:internal_server_error)
+        |> json ResponseBodyFormatter.error_body(:internal_server_error, "EtcdCluster")
+    end  
+  end
 end

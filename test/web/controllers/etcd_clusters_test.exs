@@ -357,4 +357,66 @@ defmodule OpenAperture.Manager.Controllers.EtcdClustersTest do
 
     assert conn.status == 404
   end
+
+
+
+
+  #=========
+  # node_info tests
+
+  test "node_info machines not found" do
+    :meck.expect(EtcdClusterQuery, :get_by_etcd_token, 1, nil)
+
+    conn = get conn(), "/clusters/some_etcd_token/nodes"
+
+    assert conn.status == 404
+  end
+
+  test "node_info machines fail" do
+    :meck.expect(EtcdClusterQuery, :get_by_etcd_token, fn token -> %EtcdCluster{etcd_token: token} end)
+    :meck.expect(FleetManagerPublisher, :list_machines!, fn _,_ -> %{} end)
+    :meck.expect(RpcHandler, :get_response, fn _ -> {:error, "bad news bears"} end)
+
+    conn = get conn(), "/clusters/some_etcd_token/nodes"
+    assert conn.status == 500
+  end
+
+  test "node_info machines invalid" do
+    :meck.expect(EtcdClusterQuery, :get_by_etcd_token, fn token -> %EtcdCluster{etcd_token: token} end)
+    :meck.expect(FleetManagerPublisher, :list_machines!, fn _,_ -> %{} end)
+    :meck.expect(RpcHandler, :get_response, fn _ -> {:ok, nil} end)
+
+    conn = get conn(), "/clusters/some_etcd_token/nodes"
+    assert conn.status == 500
+  end  
+
+  test "node_info no machines" do
+    :meck.expect(EtcdClusterQuery, :get_by_etcd_token, fn token -> %EtcdCluster{etcd_token: token} end)
+    :meck.expect(FleetManagerPublisher, :list_machines!, fn _,_ -> %{} end)
+    :meck.expect(RpcHandler, :get_response, fn _ -> {:ok, []} end)
+
+    conn = get conn(), "/clusters/some_etcd_token/nodes"
+
+    assert conn.status == 200
+  end
+
+  test "node_info machines" do
+    :meck.expect(EtcdClusterQuery, :get_by_etcd_token, fn token -> %EtcdCluster{etcd_token: token} end)
+    :meck.expect(FleetManagerPublisher, :list_machines!, fn _,_ -> "machines_handler" end)
+    :meck.expect(FleetManagerPublisher, :node_info!, fn _,_ -> "info_handler" end)
+    :meck.expect(RpcHandler, :get_response, fn handler_type -> 
+      cond do
+        handler_type == "machines_handler" -> {:ok, [%{"primaryIP" => "123.234.456.789"}]} 
+        handler_type == "info_handler" -> {:ok, %{"123.234.456.789" => %{}}}
+        true -> nil
+      end
+    end)
+
+    conn = get conn(), "/clusters/some_etcd_token/nodes"
+
+    assert conn.status == 200
+    body = Poison.decode!(conn.resp_body)
+    assert body != nil
+    assert body["123.234.456.789"] != nil
+  end
 end
