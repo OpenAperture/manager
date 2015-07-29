@@ -256,4 +256,12 @@ defmodule OpenAperture.Manager.Router do
     delete "/:id", SystemComponents, :destroy
     post "/:id/upgrade", SystemComponents, :upgrade
   end  
+
+  scope "/system_events", OpenAperture.Manager.Controllers do
+    pipe_through :api
+    pipe_through :secure
+
+    get "/", SystemEvents, :index
+    post "/", SystemEvents, :create
+  end  
 end
