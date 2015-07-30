@@ -26,6 +26,11 @@ defmodule OpenAperture.Manager.Router do
 
   end
 
+  socket "/ws", OpenAperture.Manager do
+    pipe_through :secure
+    channel "build_log:*", BuildLogChannel
+  end
+
   scope "/clusters", OpenAperture.Manager.Controllers do
     pipe_through :api
     pipe_through :secure

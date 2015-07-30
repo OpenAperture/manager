@@ -15,7 +15,7 @@ defmodule OpenAperture.Manager.BuildLogMonitor do
   @connection_options nil
   use OpenAperture.Messaging
 
-  
+  @spec start_link() :: GenServer.on_start
 	def start_link() do
     if Application.get_env(OpenAperture.Manager, :build_log_monitor_autostart, true) do
       Logger.debug("[BuildLogMonitor] Starting...")
@@ -31,6 +31,7 @@ defmodule OpenAperture.Manager.BuildLogMonitor do
     end
 	end
 
+  @spec init(:ok) :: {:ok, nil}
   def init(:ok) do
     {routing_key, root_exchange} = RoutingKey.build_hierarchy(Configuration.get_current_exchange_id, nil, nil)
     exchange_model = __MODULE__.get_exchange_model routing_key, root_exchange
@@ -44,11 +45,13 @@ defmodule OpenAperture.Manager.BuildLogMonitor do
     
     subscribe(connection_options, queue, fn(payload, _meta, %{subscription_handler: subscription_handler, delivery_tag: delivery_tag}) -> 
       Logger.info("build log monitor: #{inspect payload}")
+      handle_logs(payload)
       SubscriptionHandler.acknowledge(subscription_handler, delivery_tag)
     end)
     {:ok, nil}
   end
 
+  @spec get_exchange_model(String.t, term) :: OpenAperture.Messaging.AMQP.Exchange.t
   def get_exchange_model(routing_key, root_exchange) do
     exchange_db = Repo.get(MessagingExchangeModel, Configuration.get_current_exchange_id)
     if exchange_db == nil do
@@ -56,7 +59,7 @@ defmodule OpenAperture.Manager.BuildLogMonitor do
     end
     exchange_model = %OpenAperture.Messaging.AMQP.Exchange{
                                 name: exchange_db.name,
-                                routing_key: routing_key, 
+                                routing_key: routing_key,
                                 root_exchange_name: root_exchange.name
     }
     if exchange_db.failover_exchange_id != nil do
@@ -73,6 +76,7 @@ defmodule OpenAperture.Manager.BuildLogMonitor do
     exchange_model
   end
 
+  @spec get_connection_options() :: OpenAperture.Messaging.AMQP.ConnectionOptions
   def get_connection_options do
     broker = Repo.get(MessagingBrokerModel, Configuration.get_current_broker_id)
     if broker == nil do
@@ -104,5 +108,11 @@ defmodule OpenAperture.Manager.BuildLogMonitor do
                     failover_virtual_host: failover_connection_options.virtual_host}
     end
     connection_options
+  end
+
+  @spec handle_logs(term) :: :ok | {:error, term}
+  def handle_logs(payload) do
+    Logger.debug("Broadcasting build logs for id: #{payload.workflow_id} #{inspect payload.logs}")
+    OpenAperture.Manager.Endpoint.broadcast!("build_log:" <> payload.workflow_id, "build_log", %{logs: payload.logs})
   end
 end
