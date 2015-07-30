@@ -46,7 +46,7 @@ defmodule OpenAperture.Manager.Controllers.SystemEvents do
       24
     end
 
-    json conn, Repo.all(SystemEventQuery.get_events(lookback))
+    json conn, convert_raw(Repo.all(SystemEventQuery.get_events(lookback)))
   end
 
   @doc """
