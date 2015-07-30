@@ -40,8 +40,8 @@ defmodule OpenAperture.Manager.Controllers.SystemComponentRefTest do
   end
 
   test "index - components" do
-    Repo.insert(SystemComponentRef.new(%{type: "test", source_repo: "https://github.com/test/test.git", source_repo_git_ref: "123abc", auto_upgrade_enabled: true}))
-    Repo.insert(SystemComponentRef.new(%{type: "test2", source_repo: "https://github.com/test/test.git", source_repo_git_ref: "123abc", auto_upgrade_enabled: true}))
+    Repo.insert!(SystemComponentRef.new(%{type: "test", source_repo: "https://github.com/test/test.git", source_repo_git_ref: "123abc", auto_upgrade_enabled: true}))
+    Repo.insert!(SystemComponentRef.new(%{type: "test2", source_repo: "https://github.com/test/test.git", source_repo_git_ref: "123abc", auto_upgrade_enabled: true}))
 
     conn = get conn(), "/system_component_refs"
     assert conn.status == 200
@@ -60,7 +60,7 @@ defmodule OpenAperture.Manager.Controllers.SystemComponentRefTest do
   end
 
   test "show - valid component" do
-    component = Repo.insert(SystemComponentRef.new(%{type: "test", source_repo: "https://github.com/test/test.git", source_repo_git_ref: "123abc", auto_upgrade_enabled: true}))
+    component = Repo.insert!(SystemComponentRef.new(%{type: "test", source_repo: "https://github.com/test/test.git", source_repo_git_ref: "123abc", auto_upgrade_enabled: true}))
 
     conn = get conn(), "/system_component_refs/#{component.type}"
     assert conn.status == 200
@@ -77,7 +77,7 @@ defmodule OpenAperture.Manager.Controllers.SystemComponentRefTest do
   # create tests
 
   test "create - conflict" do
-    Repo.insert(SystemComponentRef.new(%{type: "test", source_repo: "https://github.com/test/test.git", source_repo_git_ref: "123abc", auto_upgrade_enabled: true}))
+    Repo.insert!(SystemComponentRef.new(%{type: "test", source_repo: "https://github.com/test/test.git", source_repo_git_ref: "123abc", auto_upgrade_enabled: true}))
 
     conn = post conn(), "/system_component_refs", %{"type" => "test", "source_repo" => "https://github.com/test/test.git", "source_repo_git_ref" => "123abc", "auto_upgrade_enabled" => true}
     assert conn.status == 409
@@ -92,7 +92,7 @@ defmodule OpenAperture.Manager.Controllers.SystemComponentRefTest do
   test "create - internal server error" do
     :meck.new(Repo, [:passthrough])
     :meck.expect(Repo, :all, fn _ -> [] end)
-    :meck.expect(Repo, :insert, fn _ -> raise "bad news bears" end)
+    :meck.expect(Repo, :insert!, fn _ -> raise "bad news bears" end)
 
     conn = post conn(), "/system_component_refs", %{"type" => "test", "source_repo" => "https://github.com/test/test.git", "source_repo_git_ref" => "123abc", "auto_upgrade_enabled" => true}
     
@@ -120,7 +120,7 @@ defmodule OpenAperture.Manager.Controllers.SystemComponentRefTest do
   # update tests
 
   test "update - bad request" do
-    component = Repo.insert(SystemComponentRef.new(%{type: "test", source_repo: "https://github.com/test/test.git", source_repo_git_ref: "123abc", auto_upgrade_enabled: true}))
+    component = Repo.insert!(SystemComponentRef.new(%{type: "test", source_repo: "https://github.com/test/test.git", source_repo_git_ref: "123abc", auto_upgrade_enabled: true}))
 
     conn = put conn(), "/system_component_refs/#{component.type}", %{}
     assert conn.status == 400
@@ -128,11 +128,11 @@ defmodule OpenAperture.Manager.Controllers.SystemComponentRefTest do
   end
 
   test "update - internal server error" do
-    component = Repo.insert(SystemComponentRef.new(%{type: "test", source_repo: "https://github.com/test/test.git", source_repo_git_ref: "123abc", auto_upgrade_enabled: true}))
+    component = Repo.insert!(SystemComponentRef.new(%{type: "test", source_repo: "https://github.com/test/test.git", source_repo_git_ref: "123abc", auto_upgrade_enabled: true}))
 
     :meck.new(Repo, [:passthrough])
     :meck.expect(Repo, :all, fn _ -> [component] end)
-    :meck.expect(Repo, :update, fn _ -> raise "bad news bears" end)
+    :meck.expect(Repo, :update!, fn _ -> raise "bad news bears" end)
 
     conn = put conn(), "/system_component_refs/#{component.type}", %{type: "test", source_repo: "https://github.com/test/test.git", source_repo_git_ref: "123abc", auto_upgrade_enabled: false}
     assert conn.status == 500
@@ -141,7 +141,7 @@ defmodule OpenAperture.Manager.Controllers.SystemComponentRefTest do
   end
 
   test "update - success" do
-    component = Repo.insert(SystemComponentRef.new(%{type: "test", source_repo: "https://github.com/test/test.git", source_repo_git_ref: "123abc", auto_upgrade_enabled: true}))
+    component = Repo.insert!(SystemComponentRef.new(%{type: "test", source_repo: "https://github.com/test/test.git", source_repo_git_ref: "123abc", auto_upgrade_enabled: true}))
 
     conn = put conn(), "/system_component_refs/#{component.type}", %{type: "test", source_repo: "https://github.com/test/test.git", source_repo_git_ref: "123abc", auto_upgrade_enabled: false}
     assert conn.status == 204
@@ -169,7 +169,7 @@ defmodule OpenAperture.Manager.Controllers.SystemComponentRefTest do
   end
 
   test "destroy - valid component" do
-    component = Repo.insert(SystemComponentRef.new(%{type: "test", source_repo: "https://github.com/test/test.git", source_repo_git_ref: "123abc", auto_upgrade_enabled: true}))
+    component = Repo.insert!(SystemComponentRef.new(%{type: "test", source_repo: "https://github.com/test/test.git", source_repo_git_ref: "123abc", auto_upgrade_enabled: true}))
 
     conn = delete conn(), "/system_component_refs/#{component.type}"
     assert conn.status == 204

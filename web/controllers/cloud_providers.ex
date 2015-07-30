@@ -49,7 +49,7 @@ defmodule OpenAperture.Manager.Controllers.CloudProviders do
 
     changeset = CloudProvider.new(params)
     if changeset.valid? do
-      cloud_provider = Repo.insert(changeset)
+      cloud_provider = Repo.insert!(changeset)
 
       conn
       |> put_resp_header("location", cloud_providers_path(Endpoint, :show, cloud_provider.id))
@@ -76,7 +76,7 @@ defmodule OpenAperture.Manager.Controllers.CloudProviders do
 
         changeset = CloudProvider.update(provider, params)
         if changeset.valid? do
-          Repo.update(changeset)
+          Repo.update!(changeset)
           conn
           |> put_resp_header("location", cloud_providers_path(Endpoint, :show, provider.id))
           |> resp :no_content, ""

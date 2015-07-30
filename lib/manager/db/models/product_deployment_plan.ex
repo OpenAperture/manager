@@ -21,7 +21,7 @@ defmodule OpenAperture.Manager.DB.Models.ProductDeploymentPlan do
   def destroy(pdp) do
     Repo.transaction(fn ->
       Models.ProductDeploymentPlanStep.destroy_for_deployment_plan(pdp)
-      Repo.delete(pdp)
+      Repo.delete!(pdp)
     end)
     |> transaction_return
   end

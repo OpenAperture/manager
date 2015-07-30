@@ -91,7 +91,7 @@ defmodule OpenAperture.Manager.Controllers.ProductDeployments do
 
         changeset = ProductDeployment.new(params)
         if changeset.valid? do
-          deployment = Repo.insert(changeset)
+          deployment = Repo.insert!(changeset)
 
           #TODO: Execute deployment plan
           DeploymentPlan.execute(%{
@@ -122,6 +122,31 @@ defmodule OpenAperture.Manager.Controllers.ProductDeployments do
     conn
     |> put_status(:bad_request)
     |> json ResponseBodyFormatter.error_body(:bad_request, "ProductDeployment")
+  end
+
+  def update(conn, %{"product_name" => product_name, "deployment_id" => deployment_id} = params) do 
+    product_name = URI.decode(product_name)
+
+    case get_product_deployment(product_name, deployment_id) do
+      nil ->
+        conn
+        |> put_status(:not_found)
+        |> json ResponseBodyFormatter.error_body(:not_found, "ProductDeployment")
+      deployment ->
+        changeset = ProductDeployment.update(deployment, params)
+        if changeset.valid? do
+          deployment = Repo.update!(changeset)
+          path = product_deployments_path(Endpoint, :show, product_name, deployment.id)
+
+          conn
+          |> put_resp_header("location", path)
+          |> resp :no_content, ""
+        else
+          conn
+          |> put_status(:bad_request)
+          |> json ResponseBodyFormatter.error_body(changeset.errors, "ProductEnvironment")
+        end
+    end
   end
 
   # DELETE /products/:product_name/deployments/:deploymen_id

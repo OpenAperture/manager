@@ -16,7 +16,7 @@ defmodule OpenAperture.Manager.Messaging.RpcRequestsCleanupTest do
     lookback_time = :calendar.gregorian_seconds_to_datetime(now_secs-(25*60*60))
     then = from_erl(lookback_time)
 
-    _request = %MessagingRpcRequest{status: "not_started", inserted_at: then} |> Repo.insert
+    _request = %MessagingRpcRequest{status: "not_started", inserted_at: then} |> Repo.insert!
     RpcRequestsCleanup.cleanup_expired_requests
 
     results = Repo.all(MessagingRpcRequest)
@@ -29,8 +29,8 @@ defmodule OpenAperture.Manager.Messaging.RpcRequestsCleanupTest do
     lookback_time = :calendar.gregorian_seconds_to_datetime(now_secs-(23*60*60))
     then = from_erl(lookback_time)
 
-    _request = %MessagingRpcRequest{status: "not_started", inserted_at: then} |> Repo.insert
-    _request = %MessagingRpcRequest{status: "not_started"} |> Repo.insert
+    _request = %MessagingRpcRequest{status: "not_started", inserted_at: then} |> Repo.insert!
+    _request = %MessagingRpcRequest{status: "not_started"} |> Repo.insert!
     RpcRequestsCleanup.cleanup_expired_requests
 
     results = Repo.all(MessagingRpcRequest)

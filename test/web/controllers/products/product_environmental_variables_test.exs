@@ -20,20 +20,20 @@ defmodule OpenAperture.Manager.Controllers.ProductEnvironmentalVariablesTest do
 
   setup do
     product = Product.new(%{name: "test_environmental_variables_product"})
-              |> Repo.insert
+              |> Repo.insert!
 
     pe1 = ProductEnvironment.new(%{name: "test_environment_1", product_id: product.id})
-          |> Repo.insert
+          |> Repo.insert!
     pe2 = ProductEnvironment.new(%{name: "test_environment_2", product_id: product.id})
-          |> Repo.insert
+          |> Repo.insert!
     pev1 = ProductEnvironmentalVariable.new(%{name: "test_variable_1", product_id: product.id, product_environment_id: pe1.id})
-           |> Repo.insert
+           |> Repo.insert!
     pev2 = ProductEnvironmentalVariable.new(%{name: "test_variable_2", product_id: product.id, product_environment_id: pe1.id})
-           |> Repo.insert
+           |> Repo.insert!
     pev3 = ProductEnvironmentalVariable.new(%{name: "test_variable_3", product_id: product.id, product_environment_id: pe2.id})
-           |> Repo.insert
+           |> Repo.insert!
     pev4 = ProductEnvironmentalVariable.new(%{name: "test_variable_4", product_id: product.id})
-           |> Repo.insert
+           |> Repo.insert!
 
     on_exit fn ->
       Repo.delete_all(ProductEnvironmentalVariable)
@@ -227,7 +227,7 @@ defmodule OpenAperture.Manager.Controllers.ProductEnvironmentalVariablesTest do
     var = context[:pev1]
 
     _var2 = ProductEnvironmentalVariable.new(%{product_id: product.id, name: var.name})
-            |> Repo.insert
+            |> Repo.insert!
 
     path = product_environmental_variables_path(Endpoint, :show_default, product.name, var.name, coalesced: true)
     conn = get conn(), path
@@ -525,7 +525,7 @@ defmodule OpenAperture.Manager.Controllers.ProductEnvironmentalVariablesTest do
     product = context[:product]
     var = context[:pev4]
     var2 = ProductEnvironmentalVariable.new(%{name: "test_var_2", product_id: product.id})
-           |> Repo.insert
+           |> Repo.insert!
 
     path = product_environmental_variables_path(Endpoint, :update_default, product.name, var.name)
 

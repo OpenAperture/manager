@@ -6,8 +6,8 @@ defmodule DB.Models.ProductDeploymentPlan.Test do
   alias OpenAperture.Manager.DB.Models.ProductDeploymentPlan
 
   setup _context do
-    product = Product.new(%{name: "test plan"}) |> Repo.insert
-    product2 = Product.new(%{name: "test plan2"}) |> Repo.insert
+    product = Product.new(%{name: "test plan"}) |> Repo.insert!
+    product2 = Product.new(%{name: "test plan2"}) |> Repo.insert!
 
     on_exit _context, fn ->
       Repo.delete_all(ProductDeploymentPlan)
@@ -26,12 +26,12 @@ defmodule DB.Models.ProductDeploymentPlan.Test do
   end
 
   test "validate - create plan", context do
-    plan = ProductDeploymentPlan.new(%{product_id: context[:product].id, name: "test plan"}) |> Repo.insert
+    plan = ProductDeploymentPlan.new(%{product_id: context[:product].id, name: "test plan"}) |> Repo.insert!
     assert plan != nil
   end
 
   test "create plan", context do
-    plan = ProductDeploymentPlan.new(%{product_id: context[:product].id, name: "test plan"}) |> Repo.insert
+    plan = ProductDeploymentPlan.new(%{product_id: context[:product].id, name: "test plan"}) |> Repo.insert!
     retrieved = Repo.get(ProductDeploymentPlan, plan.id)
 
     assert retrieved == plan

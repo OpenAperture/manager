@@ -33,6 +33,6 @@ defmodule OpenAperture.Manager.DB.Models.Workflow do
   end
 
   def destroy(model) do
-    Repo.delete model
+    Repo.delete! model
   end
 end

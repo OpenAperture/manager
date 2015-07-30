@@ -27,10 +27,9 @@ defmodule OpenAperture.Manager.Controllers.WorkflowsTest do
   end  
 
   test "get workflow" do
-    workflow_uuid = "#{UUID.uuid1()}" 
-    workflow_id = (workflow_uuid |> UUID.info)[:binary]
-    _workflow = Repo.insert(%WorkflowDB{
-      id: workflow_id, 
+    workflow_uuid = Ecto.UUID.generate()
+    _workflow = Repo.insert!(%WorkflowDB{
+      id: workflow_uuid, 
       milestones: Poison.encode!([:build, :deploy]),
       workflow_step_durations: Poison.encode!(%{build: "24 seconds"}),
       event_log: Poison.encode!(["Event 1", "Event 2"]),
@@ -39,21 +38,20 @@ defmodule OpenAperture.Manager.Controllers.WorkflowsTest do
 
     conn = get conn(), "/workflows/#{workflow_uuid}"
     assert conn.status == 200
-    assert Poison.decode!(conn.resp_body)["id"] == workflow_uuid
+    assert Poison.decode!(conn.resp_body)["id"] == "#{workflow_uuid}"
   end
 
   test "get non-existent" do
-    conn = get conn(), "/workflows/#{UUID.uuid1()}"
+    conn = get conn(), "/workflows/#{Ecto.UUID.generate()}"
     assert conn.status == 404
     assert conn.resp_body == ""
   end
 
   test "get by repo success all builds" do
-    workflow_uuid = "#{UUID.uuid1()}" 
-    workflow_id = (workflow_uuid |> UUID.info)[:binary]
+    workflow_uuid = Ecto.UUID.generate()
 
-    deployment_repo_name = "Test-Org/#{UUID.uuid1()}_docker"
-    _workflow = Repo.insert(%WorkflowDB{id: workflow_id, deployment_repo: deployment_repo_name, inserted_at: from_erl(:calendar.universal_time)})
+    deployment_repo_name = "Test-Org/#{Ecto.UUID.generate()}_docker"
+    _workflow = Repo.insert!(%WorkflowDB{id: workflow_uuid, deployment_repo: deployment_repo_name, inserted_at: from_erl(:calendar.universal_time)})
 
     conn = get conn(), "/workflows?deployment_repo=#{deployment_repo_name}&lookback=0"
     assert conn.status == 200
@@ -61,15 +59,14 @@ defmodule OpenAperture.Manager.Controllers.WorkflowsTest do
     result = Poison.decode!(conn.resp_body)
     assert result != nil
     assert length(result) == 1
-    assert List.first(result)["id"] == workflow_uuid
+    assert List.first(result)["id"] == "#{workflow_uuid}"
   end
 
   test "get by repo success in last 24 hours" do
-    workflow_uuid = "#{UUID.uuid1()}" 
-    workflow_id = (workflow_uuid |> UUID.info)[:binary]
+    workflow_uuid = Ecto.UUID.generate()
 
-    deployment_repo_name = "Test-Org/#{UUID.uuid1()}_docker"
-    _workflow = Repo.insert(%WorkflowDB{id: workflow_id, deployment_repo: deployment_repo_name, inserted_at: from_erl(:calendar.universal_time)})
+    deployment_repo_name = "Test-Org/#{Ecto.UUID.generate()}_docker"
+    _workflow = Repo.insert!(%WorkflowDB{id: workflow_uuid, deployment_repo: deployment_repo_name, inserted_at: from_erl(:calendar.universal_time)})
 
     conn = get conn(), "/workflows?deployment_repo=#{deployment_repo_name}"
     assert conn.status == 200
@@ -77,17 +74,16 @@ defmodule OpenAperture.Manager.Controllers.WorkflowsTest do
     result = Poison.decode!(conn.resp_body)
     assert result != nil
     assert length(result) == 1
-    assert List.first(result)["id"] == workflow_uuid
+    assert List.first(result)["id"] == "#{workflow_uuid}"
   end
 
   test "get by source repo success in last 24 hours" do
-    workflow_uuid = "#{UUID.uuid1()}" 
-    workflow_id = (workflow_uuid |> UUID.info)[:binary]
+    workflow_uuid = Ecto.UUID.generate()
 
     #this is actually the deployment repo under the covers
-    source_repo_name = "#{UUID.uuid1()}"
+    source_repo_name = "#{Ecto.UUID.generate()}"
     source_repo = "Test-Org/#{source_repo_name}_docker"
-    _workflow = Repo.insert(%WorkflowDB{id: workflow_id, deployment_repo: source_repo, inserted_at: from_erl(:calendar.universal_time)})
+    _workflow = Repo.insert!(%WorkflowDB{id: workflow_uuid, deployment_repo: source_repo, inserted_at: from_erl(:calendar.universal_time)})
 
     conn = get conn(), "/workflows?source_repo=Test-Org/#{source_repo_name}"
     assert conn.status == 200
@@ -95,17 +91,16 @@ defmodule OpenAperture.Manager.Controllers.WorkflowsTest do
     result = Poison.decode!(conn.resp_body)
     assert result != nil
     assert length(result) == 1
-    assert List.first(result)["id"] == workflow_uuid
+    assert List.first(result)["id"] == "#{workflow_uuid}"
   end
 
   test "get by source repo success all builds" do
-    workflow_uuid = "#{UUID.uuid1()}" 
-    workflow_id = (workflow_uuid |> UUID.info)[:binary]
+    workflow_uuid = Ecto.UUID.generate() 
 
     #this is actually the deployment repo under the covers
-    source_repo_name = "#{UUID.uuid1()}"
+    source_repo_name = "#{Ecto.UUID.generate()}"
     source_repo = "Test-Org/#{source_repo_name}_docker"
-    _workflow = Repo.insert(%WorkflowDB{id: workflow_id, deployment_repo: source_repo, inserted_at: from_erl(:calendar.universal_time)})
+    _workflow = Repo.insert!(%WorkflowDB{id: workflow_uuid, deployment_repo: source_repo, inserted_at: from_erl(:calendar.universal_time)})
 
     conn = get conn(), "/workflows?source_repo=Test-Org/#{source_repo_name}&lookback=0"
     assert conn.status == 200
@@ -113,7 +108,7 @@ defmodule OpenAperture.Manager.Controllers.WorkflowsTest do
     result = Poison.decode!(conn.resp_body)
     assert result != nil
     assert length(result) == 1
-    assert List.first(result)["id"] == workflow_uuid
+    assert List.first(result)["id"] ==  "#{workflow_uuid}"
   end
 
   test "get by repo no params" do
@@ -125,16 +120,16 @@ defmodule OpenAperture.Manager.Controllers.WorkflowsTest do
   test "create - internal server error" do
     :meck.new(Repo, [:passthrough])
     :meck.expect(Repo, :all, fn _ -> [] end)
-    :meck.expect(Repo, :insert, fn _ -> raise "bad news bears" end)
+    :meck.expect(Repo, :insert!, fn _ -> raise "bad news bears" end)
 
-    conn = post conn(), "/workflows", %{"deployment_repo" => "#{UUID.uuid1()}"}
+    conn = post conn(), "/workflows", %{"deployment_repo" => "#{Ecto.UUID.generate()}"}
     assert conn.status == 500
   after
     :meck.unload(Repo)
   end
 
   test "create - success" do
-    name = "#{UUID.uuid1()}"
+    name = Ecto.UUID.generate()
     conn = post conn(), "/workflows", %{"deployment_repo" => name}
     assert conn.status == 201
     location_header = Enum.reduce conn.resp_headers, nil, fn ({key, value}, location_header) ->
@@ -149,26 +144,24 @@ defmodule OpenAperture.Manager.Controllers.WorkflowsTest do
   end  
 
   test "update - internal server error" do
-    workflow_id = "#{UUID.uuid1()}"
-    raw_workflow_id = (workflow_id |> UUID.info)[:binary]    
-    _workflow = Repo.insert(WorkflowDB.new(%{id: raw_workflow_id}))
+    workflow_id = Ecto.UUID.generate()  
+    _workflow = Repo.insert!(WorkflowDB.new(%{id: workflow_id}))
 
     :meck.new(Repo, [:passthrough])
     :meck.expect(Repo, :all, fn _ -> [] end)
-    :meck.expect(Repo, :update, fn _ -> raise "bad news bears" end)
+    :meck.expect(Repo, :update!, fn _ -> raise "bad news bears" end)
 
-    conn = put conn(), "/workflows/#{workflow_id}", %{"name" => "#{UUID.uuid1()}"}
+    conn = put conn(), "/workflows/#{workflow_id}", %{"name" => "#{Ecto.UUID.generate()}"}
     assert conn.status == 500
   after
     :meck.unload(Repo)
   end
 
   test "update - success" do
-    workflow_id = "#{UUID.uuid1()}"
-    raw_workflow_id = (workflow_id |> UUID.info)[:binary]    
-    _workflow = Repo.insert(WorkflowDB.new(%{id: raw_workflow_id}))
+    workflow_id = Ecto.UUID.generate()  
+    _workflow = Repo.insert!(WorkflowDB.new(%{id: workflow_id}))
 
-    deployment_repo = "#{UUID.uuid1()}"
+    deployment_repo = "#{Ecto.UUID.generate()}"
     conn = put conn(), "/workflows/#{workflow_id}", %{
       "deployment_repo" => deployment_repo,
       "milestones" => [:build, :deploy],
@@ -186,7 +179,7 @@ defmodule OpenAperture.Manager.Controllers.WorkflowsTest do
     end
     assert location_header != nil
     assert String.contains?(location_header, "/workflows/")
-    updated_workflow = Repo.get(WorkflowDB, raw_workflow_id)
+    updated_workflow = Repo.get(WorkflowDB, workflow_id)
     assert updated_workflow.deployment_repo == deployment_repo
   end  
 
@@ -196,14 +189,13 @@ defmodule OpenAperture.Manager.Controllers.WorkflowsTest do
   end
 
   test "destroy - valid workflow" do
-    workflow_id = "#{UUID.uuid1()}"
-    raw_workflow_id = (workflow_id |> UUID.info)[:binary]    
-    _workflow = Repo.insert(WorkflowDB.new(%{id: raw_workflow_id}))
+    workflow_id = Ecto.UUID.generate()  
+    _workflow = Repo.insert!(WorkflowDB.new(%{id: workflow_id}))
 
     conn = delete conn(), "/workflows/#{workflow_id}"
     assert conn.status == 204
 
-    assert Repo.get(WorkflowDB, raw_workflow_id) == nil
+    assert Repo.get(WorkflowDB, workflow_id) == nil
   end  
 
   # ==========================================
@@ -215,18 +207,16 @@ defmodule OpenAperture.Manager.Controllers.WorkflowsTest do
   end
 
   test "execute - completed workflow" do
-    workflow_id = "#{UUID.uuid1()}"
-    raw_workflow_id = (workflow_id |> UUID.info)[:binary]    
-    _workflow = Repo.insert(WorkflowDB.new(%{id: raw_workflow_id, workflow_completed: true}))
+    workflow_id = Ecto.UUID.generate()    
+    _workflow = Repo.insert!(WorkflowDB.new(%{id: workflow_id, workflow_completed: true}))
 
     conn = post conn(), "/workflows/#{workflow_id}/execute"
     assert conn.status == 409
   end
 
   test "execute - completed in-progress" do
-    workflow_id = "#{UUID.uuid1()}"
-    raw_workflow_id = (workflow_id |> UUID.info)[:binary]    
-    _workflow = Repo.insert(WorkflowDB.new(%{id: raw_workflow_id, current_step: "something"}))
+    workflow_id = Ecto.UUID.generate()  
+    _workflow = Repo.insert!(WorkflowDB.new(%{id: workflow_id, current_step: "something"}))
 
     conn = post conn(), "/workflows/#{workflow_id}/execute"
     assert conn.status == 409
@@ -236,9 +226,8 @@ defmodule OpenAperture.Manager.Controllers.WorkflowsTest do
     :meck.new(OrchestratorPublisher, [:passthrough])
     :meck.expect(OrchestratorPublisher, :execute_orchestration, fn _ -> {:error, "bad news bears"} end)
 
-    workflow_id = "#{UUID.uuid1()}"
-    raw_workflow_id = (workflow_id |> UUID.info)[:binary]    
-    _workflow = Repo.insert(WorkflowDB.new(%{id: raw_workflow_id}))
+    workflow_id = Ecto.UUID.generate()   
+    _workflow = Repo.insert!(WorkflowDB.new(%{id: workflow_id}))
 
     conn = post conn(), "/workflows/#{workflow_id}/execute"
     assert conn.status == 500
@@ -250,9 +239,8 @@ defmodule OpenAperture.Manager.Controllers.WorkflowsTest do
     :meck.new(OrchestratorPublisher, [:passthrough])
     :meck.expect(OrchestratorPublisher, :execute_orchestration, fn _ -> :ok end)
 
-    workflow_id = "#{UUID.uuid1()}"
-    raw_workflow_id = (workflow_id |> UUID.info)[:binary]    
-    _workflow = Repo.insert(WorkflowDB.new(%{id: raw_workflow_id}))
+    workflow_id = Ecto.UUID.generate()   
+    _workflow = Repo.insert!(WorkflowDB.new(%{id: workflow_id}))
 
     conn = post conn(), "/workflows/#{workflow_id}/execute"
     assert conn.status == 202

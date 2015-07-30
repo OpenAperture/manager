@@ -6,7 +6,7 @@ defmodule DB.Models.SystemComponent.Test do
   alias OpenAperture.Manager.DB.Models.MessagingExchange
 
   setup _context do
-    exchange = Repo.insert(MessagingExchange.new(%{name: "test exchange"}))
+    exchange = Repo.insert!(MessagingExchange.new(%{name: "test exchange"}))
 
     on_exit _context, fn ->
       Repo.delete_all(SystemComponent)

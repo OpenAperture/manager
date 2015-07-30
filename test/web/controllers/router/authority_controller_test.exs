@@ -17,11 +17,11 @@ defmodule OpenAperture.Manager.Controllers.Router.AuthorityController.Test do
     :meck.new(OpenAperture.Manager.Plugs.Authentication, [:passthrough])
     :meck.expect(OpenAperture.Manager.Plugs.Authentication, :authenticate_user, fn conn, _opts -> conn end)
 
-    a1 = Repo.insert(%Authority{hostname: "test", port: 80})
-    a2 = Repo.insert(%Authority{hostname: "test2", port: 80})
+    a1 = Repo.insert!(%Authority{hostname: "test", port: 80})
+    a2 = Repo.insert!(%Authority{hostname: "test2", port: 80})
 
-    Repo.insert(%Route{authority_id: a1.id, hostname: "test", port: 80})
-    Repo.insert(%Route{authority_id: a1.id, hostname: "test2", port: 80})
+    Repo.insert!(%Route{authority_id: a1.id, hostname: "test", port: 80})
+    Repo.insert!(%Route{authority_id: a1.id, hostname: "test2", port: 80})
 
     on_exit fn ->
       Repo.delete_all(DeletedAuthority)

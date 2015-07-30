@@ -20,15 +20,15 @@ defmodule DB.Queries.ProductDeploymentPlan.Test do
   # get_deployment_plans_for_product tests
 
   test "get_deployment_plans_for_product- no plans" do
-    product = Product.new(%{name: "#{UUID.uuid1()}"}) |> Repo.insert
+    product = Product.new(%{name: "#{UUID.uuid1()}"}) |> Repo.insert!
     
     returned_plans = Repo.all(PDPQuery.get_deployment_plans_for_product(product.id))
     assert length(returned_plans) == 0
   end
 
   test "get_deployment_plans_for_product- one plan" do
-    product = Product.new(%{name: "#{UUID.uuid1()}"}) |> Repo.insert
-    plan = ProductDeploymentPlan.new(%{product_id: product.id, name: "#{UUID.uuid1()}"}) |> Repo.insert
+    product = Product.new(%{name: "#{UUID.uuid1()}"}) |> Repo.insert!
+    plan = ProductDeploymentPlan.new(%{product_id: product.id, name: "#{UUID.uuid1()}"}) |> Repo.insert!
 
     returned_plans = Repo.all(PDPQuery.get_deployment_plans_for_product(product.id))
     assert length(returned_plans) == 1
@@ -37,9 +37,9 @@ defmodule DB.Queries.ProductDeploymentPlan.Test do
   end
 
   test "get_deployment_plans_for_product- multiple plans" do
-    product = Product.new(%{name: "#{UUID.uuid1()}"}) |> Repo.insert
-    plan = ProductDeploymentPlan.new(%{product_id: product.id, name: "#{UUID.uuid1()}"}) |> Repo.insert
-    plan2 = ProductDeploymentPlan.new(%{product_id: product.id, name: "#{UUID.uuid1()}"}) |> Repo.insert
+    product = Product.new(%{name: "#{UUID.uuid1()}"}) |> Repo.insert!
+    plan = ProductDeploymentPlan.new(%{product_id: product.id, name: "#{UUID.uuid1()}"}) |> Repo.insert!
+    plan2 = ProductDeploymentPlan.new(%{product_id: product.id, name: "#{UUID.uuid1()}"}) |> Repo.insert!
 
     returned_plans = Repo.all(PDPQuery.get_deployment_plans_for_product(product.id))
     assert length(returned_plans) == 2
@@ -51,8 +51,8 @@ defmodule DB.Queries.ProductDeploymentPlan.Test do
   end
 
   test "get_deployment_plan_by_name- one plan" do
-    product = Product.new(%{name: "#{UUID.uuid1()}"}) |> Repo.insert
-    plan = ProductDeploymentPlan.new(%{product_id: product.id, name: "#{UUID.uuid1()}"}) |> Repo.insert
+    product = Product.new(%{name: "#{UUID.uuid1()}"}) |> Repo.insert!
+    plan = ProductDeploymentPlan.new(%{product_id: product.id, name: "#{UUID.uuid1()}"}) |> Repo.insert!
 
     returned_plans = Repo.all(PDPQuery.get_deployment_plan_by_name(product.id, plan.name))
     assert length(returned_plans) == 1

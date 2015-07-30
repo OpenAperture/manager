@@ -25,20 +25,20 @@ defmodule DB.Models.EtcdClusterPort.Test do
   end
 
   test "validate - success" do
-    cluster = EtcdCluster.new(%{etcd_token: "123abc"}) |> Repo.insert
-    product = Product.new(%{name: "test product"}) |> Repo.insert
-    component = ProductComponent.new(%{product_id: product.id, type: "web_server", name: "woah now"}) |> Repo.insert
+    cluster = EtcdCluster.new(%{etcd_token: "123abc"}) |> Repo.insert!
+    product = Product.new(%{name: "test product"}) |> Repo.insert!
+    component = ProductComponent.new(%{product_id: product.id, type: "web_server", name: "woah now"}) |> Repo.insert!
 
     changeset = EtcdClusterPort.new(%{etcd_cluster_id: cluster.id, product_component_id: component.id, port: 12345})
     assert changeset.valid?
   end
 
   test "insert - success" do
-    cluster = EtcdCluster.new(%{etcd_token: "123abc"}) |> Repo.insert
-    product = Product.new(%{name: "test product"}) |> Repo.insert
-    component = ProductComponent.new(%{product_id: product.id, type: "web_server", name: "woah now"}) |> Repo.insert
+    cluster = EtcdCluster.new(%{etcd_token: "123abc"}) |> Repo.insert!
+    product = Product.new(%{name: "test product"}) |> Repo.insert!
+    component = ProductComponent.new(%{product_id: product.id, type: "web_server", name: "woah now"}) |> Repo.insert!
 
-    result = EtcdClusterPort.new(%{etcd_cluster_id: cluster.id, product_component_id: component.id, port: 12345}) |> Repo.insert
+    result = EtcdClusterPort.new(%{etcd_cluster_id: cluster.id, product_component_id: component.id, port: 12345}) |> Repo.insert!
     assert result != nil
     assert result.id != nil
   end  

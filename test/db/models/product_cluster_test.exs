@@ -7,12 +7,12 @@ defmodule DB.Models.ProductCluster.Test do
   alias OpenAperture.Manager.DB.Models.ProductCluster
 
   setup _context do
-    product = Product.new(%{name: "test product"}) |> Repo.insert
-    etcd_cluster = EtcdCluster.new(%{etcd_token: "abc123"}) |> Repo.insert
+    product = Product.new(%{name: "test product"}) |> Repo.insert!
+    etcd_cluster = EtcdCluster.new(%{etcd_token: "abc123"}) |> Repo.insert!
 
-    product2 = Product.new(%{name: "test product2"}) |> Repo.insert
-    etcd_cluster2 = EtcdCluster.new(%{etcd_token: "bcd234"}) |> Repo.insert
-    etcd_cluster3 = EtcdCluster.new(%{etcd_token: "zyx987"}) |> Repo.insert
+    product2 = Product.new(%{name: "test product2"}) |> Repo.insert!
+    etcd_cluster2 = EtcdCluster.new(%{etcd_token: "bcd234"}) |> Repo.insert!
+    etcd_cluster3 = EtcdCluster.new(%{etcd_token: "zyx987"}) |> Repo.insert!
 
     on_exit _context, fn ->
       Repo.delete_all(ProductCluster)
@@ -38,7 +38,7 @@ defmodule DB.Models.ProductCluster.Test do
   test "single cluster", context do
     product_cluster = %{product_id: context[:product].id, etcd_cluster_id: context[:cluster].id}
 
-    new_cluster = ProductCluster.new(product_cluster) |> Repo.insert
+    new_cluster = ProductCluster.new(product_cluster) |> Repo.insert!
 
     retrieved_cluster = Repo.get(ProductCluster, new_cluster.id)
 
@@ -48,8 +48,8 @@ defmodule DB.Models.ProductCluster.Test do
   end
 
   test "multiple clusters", context do
-    product_cluster = ProductCluster.new(%{product_id: context[:product2].id, etcd_cluster_id: context[:etcd_cluster2].id}) |> Repo.insert
-    product_cluster1 = ProductCluster.new(%{product_id: context[:product2].id, etcd_cluster_id: context[:etcd_cluster3].id}) |> Repo.insert
+    product_cluster = ProductCluster.new(%{product_id: context[:product2].id, etcd_cluster_id: context[:etcd_cluster2].id}) |> Repo.insert!
+    product_cluster1 = ProductCluster.new(%{product_id: context[:product2].id, etcd_cluster_id: context[:etcd_cluster3].id}) |> Repo.insert!
 
     retrieved_cluster = Repo.get(ProductCluster, product_cluster.id)
     assert retrieved_cluster == product_cluster

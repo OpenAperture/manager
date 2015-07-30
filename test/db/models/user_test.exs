@@ -13,7 +13,7 @@ defmodule DB.Queries.User.Test do
 
   test "user can be created fine" do
     users_before = Repo.all(User) |> Enum.count
-    User.new(@user_params) |> Repo.insert
+    User.new(@user_params) |> Repo.insert!
     users_after = Repo.all(User) |> Enum.count
 
     assert users_after == (users_before + 1)
@@ -44,10 +44,10 @@ defmodule DB.Queries.User.Test do
 
   test "emails must be unique" do
     changeset = User.new(@user_params)
-    Repo.insert(changeset)
+    Repo.insert!(changeset)
 
     assert_raise Postgrex.Error,
     "ERROR (unique_violation): duplicate key value violates unique constraint \"users_email_index\"",
-    fn -> Repo.insert(changeset) end
+    fn -> Repo.insert!(changeset) end
   end
 end

@@ -26,7 +26,7 @@ defmodule OpenAperture.Manager.Controllers.MessagingExchangeModulesTest do
   end
 
   test "index - valid exchange no modules" do
-    exchange = Repo.insert(MessagingExchange.new(%{name: "#{UUID.uuid1()}"}))
+    exchange = Repo.insert!(MessagingExchange.new(%{name: "#{UUID.uuid1()}"}))
 
     conn = get conn(), "/messaging/exchanges/#{exchange.id}/modules"
   
@@ -38,9 +38,9 @@ defmodule OpenAperture.Manager.Controllers.MessagingExchangeModulesTest do
   end
 
   test "index - valid exchange with modules" do
-    exchange = Repo.insert(MessagingExchange.new(%{name: "#{UUID.uuid1()}"}))
+    exchange = Repo.insert!(MessagingExchange.new(%{name: "#{UUID.uuid1()}"}))
 
-    module = Repo.insert(MessagingExchangeModule.new(%{
+    module = Repo.insert!(MessagingExchangeModule.new(%{
       messaging_exchange_id: exchange.id,
       hostname: "#{UUID.uuid1()}",
       type: "builder",
@@ -72,7 +72,7 @@ defmodule OpenAperture.Manager.Controllers.MessagingExchangeModulesTest do
   end
 
   test "show - valid exchange no modules" do
-    exchange = Repo.insert(MessagingExchange.new(%{name: "#{UUID.uuid1()}"}))
+    exchange = Repo.insert!(MessagingExchange.new(%{name: "#{UUID.uuid1()}"}))
 
     conn = get conn(), "/messaging/exchanges/#{exchange.id}/modules/badnewsbears"
     
@@ -80,9 +80,9 @@ defmodule OpenAperture.Manager.Controllers.MessagingExchangeModulesTest do
   end
 
   test "show - valid exchange with modules" do
-    exchange = Repo.insert(MessagingExchange.new(%{name: "#{UUID.uuid1()}"}))
+    exchange = Repo.insert!(MessagingExchange.new(%{name: "#{UUID.uuid1()}"}))
 
-    module = Repo.insert(MessagingExchangeModule.new(%{
+    module = Repo.insert!(MessagingExchangeModule.new(%{
       messaging_exchange_id: exchange.id,
       hostname: "#{UUID.uuid1()}",
       type: "builder",
@@ -109,16 +109,16 @@ defmodule OpenAperture.Manager.Controllers.MessagingExchangeModulesTest do
   end
 
   test "destroy - valid exchange no modules" do
-    exchange = Repo.insert(MessagingExchange.new(%{name: "#{UUID.uuid1()}"}))
+    exchange = Repo.insert!(MessagingExchange.new(%{name: "#{UUID.uuid1()}"}))
 
     conn = delete conn(), "/messaging/exchanges/#{exchange.id}/modules/badnewsbears"
     assert conn.status == 404
   end
 
   test "destroy - valid exchange with modules" do
-    exchange = Repo.insert(MessagingExchange.new(%{name: "#{UUID.uuid1()}"}))
+    exchange = Repo.insert!(MessagingExchange.new(%{name: "#{UUID.uuid1()}"}))
 
-    module = Repo.insert(MessagingExchangeModule.new(%{
+    module = Repo.insert!(MessagingExchangeModule.new(%{
       messaging_exchange_id: exchange.id,
       hostname: "#{UUID.uuid1()}",
       type: "builder",
@@ -136,14 +136,14 @@ defmodule OpenAperture.Manager.Controllers.MessagingExchangeModulesTest do
   end
 
   test "create - valid exchange no modules" do
-    exchange = Repo.insert(MessagingExchange.new(%{name: "#{UUID.uuid1()}"}))
+    exchange = Repo.insert!(MessagingExchange.new(%{name: "#{UUID.uuid1()}"}))
 
     conn = post conn(), "/messaging/exchanges/#{exchange.id}/modules"
     assert conn.status == 400
   end
 
   test "create - valid exchange with modules" do
-    exchange = Repo.insert(MessagingExchange.new(%{name: "#{UUID.uuid1()}"}))
+    exchange = Repo.insert!(MessagingExchange.new(%{name: "#{UUID.uuid1()}"}))
 
     module_params = %{
       hostname: "#{UUID.uuid1()}",

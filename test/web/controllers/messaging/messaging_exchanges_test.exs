@@ -38,7 +38,7 @@ defmodule OpenAperture.Manager.Controllers.MessagingExchangesTest do
 
   test "index - exchanges" do
     changeset = MessagingExchange.new(%{name: "#{UUID.uuid1()}"})
-    exchange = Repo.insert(changeset)
+    exchange = Repo.insert!(changeset)
 
     conn = get conn(), "/messaging/exchanges"
     assert conn.status == 200
@@ -56,7 +56,7 @@ defmodule OpenAperture.Manager.Controllers.MessagingExchangesTest do
       name: "#{UUID.uuid1()}",
       routing_key_fragment: "provider"
     })
-    exchange = Repo.insert(changeset)
+    exchange = Repo.insert!(changeset)
 
     changeset = MessagingExchange.new(%{
       name: "#{UUID.uuid1()}",
@@ -64,7 +64,7 @@ defmodule OpenAperture.Manager.Controllers.MessagingExchangesTest do
       parent_exchange_id: exchange.id,
       routing_key_fragment: "region"
     })
-    child_exchange = Repo.insert(changeset)
+    child_exchange = Repo.insert!(changeset)
 
     conn = get conn(), "/messaging/exchanges"
     assert conn.status == 200
@@ -98,7 +98,7 @@ defmodule OpenAperture.Manager.Controllers.MessagingExchangesTest do
   end
 
   test "show - valid exchange" do
-    exchange = Repo.insert(MessagingExchange.new(%{name: "#{UUID.uuid1()}"}))
+    exchange = Repo.insert!(MessagingExchange.new(%{name: "#{UUID.uuid1()}"}))
 
     conn = get conn(), "/messaging/exchanges/#{exchange.id}"
     assert conn.status == 200
@@ -114,7 +114,7 @@ defmodule OpenAperture.Manager.Controllers.MessagingExchangesTest do
       name: "#{UUID.uuid1()}",
       routing_key_fragment: "provider"
     })
-    exchange = Repo.insert(changeset)
+    exchange = Repo.insert!(changeset)
 
     changeset = MessagingExchange.new(%{
       name: "#{UUID.uuid1()}",
@@ -122,7 +122,7 @@ defmodule OpenAperture.Manager.Controllers.MessagingExchangesTest do
       parent_exchange_id: exchange.id,
       routing_key_fragment: "region"
     })
-    child_exchange = Repo.insert(changeset)
+    child_exchange = Repo.insert!(changeset)
     conn = get conn(), "/messaging/exchanges/#{child_exchange.id}"
     assert conn.status == 200
 
@@ -136,7 +136,7 @@ defmodule OpenAperture.Manager.Controllers.MessagingExchangesTest do
   end
 
   test "create - conflict" do
-    exchange = Repo.insert(MessagingExchange.new(%{name: "#{UUID.uuid1()}"}))
+    exchange = Repo.insert!(MessagingExchange.new(%{name: "#{UUID.uuid1()}"}))
 
     conn = post conn(), "/messaging/exchanges", %{"name" => exchange.name}
     assert conn.status == 409
@@ -151,7 +151,7 @@ defmodule OpenAperture.Manager.Controllers.MessagingExchangesTest do
   test "create - internal server error" do
     :meck.new(Repo, [:passthrough])
     :meck.expect(Repo, :all, fn _ -> [] end)
-    :meck.expect(Repo, :insert, fn _ -> raise "bad news bears" end)
+    :meck.expect(Repo, :insert!, fn _ -> raise "bad news bears" end)
 
     conn = post conn(), "/messaging/exchanges", %{"name" => "#{UUID.uuid1()}"}
     
@@ -177,15 +177,15 @@ defmodule OpenAperture.Manager.Controllers.MessagingExchangesTest do
   end
 
  test "update - conflict" do
-    exchange = Repo.insert(MessagingExchange.new(%{name: "#{UUID.uuid1()}"}))
-    exchange2 = Repo.insert(MessagingExchange.new(%{name: "#{UUID.uuid1()}"}))
+    exchange = Repo.insert!(MessagingExchange.new(%{name: "#{UUID.uuid1()}"}))
+    exchange2 = Repo.insert!(MessagingExchange.new(%{name: "#{UUID.uuid1()}"}))
 
     conn = put conn(), "/messaging/exchanges/#{exchange.id}", %{"name" => exchange2.name}
     assert conn.status == 409
   end
 
   test "update - bad request" do
-    exchange = Repo.insert(MessagingExchange.new(%{name: "#{UUID.uuid1()}"}))
+    exchange = Repo.insert!(MessagingExchange.new(%{name: "#{UUID.uuid1()}"}))
 
     conn = put conn(), "/messaging/exchanges/#{exchange.id}", %{}
     assert conn.status == 400
@@ -193,11 +193,11 @@ defmodule OpenAperture.Manager.Controllers.MessagingExchangesTest do
   end
 
   test "update - internal server error" do
-    exchange = Repo.insert(MessagingExchange.new(%{name: "#{UUID.uuid1()}"}))
+    exchange = Repo.insert!(MessagingExchange.new(%{name: "#{UUID.uuid1()}"}))
 
     :meck.new(Repo, [:passthrough])
     :meck.expect(Repo, :all, fn _ -> [] end)
-    :meck.expect(Repo, :update, fn _ -> raise "bad news bears" end)
+    :meck.expect(Repo, :update!, fn _ -> raise "bad news bears" end)
 
     conn = put conn(), "/messaging/exchanges/#{exchange.id}", %{"name" => "#{UUID.uuid1()}"}
     assert conn.status == 500
@@ -206,7 +206,7 @@ defmodule OpenAperture.Manager.Controllers.MessagingExchangesTest do
   end
 
   test "update - success" do
-    exchange = Repo.insert(MessagingExchange.new(%{name: "#{UUID.uuid1()}"}))
+    exchange = Repo.insert!(MessagingExchange.new(%{name: "#{UUID.uuid1()}"}))
 
     name = "#{UUID.uuid1()}"
     conn = put conn(), "/messaging/exchanges/#{exchange.id}", %{"name" => name}
@@ -230,7 +230,7 @@ defmodule OpenAperture.Manager.Controllers.MessagingExchangesTest do
   end
 
   test "destroy - valid exchange" do
-    exchange = Repo.insert(MessagingExchange.new(%{name: "#{UUID.uuid1()}"}))
+    exchange = Repo.insert!(MessagingExchange.new(%{name: "#{UUID.uuid1()}"}))
 
     conn = delete conn(), "/messaging/exchanges/#{exchange.id}"
     assert conn.status == 204
@@ -239,8 +239,8 @@ defmodule OpenAperture.Manager.Controllers.MessagingExchangesTest do
   end
 
   test "create_broker_restriction - success" do
-    exchange = Repo.insert(MessagingExchange.new(%{name: "#{UUID.uuid1()}"}))
-    broker = Repo.insert(MessagingBroker.new(%{name: "#{UUID.uuid1()}"}))
+    exchange = Repo.insert!(MessagingExchange.new(%{name: "#{UUID.uuid1()}"}))
+    broker = Repo.insert!(MessagingBroker.new(%{name: "#{UUID.uuid1()}"}))
 
     conn = post conn(), "/messaging/exchanges/#{exchange.id}/brokers", %{
       "messaging_broker_id" => broker.id
@@ -272,16 +272,16 @@ defmodule OpenAperture.Manager.Controllers.MessagingExchangesTest do
   end
 
   test "create_broker_restriction - bad request" do
-    exchange = Repo.insert(MessagingExchange.new(%{name: "#{UUID.uuid1()}"}))
-    Repo.insert(MessagingBroker.new(%{name: "#{UUID.uuid1()}"}))
+    exchange = Repo.insert!(MessagingExchange.new(%{name: "#{UUID.uuid1()}"}))
+    Repo.insert!(MessagingBroker.new(%{name: "#{UUID.uuid1()}"}))
     conn = post conn(), "/messaging/exchanges/#{exchange.id}/brokers", %{}
     assert conn.status == 400
   end
 
   test "create_broker_restriction - conflict" do
-    exchange = Repo.insert(MessagingExchange.new(%{name: "#{UUID.uuid1()}"}))
-    broker = Repo.insert(MessagingBroker.new(%{name: "#{UUID.uuid1()}"}))
-    Repo.insert(MessagingExchangeBroker.new(%{
+    exchange = Repo.insert!(MessagingExchange.new(%{name: "#{UUID.uuid1()}"}))
+    broker = Repo.insert!(MessagingBroker.new(%{name: "#{UUID.uuid1()}"}))
+    Repo.insert!(MessagingExchangeBroker.new(%{
       "messaging_broker_id" => broker.id,
       "messaging_exchange_id" => exchange.id
       }))
@@ -292,12 +292,12 @@ defmodule OpenAperture.Manager.Controllers.MessagingExchangesTest do
   end
 
   test "create_broker_restriction - internal server error" do
-    exchange = Repo.insert(MessagingExchange.new(%{name: "#{UUID.uuid1()}"}))
-    broker = Repo.insert(MessagingBroker.new(%{name: "#{UUID.uuid1()}"}))
+    exchange = Repo.insert!(MessagingExchange.new(%{name: "#{UUID.uuid1()}"}))
+    broker = Repo.insert!(MessagingBroker.new(%{name: "#{UUID.uuid1()}"}))
 
     :meck.new(Repo, [:passthrough])
     :meck.expect(Repo, :all, fn _ -> [] end)
-    :meck.expect(Repo, :insert, fn _ -> raise "bad news bears" end)
+    :meck.expect(Repo, :insert!, fn _ -> raise "bad news bears" end)
     conn = post conn(), "/messaging/exchanges/#{exchange.id}/brokers", %{
       "messaging_broker_id" => broker.id
     }
@@ -307,9 +307,9 @@ defmodule OpenAperture.Manager.Controllers.MessagingExchangesTest do
   end
 
   test "get_broker_restrictions - success" do
-    exchange = Repo.insert(MessagingExchange.new(%{name: "#{UUID.uuid1()}"}))
-    broker = Repo.insert(MessagingBroker.new(%{name: "#{UUID.uuid1()}"}))
-    Repo.insert(MessagingExchangeBroker.new(%{
+    exchange = Repo.insert!(MessagingExchange.new(%{name: "#{UUID.uuid1()}"}))
+    broker = Repo.insert!(MessagingBroker.new(%{name: "#{UUID.uuid1()}"}))
+    Repo.insert!(MessagingExchangeBroker.new(%{
       "messaging_broker_id" => broker.id,
       "messaging_exchange_id" => exchange.id
       }))
@@ -331,8 +331,8 @@ defmodule OpenAperture.Manager.Controllers.MessagingExchangesTest do
   end
 
   test "destroy_broker_restrictions - success" do
-    exchange = Repo.insert(MessagingExchange.new(%{name: "#{UUID.uuid1()}"}))
-    broker = Repo.insert(MessagingBroker.new(%{name: "#{UUID.uuid1()}"}))
+    exchange = Repo.insert!(MessagingExchange.new(%{name: "#{UUID.uuid1()}"}))
+    broker = Repo.insert!(MessagingBroker.new(%{name: "#{UUID.uuid1()}"}))
     conn = delete conn(), "/messaging/exchanges/#{exchange.id}/brokers", %{
       "messaging_broker_id" => broker.id
     }
@@ -352,12 +352,12 @@ defmodule OpenAperture.Manager.Controllers.MessagingExchangesTest do
   end
 
   test "show_clusters - success" do
-    exchange = Repo.insert(MessagingExchange.new(%{name: "#{UUID.uuid1()}"}))
+    exchange = Repo.insert!(MessagingExchange.new(%{name: "#{UUID.uuid1()}"}))
     params = %{
       etcd_token: "123abc",
       messaging_exchange_id: exchange.id
     }
-    cluster = Repo.insert(Ecto.Changeset.cast(%EtcdCluster{}, params, ~w(etcd_token), ~w(messaging_exchange_id)))
+    cluster = Repo.insert!(Ecto.Changeset.cast(%EtcdCluster{}, params, ~w(etcd_token), ~w(messaging_exchange_id)))
 
     conn = get conn(), "/messaging/exchanges/#{exchange.id}/clusters", %{}
     assert conn.status == 200
@@ -370,13 +370,13 @@ defmodule OpenAperture.Manager.Controllers.MessagingExchangesTest do
   end
 
   test "show_clusters - success build clusters" do
-    exchange = Repo.insert(MessagingExchange.new(%{name: "#{UUID.uuid1()}"}))
+    exchange = Repo.insert!(MessagingExchange.new(%{name: "#{UUID.uuid1()}"}))
     params = %{
       etcd_token: "123abc",
       messaging_exchange_id: exchange.id,
       allow_docker_builds: true
     }
-    cluster = Repo.insert(Ecto.Changeset.cast(%EtcdCluster{}, params, ~w(etcd_token), ~w(allow_docker_builds messaging_exchange_id)))
+    cluster = Repo.insert!(Ecto.Changeset.cast(%EtcdCluster{}, params, ~w(etcd_token), ~w(allow_docker_builds messaging_exchange_id)))
 
     conn = get conn(), "/messaging/exchanges/#{exchange.id}/clusters?allow_docker_builds=true", %{}
     assert conn.status == 200
@@ -389,13 +389,13 @@ defmodule OpenAperture.Manager.Controllers.MessagingExchangesTest do
   end
 
   test "show_clusters - success found no build clusters" do
-    exchange = Repo.insert(MessagingExchange.new(%{name: "#{UUID.uuid1()}"}))
+    exchange = Repo.insert!(MessagingExchange.new(%{name: "#{UUID.uuid1()}"}))
     params = %{
       etcd_token: "123abc",
       messaging_exchange_id: exchange.id,
       allow_docker_builds: true
     }
-    Repo.insert(Ecto.Changeset.cast(%EtcdCluster{}, params, ~w(etcd_token), ~w(allow_docker_builds messaging_exchange_id)))
+    Repo.insert!(Ecto.Changeset.cast(%EtcdCluster{}, params, ~w(etcd_token), ~w(allow_docker_builds messaging_exchange_id)))
 
     conn = get conn(), "/messaging/exchanges/#{exchange.id}/clusters?allow_docker_builds=false", %{}
     assert conn.status == 200
@@ -404,7 +404,7 @@ defmodule OpenAperture.Manager.Controllers.MessagingExchangesTest do
   end
 
   test "show_clusters - none associated" do
-    exchange = Repo.insert(MessagingExchange.new(%{name: "#{UUID.uuid1()}"}))
+    exchange = Repo.insert!(MessagingExchange.new(%{name: "#{UUID.uuid1()}"}))
     conn = get conn(), "/messaging/exchanges/#{exchange.id}/clusters", %{}
     assert conn.status == 200
     body = Poison.decode!(conn.resp_body)
@@ -426,7 +426,7 @@ defmodule OpenAperture.Manager.Controllers.MessagingExchangesTest do
 
   test "show_components - no components" do
     changeset = MessagingExchange.new(%{name: "#{UUID.uuid1()}"})
-    exchange = Repo.insert(changeset)
+    exchange = Repo.insert!(changeset)
 
     conn = get conn(), "/messaging/exchanges/#{exchange.id}/system_components"
     assert conn.status == 200
@@ -437,10 +437,10 @@ defmodule OpenAperture.Manager.Controllers.MessagingExchangesTest do
 
   test "show_components - components" do
     changeset = MessagingExchange.new(%{name: "#{UUID.uuid1()}"})
-    exchange = Repo.insert(changeset)
+    exchange = Repo.insert!(changeset)
 
-    component = Repo.insert(SystemComponent.new(%{messaging_exchange_id: exchange.id, type: "test", source_repo: "https://github.com/test/test.git", source_repo_git_ref: "123abc", upgrade_strategy: "manual", deployment_repo: "https://github.com/test/test.git", deployment_repo_git_ref: "123abc"}))
-    component2 = Repo.insert(SystemComponent.new(%{messaging_exchange_id: exchange.id, type: "test2", source_repo: "https://github.com/test/test.git", source_repo_git_ref: "123abc", upgrade_strategy: "manual", deployment_repo: "https://github.com/test/test.git", deployment_repo_git_ref: "123abc"}))
+    component = Repo.insert!(SystemComponent.new(%{messaging_exchange_id: exchange.id, type: "test", source_repo: "https://github.com/test/test.git", source_repo_git_ref: "123abc", upgrade_strategy: "manual", deployment_repo: "https://github.com/test/test.git", deployment_repo_git_ref: "123abc"}))
+    component2 = Repo.insert!(SystemComponent.new(%{messaging_exchange_id: exchange.id, type: "test2", source_repo: "https://github.com/test/test.git", source_repo_git_ref: "123abc", upgrade_strategy: "manual", deployment_repo: "https://github.com/test/test.git", deployment_repo_git_ref: "123abc"}))
 
     conn = get conn(), "/messaging/exchanges/#{exchange.id}/system_components"
     assert conn.status == 200

@@ -11,7 +11,7 @@ defmodule OpenAperture.Manager.Controllers.UsersTest do
   @params %{first_name: "John", last_name: "Doe", email: "jdoe@mail.com"}
 
   setup_all do
-    user = User.new(@params) |> Repo.insert
+    user = User.new(@params) |> Repo.insert!
 
     :meck.new(Authentication, [:passthrough])
     :meck.expect(Authentication, :authenticate_user, fn conn, _opts -> conn end)
@@ -70,7 +70,7 @@ defmodule OpenAperture.Manager.Controllers.UsersTest do
   end
 
   test "update action - success" do
-    user   = User.new(%{@params | email: "up@mail.com"}) |> Repo.insert
+    user   = User.new(%{@params | email: "up@mail.com"}) |> Repo.insert!
     update = %{first_name: "Johanna", last_name: "Dawn", email: "jdawn@mail.com"}
     conn   = put(conn, "users/#{user.id}", update)
     assert conn.status == 204
@@ -92,7 +92,7 @@ defmodule OpenAperture.Manager.Controllers.UsersTest do
   end
 
   test "delete action - success" do
-    user = User.new(%{@params | email: "del@mail.com"}) |> Repo.insert
+    user = User.new(%{@params | email: "del@mail.com"}) |> Repo.insert!
     conn = delete(conn, "users/#{user.id}")
     assert conn.status == 204
   end

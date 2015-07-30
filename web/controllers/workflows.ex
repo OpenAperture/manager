@@ -137,8 +137,7 @@ defmodule OpenAperture.Manager.Controllers.Workflows do
   """
   @spec create(term, [any]) :: term
   def create(conn, params) do
-    id = "#{UUID.uuid1()}"
-    raw_workflow_id = string_to_uuid(id)
+    id = Ecto.UUID.generate()
 
     milestones = process_milestones(params["milestones"])
 
@@ -161,7 +160,7 @@ defmodule OpenAperture.Manager.Controllers.Workflows do
     end
 
     changeset = WorkflowDB.new(%{
-      :id => raw_workflow_id,
+      :id => id,
       :deployment_repo => trimTrailing(params["deployment_repo"]),
       :deployment_repo_git_ref => params["deployment_repo_git_ref"],
       :source_repo => trimTrailing(params["source_repo"]),
@@ -179,8 +178,8 @@ defmodule OpenAperture.Manager.Controllers.Workflows do
     })
     if changeset.valid? do
       try do
-        _raw_workflow = Repo.insert(changeset)
-        path = OpenAperture.Manager.Router.Helpers.workflows_path(Endpoint, :show, id)
+        _raw_workflow = Repo.insert!(changeset)
+        path = OpenAperture.Manager.Router.Helpers.workflows_path(Endpoint, :show, "#{id}")
 
         # Set location header
         conn
@@ -222,8 +221,12 @@ defmodule OpenAperture.Manager.Controllers.Workflows do
   """
   @spec update(term, [any]) :: term
   def update(conn, %{"id" => id} = params) do
-    raw_workflow_id = string_to_uuid(id)
-    raw_workflow = get_workflow(id)
+    raw_workflow_id = case Ecto.UUID.cast(id) do
+      {:ok, id} -> id
+      {:error, _} -> nil
+      _ -> nil
+    end
+    raw_workflow = get_workflow(raw_workflow_id)
     if raw_workflow == nil do
       resp(conn, :not_found, "")
     else
@@ -248,7 +251,7 @@ defmodule OpenAperture.Manager.Controllers.Workflows do
       changeset = WorkflowDB.update(raw_workflow, workflow_params)
       if changeset.valid? do
         try do
-          Repo.update(changeset)
+          Repo.update!(changeset)
           path = OpenAperture.Manager.Router.Helpers.workflows_path(Endpoint, :show, id)
           conn
           |> put_resp_header("location", path)
@@ -279,7 +282,12 @@ defmodule OpenAperture.Manager.Controllers.Workflows do
   """
   @spec destroy(term, [any]) :: term
   def destroy(conn, %{"id" => id} = _params) do
-    case get_workflow(id) do
+    raw_workflow_id = case Ecto.UUID.cast(id) do
+      {:ok, id} -> id
+      {:error, _} -> nil
+      _ -> nil
+    end
+    case get_workflow(raw_workflow_id) do
       nil -> resp(conn, :not_found, "")
       workflow ->
         Repo.transaction(fn ->
@@ -304,7 +312,12 @@ defmodule OpenAperture.Manager.Controllers.Workflows do
   """
   @spec execute(term, [any]) :: term
   def execute(conn, %{"id" => id} = params) do
-    raw_workflow = get_workflow(id)
+    raw_workflow_id = case Ecto.UUID.cast(id) do
+      {:ok, id} -> id
+      {:error, _} -> nil
+      _ -> nil
+    end
+    raw_workflow = get_workflow(raw_workflow_id)
 
     cond do
       raw_workflow == nil -> resp(conn, :not_found, "")
@@ -371,7 +384,7 @@ defmodule OpenAperture.Manager.Controllers.Workflows do
       [] -> []
       _ ->
         Enum.reduce raw_workflows, [], fn(raw_workflow, workflows) -> 
-          uuid = uuid_to_string(raw_workflow.id)
+          uuid = raw_workflow.id
 
           workflow = FormatHelper.to_sendable(raw_workflow, @workflow_sendable_fields)
           if (workflow != nil) do
@@ -403,47 +416,6 @@ defmodule OpenAperture.Manager.Controllers.Workflows do
   end
 
   @doc false
-  # Method to convert a binary UUID into a String
-  # Based on https://github.com/zyro/elixir-uuid/blob/master/lib/uuid.ex#L246
-  #
-  ## Options
-  # The option represents a binary UUID
-  #
-  ## Return Value
-  #
-  # String representing the UUID
-  #
-  @spec uuid_to_string(term) :: term
-  defp uuid_to_string(<<u0::32, u1::16, u2::16, u3::16, u4::48>>) do
-    try do
-      :io_lib.format("~8.16.0b-~4.16.0b-~4.16.0b-~4.16.0b-~12.16.0b",
-                     [u0, u1, u2, u3, u4])
-        |> to_string
-    rescue _ ->
-      ""
-    end
-  end
-
-  @doc false
-  # Method to convert a String into a binary UUID
-  #
-  ## Options
-  # The option represents a binary UUID
-  #
-  ## Return Value
-  #
-  # String representing the UUID
-  #
-  @spec string_to_uuid(String.t()) :: term
-  defp string_to_uuid(id) do
-    try do
-      (id |> UUID.info)[:binary]
-    rescue _ ->
-      nil
-    end
-  end
-
-  @doc false
   # Method to get a Workflow based on a String UUID
   #
   ## Options
@@ -456,9 +428,9 @@ defmodule OpenAperture.Manager.Controllers.Workflows do
   @spec get_workflow(String.t()) :: term
   defp get_workflow(id) do
     cond do 
-      id == nil || String.length(id) == 0 -> nil
+      id == nil || String.length("#{id}") == 0 -> nil
       true ->
-        case string_to_uuid(id) do
+        case id do
           nil -> nil
           raw_id -> Repo.get(WorkflowDB, raw_id)
         end

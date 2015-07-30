@@ -40,7 +40,7 @@ defmodule OpenAperture.Manager.DB.Models.EtcdCluster do
   end
 
   def destroy(model) do
-    Repo.delete model
+    Repo.delete! model
   end
 
   def allocate_ports(etcd_cluster, component, port_idx, etcd_ports) do
@@ -55,7 +55,7 @@ defmodule OpenAperture.Manager.DB.Models.EtcdCluster do
         port: next_port,
         inserted_at: Ecto.DateTime.utc,
         updated_at: Ecto.DateTime.utc
-      }) |> Repo.insert
+      }) |> Repo.insert!
 
       allocate_ports(etcd_cluster, component, port_idx-1, etcd_ports ++ [etcd_port])
     end
@@ -65,7 +65,7 @@ defmodule OpenAperture.Manager.DB.Models.EtcdCluster do
     raw_ports = Repo.all(EctdPortQuery.get_ports_by_component(etcd_cluster.id, component.id))
     if raw_ports != nil && length(raw_ports) > 0 do
       Enum.reduce raw_ports, [], fn (raw_port, _errors) ->
-        Repo.delete(raw_port)
+        Repo.delete!(raw_port)
       end
     end
   end  

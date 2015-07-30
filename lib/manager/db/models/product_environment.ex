@@ -22,7 +22,7 @@ defmodule OpenAperture.Manager.DB.Models.ProductEnvironment do
   def destroy(pe) do
     Repo.transaction(fn ->
       Models.ProductEnvironmentalVariable.destroy_for_environment(pe)
-      Repo.delete(pe)
+      Repo.delete!(pe)
     end)
     |> transaction_return
   end

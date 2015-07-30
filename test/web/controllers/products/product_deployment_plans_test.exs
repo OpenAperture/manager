@@ -23,20 +23,20 @@ defmodule OpenAperture.Manager.Controllers.ProductDeploymentPlansTest do
 
   setup do
     product = Product.new(%{name: "test_pdp_product"})
-              |> Repo.insert
+              |> Repo.insert!
 
     pdp1 = ProductDeploymentPlan.new(%{name: "test_pdp1", product_id: product.id})
-           |> Repo.insert
+           |> Repo.insert!
     pdp2 = ProductDeploymentPlan.new(%{name: "test_pdp2", product_id: product.id})
-           |> Repo.insert
+           |> Repo.insert!
     pdp3 = ProductDeploymentPlan.new(%{name: "test_pdp3", product_id: product.id})
-           |> Repo.insert
+           |> Repo.insert!
 
     step1 = ProductDeploymentPlanStep.new(%{product_deployment_plan_id: pdp1.id, type: "build_component"})
-            |> Repo.insert
+            |> Repo.insert!
 
     option1 = ProductDeploymentPlanStepOption.new(%{product_deployment_plan_step_id: step1.id, name: "test_option"})
-              |> Repo.insert
+              |> Repo.insert!
 
     on_exit fn ->
       Repo.delete_all(ProductDeploymentPlanStepOption)
@@ -64,7 +64,7 @@ defmodule OpenAperture.Manager.Controllers.ProductDeploymentPlansTest do
 
   test "index action -- product exists, no associated deployment plans" do
     product = Product.new(%{name: "product_with_no_deployment_plans"})
-              |> Repo.insert
+              |> Repo.insert!
 
     path = product_deployment_plans_path(Endpoint, :index, product.name)
 
@@ -105,7 +105,7 @@ defmodule OpenAperture.Manager.Controllers.ProductDeploymentPlansTest do
 
     name = "Test Plan & with ^ we#ird char@cters"
     ProductDeploymentPlan.new(%{name: name, product_id: product.id})
-    |> Repo.insert
+    |> Repo.insert!
 
     name_encoded = URI.encode(name, &URI.char_unreserved?/1)
     path = product_deployment_plans_path(Endpoint, :show, product.name, name_encoded)

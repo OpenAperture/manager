@@ -73,7 +73,7 @@ defmodule OpenAperture.Manager.Controllers.ProductDeploymentPlanSteps do
                   Map.put(params, :product_deployment_plan_step_options, parent_step.product_deployment_plan_step_options) 
                   changeset = ProductDeploymentPlanStep.update(parent_step, params)
                   if changeset.valid? do
-                    Repo.update(changeset)
+                    Repo.update!(changeset)
                     conn
                     |> put_resp_header("location", path)
                     |> resp :created, ""
@@ -116,14 +116,14 @@ defmodule OpenAperture.Manager.Controllers.ProductDeploymentPlanSteps do
           try do
             changeset = ProductDeploymentPlanStep.update(step, params)
             if changeset.valid? do
-              Repo.update(changeset)
+              Repo.update!(changeset)
               ProductDeploymentPlanStepOption.destroy_for_deployment_plan_step(step)
               if params["options"] != nil do
                 Enum.each(params["options"], fn option ->
                   option = Map.put(option, "product_deployment_plan_step_id", step.id)
                   changeset = ProductDeploymentPlanStepOption.new(option)
                   if changeset.valid? do
-                    Repo.insert(changeset)
+                    Repo.insert!(changeset)
                   else
                     throw({:invalid, changeset.errors})
                   end
@@ -168,13 +168,13 @@ defmodule OpenAperture.Manager.Controllers.ProductDeploymentPlanSteps do
             params = %{"product_name" => product_name, "plan_name" => plan_name, "step_id" => parent_step.id, "on_success_step_id" => nil}
             changeset = ProductDeploymentPlanStep.update(parent_step, params)
             if changeset.valid? do
-              Repo.update(changeset)
+              Repo.update!(changeset)
             end
           parent_step = %ProductDeploymentPlanStep{on_failure_step_id: ^int_id} ->
             params = %{"product_name" => product_name, "plan_name" => plan_name, "step_id" => parent_step.id, "on_failure_step_id" => nil}
             changeset = ProductDeploymentPlanStep.update(parent_step, params)
             if changeset.valid? do
-              Repo.update(changeset)
+              Repo.update!(changeset)
             end
           nil ->
         end
@@ -256,14 +256,14 @@ defmodule OpenAperture.Manager.Controllers.ProductDeploymentPlanSteps do
                     |> ProductDeploymentPlanStep.new
 
         if changeset.valid? do
-          new_step = Repo.insert(changeset)
+          new_step = Repo.insert!(changeset)
           if step_params["options"] != nil do
             Enum.each(step_params["options"], fn option ->
               option = Map.put(option, "product_deployment_plan_step_id", new_step.id)
 
               changeset = ProductDeploymentPlanStepOption.new(option)
               if changeset.valid? do
-                Repo.insert(changeset)
+                Repo.insert!(changeset)
               else
                 throw({:invalid, changeset.errors})
               end
