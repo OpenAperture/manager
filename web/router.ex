@@ -26,6 +26,11 @@ defmodule OpenAperture.Manager.Router do
 
   end
 
+  socket "/ws", OpenAperture.Manager do
+    pipe_through :secure
+    channel "build_log:*", BuildLogChannel
+  end
+
   scope "/clusters", OpenAperture.Manager.Controllers do
     pipe_through :api
     pipe_through :secure
@@ -39,6 +44,7 @@ defmodule OpenAperture.Manager.Router do
     get "/:etcd_token/units", EtcdClusters, :units
     get "/:etcd_token/state", EtcdClusters, :units_state
     get "/:etcd_token/machines/:machine_id/units/:unit_name/logs", EtcdClusters, :unit_logs
+    get "/:etcd_token/nodes", EtcdClusters, :node_info
   end
 
   scope "/messaging", OpenAperture.Manager.Controllers do
@@ -255,5 +261,13 @@ defmodule OpenAperture.Manager.Router do
     put "/:id", SystemComponents, :update
     delete "/:id", SystemComponents, :destroy
     post "/:id/upgrade", SystemComponents, :upgrade
+  end  
+
+  scope "/system_events", OpenAperture.Manager.Controllers do
+    pipe_through :api
+    pipe_through :secure
+
+    get "/", SystemEvents, :index
+    post "/", SystemEvents, :create
   end  
 end

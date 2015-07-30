@@ -19,8 +19,8 @@ defmodule OpenAperture.Manager.Controllers.ProductEnvironmentalVariables do
 
   plug :action
 
-  # GET /products/:product_name/environments/:environment_name/variables
-  def index_environment(conn, %{"product_name" => product_name, "environment_name" => environment_name}) do
+  # GET /products/:product_name/environments/:environment_name/variables[?coalesced=true]
+  def index_environment(conn, %{"product_name" => product_name, "environment_name" => environment_name} = params) do
     product_name = URI.decode(product_name)
     environment_name = URI.decode(environment_name)
 
@@ -32,7 +32,15 @@ defmodule OpenAperture.Manager.Controllers.ProductEnvironmentalVariables do
         |> put_status(:not_found)
         |> json ResponseBodyFormatter.error_body(:not_found, "ProductEnvironmentalVariable")
       _ ->
-        vars = VarQuery.find_by_product_name_environment_name(product_name, environment_name)
+        coalesced? = params["coalesced"] != nil && String.downcase(params["coalesced"]) == "true"
+
+        query = if coalesced? do
+          VarQuery.find_all_for_environment(product_name, environment_name)
+        else
+          VarQuery.find_by_product_name_environment_name(product_name, environment_name)
+        end
+
+        vars = query
                |> Repo.all
                |> Enum.map(&to_sendable(&1, @sendable_fields))
 

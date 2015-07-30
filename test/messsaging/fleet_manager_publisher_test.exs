@@ -123,4 +123,18 @@ defmodule OpenAperture.Manager.Messaging.FleetManagerPublisherTest do
   after
     :meck.unload(GenServer)
   end    
+
+  #==================================
+  # node_info! tests
+
+  test "node_info!" do    
+    :meck.new(GenServer, [:unstick, :passthrough])
+    :meck.expect(GenServer, :call, fn _,_ -> {:ok, %{}} end)
+
+    request_body = %{}
+
+    assert FleetManagerPublisher.node_info!(123, ["123.234.456.789", "abc.def.ghi.jkl"]) == %{}
+  after
+    :meck.unload(GenServer)
+  end 
 end

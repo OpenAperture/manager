@@ -11,7 +11,7 @@ defmodule OpenAperture.Manager.Controllers.SystemComponents do
 
   alias OpenAperture.OverseerApi.Publisher, as: OverseerPublisher
   alias OpenAperture.OverseerApi.Request, as: OverseerRequest
-  
+
   plug :action
 
   @moduledoc """
@@ -57,8 +57,13 @@ defmodule OpenAperture.Manager.Controllers.SystemComponents do
   Underlying HTTP connection
   """
   @spec index(Plug.Conn.t, [any]) :: Plug.Conn.t
-  def index(conn, _params) do
-    json conn, convert_raw_components(Repo.all(SystemComponent))
+  def index(conn, params) do
+    components = if params["type"] == nil do
+      Repo.all(SystemComponent)
+    else
+      Repo.all(from s in SystemComponent, where: s.type == ^params["type"])
+    end
+    json conn, convert_raw_components(components)
  end  
 
   @doc """

@@ -77,6 +77,42 @@ defmodule OpenAperture.Manager.Controllers.ProductEnvironmentalVariablesTest do
     assert conn.status == 404
   end
 
+  test "index action (product, environment, coalesced = true) -- success", context do
+    product = context[:product]
+    env = context[:pe1]
+
+    path = product_environmental_variables_path(Endpoint, :index_environment, product.name, env.name, coalesced: true)
+
+    conn = get conn(), path
+    assert conn.status == 200
+
+    body = Poison.decode!(conn.resp_body)
+    assert length(body) == 3
+
+    # Check that the expected variables are present in the response
+    assert Enum.any?(body, fn v -> v["name"] == "test_variable_1" end)
+    assert Enum.any?(body, fn v -> v["name"] == "test_variable_2" end)
+    assert Enum.any?(body, fn v -> v["name"] == "test_variable_4" end)
+  end
+
+  test "index action (product, environment, coalesced = true) -- environment not found", context do
+    product = context[:product]
+
+    path = product_environmental_variables_path(Endpoint, :index_environment, product.name, "not a real environment name", coalesced: true)
+
+    conn = get conn(), path
+    assert conn.status == 404
+  end
+
+  test "index action (product, environment, coalesced = true) -- product not found", context do
+    env = context[:pe1]
+
+    path = product_environmental_variables_path(Endpoint, :index_environment, "not a real product name", env.name, coalesced: true)
+
+    conn = get conn(), path
+    assert conn.status == 404
+  end
+
   test "index action (product) -- success, non-coalesed", context do
     product = context[:product]
 
