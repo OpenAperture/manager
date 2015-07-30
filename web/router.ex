@@ -176,6 +176,7 @@ defmodule OpenAperture.Manager.Router do
 
         get "/:deployment_id", ProductDeployments, :show
         get "/:deployment_id/steps", ProductDeployments, :index_steps
+        put "/:deployment_id", ProductDeployments, :update
         delete "/:deployment_id", ProductDeployments, :destroy
       end
     end
