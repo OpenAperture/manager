@@ -8,7 +8,7 @@ defmodule OpenAperture.Manager.DB.Models.Workflow do
   use OpenAperture.Manager.DB.Models.BaseModel
   use Timex
 
-  @primary_key {:id, :uuid, []}
+  @primary_key {:id, Ecto.UUID, []}
   
   schema "workflows" do
     field :deployment_repo,           :string
