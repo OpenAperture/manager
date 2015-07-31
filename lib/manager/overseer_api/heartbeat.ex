@@ -35,7 +35,7 @@ defmodule OpenAperture.Manager.OverseerApi.Heartbeat do
     case GenServer.start_link(__MODULE__, %{}, name: __MODULE__) do
       {:ok, pid} ->
         if Application.get_env(:openaperture_manager_overseer_api, :autostart, true) do
-          GenServer.cast(pid, {:publish})
+          #GenServer.cast(pid, {:publish})
         end
 
         Agent.start_link(fn -> [] end, name: HeartbeatWorkload)
