@@ -43,7 +43,7 @@ config :openaperture_manager_api,
   oauth_client_secret: System.get_env("OAUTH_CLIENT_SECRET")
 
 config :openaperture_manager_overseer_api,
-  autostart: false
+  autostart: true
 
 config :openaperture_overseer_api,
   exchange_id: System.get_env("EXCHANGE_ID"),
