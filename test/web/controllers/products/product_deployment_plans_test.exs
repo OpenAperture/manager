@@ -162,7 +162,7 @@ defmodule OpenAperture.Manager.Controllers.ProductDeploymentPlansTest do
     new_plan = %{name: plan.name}
 
     conn = conn()
-           |> Phoenix.ConnTest.put_req_header("content-type", "application/json")
+           |> Plug.Conn.put_req_header("content-type", "application/json")
            |> post(path, Poison.encode!(new_plan))
 
     assert conn.status == 409

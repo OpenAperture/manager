@@ -33,7 +33,7 @@ defmodule OpenAperture.Manager.Controllers.SystemEventsTest do
   # index tests
 
   test "all events in last 24 hours" do
-    _event = Repo.insert(%SystemEvent{type: "disk_space", inserted_at: from_erl(:calendar.universal_time)})
+    _event = Repo.insert!(%SystemEvent{type: "disk_space", inserted_at: from_erl(:calendar.universal_time)})
 
     conn = get conn(), "/system_events"
     assert conn.status == 200
@@ -49,7 +49,7 @@ defmodule OpenAperture.Manager.Controllers.SystemEventsTest do
   test "create - internal server error" do
     :meck.new(Repo, [:passthrough])
     :meck.expect(Repo, :all, fn _ -> [] end)
-    :meck.expect(Repo, :insert, fn _ -> raise "bad news bears" end)
+    :meck.expect(Repo, :insert!, fn _ -> raise "bad news bears" end)
 
     conn = post conn(), "/system_events", %{"type" => "disk_space"}
     assert conn.status == 500

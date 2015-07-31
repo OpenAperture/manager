@@ -334,7 +334,7 @@ defmodule OpenAperture.Manager.Controllers.ProductComponentsTest do
                 %{"name" => "test2", "value" => "ugh2"}]}
 
     conn = conn()
-           |> put_req_header("content-type", "application/json")
+           |> Plug.Conn.put_req_header("content-type", "application/json")
            |> put(path, Poison.encode!(new_component))
 
     assert conn.status == 404
@@ -351,7 +351,7 @@ defmodule OpenAperture.Manager.Controllers.ProductComponentsTest do
                 %{"name" => "test2", "value" => "ugh2"}]}
 
     conn = conn()
-           |> put_req_header("content-type", "application/json")
+           |> Plug.Conn.put_req_header("content-type", "application/json")
            |> put(path, Poison.encode!(new_component))
 
     assert conn.status == 404
@@ -369,7 +369,7 @@ defmodule OpenAperture.Manager.Controllers.ProductComponentsTest do
                 %{"name" => "test2", "value" => "ugh2"}]}
 
     conn = conn()
-           |> put_req_header("content-type", "application/json")
+           |> Plug.Conn.put_req_header("content-type", "application/json")
            |> put(path, Poison.encode!(new_component))
 
     assert conn.status == 400
@@ -387,7 +387,7 @@ defmodule OpenAperture.Manager.Controllers.ProductComponentsTest do
                 %{"name" => "test2", "value" => "ugh2"}]}
 
     conn = conn()
-           |> put_req_header("content-type", "application/json")
+           |> Plug.Conn.put_req_header("content-type", "application/json")
            |> put(path, Poison.encode!(new_component))
 
     assert conn.status == 400
@@ -405,7 +405,7 @@ defmodule OpenAperture.Manager.Controllers.ProductComponentsTest do
                 %{"name" => "test2", "value" => "ugh2"}]}
 
     conn = conn()
-           |> put_req_header("content-type", "application/json")
+           |> Plug.Conn.put_req_header("content-type", "application/json")
            |> put(path, Poison.encode!(new_component))
 
     assert conn.status == 204

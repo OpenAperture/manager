@@ -76,7 +76,7 @@ defmodule OpenAperture.Manager.Controllers.SystemEvents do
     })
     if changeset.valid? do
       try do
-        _event = Repo.insert(changeset)
+        _event = Repo.insert!(changeset)
         path = OpenAperture.Manager.Router.Helpers.system_events_path(Endpoint, :index)
 
         # Set location header
