@@ -112,7 +112,7 @@ defmodule OpenAperture.Manager.BuildLogMonitor do
 
   @spec handle_logs(term) :: :ok | {:error, term}
   def handle_logs(payload) do
-    Logger.debug("Broadcasting build logs for id: #{payload.workflow_id} #{inspect payload.logs}")
+    #Logger.debug("Broadcasting build logs for id: #{payload.workflow_id} #{inspect payload.logs}")
     OpenAperture.Manager.Endpoint.broadcast!("build_log:" <> payload.workflow_id, "build_log", %{logs: payload.logs})
   end
 end
