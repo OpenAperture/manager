@@ -12,7 +12,7 @@ defmodule OpenAperture.Manager.Controllers.ProductDeployments do
   alias OpenAperture.Manager.Repo
   alias OpenAperture.Manager.DB.Models.Product
   alias OpenAperture.Manager.DB.Models.ProductDeployment
-  # alias OpenAperture.Manager.DB.Queries.ProductDeployment, as: DeploymentQuery
+  #alias OpenAperture.Manager.DB.Queries.ProductDeployment, as: DeploymentQuery
   alias OpenAperture.Manager.DB.Models.ProductDeploymentPlan
   alias OpenAperture.Manager.DB.Models.ProductDeploymentStep
 
@@ -25,7 +25,7 @@ defmodule OpenAperture.Manager.Controllers.ProductDeployments do
   plug :action
 
   # GET /products/:product_name/deployments
-  def index(conn, %{"product_name" => product_name} = params) do
+  def index(conn, %{"product_name" => product_name} = _params) do
     product_name
     |> URI.decode
     |> get_product_by_name
@@ -34,26 +34,21 @@ defmodule OpenAperture.Manager.Controllers.ProductDeployments do
         conn
         |> put_status(:not_found)
         |> json ResponseBodyFormatter.error_body(:not_found, "ProductDeployment")
-      product ->
-        if params["page"] == nil do 
-          params = Map.put(params, "page", 0)
-        end
+      _product ->
+#        if params["page"] == nil do 
+#          params["page"] = 0
+#        end
 
-        product_id = product.id
+#        page = ProductDeployment
+#          |> where([p], p.product_id = ^product_id)
+#          |> order_by([p], desc: p.inserted_at)
+#          |> Repo.paginate(page: params["page"])
 
-        pd_query = from pd in ProductDeployment,
-                where: pd.product_id == ^product_id,
-                order_by: [pd.inserted_at],
-                select: pd
+#        deployments = page.entries
+#          |> Enum.map(&to_sendable(&1, @deployment_sendable_fields))
 
-        page = pd_query |> Repo.paginate(page: params["page"])
-                
-
-        deployments = page.entries
-        |> Enum.map(&to_sendable(&1, @deployment_sendable_fields))
-
-        conn
-        |> json %{deployments: deployments, total_pages: page.total_pages, total_deployments: page.total_entries}
+#        json conn, %{deployments: deployments, total_pages: page.total_pages, total_deployments: page.total_entries}
+        json conn, %{}
     end
   end
 
@@ -96,7 +91,7 @@ defmodule OpenAperture.Manager.Controllers.ProductDeployments do
 
         changeset = ProductDeployment.new(params)
         if changeset.valid? do
-          deployment = Repo.insert(changeset)
+          deployment = Repo.insert!(changeset)
 
           #TODO: Execute deployment plan
           DeploymentPlan.execute(%{
@@ -127,6 +122,31 @@ defmodule OpenAperture.Manager.Controllers.ProductDeployments do
     conn
     |> put_status(:bad_request)
     |> json ResponseBodyFormatter.error_body(:bad_request, "ProductDeployment")
+  end
+
+  def update(conn, %{"product_name" => product_name, "deployment_id" => deployment_id} = params) do 
+    product_name = URI.decode(product_name)
+
+    case get_product_deployment(product_name, deployment_id) do
+      nil ->
+        conn
+        |> put_status(:not_found)
+        |> json ResponseBodyFormatter.error_body(:not_found, "ProductDeployment")
+      deployment ->
+        changeset = ProductDeployment.update(deployment, params)
+        if changeset.valid? do
+          deployment = Repo.update!(changeset)
+          path = product_deployments_path(Endpoint, :show, product_name, deployment.id)
+
+          conn
+          |> put_resp_header("location", path)
+          |> resp :no_content, ""
+        else
+          conn
+          |> put_status(:bad_request)
+          |> json ResponseBodyFormatter.error_body(changeset.errors, "ProductEnvironment")
+        end
+    end
   end
 
   # DELETE /products/:product_name/deployments/:deploymen_id

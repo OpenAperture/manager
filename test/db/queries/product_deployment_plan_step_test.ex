@@ -24,17 +24,17 @@ defmodule DB.Queries.ProductDeploymentPlan.Test do
   # get_steps_for_plan tests
 
   test "get_steps_for_plan- no steps" do
-    product = Product.new(%{name: "#{UUID.uuid1()}"}) |> Repo.insert
-    plan = ProductDeploymentPlan.new(%{product_id: product.id, name: "#{UUID.uuid1()}"}) |> Repo.insert
+    product = Product.new(%{name: "#{UUID.uuid1()}"}) |> Repo.insert!
+    plan = ProductDeploymentPlan.new(%{product_id: product.id, name: "#{UUID.uuid1()}"}) |> Repo.insert!
 
     returned_steps = Repo.all(PDPSQuery.get_steps_for_plan(plan.id))
     assert length(returned_steps) == 0
   end
 
   test "get_steps_for_plan- one step" do
-    product = Product.new(%{name: "#{UUID.uuid1()}"}) |> Repo.insert
-    plan = ProductDeploymentPlan.new(%{product_id: product.id, name: "#{UUID.uuid1()}"}) |> Repo.insert
-    step = ProductDeploymentPlanStep.new(%{product_deployment_plan_id: plan.id, type: "build_component"}) |> Repo.insert
+    product = Product.new(%{name: "#{UUID.uuid1()}"}) |> Repo.insert!
+    plan = ProductDeploymentPlan.new(%{product_id: product.id, name: "#{UUID.uuid1()}"}) |> Repo.insert!
+    step = ProductDeploymentPlanStep.new(%{product_deployment_plan_id: plan.id, type: "build_component"}) |> Repo.insert!
 
     returned_steps = Repo.all(PDPSQuery.get_steps_for_plan(plan.id))
     assert length(returned_steps) == 1
@@ -43,10 +43,10 @@ defmodule DB.Queries.ProductDeploymentPlan.Test do
   end
 
   test "get_steps_for_plan- multiple steps" do
-    product = Product.new(%{name: "#{UUID.uuid1()}"}) |> Repo.insert
-    plan = ProductDeploymentPlan.new(%{product_id: product.id, name: "#{UUID.uuid1()}"}) |> Repo.insert
-    step = ProductDeploymentPlanStep.new(%{product_deployment_plan_id: plan.id, type: "build_component"}) |> Repo.insert
-    step2 = ProductDeploymentPlanStep.new(%{product_deployment_plan_id: plan.id, type: "deploy_component"}) |> Repo.insert
+    product = Product.new(%{name: "#{UUID.uuid1()}"}) |> Repo.insert!
+    plan = ProductDeploymentPlan.new(%{product_id: product.id, name: "#{UUID.uuid1()}"}) |> Repo.insert!
+    step = ProductDeploymentPlanStep.new(%{product_deployment_plan_id: plan.id, type: "build_component"}) |> Repo.insert!
+    step2 = ProductDeploymentPlanStep.new(%{product_deployment_plan_id: plan.id, type: "deploy_component"}) |> Repo.insert!
 
     returned_steps = Repo.all(PDPSQuery.get_steps_for_plan(plan.id))
     assert length(returned_steps) == 2
@@ -58,10 +58,10 @@ defmodule DB.Queries.ProductDeploymentPlan.Test do
   end
 
   test "get_steps_for_plan- one step with one option" do
-    product = Product.new(%{name: "#{UUID.uuid1()}"}) |> Repo.insert
-    plan = ProductDeploymentPlan.new(%{product_id: product.id, name: "#{UUID.uuid1()}"}) |> Repo.insert
-    step = ProductDeploymentPlanStep.new(%{product_deployment_plan_id: plan.id, type: "build_component"}) |> Repo.insert
-    step_option = ProductDeploymentPlanStepOption.new(%{product_deployment_plan_step_id: step.id, name: "#{UUID.uuid1()}", value: "something cool"}) |> Repo.insert
+    product = Product.new(%{name: "#{UUID.uuid1()}"}) |> Repo.insert!
+    plan = ProductDeploymentPlan.new(%{product_id: product.id, name: "#{UUID.uuid1()}"}) |> Repo.insert!
+    step = ProductDeploymentPlanStep.new(%{product_deployment_plan_id: plan.id, type: "build_component"}) |> Repo.insert!
+    step_option = ProductDeploymentPlanStepOption.new(%{product_deployment_plan_step_id: step.id, name: "#{UUID.uuid1()}", value: "something cool"}) |> Repo.insert!
 
     returned_steps = Repo.all(PDPSQuery.get_steps_for_plan(plan.id))
     assert length(returned_steps) == 1
@@ -87,23 +87,23 @@ defmodule DB.Queries.ProductDeploymentPlan.Test do
   end
 
   test "get_steps_for_plan- multiple steps with multiple options" do
-    product = Product.new(%{name: "#{UUID.uuid1()}"}) |> Repo.insert
-    plan = ProductDeploymentPlan.new(%{product_id: product.id, name: "#{UUID.uuid1()}"}) |> Repo.insert
-    step = ProductDeploymentPlanStep.new(%{product_deployment_plan_id: plan.id, type: "build_component"}) |> Repo.insert
-    step_option = ProductDeploymentPlanStepOption.new(%{product_deployment_plan_step_id: step.id, name: "#{UUID.uuid1()}", value: "something cool"}) |> Repo.insert
-    step_option2 = ProductDeploymentPlanStepOption.new(%{product_deployment_plan_step_id: step.id, name: "#{UUID.uuid1()}", value: "something cool"}) |> Repo.insert
+    product = Product.new(%{name: "#{UUID.uuid1()}"}) |> Repo.insert!
+    plan = ProductDeploymentPlan.new(%{product_id: product.id, name: "#{UUID.uuid1()}"}) |> Repo.insert!
+    step = ProductDeploymentPlanStep.new(%{product_deployment_plan_id: plan.id, type: "build_component"}) |> Repo.insert!
+    step_option = ProductDeploymentPlanStepOption.new(%{product_deployment_plan_step_id: step.id, name: "#{UUID.uuid1()}", value: "something cool"}) |> Repo.insert!
+    step_option2 = ProductDeploymentPlanStepOption.new(%{product_deployment_plan_step_id: step.id, name: "#{UUID.uuid1()}", value: "something cool"}) |> Repo.insert!
 
-    step2 = ProductDeploymentPlanStep.new(%{product_deployment_plan_id: plan.id, type: "build_component"}) |> Repo.insert
-    step_option3 = ProductDeploymentPlanStepOption.new(%{product_deployment_plan_step_id: step2.id, name: "#{UUID.uuid1()}", value: "something cool"}) |> Repo.insert
-    step_option4 = ProductDeploymentPlanStepOption.new(%{product_deployment_plan_step_id: step2.id, name: "#{UUID.uuid1()}", value: "something cool"}) |> Repo.insert
+    step2 = ProductDeploymentPlanStep.new(%{product_deployment_plan_id: plan.id, type: "build_component"}) |> Repo.insert!
+    step_option3 = ProductDeploymentPlanStepOption.new(%{product_deployment_plan_step_id: step2.id, name: "#{UUID.uuid1()}", value: "something cool"}) |> Repo.insert!
+    step_option4 = ProductDeploymentPlanStepOption.new(%{product_deployment_plan_step_id: step2.id, name: "#{UUID.uuid1()}", value: "something cool"}) |> Repo.insert!
 
-    step3 = ProductDeploymentPlanStep.new(%{product_deployment_plan_id: plan.id, type: "build_component"}) |> Repo.insert
-    step_option5 = ProductDeploymentPlanStepOption.new(%{product_deployment_plan_step_id: step3.id, name: "#{UUID.uuid1()}", value: "something cool"}) |> Repo.insert
-    step_option6 = ProductDeploymentPlanStepOption.new(%{product_deployment_plan_step_id: step3.id, name: "#{UUID.uuid1()}", value: "something cool"}) |> Repo.insert
+    step3 = ProductDeploymentPlanStep.new(%{product_deployment_plan_id: plan.id, type: "build_component"}) |> Repo.insert!
+    step_option5 = ProductDeploymentPlanStepOption.new(%{product_deployment_plan_step_id: step3.id, name: "#{UUID.uuid1()}", value: "something cool"}) |> Repo.insert!
+    step_option6 = ProductDeploymentPlanStepOption.new(%{product_deployment_plan_step_id: step3.id, name: "#{UUID.uuid1()}", value: "something cool"}) |> Repo.insert!
 
-    step4 = ProductDeploymentPlanStep.new(%{product_deployment_plan_id: plan.id, type: "build_component"}) |> Repo.insert
-    step_option7 = ProductDeploymentPlanStepOption.new(%{product_deployment_plan_step_id: step4.id, name: "#{UUID.uuid1()}", value: "something cool"}) |> Repo.insert
-    step_option8 = ProductDeploymentPlanStepOption.new(%{product_deployment_plan_step_id: step4.id, name: "#{UUID.uuid1()}", value: "something cool"}) |> Repo.insert
+    step4 = ProductDeploymentPlanStep.new(%{product_deployment_plan_id: plan.id, type: "build_component"}) |> Repo.insert!
+    step_option7 = ProductDeploymentPlanStepOption.new(%{product_deployment_plan_step_id: step4.id, name: "#{UUID.uuid1()}", value: "something cool"}) |> Repo.insert!
+    step_option8 = ProductDeploymentPlanStepOption.new(%{product_deployment_plan_step_id: step4.id, name: "#{UUID.uuid1()}", value: "something cool"}) |> Repo.insert!
 
 
     returned_options = Repo.all(PDPSQuery.get_steps_for_plan(plan.id))

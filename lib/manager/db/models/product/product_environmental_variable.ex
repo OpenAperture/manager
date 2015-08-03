@@ -22,6 +22,6 @@ defmodule OpenAperture.Manager.DB.Models.ProductEnvironmentalVariable do
   def destroy_for_environment(env), do: destroy_for_association(env, :environmental_variables)
 
   def destroy(pev) do
-    Repo.delete pev
+    Repo.delete! pev
   end
 end

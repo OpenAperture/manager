@@ -27,6 +27,6 @@ defmodule OpenAperture.Manager.DB.Models.ProductDeploymentStep do
   def destroy_for_deployment(pd), do: destroy_for_association(pd, :product_deployment_steps)
 
   def destroy(pds) do
-    Repo.delete(pds)
+    Repo.delete!(pds)
   end
 end

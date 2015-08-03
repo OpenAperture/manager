@@ -44,9 +44,9 @@ defmodule OpenAperture.Manager.Controllers.EtcdClustersTest do
     :meck.unload(OpenAperture.Manager.Repo)
     Repo.delete_all(EtcdCluster)
 
-    build_cluster = EtcdCluster.new(%{etcd_token: "#{UUID.uuid1()}", allow_docker_builds: true}) |> Repo.insert
-    non_build_cluster = EtcdCluster.new(%{etcd_token: "#{UUID.uuid1()}", allow_docker_builds: false}) |> Repo.insert
-    cluster = EtcdCluster.new(%{etcd_token: "#{UUID.uuid1()}"}) |> Repo.insert
+    build_cluster = EtcdCluster.new(%{etcd_token: "#{UUID.uuid1()}", allow_docker_builds: true}) |> Repo.insert!
+    non_build_cluster = EtcdCluster.new(%{etcd_token: "#{UUID.uuid1()}", allow_docker_builds: false}) |> Repo.insert!
+    cluster = EtcdCluster.new(%{etcd_token: "#{UUID.uuid1()}"}) |> Repo.insert!
 
     conn = get conn(), "/clusters?allow_docker_builds=true"
 
@@ -104,7 +104,7 @@ defmodule OpenAperture.Manager.Controllers.EtcdClustersTest do
 
   test "register action -- success" do
     cluster = %EtcdCluster{id: 1, etcd_token: "token"}
-    :meck.expect(Repo, :insert, 1, cluster)
+    :meck.expect(Repo, :insert!, 1, cluster)
     conn = post conn(), "/clusters", Map.from_struct(cluster)
 
     assert conn.status == 201
@@ -118,7 +118,7 @@ defmodule OpenAperture.Manager.Controllers.EtcdClustersTest do
   test "register action -- provided invalid hosting_provider_id" do
     cluster = %EtcdCluster{id: 1, etcd_token: "token", hosting_provider_id: 1}
     :meck.expect(Repo, :get, 2, nil)
-    :meck.expect(Repo, :insert, 1, cluster)
+    :meck.expect(Repo, :insert!, 1, cluster)
     conn = post conn(), "/clusters", Map.from_struct(cluster)
 
     assert conn.status == 400
@@ -130,7 +130,7 @@ defmodule OpenAperture.Manager.Controllers.EtcdClustersTest do
   test "register action -- provided valid hosting_provider_id" do
     cluster = %EtcdCluster{id: 1, etcd_token: "token", hosting_provider_id: 1}
     :meck.expect(Repo, :get, 2, %CloudProvider{id: 1})
-    :meck.expect(Repo, :insert, 1, cluster)
+    :meck.expect(Repo, :insert!, 1, cluster)
     conn = post conn(), "/clusters", Map.from_struct(cluster)
 
     assert conn.status == 201
@@ -151,7 +151,7 @@ defmodule OpenAperture.Manager.Controllers.EtcdClustersTest do
 
   test "destroy action -- success" do
     :meck.expect(EtcdClusterQuery, :get_by_etcd_token, 1, %EtcdCluster{id: 1, etcd_token: "some_etcd_token"})
-    :meck.expect(Repo, :delete, 1, 1)
+    :meck.expect(Repo, :delete!, 1, 1)
 
     conn = delete conn(), "/clusters/some_etcd_token"
 
@@ -356,5 +356,67 @@ defmodule OpenAperture.Manager.Controllers.EtcdClustersTest do
     conn = get conn(), "/clusters/some_etcd_token/machines/123/units/test/logs"
 
     assert conn.status == 404
+  end
+
+
+
+
+  #=========
+  # node_info tests
+
+  test "node_info machines not found" do
+    :meck.expect(EtcdClusterQuery, :get_by_etcd_token, 1, nil)
+
+    conn = get conn(), "/clusters/some_etcd_token/nodes"
+
+    assert conn.status == 404
+  end
+
+  test "node_info machines fail" do
+    :meck.expect(EtcdClusterQuery, :get_by_etcd_token, fn token -> %EtcdCluster{etcd_token: token} end)
+    :meck.expect(FleetManagerPublisher, :list_machines!, fn _,_ -> %{} end)
+    :meck.expect(RpcHandler, :get_response, fn _ -> {:error, "bad news bears"} end)
+
+    conn = get conn(), "/clusters/some_etcd_token/nodes"
+    assert conn.status == 500
+  end
+
+  test "node_info machines invalid" do
+    :meck.expect(EtcdClusterQuery, :get_by_etcd_token, fn token -> %EtcdCluster{etcd_token: token} end)
+    :meck.expect(FleetManagerPublisher, :list_machines!, fn _,_ -> %{} end)
+    :meck.expect(RpcHandler, :get_response, fn _ -> {:ok, nil} end)
+
+    conn = get conn(), "/clusters/some_etcd_token/nodes"
+    assert conn.status == 500
+  end  
+
+  test "node_info no machines" do
+    :meck.expect(EtcdClusterQuery, :get_by_etcd_token, fn token -> %EtcdCluster{etcd_token: token} end)
+    :meck.expect(FleetManagerPublisher, :list_machines!, fn _,_ -> %{} end)
+    :meck.expect(RpcHandler, :get_response, fn _ -> {:ok, []} end)
+
+    conn = get conn(), "/clusters/some_etcd_token/nodes"
+
+    assert conn.status == 200
+  end
+
+  test "node_info machines" do
+    :meck.expect(EtcdClusterQuery, :get_by_etcd_token, fn token -> %EtcdCluster{etcd_token: token} end)
+    :meck.expect(FleetManagerPublisher, :list_machines!, fn _,_ -> "machines_handler" end)
+    :meck.expect(FleetManagerPublisher, :node_info!, fn _,_ -> "info_handler" end)
+    :meck.expect(RpcHandler, :get_response, fn handler_type -> 
+      cond do
+        handler_type == "machines_handler" -> {:ok, [%{"primaryIP" => "123.234.456.789"}]} 
+        handler_type == "info_handler" -> {:ok, %{"123.234.456.789" => %{}}}
+        true -> nil
+      end
+    end)
+
+    conn = get conn(), "/clusters/some_etcd_token/nodes"
+
+    assert conn.status == 200
+    body = Poison.decode!(conn.resp_body)
+    assert body != nil
+    assert body["123.234.456.789"] != nil
   end
 end

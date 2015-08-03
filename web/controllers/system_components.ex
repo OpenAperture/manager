@@ -11,7 +11,7 @@ defmodule OpenAperture.Manager.Controllers.SystemComponents do
 
   alias OpenAperture.OverseerApi.Publisher, as: OverseerPublisher
   alias OpenAperture.OverseerApi.Request, as: OverseerRequest
-  
+
   plug :action
 
   @moduledoc """
@@ -57,8 +57,13 @@ defmodule OpenAperture.Manager.Controllers.SystemComponents do
   Underlying HTTP connection
   """
   @spec index(Plug.Conn.t, [any]) :: Plug.Conn.t
-  def index(conn, _params) do
-    json conn, convert_raw_components(Repo.all(SystemComponent))
+  def index(conn, params) do
+    components = if params["type"] == nil do
+      Repo.all(SystemComponent)
+    else
+      Repo.all(from s in SystemComponent, where: s.type == ^params["type"])
+    end
+    json conn, convert_raw_components(components)
  end  
 
   @doc """
@@ -118,7 +123,7 @@ defmodule OpenAperture.Manager.Controllers.SystemComponents do
           select: sc
         case Repo.all(query) do
           [] -> 
-            component = Repo.insert(changeset)
+            component = Repo.insert!(changeset)
             path = OpenAperture.Manager.Router.Helpers.system_components_path(Endpoint, :show, component.id)
 
             # Set location header
@@ -191,7 +196,7 @@ defmodule OpenAperture.Manager.Controllers.SystemComponents do
               new_fields = Map.take(params, @updatable_fields)
               new_fields = Map.put(new_fields, "upgrade_status", upgrade_status)
             	changeset = SystemComponent.update(component, new_fields)
-              Repo.update(changeset)
+              Repo.update!(changeset)
               path = OpenAperture.Manager.Router.Helpers.system_components_path(Endpoint, :show, component.id)
 
               # Set location header
@@ -223,7 +228,7 @@ defmodule OpenAperture.Manager.Controllers.SystemComponents do
       nil -> not_found(conn, "SystemComponent #{params["id"]}")
       component ->
         Repo.transaction(fn ->
-          Repo.delete(component)
+          Repo.delete!(component)
         end)
         no_content(conn)
     end

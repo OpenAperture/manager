@@ -69,7 +69,7 @@ defmodule OpenAperture.Manager.OverseerApi.ModuleRegistration do
       unless changeset.valid? do
         Logger.error("[ModuleRegistration] Unable to register module #{module[:hostname]}!  module - #{inspect module}, error - #{inspect changeset.errors}")
       else        
-        Repo.insert(changeset)
+        Repo.insert!(changeset)
       end
     catch
       :exit, code   -> 

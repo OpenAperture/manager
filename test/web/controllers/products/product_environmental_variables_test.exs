@@ -20,20 +20,20 @@ defmodule OpenAperture.Manager.Controllers.ProductEnvironmentalVariablesTest do
 
   setup do
     product = Product.new(%{name: "test_environmental_variables_product"})
-              |> Repo.insert
+              |> Repo.insert!
 
     pe1 = ProductEnvironment.new(%{name: "test_environment_1", product_id: product.id})
-          |> Repo.insert
+          |> Repo.insert!
     pe2 = ProductEnvironment.new(%{name: "test_environment_2", product_id: product.id})
-          |> Repo.insert
+          |> Repo.insert!
     pev1 = ProductEnvironmentalVariable.new(%{name: "test_variable_1", product_id: product.id, product_environment_id: pe1.id})
-           |> Repo.insert
+           |> Repo.insert!
     pev2 = ProductEnvironmentalVariable.new(%{name: "test_variable_2", product_id: product.id, product_environment_id: pe1.id})
-           |> Repo.insert
+           |> Repo.insert!
     pev3 = ProductEnvironmentalVariable.new(%{name: "test_variable_3", product_id: product.id, product_environment_id: pe2.id})
-           |> Repo.insert
+           |> Repo.insert!
     pev4 = ProductEnvironmentalVariable.new(%{name: "test_variable_4", product_id: product.id})
-           |> Repo.insert
+           |> Repo.insert!
 
     on_exit fn ->
       Repo.delete_all(ProductEnvironmentalVariable)
@@ -72,6 +72,42 @@ defmodule OpenAperture.Manager.Controllers.ProductEnvironmentalVariablesTest do
     env = context[:pe1]
 
     path = product_environmental_variables_path(Endpoint, :index_environment, "not a real product name", env.name)
+
+    conn = get conn(), path
+    assert conn.status == 404
+  end
+
+  test "index action (product, environment, coalesced = true) -- success", context do
+    product = context[:product]
+    env = context[:pe1]
+
+    path = product_environmental_variables_path(Endpoint, :index_environment, product.name, env.name, coalesced: true)
+
+    conn = get conn(), path
+    assert conn.status == 200
+
+    body = Poison.decode!(conn.resp_body)
+    assert length(body) == 3
+
+    # Check that the expected variables are present in the response
+    assert Enum.any?(body, fn v -> v["name"] == "test_variable_1" end)
+    assert Enum.any?(body, fn v -> v["name"] == "test_variable_2" end)
+    assert Enum.any?(body, fn v -> v["name"] == "test_variable_4" end)
+  end
+
+  test "index action (product, environment, coalesced = true) -- environment not found", context do
+    product = context[:product]
+
+    path = product_environmental_variables_path(Endpoint, :index_environment, product.name, "not a real environment name", coalesced: true)
+
+    conn = get conn(), path
+    assert conn.status == 404
+  end
+
+  test "index action (product, environment, coalesced = true) -- product not found", context do
+    env = context[:pe1]
+
+    path = product_environmental_variables_path(Endpoint, :index_environment, "not a real product name", env.name, coalesced: true)
 
     conn = get conn(), path
     assert conn.status == 404
@@ -191,7 +227,7 @@ defmodule OpenAperture.Manager.Controllers.ProductEnvironmentalVariablesTest do
     var = context[:pev1]
 
     _var2 = ProductEnvironmentalVariable.new(%{product_id: product.id, name: var.name})
-            |> Repo.insert
+            |> Repo.insert!
 
     path = product_environmental_variables_path(Endpoint, :show_default, product.name, var.name, coalesced: true)
     conn = get conn(), path
@@ -489,7 +525,7 @@ defmodule OpenAperture.Manager.Controllers.ProductEnvironmentalVariablesTest do
     product = context[:product]
     var = context[:pev4]
     var2 = ProductEnvironmentalVariable.new(%{name: "test_var_2", product_id: product.id})
-           |> Repo.insert
+           |> Repo.insert!
 
     path = product_environmental_variables_path(Endpoint, :update_default, product.name, var.name)
 

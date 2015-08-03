@@ -18,15 +18,15 @@ defmodule DB.Queries.Workflow.Test do
   test "get_workflows - last 24 hours exists" do
     Repo.delete_all(Workflow)
     
-    workflow_old_id = ("#{UUID.uuid1()}" |> UUID.info)[:binary]
+    workflow_old_id = Ecto.UUID.generate()
 
     now_secs = :calendar.datetime_to_gregorian_seconds(:calendar.universal_time())
     lookback_time = :calendar.gregorian_seconds_to_datetime(now_secs-(25*60*60))
     then = from_erl(lookback_time)
 
-    _workflow_old = %Workflow{id: workflow_old_id, inserted_at: then} |> Repo.insert
-    workflow_id = ("#{UUID.uuid1()}" |> UUID.info)[:binary]
-    _workflow = Workflow.new(%{id: workflow_id}) |> Repo.insert
+    _workflow_old = %Workflow{id: workflow_old_id, inserted_at: then} |> Repo.insert!
+    workflow_id = Ecto.UUID.generate()
+    _workflow = Workflow.new(%{id: workflow_id}) |> Repo.insert!
 
     results = Repo.all(WorkflowQuery.get_workflows(24))
     assert results != nil
@@ -35,13 +35,13 @@ defmodule DB.Queries.Workflow.Test do
   end
 
   test "get_workflows - last 24 hours no entries" do
-    workflow_old_id = ("#{UUID.uuid1()}" |> UUID.info)[:binary]
+    workflow_old_id = Ecto.UUID.generate()
 
     now_secs = :calendar.datetime_to_gregorian_seconds(:calendar.universal_time())
     lookback_time = :calendar.gregorian_seconds_to_datetime(now_secs-(25*60*60))
     then = from_erl(lookback_time)
 
-    _workflow_old = %Workflow{id: workflow_old_id, inserted_at: then} |> Repo.insert
+    _workflow_old = %Workflow{id: workflow_old_id, inserted_at: then} |> Repo.insert!
 
     results = Repo.all(WorkflowQuery.get_workflows(24))
     assert results != nil
@@ -50,16 +50,16 @@ defmodule DB.Queries.Workflow.Test do
 
   test "get_workflows - all entries exists" do
     Repo.delete_all(Workflow)
-    workflow_old_id = ("#{UUID.uuid1()}" |> UUID.info)[:binary]
+    workflow_old_id = Ecto.UUID.generate()
 
     now_secs = :calendar.datetime_to_gregorian_seconds(:calendar.universal_time())
     lookback_time = :calendar.gregorian_seconds_to_datetime(now_secs-(25*60*60))
     then = from_erl(lookback_time)
 
-    _workflow_old = %Workflow{id: workflow_old_id, inserted_at: then} |> Repo.insert
+    _workflow_old = %Workflow{id: workflow_old_id, inserted_at: then} |> Repo.insert!
 
-    workflow_id = ("#{UUID.uuid1()}" |> UUID.info)[:binary]
-    _workflow = %Workflow{id: workflow_id} |> Repo.insert
+    workflow_id = Ecto.UUID.generate()
+    _workflow = %Workflow{id: workflow_id} |> Repo.insert!
 
     results = Repo.all(WorkflowQuery.get_workflows(0))
     assert results != nil
@@ -74,11 +74,11 @@ defmodule DB.Queries.Workflow.Test do
   end  
 
   test "get_workflows_by_deployment_repo - last 24 hours only current deploy repo" do
-    workflow_old_id = ("#{UUID.uuid1()}" |> UUID.info)[:binary]
-    _workflow_old = Workflow.new(%{id: workflow_old_id, deployment_repo: "bad-news-bears", inserted_at: Ecto.DateTime.utc()}) |> Repo.insert
+    workflow_old_id = Ecto.UUID.generate()
+    _workflow_old = Workflow.new(%{id: workflow_old_id, deployment_repo: "bad-news-bears", inserted_at: Ecto.DateTime.utc()}) |> Repo.insert!
 
-    workflow_id = ("#{UUID.uuid1()}" |> UUID.info)[:binary]
-    _workflow = Workflow.new(%{id: workflow_id, deployment_repo: "Cloud/myapp", inserted_at: Ecto.DateTime.utc()}) |> Repo.insert
+    workflow_id = Ecto.UUID.generate()
+    _workflow = Workflow.new(%{id: workflow_id, deployment_repo: "Cloud/myapp", inserted_at: Ecto.DateTime.utc()}) |> Repo.insert!
 
     results = Repo.all(WorkflowQuery.get_workflows_by_deployment_repo("Cloud/myapp", 24))
     assert results != nil
@@ -87,16 +87,16 @@ defmodule DB.Queries.Workflow.Test do
   end
 
   test "get_workflows_by_deployment_repo - last 24 hours exists" do
-    workflow_old_id = ("#{UUID.uuid1()}" |> UUID.info)[:binary]
+    workflow_old_id = Ecto.UUID.generate()
 
     now_secs = :calendar.datetime_to_gregorian_seconds(:calendar.universal_time())
     lookback_time = :calendar.gregorian_seconds_to_datetime(now_secs-(25*60*60))
     then = from_erl(lookback_time)
 
-    _workflow_old = %Workflow{id: workflow_old_id, deployment_repo: "Cloud/myapp", inserted_at: then} |> Repo.insert
+    _workflow_old = %Workflow{id: workflow_old_id, deployment_repo: "Cloud/myapp", inserted_at: then} |> Repo.insert!
 
-    workflow_id = ("#{UUID.uuid1()}" |> UUID.info)[:binary]
-    _workflow = Workflow.new(%{id: workflow_id, deployment_repo: "Cloud/myapp"}) |> Repo.insert
+    workflow_id = Ecto.UUID.generate()
+    _workflow = Workflow.new(%{id: workflow_id, deployment_repo: "Cloud/myapp"}) |> Repo.insert!
 
     results = Repo.all(WorkflowQuery.get_workflows_by_deployment_repo("Cloud/myapp", 24))
     assert results != nil
@@ -105,13 +105,13 @@ defmodule DB.Queries.Workflow.Test do
   end
 
   test "get_workflows_by_deployment_repo - last 24 hours no entries" do
-    workflow_old_id = ("#{UUID.uuid1()}" |> UUID.info)[:binary]
+    workflow_old_id = Ecto.UUID.generate()
 
     now_secs = :calendar.datetime_to_gregorian_seconds(:calendar.universal_time())
     lookback_time = :calendar.gregorian_seconds_to_datetime(now_secs-(25*60*60))
     then = from_erl(lookback_time)
 
-    _workflow_old = %Workflow{id: workflow_old_id, deployment_repo: "Cloud/myapp", inserted_at: then} |> Repo.insert
+    _workflow_old = %Workflow{id: workflow_old_id, deployment_repo: "Cloud/myapp", inserted_at: then} |> Repo.insert!
 
     results = Repo.all(WorkflowQuery.get_workflows_by_deployment_repo("Cloud/myapp", 24))
     assert results != nil
@@ -119,16 +119,16 @@ defmodule DB.Queries.Workflow.Test do
   end
 
   test "get_workflows_by_deployment_repo - all entries exists" do
-    workflow_old_id = ("#{UUID.uuid1()}" |> UUID.info)[:binary]
+    workflow_old_id = Ecto.UUID.generate()
 
     now_secs = :calendar.datetime_to_gregorian_seconds(:calendar.universal_time())
     lookback_time = :calendar.gregorian_seconds_to_datetime(now_secs-(25*60*60))
     then = from_erl(lookback_time)
 
-    _workflow_old = %Workflow{id: workflow_old_id, deployment_repo: "Cloud/myapp", inserted_at: then} |> Repo.insert
+    _workflow_old = %Workflow{id: workflow_old_id, deployment_repo: "Cloud/myapp", inserted_at: then} |> Repo.insert!
 
-    workflow_id = ("#{UUID.uuid1()}" |> UUID.info)[:binary]
-    _workflow = Workflow.new(%{id: workflow_id, deployment_repo: "Cloud/myapp", inserted_at: Ecto.DateTime.utc()}) |> Repo.insert
+    workflow_id = Ecto.UUID.generate()
+    _workflow = Workflow.new(%{id: workflow_id, deployment_repo: "Cloud/myapp", inserted_at: Ecto.DateTime.utc()}) |> Repo.insert!
 
     results = Repo.all(WorkflowQuery.get_workflows_by_deployment_repo("Cloud/myapp"))
     assert results != nil

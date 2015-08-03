@@ -16,19 +16,19 @@ defmodule DB.Models.AuthSource.Test do
 
   test "can load associated users through has_many relation" do
     auth_source = AuthSource.new(%{token_info_url: "http://test/token", email_field_name: "email", first_name_field_name: "first_name", last_name_field_name: "last_name"})
-                  |> Repo.insert
+                  |> Repo.insert!
 
     user1 = User.new(%{first_name: "test", last_name: "user", email: "test.user@test.com"})
-            |> Repo.insert
+            |> Repo.insert!
 
     user2 = User.new(%{first_name: "test2", last_name: "user2", email: "test2.user2@test.com"})
-            |> Repo.insert
+            |> Repo.insert!
 
     _relation1 = AuthSourceUserRelation.new(%{auth_source_id: auth_source.id, user_id: user1.id})
-                |> Repo.insert
+                |> Repo.insert!
 
     _relation2 = AuthSourceUserRelation.new(%{auth_source_id: auth_source.id, user_id: user2.id})
-                |> Repo.insert
+                |> Repo.insert!
 
     users = Ecto.Model.assoc(auth_source, :users)
             |> Repo.all

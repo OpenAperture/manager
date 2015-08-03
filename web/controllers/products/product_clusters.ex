@@ -131,7 +131,7 @@ defmodule OpenAperture.Manager.Controllers.ProductClusters do
 
       params
       |> ProductCluster.new
-      |> Repo.insert
+      |> Repo.insert!
     end)
   end
 

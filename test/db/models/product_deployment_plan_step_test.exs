@@ -9,10 +9,10 @@ defmodule DB.Models.ProductDeploymentPlanStep.Test do
 
 
   setup _context do
-    product = Product.new(%{name: "test plan"}) |> Repo.insert
-    product2 = Product.new(%{name: "test plan2"}) |> Repo.insert
+    product = Product.new(%{name: "test plan"}) |> Repo.insert!
+    product2 = Product.new(%{name: "test plan2"}) |> Repo.insert!
 
-    plan = ProductDeploymentPlan.new(%{product_id: product.id, name: "test plan"}) |> Repo.insert
+    plan = ProductDeploymentPlan.new(%{product_id: product.id, name: "test plan"}) |> Repo.insert!
 
     on_exit _context, fn ->
       Repo.delete_all(ProductDeploymentPlanStep)
@@ -45,7 +45,7 @@ defmodule DB.Models.ProductDeploymentPlanStep.Test do
   end
 
   test "create plan", context do
-    step = ProductDeploymentPlanStep.new(%{product_deployment_plan_id: context[:plan].id, type: "build_component"}) |> Repo.insert
+    step = ProductDeploymentPlanStep.new(%{product_deployment_plan_id: context[:plan].id, type: "build_component"}) |> Repo.insert!
 
     retrieved = Repo.get(ProductDeploymentPlanStep, step.id)
     assert retrieved == step
@@ -60,7 +60,7 @@ defmodule DB.Models.ProductDeploymentPlanStep.Test do
   end
 
   test "to_hierarchy - single node", context do
-    root_step = ProductDeploymentPlanStep.new(%{product_deployment_plan_id: context[:plan].id, type: "build_component"}) |> Repo.insert
+    root_step = ProductDeploymentPlanStep.new(%{product_deployment_plan_id: context[:plan].id, type: "build_component"}) |> Repo.insert!
 
     returned_root_node = ProductDeploymentPlanStep.to_hierarchy([root_step], true)
     assert returned_root_node[:id] == root_step.id
@@ -71,15 +71,15 @@ defmodule DB.Models.ProductDeploymentPlanStep.Test do
   end
 
   test "to_hierarchy - one-level multi-node", context do
-    success_node = ProductDeploymentPlanStep.new(%{product_deployment_plan_id: context[:plan].id, type: "build_component"}) |> Repo.insert
-    failure_node = ProductDeploymentPlanStep.new(%{product_deployment_plan_id: context[:plan].id, type: "build_component"}) |> Repo.insert
+    success_node = ProductDeploymentPlanStep.new(%{product_deployment_plan_id: context[:plan].id, type: "build_component"}) |> Repo.insert!
+    failure_node = ProductDeploymentPlanStep.new(%{product_deployment_plan_id: context[:plan].id, type: "build_component"}) |> Repo.insert!
 
     root_step = ProductDeploymentPlanStep.new(%{
       product_deployment_plan_id: context[:plan].id,
       type: "build_component",
       on_success_step_id: success_node.id,
       on_failure_step_id: failure_node.id
-    }) |> Repo.insert
+    }) |> Repo.insert!
 
     returned_root_node = ProductDeploymentPlanStep.to_hierarchy(Repo.all(PDPSQuery.get_steps_for_plan(context[:plan].id)), true)
     assert returned_root_node[:id] == root_step.id
@@ -97,35 +97,35 @@ defmodule DB.Models.ProductDeploymentPlanStep.Test do
     lvl3 = ProductDeploymentPlanStep.new(%{
       product_deployment_plan_id: context[:plan].id,
       type: "deploy_component"
-    }) |> Repo.insert
+    }) |> Repo.insert!
 
-    lvl2_fail_2 = ProductDeploymentPlanStep.new(%{product_deployment_plan_id: context[:plan].id, type: "component_script"}) |> Repo.insert
+    lvl2_fail_2 = ProductDeploymentPlanStep.new(%{product_deployment_plan_id: context[:plan].id, type: "component_script"}) |> Repo.insert!
     lvl2_fail = ProductDeploymentPlanStep.new(%{
       product_deployment_plan_id: context[:plan].id,
       type: "deploy_component",
       on_failure_step_id: lvl2_fail_2.id
-    }) |> Repo.insert
+    }) |> Repo.insert!
 
     lvl2 = ProductDeploymentPlanStep.new(%{
       product_deployment_plan_id: context[:plan].id,
       type: "build_deploy_component",
       on_success_step_id: lvl3.id,
       on_failure_step_id: lvl2_fail.id
-    }) |> Repo.insert
+    }) |> Repo.insert!
 
     lvl1 = ProductDeploymentPlanStep.new(%{
       product_deployment_plan_id: context[:plan].id,
       type: "build_deploy_component",
       on_success_step_id: lvl2.id
-    }) |> Repo.insert
+    }) |> Repo.insert!
 
-    root_fail = ProductDeploymentPlanStep.new(%{product_deployment_plan_id: context[:plan].id, type: "build_component"}) |> Repo.insert
+    root_fail = ProductDeploymentPlanStep.new(%{product_deployment_plan_id: context[:plan].id, type: "build_component"}) |> Repo.insert!
     root_step = ProductDeploymentPlanStep.new(%{
       product_deployment_plan_id: context[:plan].id,
       type: "build_component",
       on_success_step_id: lvl1.id,
       on_failure_step_id: root_fail.id
-    }) |> Repo.insert
+    }) |> Repo.insert!
 
     child_node = ProductDeploymentPlanStep.to_hierarchy(Repo.all(PDPSQuery.get_steps_for_plan(context[:plan].id)), true)
 
@@ -173,7 +173,7 @@ defmodule DB.Models.ProductDeploymentPlanStep.Test do
   end
 
   test "flatten_hierarchy - single node", context do
-    root_step = ProductDeploymentPlanStep.new(%{product_deployment_plan_id: context[:plan].id, type: "build_component"}) |> Repo.insert
+    root_step = ProductDeploymentPlanStep.new(%{product_deployment_plan_id: context[:plan].id, type: "build_component"}) |> Repo.insert!
 
     returned_root_node = ProductDeploymentPlanStep.to_hierarchy([root_step], true)
     returned_steps = ProductDeploymentPlanStep.flatten_hierarchy(returned_root_node)
@@ -183,15 +183,15 @@ defmodule DB.Models.ProductDeploymentPlanStep.Test do
   end
 
   test "flatten_hierarchy - one-level multi-node", context do
-    success_node = ProductDeploymentPlanStep.new(%{product_deployment_plan_id: context[:plan].id, type: "build_component"}) |> Repo.insert
-    failure_node = ProductDeploymentPlanStep.new(%{product_deployment_plan_id: context[:plan].id, type: "build_component"}) |> Repo.insert
+    success_node = ProductDeploymentPlanStep.new(%{product_deployment_plan_id: context[:plan].id, type: "build_component"}) |> Repo.insert!
+    failure_node = ProductDeploymentPlanStep.new(%{product_deployment_plan_id: context[:plan].id, type: "build_component"}) |> Repo.insert!
 
     root_step = ProductDeploymentPlanStep.new(%{
       product_deployment_plan_id: context[:plan].id,
       type: "build_component",
       on_success_step_id: success_node.id,
       on_failure_step_id: failure_node.id
-    }) |> Repo.insert
+    }) |> Repo.insert!
 
     returned_root_node = ProductDeploymentPlanStep.to_hierarchy(Repo.all(PDPSQuery.get_steps_for_plan(context[:plan].id)), true)
     returned_steps = ProductDeploymentPlanStep.flatten_hierarchy(returned_root_node)
@@ -211,35 +211,35 @@ defmodule DB.Models.ProductDeploymentPlanStep.Test do
     lvl3 = ProductDeploymentPlanStep.new(%{
       product_deployment_plan_id: context[:plan].id,
       type: "deploy_component"
-    }) |> Repo.insert
+    }) |> Repo.insert!
 
-    lvl2_fail_2 = ProductDeploymentPlanStep.new(%{product_deployment_plan_id: context[:plan].id, type: "component_script"}) |> Repo.insert
+    lvl2_fail_2 = ProductDeploymentPlanStep.new(%{product_deployment_plan_id: context[:plan].id, type: "component_script"}) |> Repo.insert!
     lvl2_fail = ProductDeploymentPlanStep.new(%{
       product_deployment_plan_id: context[:plan].id,
       type: "deploy_component",
       on_failure_step_id: lvl2_fail_2.id
-    }) |> Repo.insert
+    }) |> Repo.insert!
 
     lvl2 = ProductDeploymentPlanStep.new(%{
       product_deployment_plan_id: context[:plan].id,
       type: "build_deploy_component",
       on_success_step_id: lvl3.id,
       on_failure_step_id: lvl2_fail.id
-    }) |> Repo.insert
+    }) |> Repo.insert!
 
     lvl1 = ProductDeploymentPlanStep.new(%{
       product_deployment_plan_id: context[:plan].id,
       type: "build_deploy_component",
       on_success_step_id: lvl2.id
-    }) |> Repo.insert
+    }) |> Repo.insert!
 
-    root_fail = ProductDeploymentPlanStep.new(%{product_deployment_plan_id: context[:plan].id, type: "build_component"}) |> Repo.insert
+    root_fail = ProductDeploymentPlanStep.new(%{product_deployment_plan_id: context[:plan].id, type: "build_component"}) |> Repo.insert!
     root_step = ProductDeploymentPlanStep.new(%{
       product_deployment_plan_id: context[:plan].id,
       type: "build_component",
       on_success_step_id: lvl1.id,
       on_failure_step_id: root_fail.id
-    }) |> Repo.insert
+    }) |> Repo.insert!
 
     returned_root_node = ProductDeploymentPlanStep.to_hierarchy(Repo.all(PDPSQuery.get_steps_for_plan(context[:plan].id)), true)
     returned_steps = ProductDeploymentPlanStep.flatten_hierarchy(returned_root_node)

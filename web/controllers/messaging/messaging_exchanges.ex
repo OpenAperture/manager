@@ -158,7 +158,7 @@ defmodule OpenAperture.Manager.Controllers.MessagingExchanges do
         })
         if changeset.valid? do
           try do
-            exchange = Repo.insert(changeset)
+            exchange = Repo.insert!(changeset)
             path = OpenAperture.Manager.Router.Helpers.messaging_exchanges_path(Endpoint, :show, exchange.id)
 
             # Set location header
@@ -237,7 +237,7 @@ defmodule OpenAperture.Manager.Controllers.MessagingExchanges do
           changeset = MessagingExchange.update(exchange, Map.take(params, @updatable_exchange_fields))
           if changeset.valid? do
             try do
-              Repo.update(changeset)
+              Repo.update!(changeset)
               path = OpenAperture.Manager.Router.Helpers.messaging_exchanges_path(Endpoint, :show, id)
               conn
               |> put_resp_header("location", path)
@@ -286,13 +286,13 @@ defmodule OpenAperture.Manager.Controllers.MessagingExchanges do
         |> json ResponseBodyFormatter.error_body(:not_found, "MessagingExchange")  
       exchange ->
         Repo.transaction(fn ->
-          Repo.update_all(from(e in EtcdCluster, where: e.messaging_exchange_id  == ^id), messaging_exchange_id: nil)
-          Repo.update_all(from(e in MessagingExchange, where: e.failover_exchange_id  == ^id), failover_exchange_id: nil)
-          Repo.update_all(from(e in MessagingExchange, where: e.parent_exchange_id == ^id), parent_exchange_id: nil)
+          Repo.update_all(from(e in EtcdCluster, where: e.messaging_exchange_id  == ^id), set: [messaging_exchange_id: nil])
+          Repo.update_all(from(e in MessagingExchange, where: e.failover_exchange_id  == ^id), set: [failover_exchange_id: nil])
+          Repo.update_all(from(e in MessagingExchange, where: e.parent_exchange_id == ^id), set: [parent_exchange_id: nil])
           Repo.delete_all(from(b in MessagingExchangeBroker, where: b.messaging_exchange_id  == ^id))
           Repo.delete_all(from(m in MessagingExchangeModule, where: m.messaging_exchange_id  == ^id))
           Repo.delete_all(from(sc in SystemComponent, where: sc.messaging_exchange_id  == ^id))
-          Repo.delete(exchange)
+          Repo.delete!(exchange)
         end)
         resp(conn, :no_content, "")
     end
@@ -332,7 +332,7 @@ defmodule OpenAperture.Manager.Controllers.MessagingExchanges do
             changeset = MessagingExchangeBroker.new(%{"messaging_exchange_id" => id, "messaging_broker_id" => messaging_broker_id})
             if changeset.valid? do
               try do
-                exchange = Repo.insert(changeset)
+                exchange = Repo.insert!(changeset)
                 path = OpenAperture.Manager.Router.Helpers.messaging_exchanges_path(Endpoint, :get_broker_restrictions, exchange.id)
 
                 # Set location header

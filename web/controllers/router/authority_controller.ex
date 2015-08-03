@@ -103,9 +103,9 @@ defmodule OpenAperture.Manager.Controllers.Router.AuthorityController do
           # Create a deleted_authority record
           %DeletedAuthority{}
           |> DeletedAuthority.validate_changes(%{hostname: authority.hostname, port: authority.port})
-          |> Repo.insert
+          |> Repo.insert!
 
-          Repo.delete(authority)
+          Repo.delete!(authority)
         end)
 
         case result do
@@ -123,7 +123,7 @@ defmodule OpenAperture.Manager.Controllers.Router.AuthorityController do
       nil ->
         changeset = Authority.validate_changes(%Authority{}, %{hostname: hostname, port: port})
         if changeset.valid? do
-          authority = Repo.insert(changeset)
+          authority = Repo.insert!(changeset)
           path = authority_path(Endpoint, :show, authority)
 
           conn
@@ -163,9 +163,9 @@ defmodule OpenAperture.Manager.Controllers.Router.AuthorityController do
               # their caches.
               %DeletedAuthority{}
               |> DeletedAuthority.validate_changes(%{hostname: authority.hostname, port: authority.port})
-              |> Repo.insert
+              |> Repo.insert!
 
-              Repo.update(changeset)
+              Repo.update!(changeset)
             end)
 
             case result do

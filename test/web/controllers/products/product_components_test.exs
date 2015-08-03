@@ -26,40 +26,40 @@ defmodule OpenAperture.Manager.Controllers.ProductComponentsTest do
 
   setup do
     etcd_cluster = EtcdCluster.new(%{etcd_token: "test_token"})
-                   |> Repo.insert
+                   |> Repo.insert!
 
     product = Product.new(%{name: "ProductComponentTest"})
-              |> Repo.insert
+              |> Repo.insert!
 
     product_component1 = ProductComponent.new(%{
       name: "ProductComponentTestComponent1",
       type: "web_server",
       product_id: product.id
-      }) |> Repo.insert
+      }) |> Repo.insert!
 
     product_component2 = ProductComponent.new(%{
       name: "ProductComponentTestComponent2",
       type: "db",
       product_id: product.id
-      }) |> Repo.insert
+      }) |> Repo.insert!
 
     product_component1_option1 = ProductComponentOption.new(%{
       name: "test",
       value: "blar",
       product_component_id: product_component1.id
-      }) |> Repo.insert
+      }) |> Repo.insert!
 
     product_component1_option2 = ProductComponentOption.new(%{
       name: "test2",
       value: "ugh",
       product_component_id: product_component1.id
-      }) |> Repo.insert
+      }) |> Repo.insert!
 
     ectd_cluster_port = EtcdClusterPort.new(%{
       etcd_cluster_id: etcd_cluster.id,
       product_component_id: product_component1.id,
       port: 9000
-      }) |> Repo.insert
+      }) |> Repo.insert!
 
     on_exit fn ->
       Repo.delete_all(EtcdClusterPort)
@@ -106,7 +106,7 @@ defmodule OpenAperture.Manager.Controllers.ProductComponentsTest do
   end
 
   test "index action -- product exists, no associated components" do
-    product = Product.new(%{name: "ProductComponentTest2"}) |> Repo.insert
+    product = Product.new(%{name: "ProductComponentTest2"}) |> Repo.insert!
     path = product_components_path(Endpoint, :index, product.name)
 
     conn = get conn(), path
@@ -334,7 +334,7 @@ defmodule OpenAperture.Manager.Controllers.ProductComponentsTest do
                 %{"name" => "test2", "value" => "ugh2"}]}
 
     conn = conn()
-           |> put_req_header("content-type", "application/json")
+           |> Plug.Conn.put_req_header("content-type", "application/json")
            |> put(path, Poison.encode!(new_component))
 
     assert conn.status == 404
@@ -351,7 +351,7 @@ defmodule OpenAperture.Manager.Controllers.ProductComponentsTest do
                 %{"name" => "test2", "value" => "ugh2"}]}
 
     conn = conn()
-           |> put_req_header("content-type", "application/json")
+           |> Plug.Conn.put_req_header("content-type", "application/json")
            |> put(path, Poison.encode!(new_component))
 
     assert conn.status == 404
@@ -369,7 +369,7 @@ defmodule OpenAperture.Manager.Controllers.ProductComponentsTest do
                 %{"name" => "test2", "value" => "ugh2"}]}
 
     conn = conn()
-           |> put_req_header("content-type", "application/json")
+           |> Plug.Conn.put_req_header("content-type", "application/json")
            |> put(path, Poison.encode!(new_component))
 
     assert conn.status == 400
@@ -387,7 +387,7 @@ defmodule OpenAperture.Manager.Controllers.ProductComponentsTest do
                 %{"name" => "test2", "value" => "ugh2"}]}
 
     conn = conn()
-           |> put_req_header("content-type", "application/json")
+           |> Plug.Conn.put_req_header("content-type", "application/json")
            |> put(path, Poison.encode!(new_component))
 
     assert conn.status == 400
@@ -405,7 +405,7 @@ defmodule OpenAperture.Manager.Controllers.ProductComponentsTest do
                 %{"name" => "test2", "value" => "ugh2"}]}
 
     conn = conn()
-           |> put_req_header("content-type", "application/json")
+           |> Plug.Conn.put_req_header("content-type", "application/json")
            |> put(path, Poison.encode!(new_component))
 
     assert conn.status == 204

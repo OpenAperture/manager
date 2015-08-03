@@ -7,13 +7,13 @@ defmodule DB.Models.ProductEnvironmentalVariable.Test do
   alias OpenAperture.Manager.Repo
 
   setup _context do
-    product = Product.new(%{name: "ProductEnvironmentalVariablesModelTest"}) |> Repo.insert
-    env = ProductEnvironment.new(%{product_id: product.id, name: "test environment"}) |> Repo.insert
+    product = Product.new(%{name: "ProductEnvironmentalVariablesModelTest"}) |> Repo.insert!
+    env = ProductEnvironment.new(%{product_id: product.id, name: "test environment"}) |> Repo.insert!
 
     on_exit _context, fn ->
       Repo.delete_all(PEV)
-      Repo.delete(env)
-      Repo.delete(product)
+      Repo.delete!(env)
+      Repo.delete!(product)
     end
 
     {:ok, [product: product, product_environment: env]}
@@ -30,7 +30,7 @@ defmodule DB.Models.ProductEnvironmentalVariable.Test do
   test "bad product_id fails insert" do
     assert_raise Postgrex.Error,
                  "ERROR (foreign_key_violation): insert or update on table \"product_environmental_variables\" violates foreign key constraint \"product_environmental_variables_product_id_fkey\"",
-                 fn -> PEV.new(%{product_id: 98123784, name: "test name", value: "test value"}) |> Repo.insert end
+                 fn -> PEV.new(%{product_id: 98123784, name: "test name", value: "test value"}) |> Repo.insert! end
 
   end
 
@@ -39,33 +39,33 @@ defmodule DB.Models.ProductEnvironmentalVariable.Test do
 
     assert_raise Postgrex.Error,
                  "ERROR (foreign_key_violation): insert or update on table \"product_environmental_variables\" violates foreign key constraint \"product_environmental_variables_product_environment_id_fkey\"",
-                 fn -> PEV.new(var) |> Repo.insert end
+                 fn -> PEV.new(var) |> Repo.insert! end
   end
 
   test "product_id, environment_id, and variable name must be unique - null environment", context do
     var = %{product_id: context[:product].id, name: "test name", value: "test value"}
 
-    PEV.new(var) |> Repo.insert
+    PEV.new(var) |> Repo.insert!
 
     assert_raise Postgrex.Error,
                  "ERROR (unique_violation): duplicate key value violates unique constraint \"pev_prod_id_name_prod_env_null_idx\"",
-                 fn -> PEV.new(var) |> Repo.insert end
+                 fn -> PEV.new(var) |> Repo.insert! end
   end
 
   test "product_id, environment_id, and variable name must be unique", context do
     var = %{product_id: context[:product].id, product_environment_id: context[:product_environment].id, name: "test name", value: "test value"}
 
-    PEV.new(var) |> Repo.insert
+    PEV.new(var) |> Repo.insert!
 
     assert_raise Postgrex.Error,
                  "ERROR (unique_violation): duplicate key value violates unique constraint \"product_environmental_variables_product_id_product_environment_\"",
-                 fn -> PEV.new(var) |> Repo.insert end
+                 fn -> PEV.new(var) |> Repo.insert! end
   end
 
   test "successful creation with no environment", context do
     var = %{product_id: context[:product].id, name: "Test name", value: "Test value"}
 
-    new_env_var = PEV.new(var) |> Repo.insert
+    new_env_var = PEV.new(var) |> Repo.insert!
 
     retrieved_var = Repo.get(PEV, new_env_var.id)
 
@@ -77,7 +77,7 @@ defmodule DB.Models.ProductEnvironmentalVariable.Test do
   end
 
   test "successful creation with an environment", context do
-    new_env_var = PEV.new(%{product_id: context[:product].id, product_environment_id: context[:product_environment].id, name: "Test name", value: "Test value"}) |> Repo.insert
+    new_env_var = PEV.new(%{product_id: context[:product].id, product_environment_id: context[:product_environment].id, name: "Test name", value: "Test value"}) |> Repo.insert!
     retrieved_var = Repo.get(PEV, new_env_var.id)
 
     assert retrieved_var == new_env_var

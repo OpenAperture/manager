@@ -90,7 +90,7 @@ defmodule OpenAperture.Manager.Controllers.ProductsTest do
   test "delete action -- success" do
     product = %Product{name: "test1", id: 1}
     :meck.expect(OpenAperture.Manager.Repo, :one, 1, product)
-    :meck.expect(OpenAperture.Manager.Repo, :delete, 1, product)
+    :meck.expect(OpenAperture.Manager.Repo, :delete!, 1, product)
     :meck.expect(OpenAperture.Manager.Repo, :all, 1, [])
     :meck.expect(OpenAperture.Manager.Repo, :delete_all, 1, nil)
     :meck.expect(OpenAperture.Manager.Repo, :transaction, fn fun -> fun.(); {:ok, nil} end)

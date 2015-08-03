@@ -180,13 +180,13 @@ defmodule OpenAperture.Manager.Controllers.MessagingExchangeModules do
               Logger.debug("Deleting a previous record for hostname #{params["hostname"]}...")
               Repo.transaction(fn ->
                 Enum.reduce modules, nil, fn (module, _errors) ->
-                  Repo.delete(module)
+                  Repo.delete!(module)
                 end
               end)
           end
 
           try do
-            module = Repo.insert(changeset)
+            module = Repo.insert!(changeset)
             path = OpenAperture.Manager.Router.Helpers.messaging_exchange_modules_path(Endpoint, :show, id, module.hostname)
 
             # Set location header
@@ -231,7 +231,7 @@ defmodule OpenAperture.Manager.Controllers.MessagingExchangeModules do
           modules ->
             Repo.transaction(fn ->
               Enum.reduce modules, nil, fn (module, _errors) ->
-                Repo.delete(module)
+                Repo.delete!(module)
               end
             end)
             resp(conn, :no_content, "")

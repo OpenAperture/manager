@@ -20,6 +20,6 @@ defmodule OpenAperture.Manager.DB.Models.MessagingBrokerConnection do
   end
 
   def destroy(model) do
-    Repo.delete model
+    Repo.delete! model
   end
 end

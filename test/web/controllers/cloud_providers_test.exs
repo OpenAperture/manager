@@ -21,8 +21,8 @@ defmodule OpenAperture.Manager.Controllers.CloudProvidersTest do
   end
 
   test "index action" do
-    provider1 = CloudProvider.new(%{id: 1, name: "aws", type: "aws", configuration: "{}"}) |> Repo.insert
-    provider2 = CloudProvider.new(%{id: 2, name: "azure", type: "azure", configuration: "{}"}) |> Repo.insert
+    provider1 = CloudProvider.new(%{id: 1, name: "aws", type: "aws", configuration: "{}"}) |> Repo.insert!
+    provider2 = CloudProvider.new(%{id: 2, name: "azure", type: "azure", configuration: "{}"}) |> Repo.insert!
 
     conn = get conn(), "/cloud_providers"
 
@@ -43,7 +43,7 @@ defmodule OpenAperture.Manager.Controllers.CloudProvidersTest do
   end
 
   test "show action - found" do
-    provider = CloudProvider.new(%{name: "aws", type: "aws", configuration: "{}"}) |> Repo.insert
+    provider = CloudProvider.new(%{name: "aws", type: "aws", configuration: "{}"}) |> Repo.insert!
 
     conn = get conn, "/cloud_providers/#{provider.id}"
 
@@ -82,7 +82,7 @@ defmodule OpenAperture.Manager.Controllers.CloudProvidersTest do
   end
 
   test "delete action -- success" do
-    provider = CloudProvider.new(%{name: "aws", type: "aws", configuration: "{}"}) |> Repo.insert
+    provider = CloudProvider.new(%{name: "aws", type: "aws", configuration: "{}"}) |> Repo.insert!
 
     conn = delete conn(), "/cloud_providers/#{provider.id}"
 
@@ -96,7 +96,7 @@ defmodule OpenAperture.Manager.Controllers.CloudProvidersTest do
   end
 
   test "update action -- success" do
-    provider = CloudProvider.new(%{name: "aws", type: "aws", configuration: "{}"}) |> Repo.insert
+    provider = CloudProvider.new(%{name: "aws", type: "aws", configuration: "{}"}) |> Repo.insert!
 
     conn = put conn(), "/cloud_providers/#{provider.id}", [name: "azure", type: "azure", configuration: "{some_config}"]
     
@@ -115,7 +115,7 @@ defmodule OpenAperture.Manager.Controllers.CloudProvidersTest do
   end
 
   test "update action -- fails on invalid change" do
-    provider = CloudProvider.new(%{name: "aws", type: "aws", configuration: "{}"}) |> Repo.insert
+    provider = CloudProvider.new(%{name: "aws", type: "aws", configuration: "{}"}) |> Repo.insert!
 
     conn = put conn(), "/cloud_providers/#{provider.id}", [name: "", type: "", configuration: ""]
     assert conn.status == 400
@@ -125,9 +125,9 @@ defmodule OpenAperture.Manager.Controllers.CloudProvidersTest do
   end
 
   test "clusters action -- provider found" do 
-    provider = CloudProvider.new(%{name: "a", type: "a", configuration: "{}"}) |> Repo.insert
-    _cluster1 = EtcdCluster.new(%{etcd_token: "abc125", hosting_provider_id: provider.id}) |> Repo.insert
-    _cluster2 = EtcdCluster.new(%{etcd_token: "abc126", hosting_provider_id: provider.id}) |> Repo.insert
+    provider = CloudProvider.new(%{name: "a", type: "a", configuration: "{}"}) |> Repo.insert!
+    _cluster1 = EtcdCluster.new(%{etcd_token: "abc125", hosting_provider_id: provider.id}) |> Repo.insert!
+    _cluster2 = EtcdCluster.new(%{etcd_token: "abc126", hosting_provider_id: provider.id}) |> Repo.insert!
 
     conn = get conn(), "/cloud_providers/#{provider.id}/clusters"
 
@@ -139,10 +139,10 @@ defmodule OpenAperture.Manager.Controllers.CloudProvidersTest do
   end
 
   test "clusters action -- provider has no clusters" do
-    provider1 = CloudProvider.new(%{name: "a", type: "a", configuration: "{}"}) |> Repo.insert
-    provider2 = CloudProvider.new(%{name: "a", type: "a", configuration: "{}"}) |> Repo.insert
-    _cluster1 = EtcdCluster.new(%{etcd_token: "abc125", hosting_provider_id: provider2.id}) |> Repo.insert
-    _cluster2 = EtcdCluster.new(%{etcd_token: "abc126", hosting_provider_id: provider2.id}) |> Repo.insert
+    provider1 = CloudProvider.new(%{name: "a", type: "a", configuration: "{}"}) |> Repo.insert!
+    provider2 = CloudProvider.new(%{name: "a", type: "a", configuration: "{}"}) |> Repo.insert!
+    _cluster1 = EtcdCluster.new(%{etcd_token: "abc125", hosting_provider_id: provider2.id}) |> Repo.insert!
+    _cluster2 = EtcdCluster.new(%{etcd_token: "abc126", hosting_provider_id: provider2.id}) |> Repo.insert!
 
     conn = get conn(), "/cloud_providers/#{provider1.id}/clusters"
 
@@ -154,9 +154,9 @@ defmodule OpenAperture.Manager.Controllers.CloudProvidersTest do
   end
 
   test "clusters action -- provider does not exist" do
-    provider = CloudProvider.new(%{name: "a", type: "a", configuration: "{}"}) |> Repo.insert
-    _cluster1 = EtcdCluster.new(%{etcd_token: "abc125", hosting_provider_id: provider.id}) |> Repo.insert
-    _cluster2 = EtcdCluster.new(%{etcd_token: "abc126", hosting_provider_id: provider.id}) |> Repo.insert
+    provider = CloudProvider.new(%{name: "a", type: "a", configuration: "{}"}) |> Repo.insert!
+    _cluster1 = EtcdCluster.new(%{etcd_token: "abc125", hosting_provider_id: provider.id}) |> Repo.insert!
+    _cluster2 = EtcdCluster.new(%{etcd_token: "abc126", hosting_provider_id: provider.id}) |> Repo.insert!
     
     conn = get conn(), "/cloud_providers/-1/clusters"
 

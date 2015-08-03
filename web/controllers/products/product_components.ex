@@ -210,7 +210,7 @@ defmodule OpenAperture.Manager.Controllers.ProductComponents do
 
         if changeset.valid? do
           result = Repo.transaction(fn ->
-            new_component = Repo.insert(changeset)
+            new_component = Repo.insert!(changeset)
 
             options = params["options"] || []
 
@@ -241,7 +241,7 @@ defmodule OpenAperture.Manager.Controllers.ProductComponents do
         option = Map.put(option, "product_component_id", component_id)
         changeset = ProductComponentOption.new(option)
         if changeset.valid? do
-          Repo.insert(changeset)
+          Repo.insert!(changeset)
         else
           # If the option isn't valid, we need to kill the transaction
           # and return the validation info to report to the user

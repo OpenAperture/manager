@@ -140,6 +140,34 @@ defmodule OpenAperture.Manager.Messaging.FleetManagerPublisher do
     end
   end
 
+  @doc """
+  Method to retrieve detailed information about nodes in a cluster
+
+  ## Options
+
+  The `cluster_exchange_id` represents the messaging_exchange_id associated with the cluster
+
+  The `nodes` option represents a list of IPs/hostnames for which information should be retrieved
+
+  ## Return Values
+
+  RpcHandler pid
+  """
+  @spec node_info!(term, List) :: pid   
+  def node_info!(cluster_exchange_id, nodes) do
+    request_body = %{
+        action: :node_info,
+        action_parameters: %{
+          nodes: nodes
+        }
+    }
+
+    case GenServer.call(__MODULE__, {:execute_rpc_request, request_body, cluster_exchange_id}) do
+      {:ok, handler} -> handler
+      {:error, reason} -> raise reason
+    end    
+  end  
+
   @spec handle_call({:execute_rpc_request, Map, term}, term, Map) :: {:reply, pid, Map}
   def handle_call({:execute_rpc_request, request_body, cluster_exchange_id}, _from, state) do
     request = %RpcRequest{

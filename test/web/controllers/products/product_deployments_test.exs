@@ -52,7 +52,6 @@ defmodule OpenAperture.Manager.Controllers.ProductDeploymentsTest do
     product = context[:product]
 
     path = product_deployments_path(Endpoint, :index, product.name)
-
     IO.inspect(conn())
 
     conn = get conn(), path
@@ -62,8 +61,10 @@ defmodule OpenAperture.Manager.Controllers.ProductDeploymentsTest do
     assert length(body) == 2
   end
 
+
   test "index action -- product not found" do
     path = product_deployments_path(Endpoint, :index, "notarealproductname")
+
 
     conn = get conn(), path
     assert conn.status == 404

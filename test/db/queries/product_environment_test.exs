@@ -8,28 +8,28 @@ defmodule DB.Queries.ProductEnvironment.Test do
 
   setup _context do
     product = Product.new(%{name: "ProductEnvironmentsQueriesTest"})
-              |> Repo.insert
+              |> Repo.insert!
     product2 = Product.new(%{name: "ProductEnvironmentQueryTest2"})
-               |> Repo.insert
+               |> Repo.insert!
 
     pe1 = ProductEnvironment.new(%{name: "env1", product_id: product2.id})
-          |> Repo.insert
+          |> Repo.insert!
     pe2 = ProductEnvironment.new(%{name: "env2", product_id: product2.id})
-          |> Repo.insert
+          |> Repo.insert!
     
     on_exit _context, fn ->
       Repo.delete_all(ProductEnvironment)
-      Repo.delete(product2)
-      Repo.delete(product)
+      Repo.delete!(product2)
+      Repo.delete!(product)
     end
 
     {:ok, [product: product, product2: product2, pe1: pe1, pe2: pe2]}
   end
 
   test "find_by_product_name", context do
-    ProductEnvironment.new(%{name: "env1", product_id: context[:product].id}) |> Repo.insert
-    ProductEnvironment.new(%{name: "env2", product_id: context[:product].id}) |> Repo.insert
-    ProductEnvironment.new(%{name: "env3", product_id: context[:product].id}) |> Repo.insert
+    ProductEnvironment.new(%{name: "env1", product_id: context[:product].id}) |> Repo.insert!
+    ProductEnvironment.new(%{name: "env2", product_id: context[:product].id}) |> Repo.insert!
+    ProductEnvironment.new(%{name: "env3", product_id: context[:product].id}) |> Repo.insert!
 
     results = Repo.all(ProductEnvironmentQuery.find_by_product_name(context[:product].name))
 
@@ -37,9 +37,9 @@ defmodule DB.Queries.ProductEnvironment.Test do
   end
 
   test "get_environment", context do
-    ProductEnvironment.new(%{name: "env1", product_id: context[:product].id}) |> Repo.insert
-    ProductEnvironment.new(%{name: "env2", product_id: context[:product].id}) |> Repo.insert
-    ProductEnvironment.new(%{name: "env3", product_id: context[:product].id}) |> Repo.insert
+    ProductEnvironment.new(%{name: "env1", product_id: context[:product].id}) |> Repo.insert!
+    ProductEnvironment.new(%{name: "env2", product_id: context[:product].id}) |> Repo.insert!
+    ProductEnvironment.new(%{name: "env3", product_id: context[:product].id}) |> Repo.insert!
 
     results = Repo.all(ProductEnvironmentQuery.get_environment(context[:product].name, "env2"))
 

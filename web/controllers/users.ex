@@ -21,7 +21,7 @@ defmodule OpenAperture.Manager.Controllers.Users do
     new_user = User.new(params)
 
     if new_user.valid? do
-      user = Repo.insert(new_user)
+      user = Repo.insert!(new_user)
       path = users_path(Endpoint, :show, user.id)
       Logger.info("New user created: #{inspect user}")
 
@@ -62,7 +62,7 @@ defmodule OpenAperture.Manager.Controllers.Users do
         changeset = User.validate_changes(user, params)
 
         if changeset.valid? do
-          user = Repo.update(changeset)
+          user = Repo.update!(changeset)
           path = users_path(Endpoint, :show, user.id)
           Logger.info("User has been updates: #{inspect user}")
 
@@ -82,7 +82,7 @@ defmodule OpenAperture.Manager.Controllers.Users do
     user = Repo.get(User, id)
 
     if user do
-      Repo.delete(user)
+      Repo.delete!(user)
       Logger.info("User has been deleted: #{inspect user}")
       resp(conn, :no_content, "")
     else

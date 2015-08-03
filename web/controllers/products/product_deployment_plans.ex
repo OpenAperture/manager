@@ -108,7 +108,7 @@ defmodule OpenAperture.Manager.Controllers.ProductDeploymentPlans do
         changeset = ProductDeploymentPlan.update(deployment_plan, params)
         if changeset.valid? do
           try do
-            updated = Repo.update(changeset)
+            updated = Repo.update!(changeset)
 
             path = product_deployment_plans_path(Endpoint, :show, product_name, updated.name)
 
@@ -179,7 +179,7 @@ defmodule OpenAperture.Manager.Controllers.ProductDeploymentPlans do
 
     if changeset.valid? do
       try do
-        plan = Repo.insert(changeset)
+        plan = Repo.insert!(changeset)
         {:ok, plan}
       rescue e ->
         {:error, e}

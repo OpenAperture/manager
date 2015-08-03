@@ -21,20 +21,20 @@ defmodule OpenAperture.Manager.Controllers.Router.RoutesController.Test do
       %Ecto.Date{year: 2014, month: 1, day: 1},
       %Ecto.Time{hour: 1, min: 1, sec: 1})
 
-    a1 = Repo.insert(%Authority{hostname: "test", port: 80, inserted_at: datetime, updated_at: datetime})
-    a2 = Repo.insert(%Authority{hostname: "test2", port: 80, inserted_at: datetime, updated_at: datetime})
+    a1 = Repo.insert!(%Authority{hostname: "test", port: 80, inserted_at: datetime, updated_at: datetime})
+    a2 = Repo.insert!(%Authority{hostname: "test2", port: 80, inserted_at: datetime, updated_at: datetime})
 
-    Repo.insert(%Route{authority_id: a1.id, hostname: "east.test", port: 80, inserted_at: datetime, updated_at: datetime})
-    Repo.insert(%Route{authority_id: a1.id, hostname: "west.test", port: 80, inserted_at: datetime, updated_at: datetime})
-    Repo.insert(%Route{authority_id: a1.id, hostname: "test.test", port: 80, inserted_at: datetime, updated_at: datetime})
-    Repo.insert(%Route{authority_id: a1.id, hostname: "staging.test", port: 80, inserted_at: datetime, updated_at: datetime})
+    Repo.insert!(%Route{authority_id: a1.id, hostname: "east.test", port: 80, inserted_at: datetime, updated_at: datetime})
+    Repo.insert!(%Route{authority_id: a1.id, hostname: "west.test", port: 80, inserted_at: datetime, updated_at: datetime})
+    Repo.insert!(%Route{authority_id: a1.id, hostname: "test.test", port: 80, inserted_at: datetime, updated_at: datetime})
+    Repo.insert!(%Route{authority_id: a1.id, hostname: "staging.test", port: 80, inserted_at: datetime, updated_at: datetime})
 
-    Repo.insert(%Route{authority_id: a2.id, hostname: "main.test2", port: 80, inserted_at: datetime, updated_at: datetime})
+    Repo.insert!(%Route{authority_id: a2.id, hostname: "main.test2", port: 80, inserted_at: datetime, updated_at: datetime})
 
-    Repo.insert(%DeletedAuthority{hostname: "test.host", port: 1, inserted_at: datetime, updated_at: datetime})
-    Repo.insert(%DeletedAuthority{hostname: "test.host", port: 2, inserted_at: datetime, updated_at: datetime})
-    Repo.insert(%DeletedAuthority{hostname: "test.host", port: 3, inserted_at: datetime, updated_at: datetime})
-    Repo.insert(%DeletedAuthority{hostname: "test.host", port: 3, inserted_at: datetime, updated_at: datetime})
+    Repo.insert!(%DeletedAuthority{hostname: "test.host", port: 1, inserted_at: datetime, updated_at: datetime})
+    Repo.insert!(%DeletedAuthority{hostname: "test.host", port: 2, inserted_at: datetime, updated_at: datetime})
+    Repo.insert!(%DeletedAuthority{hostname: "test.host", port: 3, inserted_at: datetime, updated_at: datetime})
+    Repo.insert!(%DeletedAuthority{hostname: "test.host", port: 3, inserted_at: datetime, updated_at: datetime})
 
     on_exit fn ->
       Repo.delete_all(Route)
@@ -88,8 +88,8 @@ defmodule OpenAperture.Manager.Controllers.Router.RoutesController.Test do
     {date, {hour, min, sec}} = :calendar.now_to_universal_time(now)
     {:ok, create_datetime} = Ecto.DateTime.load({date, {hour, min, sec, 0}})
 
-    new_authority = Repo.insert(%Authority{hostname: "NewAuthority", port: 1, inserted_at: create_datetime, updated_at: create_datetime})
-    Repo.insert(%Route{authority_id: new_authority.id, hostname: "NewRoute", port: 1, inserted_at: create_datetime, updated_at: create_datetime})
+    new_authority = Repo.insert!(%Authority{hostname: "NewAuthority", port: 1, inserted_at: create_datetime, updated_at: create_datetime})
+    Repo.insert!(%Route{authority_id: new_authority.id, hostname: "NewRoute", port: 1, inserted_at: create_datetime, updated_at: create_datetime})
 
     {megas, secs, _} = now
     timestamp = megas * 1_000_000 + secs
@@ -142,7 +142,7 @@ defmodule OpenAperture.Manager.Controllers.Router.RoutesController.Test do
 
     timestamp = body["timestamp"]
 
-    deleted_authority = Repo.insert(%DeletedAuthority{hostname: "test", port: 9})
+    deleted_authority = Repo.insert!(%DeletedAuthority{hostname: "test", port: 9})
 
     path = routes_path(Endpoint, :index_deleted, updated_since: timestamp)
     conn = get conn(), path
