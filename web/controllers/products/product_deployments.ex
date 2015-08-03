@@ -16,8 +16,8 @@ defmodule OpenAperture.Manager.Controllers.ProductDeployments do
   alias OpenAperture.Manager.DB.Models.ProductDeploymentPlan
   alias OpenAperture.Manager.DB.Models.ProductDeploymentStep
 
-  # alias OpenAperture.ProductDeploymentOrchestratorApi.Request, as: OrchestratorRequest
-  # alias OpenAperture.ProductDeploymentOrchestratorApiu.ProductDeploymentOrchestrator.Publisher, as: OrchestratorPublisher
+  alias OpenAperture.ProductDeploymentOrchestratorApi.Request, as: OrchestratorRequest
+  alias OpenAperture.ProductDeploymentOrchestratorApi.ProductDeploymentOrchestrator.Publisher, as: OrchestratorPublisher
 
   @deployment_sendable_fields [:id, :product_id, :product_deployment_plan_id, :product_environment_id, :execution_options, :completed, :duration, :output, :inserted_at, :updated_at]
   @deployment_steps_sendable_fields [:id, :product_deployment_plan_step_id, :product_deployment_plan_step_type, :duration, :successful, :execution_options, :output, :sequence, :inserted_at, :updated_at]
@@ -172,57 +172,37 @@ defmodule OpenAperture.Manager.Controllers.ProductDeployments do
     end
   end
 
-  # @spec execute(term, [any]) :: term
-  # def execute(conn, %{"id" => id} = params) do
-  #   raw_workflow = get_workflow(id)
+  def execute(conn, %{"product_name" => product_name, "id" => id} = params) do
+    deployment = get_product_deployment(product_name, id)
 
-  #   cond do
-  #     raw_workflow == nil -> resp(conn, :not_found, "")
-  #     raw_workflow.workflow_completed == true -> resp(conn, :conflict, "Workflow has already completed")
-  #     raw_workflow.current_step != nil -> resp(conn, :conflict, "Workflow has already been started")
-  #     true ->
-  #       payload = List.first(convert_raw_workflows([raw_workflow]))
-  #       if params["force_build"] != nil do
-  #         payload = Map.put(payload, :force_build, params["force_build"])
-  #       end
-
-  #       build_messaging_exchange_id = to_string(params["build_messaging_exchange_id"])
-  #       if String.length(build_messaging_exchange_id) > 0 do
-  #         payload = case Integer.parse(build_messaging_exchange_id) do
-  #           {messaging_exchange_id, _} -> Map.put(payload, :build_messaging_exchange_id, messaging_exchange_id)
-  #           :error -> payload
-  #         end
-  #       end
-
-  #       deploy_messaging_exchange_id = to_string(params["deploy_messaging_exchange_id"])
-  #       if String.length(deploy_messaging_exchange_id) > 0 do
-  #         payload = case Integer.parse(deploy_messaging_exchange_id) do
-  #           {messaging_exchange_id, _} -> Map.put(payload, :deploy_messaging_exchange_id, messaging_exchange_id)
-  #           :error -> payload
-  #         end
-  #       end        
+    cond do
+      deployment == nil -> resp(conn, :not_found, "")
+      deployment.completed == true -> resp(conn, :conflict, "Workflow has already completed")
+      deployment.output != "[]" -> resp(conn, :conflict, "Workflow has already been started")
+      true ->
+        payload = deployment
                 
-  #       request = OrchestratorRequest.from_payload(payload)
-  #       request = %{request | notifications_exchange_id: Configuration.get_current_exchange_id}
-  #       request = %{request | notifications_broker_id: Configuration.get_current_broker_id}
-  #       request = %{request | workflow_orchestration_exchange_id: Configuration.get_current_exchange_id}
-  #       request = %{request | workflow_orchestration_broker_id: Configuration.get_current_broker_id}
-  #       request = %{request | orchestration_queue_name: "workflow_orchestration"}
+        request = %OrchestratorRequest{}
+        request = %{request | deployment: deployment}
+        request = %{request | completed: nil}
+        request = %{request | product_deployment_orchestration_exchange_id: Configuration.get_current_exchange_id}
+        request = %{request | product_deployment_orchestration_broker_id: Configuration.get_current_broker_id}
+        request = %{request | product_deployment_orchestration_queue: "product_deployment_orchestrator"}
 
-  #       case OrchestratorPublisher.execute_orchestration(request) do
-  #         :ok -> 
-  #           path = OpenAperture.Manager.Router.Helpers.workflows_path(Endpoint, :show, id)
+        case OrchestratorPublisher.execute_orchestration(request) do
+          :ok -> 
+            path = OpenAperture.Manager.Router.Helpers.workflows_path(Endpoint, :show, id)
 
-  #           # Set location header
-  #           conn
-  #           |> put_resp_header("location", path)
-  #           |> resp(:accepted, "")
-  #         {:error, reason} -> 
-  #           Logger.error("Error executing Workflow #{id}: #{inspect reason}")
-  #           resp(conn, :internal_server_error, "")            
-  #       end
-  #   end
-  # end
+            # Set location header
+            conn
+            |> put_resp_header("location", path)
+            |> resp(:accepted, "")
+          {:error, reason} -> 
+            Logger.error("Error executing Workflow #{id}: #{inspect reason}")
+            resp(conn, :internal_server_error, "")            
+        end
+    end
+  end
 
   defp get_deployment_plan_by_name(product_name, deployment_plan_name) do
     ProductDeploymentPlan

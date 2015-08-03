@@ -20,21 +20,21 @@ defmodule OpenAperture.Manager.Controllers.ProductDeploymentsTest do
   end
 
   setup do
-    product = Product.new(%{name: "test_deployments_product"})
-              |> Repo.insert
-    pdp1 = ProductDeploymentPlan.new(%{product_id: product.id, name: "test_deployment_plan_1"})
-           |> Repo.insert
+    product = Product.new(%{name: "product1"})
+              |> Repo.insert!
+    pdp1 = ProductDeploymentPlan.new(%{product_id: product.id, name: "plan1"})
+           |> Repo.insert!
 
     pd1 = ProductDeployment.new(%{product_id: product.id, product_deployment_plan_id: pdp1.id})
-          |> Repo.insert
+          |> Repo.insert!
 
     pd2 = ProductDeployment.new(%{product_id: product.id, product_deployment_plan_id: pdp1.id})
-          |> Repo.insert
+          |> Repo.insert!
 
     _pds1 = ProductDeploymentStep.new(%{product_deployment_id: pd1.id})
-           |> Repo.insert
+           |> Repo.insert!
     _pds2 = ProductDeploymentStep.new(%{product_deployment_id: pd1.id})
-           |> Repo.insert
+           |> Repo.insert!
 
     on_exit fn ->
       Repo.delete_all(ProductDeploymentStep)
@@ -53,6 +53,8 @@ defmodule OpenAperture.Manager.Controllers.ProductDeploymentsTest do
 
     path = product_deployments_path(Endpoint, :index, product.name)
 
+    IO.inspect(conn())
+
     conn = get conn(), path
 
     assert conn.status == 200
@@ -61,7 +63,7 @@ defmodule OpenAperture.Manager.Controllers.ProductDeploymentsTest do
   end
 
   test "index action -- product not found" do
-    path = product_deployments_path(Endpoint, :index, "not a real product name")
+    path = product_deployments_path(Endpoint, :index, "notarealproductname")
 
     conn = get conn(), path
     assert conn.status == 404
