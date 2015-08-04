@@ -30,7 +30,8 @@ defmodule OpenAperture.Mixfile do
         :openaperture_auth, 
         :openaperture_messaging,
         :openaperture_manager_api,
-        :openaperture_workflow_orchestrator_api
+        :openaperture_workflow_orchestrator_api,
+        :openaperture_product_deployment_orchestrator_api
     ]
    ]
   end
