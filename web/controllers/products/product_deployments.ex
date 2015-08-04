@@ -36,7 +36,7 @@ defmodule OpenAperture.Manager.Controllers.ProductDeployments do
         |> json ResponseBodyFormatter.error_body(:not_found, "ProductDeployment")
       product ->
         if params["page"] == nil do 
-         page_number = 0
+          page_number = 1
         else
           page_number = Integer.parse(params["page"])
         end
@@ -45,7 +45,7 @@ defmodule OpenAperture.Manager.Controllers.ProductDeployments do
        page = ProductDeployment
          |> where([p], p.product_id == ^product_id)
          |> order_by([p], desc: p.inserted_at)
-         |> Repo.paginate(page: params["page"])
+         |> Repo.paginate(page: page_number)
 
        deployments = page.entries
          |> Enum.map(&to_sendable(&1, @deployment_sendable_fields))
@@ -186,7 +186,7 @@ defmodule OpenAperture.Manager.Controllers.ProductDeployments do
     end
   end
 
-  def execute(conn, %{"product_name" => product_name, "id" => id} = params) do
+  def execute(conn, %{"product_name" => product_name, "id" => id} = _params) do
     deployment = get_product_deployment(product_name, id)
 
     cond do
@@ -194,8 +194,6 @@ defmodule OpenAperture.Manager.Controllers.ProductDeployments do
       deployment.completed == true -> resp(conn, :conflict, "Workflow has already completed")
       deployment.output != "[]" -> resp(conn, :conflict, "Workflow has already been started")
       true ->
-        payload = deployment
-                
         request = %OrchestratorRequest{}
         request = %{request | deployment: deployment}
         request = %{request | completed: nil}
