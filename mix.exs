@@ -30,8 +30,7 @@ defmodule OpenAperture.Mixfile do
         :openaperture_auth, 
         :openaperture_messaging,
         :openaperture_manager_api,
-        :openaperture_workflow_orchestrator_api,
-        #:openaperture_product_deployment_orchestrator
+        :openaperture_workflow_orchestrator_api
     ]
    ]
   end
@@ -68,7 +67,7 @@ defmodule OpenAperture.Mixfile do
       {:openaperture_manager_api, git: "https://github.com/OpenAperture/manager_api.git",  ref: "8e2f6bdbf9f93dcae2540b1313f9d6dfc0a254a6", override: true},
       {:openaperture_overseer_api, git: "https://github.com/OpenAperture/overseer_api.git", ref: "4b9146507ab50789fec4696b96f79642add2b502", override: true},
       {:openaperture_workflow_orchestrator_api, git: "https://github.com/OpenAperture/workflow_orchestrator_api.git", ref: "c9c4175117f4807fb312637374d8119772913e3e", override: true},
-      #{:openaperture_product_deployment_orchestrator, git: "https://github.com/OpenAperture/product_deployment_orchestrator_api", ref: "https://github.com/OpenAperture/product_deployment_orchestrator_api", override: true},
+      {:openaperture_product_deployment_orchestrator_api, git: "https://github.com/OpenAperture/product_deployment_orchestrator_api", ref: "b4212255ce1166e94dcffe3871db31be760b3914", override: true},
       
       {:meck, "0.8.2", only: :test},        
    ]
