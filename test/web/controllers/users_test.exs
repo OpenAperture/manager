@@ -50,6 +50,21 @@ defmodule OpenAperture.Manager.Controllers.UsersTest do
     assert get(conn, "users/0").status == 404
   end
 
+  test "show me", %{user: user} do
+
+    conn = 
+      conn()
+      |> put_private(:auth_user, user)
+      |> get("users/me")
+    assert conn.status == 200
+
+    user_entry = Poison.decode!(conn.resp_body)
+    assert user_entry["id"]         == user.id
+    assert user_entry["first_name"] == user.first_name
+    assert user_entry["last_name"]  == user.last_name
+    assert user_entry["email"]      == user.email    
+  end
+
   test "create action - success" do
     params = %{first_name: "Josh", last_name: "Done", email: "jdone@mail.com"}
     conn   = post(conn, "users", params)

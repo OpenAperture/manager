@@ -38,14 +38,18 @@ defmodule OpenAperture.Manager.Controllers.Users do
 
   # GET /users/:id
   def show(conn, %{"id" => id}) do
-    user = Repo.get(User, id)
-
-    if user do
-      json conn, user
+    if id == "me" do
+      json conn, conn.private[:auth_user]
     else
-      conn
-      |> put_status(:not_found)
-      |> json @no_user_error
+      user = Repo.get(User, id)
+
+      if user do
+        json conn, user
+      else
+        conn
+        |> put_status(:not_found)
+        |> json @no_user_error
+      end
     end
   end
 
