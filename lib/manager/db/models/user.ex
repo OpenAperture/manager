@@ -2,6 +2,7 @@ defmodule OpenAperture.Manager.DB.Models.User do
   use OpenAperture.Manager.DB.Models.BaseModel
 
   alias OpenAperture.Manager.DB.Models.AuthSourceUserRelation
+  alias OpenAperture.Manager.DB.Models.SystemEvent
 
   schema "users" do
     field :first_name
@@ -10,6 +11,7 @@ defmodule OpenAperture.Manager.DB.Models.User do
 
     has_many :auth_source_relations, AuthSourceUserRelation
     has_many :auth_sources, through: [:auth_source_relations, :auth_source]
+    has_many :system_events, SystemEvent
 
     timestamps
   end

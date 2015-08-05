@@ -8,6 +8,8 @@ defmodule OpenAperture.Manager.Controllers.SystemEvents do
   alias OpenAperture.Manager.DB.Models.SystemEvent
   alias OpenAperture.Manager.DB.Queries.SystemEvent, as: SystemEventQuery
 
+  alias   OpenAperture.Manager.DB.Models.User
+
   plug :action
 
   @moduledoc """
@@ -22,6 +24,12 @@ defmodule OpenAperture.Manager.Controllers.SystemEvents do
     :data,
     :inserted_at, 
     :updated_at,
+    :dismissed_at,
+    :dismissed_by_id,
+    :dismissed_reason,
+    :assigned_at,
+    :assignee_id,
+    :assigned_by_id    
   ]
 
   @doc """
@@ -39,15 +47,41 @@ defmodule OpenAperture.Manager.Controllers.SystemEvents do
   """
   @spec index(term, [any]) :: term
   def index(conn, params) do
-    lookback = if params["lookback"] != nil do
-      {int, _} = Integer.parse(params["lookback"])
-      int
-    else
-      24
+    query = cond do
+      #check for lookback query
+      params["lookback"] != nil -> 
+        {int, _} = Integer.parse(params["lookback"])
+        SystemEventQuery.get_events(int)
+
+      #check for user-assigned
+      params["assignee_id"] != nil -> SystemEventQuery.get_assigned_events(params["assignee_id"])
+
+      #default to a 24-hour lookback
+      true -> SystemEventQuery.get_events(24)
     end
 
-    json conn, convert_raw(Repo.all(SystemEventQuery.get_events(lookback)))
+    json conn, convert_raw(Repo.all(query))
   end
+
+  @doc """
+  GET /system_events/:id - Retrieve a SystemEvent
+
+  ## Options
+  The `conn` option defines the underlying HTTP connection.
+  The `params` option defines an array of arguments.
+
+  ## Return Values
+
+  Underlying HTTP connection
+  """
+  @spec show(Plug.Conn.t, [any]) :: Plug.Conn.t
+  def show(conn, params) do
+    case Repo.get(SystemEvent, params["id"]) do
+      nil -> not_found(conn, "SystemEvent #{params["id"]}")
+      event -> 
+        json conn, List.first(convert_raw([event]))
+    end
+  end  
 
   @doc """
   POST /system_events - Create a SystemEvent
@@ -86,6 +120,96 @@ defmodule OpenAperture.Manager.Controllers.SystemEvents do
       end
     else
       bad_request(conn, "SystemEvent", changeset.errors)
+    end
+  end
+
+  @doc """
+  POST /system_events/:id/assign - Assign a SystemEvent
+
+  ## Options
+  The `conn` option defines the underlying HTTP connection.
+  The `params` option defines an array of arguments.
+
+  ## Return Values
+
+  Underlying HTTP connection
+  """
+  @spec assign(Plug.Conn.t, [any]) :: Plug.Conn.t
+  def assign(conn, params) do
+    event = Repo.get(SystemEvent, params["id"])
+
+    if params["assignee_id"] != nil do
+      assignee = Repo.get(User, params["assignee_id"])
+    end
+
+    if conn.private[:auth_user] != nil do
+      assigned_by = conn.private[:auth_user]
+    end
+
+    cond do
+      event == nil -> not_found(conn, "SystemEvent #{params["id"]}")
+      assignee == nil -> bad_request(conn, "User #{params["assignee_id"]}")
+      assigned_by == nil -> bad_request(conn, "User assigned_by")
+      true -> 
+        changeset = SystemEvent.validate_changes(event, %{
+          assignee_id: assignee.id,
+          assigned_by_id: assigned_by.id,
+          assigned_at: Ecto.DateTime.utc
+        })
+        if changeset.valid? do
+          try do
+            Repo.update!(changeset)
+            path = OpenAperture.Manager.Router.Helpers.system_events_path(Endpoint, :show, params["id"])
+            no_content(conn, path)
+          rescue 
+            e -> internal_server_error(conn, "SystemEvent", e ) 
+          end
+        else
+          bad_request(conn, "SystemEvent", changeset.errors)
+        end            
+    end
+  end
+
+  @doc """
+  POST /system_events/:id/dismiss - Dismiss a SystemEvent
+
+  ## Options
+  The `conn` option defines the underlying HTTP connection.
+  The `params` option defines an array of arguments.
+
+  ## Return Values
+
+  Underlying HTTP connection
+  """
+  @spec dismiss(Plug.Conn.t, [any]) :: Plug.Conn.t
+  def dismiss(conn, params) do
+    event = Repo.get(SystemEvent, params["id"])
+    if params["dismissed_by_id"] != nil do
+      dismissed_by = Repo.get(User, params["dismissed_by_id"])
+    else
+      dismissed_by = conn.private[:auth_user]
+    end
+
+    cond do
+      event == nil -> not_found(conn, "SystemEvent #{params["id"]}")
+      dismissed_by == nil -> bad_request(conn, "User #{params["dismissed_by_id"]}")
+      true -> 
+        changeset = SystemEvent.validate_changes(event, %{
+          dismissed_by_id: dismissed_by.id,
+          dismissed_at: Ecto.DateTime.utc,
+          dismissed_reason: params["dismissed_reason"]
+          })
+        if changeset.valid? do
+          try do
+            Repo.update!(changeset)
+            path = OpenAperture.Manager.Router.Helpers.system_events_path(Endpoint, :show, params["id"])
+            no_content(conn, path)
+          rescue 
+            e -> internal_server_error(conn, "SystemEvent", e ) 
+          end
+        else
+          bad_request(conn, "SystemEvent", changeset.errors)
+        end  
     end
   end
 

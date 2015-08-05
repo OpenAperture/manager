@@ -5,6 +5,7 @@ defmodule OpenAperture.Manager.Controllers.SystemEventsTest do
   alias OpenAperture.Manager.Repo
   alias OpenAperture.Manager.Controllers.SystemEvents
   alias OpenAperture.Manager.DB.Models.SystemEvent
+  alias OpenAperture.Manager.DB.Models.User
 
   setup_all do
     :meck.new(OpenAperture.Manager.Plugs.Authentication, [:passthrough])
@@ -12,6 +13,7 @@ defmodule OpenAperture.Manager.Controllers.SystemEventsTest do
 
     on_exit fn ->
       Repo.delete_all(SystemEvent)
+      Repo.delete_all(User)
       :meck.unload
     end    
     :ok
@@ -19,6 +21,7 @@ defmodule OpenAperture.Manager.Controllers.SystemEventsTest do
 
   setup do
     Repo.delete_all(SystemEvent)
+    Repo.delete_all(User)
     :ok
   end
 
@@ -42,6 +45,19 @@ defmodule OpenAperture.Manager.Controllers.SystemEventsTest do
     assert result != nil
     assert length(result) == 1
   end
+
+  test "show - assigned event", context do
+    user = Repo.insert!(%User{first_name: "test", last_name: "user", email: "test@test.com"})
+    event = Repo.insert!(%SystemEvent{type: "disk_space", inserted_at: from_erl(:calendar.universal_time), assignee_id: user.id})
+    event2 = Repo.insert!(%SystemEvent{type: "disk_space", inserted_at: from_erl(:calendar.universal_time)})
+
+    conn = get conn(), "/system_events?assignee_id=#{user.id}"
+    assert conn.status == 200
+
+    returned_events = Poison.decode!(conn.resp_body)
+    assert returned_events != nil
+    assert length(returned_events) == 1
+  end    
 
   # =====================
   # create tests
@@ -70,4 +86,96 @@ defmodule OpenAperture.Manager.Controllers.SystemEventsTest do
     assert location_header != nil
     assert String.contains?(location_header, "/system_events")
   end  
+
+  # ==================================
+  # show tests
+
+  test "show - invalid event" do
+    conn = get conn(), "/system_events/1234567890"
+    assert conn.status == 404
+  end
+
+  test "show - valid event", context do
+    event = Repo.insert!(%SystemEvent{type: "disk_space", inserted_at: from_erl(:calendar.universal_time)})
+
+    conn = get conn(), "/system_events/#{event.id}"
+    assert conn.status == 200
+
+    returned_event = Poison.decode!(conn.resp_body)
+    assert returned_event != nil
+  end    
+
+  test "show - valid event", context do
+    event = Repo.insert!(%SystemEvent{type: "disk_space", inserted_at: from_erl(:calendar.universal_time)})
+
+    conn = get conn(), "/system_events/#{event.id}"
+    assert conn.status == 200
+
+    returned_event = Poison.decode!(conn.resp_body)
+    assert returned_event != nil
+  end 
+
+  # =====================
+  # assign tests
+
+  test "assign - invalid event" do
+    conn = post conn(), "/system_events/1234567890/assign", %{}
+    assert conn.status == 404
+  end
+
+  test "assign - no assignee" do
+    event = Repo.insert!(%SystemEvent{type: "disk_space", inserted_at: from_erl(:calendar.universal_time)})
+
+    user = Repo.insert!(%User{first_name: "test", last_name: "user", email: "test@test.com"})
+
+    conn = 
+      conn()
+      |> put_private(:auth_user, user)
+      |> post "/system_events/#{event.id}/assign", %{}
+    assert conn.status == 400
+  end   
+
+  test "assign - success" do
+    event = Repo.insert!(%SystemEvent{type: "disk_space", inserted_at: from_erl(:calendar.universal_time)})
+    user = Repo.insert!(%User{first_name: "test", last_name: "user", email: "test@test.com"})
+
+    conn = 
+      conn()
+      |> put_private(:auth_user, user)
+      |> post "/system_events/#{event.id}/assign", %{assignee_id: user.id}
+
+    assert conn.status == 204
+  end    
+
+  # =====================
+  # dismiss tests
+
+  test "dismiss - invalid event" do
+    conn = post conn(), "/system_events/1234567890/dismiss", %{}
+    assert conn.status == 404
+  end
+
+  test "dismiss - no dismissed_by" do
+    event = Repo.insert!(%SystemEvent{type: "disk_space", inserted_at: from_erl(:calendar.universal_time)})
+
+    user = Repo.insert!(%User{first_name: "test", last_name: "user", email: "test@test.com"})
+
+    conn = 
+      conn()
+      |> put_private(:auth_user, user)
+      |> post "/system_events/#{event.id}/dismiss", %{}
+    assert conn.status == 204
+  end   
+
+  test "dismiss - success" do
+    event = Repo.insert!(%SystemEvent{type: "disk_space", inserted_at: from_erl(:calendar.universal_time)})
+    user = Repo.insert!(%User{first_name: "test", last_name: "user", email: "test@test.com"})
+
+    conn = 
+      conn()
+      |> put_private(:auth_user, user)
+      |> post "/system_events/#{event.id}/dismiss", %{dismissed_by_id: user.id}
+
+    assert conn.status == 204
+  end
 end

@@ -1,14 +1,33 @@
 defmodule OpenAperture.Manager.DB.Models.SystemEvent do
+  alias OpenAperture.Manager.DB.Models.User
+
   @required_fields []
-  @optional_fields [:type, :message, :severity, :data]
+  @optional_fields [
+    :type, 
+    :message, 
+    :severity, 
+    :data, 
+    :dismissed_at,
+    :dismissed_by_id,
+    :dismissed_reason,
+    :assigned_at,
+    :assignee_id,
+    :assigned_by_id
+  ]
 
   use OpenAperture.Manager.DB.Models.BaseModel
 
   schema "system_events" do
+    belongs_to :assignee, User
+    belongs_to :assigned_by, User
+    belongs_to :dismissed_by, User
     field :type
     field :message
     field :severity
     field :data
+    field :dismissed_at, Ecto.DateTime
+    field :dismissed_reason
+    field :assigned_at, Ecto.DateTime
     timestamps
   end
 

@@ -34,6 +34,24 @@ defmodule OpenAperture.Manager.DB.Queries.SystemEvent do
     end
   end
 
+  @doc """
+  Retrieves the database record for SystemEvents assigned to a user.
+
+  ## Options
+
+  The `user_id` option defines an integer representing the unique id of a User
+
+  ## Return Value
+  
+  Query
+  """
+  @spec get_assigned_events(term) :: term
+  def get_assigned_events(user_id) do
+    from se in SystemEvent,
+      where: se.assignee_id >= ^user_id,
+      select: se    
+  end
+
   defp from_erl({{year, month, day}, {hour, min, sec}}) do
     %Ecto.DateTime{year: year, month: month, day: day,
                    hour: hour, min: min, sec: sec}

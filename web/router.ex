@@ -269,5 +269,10 @@ defmodule OpenAperture.Manager.Router do
 
     get "/", SystemEvents, :index
     post "/", SystemEvents, :create
+
+    get "/:id", SystemEvents, :show
+
+    post "/:id/assign", SystemEvents, :assign    
+    post "/:id/dismiss", SystemEvents, :dismiss
   end  
 end
