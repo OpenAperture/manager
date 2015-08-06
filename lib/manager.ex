@@ -18,7 +18,8 @@ defmodule OpenAperture.Manager do
       worker(OpenAperture.Manager.Messaging.FleetManagerPublisher, []),
       worker(OpenAperture.Manager.BuildLogMonitor, []),
       #explicilty start just the OverseerApi publisher for publishing SystemComponent upgrades
-      worker(OpenAperture.OverseerApi.Publisher, [])
+      worker(OpenAperture.OverseerApi.Publisher, []),
+      worker(OpenAperture.Manager.Notifications.Publisher, [])
     ]
 
     # See http://elixir-lang.org/docs/stable/elixir/Supervisor.html

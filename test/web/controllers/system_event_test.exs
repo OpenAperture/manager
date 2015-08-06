@@ -7,10 +7,13 @@ defmodule OpenAperture.Manager.Controllers.SystemEventsTest do
   alias OpenAperture.Manager.DB.Models.SystemEvent
   alias OpenAperture.Manager.DB.Models.User
 
+  alias OpenAperture.Manager.Notifications.Publisher
+
   setup_all do
     :meck.new(OpenAperture.Manager.Plugs.Authentication, [:passthrough])
     :meck.expect(OpenAperture.Manager.Plugs.Authentication, :authenticate_user, fn conn, _opts -> conn end)
 
+    :meck.new(Publisher, [:passthrough])
     on_exit fn ->
       Repo.delete_all(SystemEvent)
       Repo.delete_all(User)
@@ -136,6 +139,8 @@ defmodule OpenAperture.Manager.Controllers.SystemEventsTest do
   end   
 
   test "assign - success" do
+    :meck.expect(Publisher, :email_notification, fn _,_,_ -> :ok end)
+
     event = Repo.insert!(%SystemEvent{type: "disk_space", inserted_at: from_erl(:calendar.universal_time)})
     user = Repo.insert!(%User{first_name: "test", last_name: "user", email: "test@test.com"})
 
@@ -168,6 +173,8 @@ defmodule OpenAperture.Manager.Controllers.SystemEventsTest do
   end   
 
   test "dismiss - success" do
+    :meck.expect(Publisher, :email_notification, fn _,_,_ -> :ok end)
+    
     event = Repo.insert!(%SystemEvent{type: "disk_space", inserted_at: from_erl(:calendar.universal_time)})
     user = Repo.insert!(%User{first_name: "test", last_name: "user", email: "test@test.com"})
 

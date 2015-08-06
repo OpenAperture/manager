@@ -33,6 +33,20 @@ defmodule OpenAperture.Manager.Configuration do
     get_config("BROKER_ID", OpenAperture.Manager, :broker_id)
   end
 
+  @doc """
+  Method to retrieve the associated UI's url
+   
+  ## Options
+   
+  ## Return values
+
+  The exchange identifier
+  """ 
+  @spec get_ui_url() :: String.t()
+  def get_ui_url do
+    get_config("UI_URL", OpenAperture.Manager, :ui_url)
+  end
+  
   @doc false
   # Method to retrieve a configuration option from the environment or config settings
   # 

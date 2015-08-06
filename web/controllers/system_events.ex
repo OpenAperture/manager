@@ -8,7 +8,10 @@ defmodule OpenAperture.Manager.Controllers.SystemEvents do
   alias OpenAperture.Manager.DB.Models.SystemEvent
   alias OpenAperture.Manager.DB.Queries.SystemEvent, as: SystemEventQuery
 
-  alias   OpenAperture.Manager.DB.Models.User
+  alias OpenAperture.Manager.DB.Models.User
+
+  alias OpenAperture.Manager.Notifications.Publisher
+  alias OpenAperture.Manager.Configuration
 
   plug :action
 
@@ -160,6 +163,15 @@ defmodule OpenAperture.Manager.Controllers.SystemEvents do
           try do
             Repo.update!(changeset)
             path = OpenAperture.Manager.Router.Helpers.system_events_path(Endpoint, :show, params["id"])
+
+            #send an email to the assignee (if possible)
+            if assignee.email != nil && String.length(assignee.email) > 0 do
+              recipients = [assignee.email]
+              subject = "[OpenAperture][SystemEvent]"
+              body = "System event #{event.id} has been assigned to you.  For more information, please see:  #{Configuration.get_ui_url}/index.html#/oa/system_events"
+              Publisher.email_notification(subject,body,recipients)            
+            end
+
             no_content(conn, path)
           rescue 
             e -> internal_server_error(conn, "SystemEvent", e ) 
@@ -203,6 +215,18 @@ defmodule OpenAperture.Manager.Controllers.SystemEvents do
           try do
             Repo.update!(changeset)
             path = OpenAperture.Manager.Router.Helpers.system_events_path(Endpoint, :show, params["id"])
+            
+            #send an email to the assignee (if possible)
+            if event.assignee_id != nil do
+              assignee = Repo.get(User, event.assignee_id)
+              if assignee.email != nil && String.length(assignee.email) > 0 do
+                recipients = [assignee.email]
+                subject = "[OpenAperture][SystemEvent]"
+                body = "System event #{event.id} is assigned to you and has been dismissed.  For more information, please see:  #{Configuration.get_ui_url}/index.html#/oa/system_events"
+                Publisher.email_notification(subject,body,recipients)            
+              end
+            end
+
             no_content(conn, path)
           rescue 
             e -> internal_server_error(conn, "SystemEvent", e ) 
@@ -235,6 +259,18 @@ defmodule OpenAperture.Manager.Controllers.SystemEvents do
             #stored as String in the db
             if (event[:data] != nil) do
               event = Map.put(event, :data, Poison.decode!(event[:data]))
+            end
+
+            if event[:assigned_at] != nil do
+              {:ok, erl_date} = Ecto.DateTime.dump(event[:assigned_at])
+              date = Date.from(erl_date, :utc)
+              event = Map.put(event, :assigned_at, DateFormat.format!(date, "{RFC1123}"))
+            end
+
+            if event[:dismissed_at] != nil do
+              {:ok, erl_date} = Ecto.DateTime.dump(event[:dismissed_at])
+              date = Date.from(erl_date, :utc)
+              event = Map.put(event, :dismissed_at, DateFormat.format!(date, "{RFC1123}"))
             end
 
             events = events ++ [event]
