@@ -48,7 +48,7 @@ defmodule OpenAperture.Manager.DB.Queries.SystemEvent do
   @spec get_assigned_events(term) :: term
   def get_assigned_events(user_id) do
     from se in SystemEvent,
-      where: se.assignee_id >= ^user_id,
+      where: se.assignee_id == ^user_id,
       select: se    
   end
 

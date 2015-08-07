@@ -49,7 +49,7 @@ defmodule OpenAperture.Manager.Controllers.SystemEventsTest do
     assert length(result) == 1
   end
 
-  test "show - assigned event", context do
+  test "index - assigned event", context do
     user = Repo.insert!(%User{first_name: "test", last_name: "user", email: "test@test.com"})
     event = Repo.insert!(%SystemEvent{type: "disk_space", inserted_at: from_erl(:calendar.universal_time), assignee_id: user.id})
     event2 = Repo.insert!(%SystemEvent{type: "disk_space", inserted_at: from_erl(:calendar.universal_time)})
@@ -62,6 +62,61 @@ defmodule OpenAperture.Manager.Controllers.SystemEventsTest do
     assert length(returned_events) == 1
   end    
 
+  test "index - assigned events", context do
+    user1 = Repo.insert!(%User{first_name: "test", last_name: "user", email: "test@test.com"})
+    user2 = Repo.insert!(%User{first_name: "test2", last_name: "user2", email: "test2@test.com"})
+
+    event1_to_user1 = Repo.insert!(%SystemEvent{
+      type: "disk_space", 
+      assignee_id: user1.id,
+      assigned_by_id: user1.id,
+      inserted_at: from_erl(:calendar.universal_time)}
+      )
+
+    event2_to_user1 = Repo.insert!(%SystemEvent{
+      type: "disk_space", 
+      assignee_id: user1.id,
+      assigned_by_id: user1.id,
+      inserted_at: from_erl(:calendar.universal_time)}
+      )
+
+    event3_to_user2 = Repo.insert!(%SystemEvent{
+      type: "disk_space", 
+      assignee_id: user2.id,
+      assigned_by_id: user1.id,
+      inserted_at: from_erl(:calendar.universal_time)}
+      )
+
+    conn = get conn(), "/system_events?assignee_id=#{user1.id}"
+    assert conn.status == 200
+
+    returned_events = Poison.decode!(conn.resp_body)
+    assert returned_events != nil
+    assert length(returned_events) == 2
+    result = Enum.reduce returned_events, true, fn (returned_event, result) ->
+      cond do
+        !result -> result
+        returned_event["assignee_id"] != user1.id -> false
+        true -> true 
+      end
+    end
+    assert result
+
+    conn = get conn(), "/system_events?assignee_id=#{user2.id}"
+    assert conn.status == 200
+
+    returned_events = Poison.decode!(conn.resp_body)
+    assert returned_events != nil
+    assert length(returned_events) == 1
+    result = Enum.reduce returned_events, true, fn (returned_event, result) ->
+      cond do
+        !result -> result
+        returned_event["assignee_id"] != user2.id -> false
+        true -> true 
+      end
+    end
+    assert result
+  end 
   # =====================
   # create tests
 
