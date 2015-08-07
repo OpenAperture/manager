@@ -2,7 +2,8 @@ require Logger
 
 defmodule OpenAperture.Manager.Controllers.SystemEvents do
   use OpenAperture.Manager.Web, :controller
-
+  use Timex
+  
   require Repo
 
   alias OpenAperture.Manager.DB.Models.SystemEvent
