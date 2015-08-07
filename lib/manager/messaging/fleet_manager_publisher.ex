@@ -168,6 +168,37 @@ defmodule OpenAperture.Manager.Messaging.FleetManagerPublisher do
     end    
   end  
 
+  @doc """
+  Method to restart a Unit
+
+  ## Options
+
+  The `etcd_token` option represents the EtcdCluster token
+
+  The `cluster_exchange_id` represents the messaging_exchange_id associated with the cluster
+
+  The `unit_name` option represents the name of the unit for which logs should be retrieved
+
+  ## Return Values
+
+  RpcHandler pid
+  """
+  @spec restart_unit!(String.t(), term, String.t) :: pid   
+  def restart_unit!(etcd_token, cluster_exchange_id, unit_name) do
+    request_body = %{
+        etcd_token: etcd_token,
+        action: :restart_unit,
+        action_parameters: %{
+          unit_name: unit_name
+        }
+    }
+
+    case GenServer.call(__MODULE__, {:execute_rpc_request, request_body, cluster_exchange_id}) do
+      {:ok, handler} -> handler
+      {:error, reason} -> raise reason
+    end
+  end
+
   @spec handle_call({:execute_rpc_request, Map, term}, term, Map) :: {:reply, pid, Map}
   def handle_call({:execute_rpc_request, request_body, cluster_exchange_id}, _from, state) do
     request = %RpcRequest{

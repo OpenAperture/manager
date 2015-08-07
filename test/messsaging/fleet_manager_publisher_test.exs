@@ -137,4 +137,18 @@ defmodule OpenAperture.Manager.Messaging.FleetManagerPublisherTest do
   after
     :meck.unload(GenServer)
   end 
+
+  #==================================
+  # restart_unit! tests
+
+  test "restart_unit!" do    
+    :meck.new(GenServer, [:unstick, :passthrough])
+    :meck.expect(GenServer, :call, fn _,_ -> {:ok, %{}} end)
+
+    request_body = %{}
+
+    assert FleetManagerPublisher.restart_unit!("123abc", 123, "test unit") == %{}
+  after
+    :meck.unload(GenServer)
+  end    
 end

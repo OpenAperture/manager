@@ -358,9 +358,6 @@ defmodule OpenAperture.Manager.Controllers.EtcdClustersTest do
     assert conn.status == 404
   end
 
-
-
-
   #=========
   # node_info tests
 
@@ -419,4 +416,42 @@ defmodule OpenAperture.Manager.Controllers.EtcdClustersTest do
     assert body != nil
     assert body["123.234.456.789"] != nil
   end
+ 
+  #=========
+  # tests for restart_unit
+
+  test "get restart_unit success" do
+    :meck.expect(EtcdClusterQuery, :get_by_etcd_token, fn token -> %EtcdCluster{etcd_token: token} end)
+    :meck.expect(FleetManagerPublisher, :restart_unit!, fn _,_,_ -> %{} end)
+    :meck.expect(RpcHandler, :get_response, fn _ -> {:ok, ""} end)
+
+    conn = get conn(), "/clusters/some_etcd_token/machines/123/units/test/restart"
+    assert conn.status == 200
+  end
+
+  test "get restart_unit retrieve log error" do
+    :meck.expect(EtcdClusterQuery, :get_by_etcd_token, fn token -> %EtcdCluster{etcd_token: token} end)
+    :meck.expect(FleetManagerPublisher, :restart_unit!, fn _,_,_ -> %{} end)
+    :meck.expect(RpcHandler, :get_response, fn _ -> {:error, "bad news bears"} end)
+
+    conn = get conn(), "/clusters/some_etcd_token/machines/123/units/test/restart"
+    assert conn.status == 500
+  end
+
+  test "get restart_unit invalid" do
+    :meck.expect(EtcdClusterQuery, :get_by_etcd_token, fn token -> %EtcdCluster{etcd_token: token} end)
+    :meck.expect(FleetManagerPublisher, :restart_unit!, fn _,_,_ -> %{} end)
+    :meck.expect(RpcHandler, :get_response, fn _ -> {:ok, nil} end)
+
+    conn = get conn(), "/clusters/some_etcd_token/machines/123/units/test/restart"
+    assert conn.status == 500
+  end
+
+  test "get restart_unit no cluster" do
+    :meck.expect(EtcdClusterQuery, :get_by_etcd_token, 1, nil)
+
+    conn = get conn(), "/clusters/some_etcd_token/machines/123/units/test/restart"
+
+    assert conn.status == 404
+  end 
 end

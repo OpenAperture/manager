@@ -367,4 +367,44 @@ defmodule OpenAperture.Manager.Controllers.EtcdClusters do
         |> json ResponseBodyFormatter.error_body(:internal_server_error, "EtcdCluster")
     end  
   end
+
+  @doc """
+  GET /clusters/:etcd_token/machines/:machine_id/units/:unit_name/restart - Retrieve associated units' state
+
+  ## Options
+
+  The `conn` option defines the underlying HTTP connection.
+
+  The `params` option defines an array of arguments.
+
+  ## Return Values
+
+  Plug.Conn
+  """
+  def restart_unit(conn, %{"etcd_token" => token, "machine_id" => _machine_id, "unit_name" => unit_name}) do
+    case EtcdClusterQuery.get_by_etcd_token(token) do
+      nil ->
+        conn
+        |> put_status(:not_found)
+        |> json ResponseBodyFormatter.error_body(:not_found, "EtcdCluster")
+      cluster ->        
+        handler = FleetManagerPublisher.restart_unit!(token, cluster.messaging_exchange_id, URI.decode(unit_name))
+        case RpcHandler.get_response(handler) do
+          {:ok, output} ->
+            if output == nil do
+              conn
+              |> put_status(:internal_server_error)
+              |> json ResponseBodyFormatter.error_body(:internal_server_error, "EtcdCluster")
+            else
+              conn
+              |> json output
+            end
+          {:error, reason} -> 
+            Logger.error("Received the following error restarting unit log:  #{inspect reason}")
+            conn
+            |> put_status(:internal_server_error)
+            |> json ResponseBodyFormatter.error_body(:internal_server_error, "EtcdCluster")
+        end        
+    end
+  end
 end
