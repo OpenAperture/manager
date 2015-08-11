@@ -35,7 +35,8 @@ defmodule OpenAperture.ErrorView do
     
       if generate_event do
         event = %{
-        type: :unhandled_exception, 
+          unique: true,
+          type: :unhandled_exception, 
           severity: :error, 
           data: %{
             component: :manager,
