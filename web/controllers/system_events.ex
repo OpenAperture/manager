@@ -113,12 +113,37 @@ defmodule OpenAperture.Manager.Controllers.SystemEvents do
       data: data
     })
     if changeset.valid? do
-      try do
-        _event = Repo.insert!(changeset)
-        path = OpenAperture.Manager.Router.Helpers.system_events_path(Endpoint, :index)
 
-        # Set location header
-        created(conn, path)
+      #unique flag is on, ensure that no other events within the last hour match the criteria
+      is_unique = if params["unique"] == true do
+        existing_events = Repo.all(SystemEventQuery.get_events(1, params["type"]))
+        Enum.reduce existing_events, true, fn(existing_event, is_unique) ->
+          existing_data = if existing_event.data != nil do
+            Poison.decode!(existing_event.data)
+          else
+            nil
+          end
+
+          cond do
+            !is_unique -> is_unique
+            params["data"] != nil && existing_data != nil -> !Map.equal?(existing_data, params["data"])
+            true -> false
+          end
+        end
+      else
+        true
+      end
+
+      try do
+        if is_unique do
+          _event = Repo.insert!(changeset)
+          path = OpenAperture.Manager.Router.Helpers.system_events_path(Endpoint, :index)
+
+          # Set location header
+          created(conn, path)
+        else
+          conflict(conn, "SystemEvent")
+        end
       rescue
         e -> internal_server_error(conn, "SystemEvent", e ) 
       end

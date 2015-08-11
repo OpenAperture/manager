@@ -155,6 +155,41 @@ defmodule OpenAperture.Manager.Controllers.SystemEventsTest do
     assert String.contains?(location_header, "/system_events")
   end
 
+  test "create - success wit duplicate" do
+    data = %{
+        "test" => "#{UUID.uuid1()}"
+      }
+    event = Repo.insert!(%SystemEvent{
+      type: "disk_space", 
+      data: Poison.encode!(data),
+      inserted_at: from_erl(:calendar.universal_time)})
+
+    conn = post conn(), "/system_events", %{"type" => "disk_space", "severity" => "error", "data" => data}
+    assert conn.status == 201
+    location_header = Enum.reduce conn.resp_headers, nil, fn ({key, value}, location_header) ->
+      if key == "location" do
+        value
+      else
+        location_header
+      end
+    end
+    assert location_header != nil
+    assert String.contains?(location_header, "/system_events")
+  end
+
+  test "create - conflict" do
+    data = %{
+        "test" => "#{UUID.uuid1()}"
+      }
+    event = Repo.insert!(%SystemEvent{
+      type: "disk_space", 
+      data: Poison.encode!(data),
+      inserted_at: from_erl(:calendar.universal_time)})
+    
+    conn = post conn(), "/system_events", %{"type" => "disk_space", "severity" => "error", "data" => data, "unique" => true}
+    assert conn.status == 409
+  end
+
   # ==================================
   # show tests
 
@@ -172,16 +207,6 @@ defmodule OpenAperture.Manager.Controllers.SystemEventsTest do
     returned_event = Poison.decode!(conn.resp_body)
     assert returned_event != nil
   end    
-
-  test "show - valid event", context do
-    event = Repo.insert!(%SystemEvent{type: "disk_space", inserted_at: from_erl(:calendar.universal_time)})
-
-    conn = get conn(), "/system_events/#{event.id}"
-    assert conn.status == 200
-
-    returned_event = Poison.decode!(conn.resp_body)
-    assert returned_event != nil
-  end 
 
   # =====================
   # assign tests
