@@ -12,7 +12,7 @@ defmodule OpenAperture.ErrorView do
   end
 
   def render("500.html", assigns) do
-    log_error("[Manager][ErrorView][500]", assigns)
+    log_error("[Manager][ErrorView][500]", assigns, true)
     "Server internal error - 500"
   end
 
@@ -23,7 +23,7 @@ defmodule OpenAperture.ErrorView do
     render "500.html", assigns
   end
 
-  defp log_error(prefix, assigns) do
+  defp log_error(prefix, assigns, generate_event \\ false) do
     try do
       error_map = Map.from_struct(assigns[:reason])
       error_msg = if error_map[:message] != nil do
@@ -33,17 +33,19 @@ defmodule OpenAperture.ErrorView do
       end
       Logger.error(error_msg)
     
-      event = %{
-      type: :unhandled_exception, 
-        severity: :error, 
-        data: %{
-          component: :manager,
-          exchange_id: Configuration.get_current_exchange_id,
-          hostname: System.get_env("HOSTNAME")
-        },
-        message: error_msg
-      }       
-      SystemEvent.create_system_event!(ManagerApi.get_api, event)      
+      if generate_event do
+        event = %{
+        type: :unhandled_exception, 
+          severity: :error, 
+          data: %{
+            component: :manager,
+            exchange_id: Configuration.get_current_exchange_id,
+            hostname: System.get_env("HOSTNAME")
+          },
+          message: error_msg
+        }       
+        SystemEvent.create_system_event!(ManagerApi.get_api, event)      
+      end
     catch
       :exit, code   ->
         error_msg = "#{prefix} Exited with code #{inspect code}"

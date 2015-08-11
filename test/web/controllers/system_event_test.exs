@@ -125,14 +125,24 @@ defmodule OpenAperture.Manager.Controllers.SystemEventsTest do
     :meck.expect(Repo, :all, fn _ -> [] end)
     :meck.expect(Repo, :insert!, fn _ -> raise "bad news bears" end)
 
-    conn = post conn(), "/system_events", %{"type" => "disk_space"}
+    conn = post conn(), "/system_events", %{"type" => "disk_space", "severity" => "error"}
     assert conn.status == 500
   after
     :meck.unload(Repo)
   end
 
+  test "create - missing type" do
+    conn = post conn(), "/system_events", %{}
+    assert conn.status == 400
+  end  
+
+  test "create - missing severity" do
+    conn = post conn(), "/system_events", %{"severity" => "error"}
+    assert conn.status == 400
+  end  
+
   test "create - success" do
-    conn = post conn(), "/system_events", %{"type" => "disk_space"}
+    conn = post conn(), "/system_events", %{"type" => "disk_space", "severity" => "error"}
     assert conn.status == 201
     location_header = Enum.reduce conn.resp_headers, nil, fn ({key, value}, location_header) ->
       if key == "location" do
@@ -143,7 +153,7 @@ defmodule OpenAperture.Manager.Controllers.SystemEventsTest do
     end
     assert location_header != nil
     assert String.contains?(location_header, "/system_events")
-  end  
+  end
 
   # ==================================
   # show tests
@@ -182,7 +192,7 @@ defmodule OpenAperture.Manager.Controllers.SystemEventsTest do
   end
 
   test "assign - no assignee" do
-    event = Repo.insert!(%SystemEvent{type: "disk_space", inserted_at: from_erl(:calendar.universal_time)})
+    event = Repo.insert!(%SystemEvent{type: "disk_space", severity: "error", inserted_at: from_erl(:calendar.universal_time)})
 
     user = Repo.insert!(%User{first_name: "test", last_name: "user", email: "test@test.com"})
 
@@ -196,7 +206,7 @@ defmodule OpenAperture.Manager.Controllers.SystemEventsTest do
   test "assign - success" do
     :meck.expect(Publisher, :email_notification, fn _,_,_ -> :ok end)
 
-    event = Repo.insert!(%SystemEvent{type: "disk_space", inserted_at: from_erl(:calendar.universal_time)})
+    event = Repo.insert!(%SystemEvent{type: "disk_space", severity: "error", inserted_at: from_erl(:calendar.universal_time)})
     user = Repo.insert!(%User{first_name: "test", last_name: "user", email: "test@test.com"})
 
     conn = 
@@ -216,7 +226,7 @@ defmodule OpenAperture.Manager.Controllers.SystemEventsTest do
   end
 
   test "dismiss - no dismissed_by" do
-    event = Repo.insert!(%SystemEvent{type: "disk_space", inserted_at: from_erl(:calendar.universal_time)})
+    event = Repo.insert!(%SystemEvent{type: "disk_space", severity: "error", inserted_at: from_erl(:calendar.universal_time)})
 
     user = Repo.insert!(%User{first_name: "test", last_name: "user", email: "test@test.com"})
 
@@ -230,7 +240,7 @@ defmodule OpenAperture.Manager.Controllers.SystemEventsTest do
   test "dismiss - success" do
     :meck.expect(Publisher, :email_notification, fn _,_,_ -> :ok end)
     
-    event = Repo.insert!(%SystemEvent{type: "disk_space", inserted_at: from_erl(:calendar.universal_time)})
+    event = Repo.insert!(%SystemEvent{type: "disk_space", severity: "error", inserted_at: from_erl(:calendar.universal_time)})
     user = Repo.insert!(%User{first_name: "test", last_name: "user", email: "test@test.com"})
 
     conn = 
