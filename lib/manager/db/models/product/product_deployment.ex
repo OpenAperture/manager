@@ -1,5 +1,5 @@
 defmodule OpenAperture.Manager.DB.Models.ProductDeployment do
-  @required_fields [:product_id, :product_deployment_plan_id]
+  @required_fields [:product_id, :product_deployment_plan_id, :product_environment_id]
   @optional_fields [:execution_options, :completed, :duration, :output]
   use OpenAperture.Manager.DB.Models.BaseModel
 

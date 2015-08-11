@@ -182,9 +182,14 @@ defmodule OpenAperture.Manager.Router do
         post "/", ProductDeployments, :create
 
         get "/:deployment_id", ProductDeployments, :show
-        get "/:deployment_id/steps", ProductDeployments, :index_steps
         put "/:deployment_id", ProductDeployments, :update
         delete "/:deployment_id", ProductDeployments, :destroy
+
+        scope "/:deployment_id" do 
+          get "/steps", ProductDeploymentSteps, :index
+          post "/steps", ProductDeploymentSteps, :create
+          post "/steps/:step_id", ProductDeploymentSteps, :update
+        end 
       end
     end
   end
