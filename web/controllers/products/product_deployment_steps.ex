@@ -29,11 +29,9 @@ defmodule OpenAperture.Manager.Controllers.ProductDeploymentSteps do
   # GET /products/:product_name/deployments/:deployment_id/steps
   def index(conn, %{"deployment_id" => deployment_id} = params) do
     case ProductDeploymentStepQuery.get_steps_of_deployment(deployment_id) |> Repo.all do
-      nil ->
+      [] ->
         json conn, []
       steps ->
-        IO.inspect(steps)
-
         json conn, steps
     end
   end
@@ -78,7 +76,7 @@ defmodule OpenAperture.Manager.Controllers.ProductDeploymentSteps do
     |> json ResponseBodyFormatter.error_body(:bad_request, "ProductDeployment")
   end
 
-  # POST /products/:product_name/deployments/:deployment_id/steps/:step_id
+  #PUT /products/:product_name/deployments/:deployment_id/steps/:step_id
   def update(conn, %{"deployment_id" => deployment_id, "step_id" => step_id} = params) do 
     case ProductDeploymentStepQuery.get_step_of_deployment(deployment_id, step_id) |> Repo.one do
       nil ->
@@ -88,7 +86,7 @@ defmodule OpenAperture.Manager.Controllers.ProductDeploymentSteps do
       step ->
         changeset = ProductDeploymentStep.update(step, params)
         if changeset.valid? do
-          deployment = Repo.update!(changeset)
+          Repo.update!(changeset)
           path = "#{step.id}"
 
           conn
@@ -121,5 +119,4 @@ defmodule OpenAperture.Manager.Controllers.ProductDeploymentSteps do
         end
     end
   end
-  
 end

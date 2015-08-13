@@ -62,7 +62,7 @@ defmodule OpenAperture.Manager.Controllers.ProductDeploymentStepsTest do
       Repo.delete_all(Product)
     end
 
-    {:ok, product: product, pd1: pd1, pd2: pd2, pds1: pds1, pds2: pds2, pds3: pds3, pds4: pds4, pds5: pds5}
+    {:ok, product: product, pd1: pd1, pd2: pd2, pdps1: pdps1, pds1: pds1, pds2: pds2, pds3: pds3, pds4: pds4, pds5: pds5}
   end
 
   @endpoint OpenAperture.Manager.Endpoint
@@ -82,14 +82,15 @@ defmodule OpenAperture.Manager.Controllers.ProductDeploymentStepsTest do
     assert length(body) == 6
   end
 
-  test "index action -- deployment not found", context do
+  test "index action -- no steps for deployment or deployment not found", context do
     product = context[:product]
 
-    path = product_deployment_steps_path(Endpoint, :index, product.id, -1)
+    path = product_deployment_steps_path(Endpoint, :index,-1, -1)
 
     conn = get conn(), path
 
-    assert conn.status == 404
+    assert conn.status == 200
+    assert conn.resp_body |> Poison.decode! |> length == 0
   end
 
   test "create action -- success", context do
@@ -107,428 +108,91 @@ defmodule OpenAperture.Manager.Controllers.ProductDeploymentStepsTest do
 
     {_, location} = List.keyfind(conn.resp_headers, "location", 0)
 
-    assert location == path
+    assert location != nil
   end
 
-  # test "create action -- success, single step", context do
-  #   product = context[:product]
-  #   plan = context[:pdp2]
+  test "create action -- failure, deployment invalid", context do
+    product = context[:product]
+    step = context[:pdps1]
 
-  #   path = product_deployment_plan_steps_path(Endpoint, :create, product.name, plan.name)
+    path = product_deployment_steps_path(Endpoint, :create, product.name, -1)
 
-  #   step_count = length(Repo.all(ProductDeploymentPlanStep))
+    conn = post conn(), path, %{product_deployment_plan_step_id: step.id, completed: false, output: "[]"}
 
-  #   step1_deploy = %{type: "deploy_component", product_deployment_plan_id: plan.id}
+    assert conn.status == 404
+  end
 
-  #   conn = post conn(), path, step1_deploy
+  test "create action -- failure, invalid changeset", context do
+    product = context[:product]
+    step = context[:pdps1]
+    deployment = context[:pd1]
 
-  #   assert conn.status == 201
+    path = product_deployment_steps_path(Endpoint, :create, product.name, deployment.id)
 
-  #   assert List.keymember?(conn.resp_headers, "location", 0)
+    conn = post conn(), path, %{product_deployment_plan_step_id: "asdf", completed: false, output: "[]"}
 
-  #   {_, location} = List.keyfind(conn.resp_headers, "location", 0)
+    assert conn.status == 400
+  end
 
-  #   assert location == path
+  test "update action -- success", context do 
+    product = context[:product]
+    deployment = context[:pd1]
+    step = context[:pds1]
 
-  #   assert step_count + 1 == length(Repo.all(ProductDeploymentPlanStep))
-  # end
+    path = product_deployment_steps_path(Endpoint, :update, product.name, deployment.id, step.id)
 
-  # test "create action -- success, single step as child", context do
-  #   product = context[:product]
-  #   plan = context[:pdp1]
-  #   step1 = context[:pdps1]
+    conn = put conn(), path, %{successful: true}
 
-  #   path = product_deployment_plan_steps_path(Endpoint, :create, product.name, plan.name)
+    assert conn.status == 204
 
-  #   step_count = length(Repo.all(ProductDeploymentPlanStep))
+    assert Repo.get(ProductDeploymentStep, step.id).successful == true
+  end
 
-  #   step1_deploy = %{type: "deploy_component", product_deployment_plan_id: plan.id, parent_step_id: step1.id, step_case: "success"}
+  test "update action -- failure, deployment/deployment_step not found", context do 
+    product = context[:product]
+    deployment = context[:pd1]
+    step = context[:pds1]
 
-  #   conn = post conn(), path, step1_deploy
+    path = product_deployment_steps_path(Endpoint, :update, product.name, -1, -1)
 
-  #   assert conn.status == 201
+    conn = put conn(), path, %{successful: true}
 
+    assert conn.status == 404
+  end
 
+  test "update action -- failure, invalid changeset", context do 
+    product = context[:product]
+    deployment = context[:pd1]
+    step = context[:pds1]
 
-  #   assert List.keymember?(conn.resp_headers, "location", 0)
+    path = product_deployment_steps_path(Endpoint, :update, product.name, deployment.id, step.id)
 
-  #   {_, location} = List.keyfind(conn.resp_headers, "location", 0)
+    conn = put conn(), path, %{product_deployment_id: "asdf"}
 
-  #   assert location == path
+    assert conn.status == 400
+  end
 
-  #   assert step_count + 1 == length(Repo.all(ProductDeploymentPlanStep))
-  #   assert nil != Repo.get(ProductDeploymentPlanStep, step1.id).on_success_step_id
-  # end
+  test "delete action -- success", context do
+    product = context[:product]
+    deployment = context[:pd1]
+    step = context[:pds1]
 
-  # test "create action -- success, nested steps, with options", context do
-  #   product = context[:product]
-  #   plan = context[:pdp2]
+    path = product_deployment_steps_path(Endpoint, :destroy, product.name, deployment.id, step.id)
 
-  #   path = product_deployment_plan_steps_path(Endpoint, :create, product.name, plan.name)
+    conn = delete conn(), path
 
-  #   step_count = length(Repo.all(ProductDeploymentPlanStep))
-  #   option_count = length(Repo.all(ProductDeploymentPlanStepOption))
+    assert conn.status == 204
 
-  #   step1_option1 = %{name: "test_option1", value: "one"}
-  #   step1_option2 = %{name: "test_option2", value: "two"}
-  #   step2_option1 = %{name: "test_option3", value: "three"}
-  #   step3_option1 = %{name: "test_option4", value: "four"}
+    assert nil = Repo.get(ProductDeploymentStep, step.id)
+  end
 
-  #   step1_deploy = %{type: "deploy_component", product_deployment_plan_id: plan.id, options: [step1_option1, step1_option2]}
-  #   step1_error = %{type: "execute_plan", product_deployment_plan_id: plan.id, options: [step2_option1]}
-  #   step1_build = %{type: "build_component", product_deployment_plan_id: plan.id, on_success_step: step1_deploy, on_failure_step: step1_error, options: [step3_option1]}
+  test "delete action -- failure, step/deployment not found", context do
+    product = context[:product]
 
-  #   conn = post conn(), path, step1_build
+    path = product_deployment_steps_path(Endpoint, :destroy, product.name, -1, -1)
 
-  #   assert conn.status == 201
+    conn = delete conn(), path
 
-  #   assert List.keymember?(conn.resp_headers, "location", 0)
-
-  #   {_, location} = List.keyfind(conn.resp_headers, "location", 0)
-
-  #   assert location == path
-
-  #   assert step_count + 3 == length(Repo.all(ProductDeploymentPlanStep))
-  #   assert option_count + 4 == length(Repo.all(ProductDeploymentPlanStepOption))
-  # end
-
-  # test "create action -- success, single step, with options", context do
-  #   product = context[:product]
-  #   plan = context[:pdp2]
-
-  #   path = product_deployment_plan_steps_path(Endpoint, :create, product.name, plan.name)
-
-  #   step_count = length(Repo.all(ProductDeploymentPlanStep))
-  #   option_count = length(Repo.all(ProductDeploymentPlanStepOption))
-
-  #   step1_option1 = %{name: "test_option1", value: "one"}
-  #   step1_option2 = %{name: "test_option2", value: "two"}
-  #   step1_option3 = %{name: "test_option3", value: "three"}
-
-  #   step1_deploy = %{type: "deploy_component", product_deployment_plan_id: plan.id, options: [step1_option1, step1_option2, step1_option3]}
-
-  #   conn = post conn(), path, step1_deploy
-
-  #   assert conn.status == 201
-
-  #   assert List.keymember?(conn.resp_headers, "location", 0)
-
-  #   {_, location} = List.keyfind(conn.resp_headers, "location", 0)
-
-  #   assert location == path
-
-  #   assert step_count + 1 == length(Repo.all(ProductDeploymentPlanStep))
-  #   assert option_count + 3 == length(Repo.all(ProductDeploymentPlanStepOption))
-  # end
-
-  # test "create action -- invalid nested step", context do
-  #   product = context[:product]
-  #   plan = context[:pdp2]
-
-  #   path = product_deployment_plan_steps_path(Endpoint, :create, product.name, plan.name)
-
-  #   step_count = length(Repo.all(ProductDeploymentPlanStep))
-
-  #   step1_deploy = %{type: "NOT A REAL STEP TYPE", product_deployment_plan_id: plan.id}
-  #   step1_error = %{type: "execute_plan", product_deployment_plan_id: plan.id}
-  #   step1_build = %{type: "build_component", product_deployment_plan_id: plan.id, on_success_step: step1_deploy, on_failure_step: step1_error}
-
-  #   conn = post conn(), path, step1_build
-
-  #   assert conn.status == 400
-  #   assert step_count == length(Repo.all(ProductDeploymentPlanStep))
-  # end
-
-  # test "create action -- invalid root step", context do
-  #   product = context[:product]
-  #   plan = context[:pdp2]
-
-  #   path = product_deployment_plan_steps_path(Endpoint, :create, product.name, plan.name)
-
-  #   step_count = length(Repo.all(ProductDeploymentPlanStep))
-
-  #   step1_deploy = %{type: "deploy_component", product_deployment_plan_id: plan.id}
-  #   step1_error = %{type: "execute_plan", product_deployment_plan_id: plan.id}
-  #   step1_build = %{type: "NOT A REAL STEP TYPE", product_deployment_plan_id: plan.id, on_success_step: step1_deploy, on_failure_step: step1_error}
-
-  #   conn = post conn(), path, step1_build
-
-  #   assert conn.status == 400
-  #   assert step_count == length(Repo.all(ProductDeploymentPlanStep))
-  # end
-
-  # test "create action -- invalid single step", context do
-  #   product = context[:product]
-  #   plan = context[:pdp2]
-
-  #   path = product_deployment_plan_steps_path(Endpoint, :create, product.name, plan.name)
-
-  #   step_count = length(Repo.all(ProductDeploymentPlanStep))
-
-  #   step1_deploy = %{type: "NOT A VALID STEP TYPE", product_deployment_plan_id: plan.id}
-
-  #   conn = post conn(), path, step1_deploy
-
-  #   assert conn.status == 400
-  #   assert step_count == length(Repo.all(ProductDeploymentPlanStep))
-  # end
-
-  # test "create action -- nested steps with invalid option", context do
-  #   product = context[:product]
-  #   plan = context[:pdp2]
-
-  #   path = product_deployment_plan_steps_path(Endpoint, :create, product.name, plan.name)
-
-  #   step_count = length(Repo.all(ProductDeploymentPlanStep))
-  #   option_count = length(Repo.all(ProductDeploymentPlanStepOption))
-
-  #   step1_option1 = %{value: "one"}
-  #   step1_option2 = %{name: "test_option2", value: "two"}
-  #   step2_option1 = %{name: "test_option3", value: "three"}
-  #   step3_option1 = %{name: "test_option4", value: "four"}
-
-  #   step1_deploy = %{type: "deploy_component", product_deployment_plan_id: plan.id, options: [step1_option1, step1_option2]}
-  #   step1_error = %{type: "execute_plan", product_deployment_plan_id: plan.id, options: [step2_option1]}
-  #   step1_build = %{type: "build_component", product_deployment_plan_id: plan.id, on_success_step: step1_deploy, on_failure_step: step1_error, options: [step3_option1]}
-
-  #   conn = post conn(), path, step1_build
-
-  #   assert conn.status == 400
-  #   assert step_count == length(Repo.all(ProductDeploymentPlanStep))
-  #   assert option_count == length(Repo.all(ProductDeploymentPlanStepOption))
-  # end
-
-  # test "create action -- single step with invalid option", context do
-  #   product = context[:product]
-  #   plan = context[:pdp2]
-
-  #   path = product_deployment_plan_steps_path(Endpoint, :create, product.name, plan.name)
-
-  #   step_count = length(Repo.all(ProductDeploymentPlanStep))
-  #   option_count = length(Repo.all(ProductDeploymentPlanStepOption))
-
-  #   step1_option1 = %{value: "one"}
-  #   step1_option2 = %{name: "test_option2", value: "two"}
-  #   step1_option3 = %{name: "test_option3", value: "three"}
-
-  #   step1_deploy = %{type: "deploy_component", product_deployment_plan_id: plan.id, options: [step1_option1, step1_option2, step1_option3]}
-
-  #   conn = post conn(), path, step1_deploy
-
-  #   assert conn.status == 400
-  #   assert step_count == length(Repo.all(ProductDeploymentPlanStep))
-  #   assert option_count == length(Repo.all(ProductDeploymentPlanStepOption))
-  # end
-
-  # test "update action -- success, destroys all options", context do 
-  #   product = context[:product]
-  #   plan = context[:pdp1]
-  #   step5 = context[:pdps5]
-  #   option1 = context[:pdpso1]
-  #   option2 = context[:pdpso2]
-  #   option3 = context[:pdpso3]
-
-  #  # path = product_deployment_plan_steps_path(Endpoint, :destroy, product.name, plan.name, step1.id)
-  #   path = "/products/#{product.name}/deployment_plans/#{plan.name}/steps/#{step5.id}"
-
-  #   conn = put conn(), path, %{type: "deploy_component"}
-
-  #   assert conn.status == 204
-
-  #   assert "deploy_component" = Repo.get(ProductDeploymentPlanStep, step5.id).type
-  #   assert nil = Repo.get(ProductDeploymentPlanStepOption, option1.id)
-  #   assert nil = Repo.get(ProductDeploymentPlanStepOption, option2.id)
-  #   assert nil = Repo.get(ProductDeploymentPlanStepOption, option3.id)
-  # end
-  # test "update action -- success, destroys options and remakes them", context do 
-  #   product = context[:product]
-  #   plan = context[:pdp1]
-  #   step5 = context[:pdps5]
-  #   option1 = context[:pdpso1]
-  #   option2 = context[:pdpso2]
-  #   option3 = context[:pdpso3]
-
-  #  # path = product_deployment_plan_steps_path(Endpoint, :destroy, product.name, plan.name, step1.id)
-  #   path = "/products/#{product.name}/deployment_plans/#{plan.name}/steps/#{step5.id}"
-
-  #   conn = put conn(), path, %{type: "deploy_component", options: [Map.from_struct(option1), Map.from_struct(option2), Map.from_struct(option3)]}
-
-  #   assert conn.status == 204
-
-  #   assert "deploy_component" = Repo.get(ProductDeploymentPlanStep, step5.id).type
-  #   assert nil = Repo.get(ProductDeploymentPlanStepOption, option1.id)
-  #   assert nil = Repo.get(ProductDeploymentPlanStepOption, option2.id)
-  #   assert nil = Repo.get(ProductDeploymentPlanStepOption, option3.id)
-
-  #   options = Repo.all(  
-  #     from pdpso in ProductDeploymentPlanStepOption,
-  #     where: pdpso.product_deployment_plan_step_id == ^step5.id,
-  #     select: pdpso
-  #   )
-  #   assert 3 = length(options)
-  # end
-
-  # test "update action -- step not found", context do 
-  #   product = context[:product]
-  #   plan = context[:pdp1]
-  #   step1 = context[:pdps1]
-
-  #  # path = product_deployment_plan_steps_path(Endpoint, :destroy, product.name, plan.name, step1.id)
-  #   path = "/products/#{product.name}/deployment_plans/#{plan.name}/steps/-1"
-
-  #   conn = put conn(), path, %{type: "deploy_component"}
-
-  #   assert conn.status == 404
-
-  #   assert "build_component" = Repo.get(ProductDeploymentPlanStep, step1.id).type
-  # end
-
-  # test "update action -- invalid change", context do
-  #   product = context[:product]
-  #   plan = context[:pdp1]
-  #   step1 = context[:pdps1]
-
-  #  # path = product_deployment_plan_steps_path(Endpoint, :destroy, product.name, plan.name, step1.id)
-  #   path = "/products/#{product.name}/deployment_plans/#{plan.name}/steps/#{step1.id}"
-
-  #   conn = put conn(), path, %{type: "not a valid type"}
-
-  #   assert conn.status == 400
-
-  #   assert "build_component" = Repo.get(ProductDeploymentPlanStep, step1.id).type
-  # end
-
-  # test "delete action, all steps for plan -- success", context do
-  #   product = context[:product]
-  #   plan = context[:pdp1]
-
-  #   path = product_deployment_plan_steps_path(Endpoint, :destroy, product.name, plan.name)
-
-  #   conn = delete conn(), path
-
-  #   assert conn.status == 204
-
-  #   step1 = context[:pdps1]
-  #   step2 = context[:pdps2]
-  #   step3 = context[:pdps3]
-  #   option1 = context[:pdpso1]
-  #   option2 = context[:pdpso2]
-  #   option3 = context[:pdpso3]
-
-  #   assert nil = Repo.get(ProductDeploymentPlanStep, step1.id)
-  #   assert nil = Repo.get(ProductDeploymentPlanStep, step2.id)
-  #   assert nil = Repo.get(ProductDeploymentPlanStep, step3.id)
-  #   assert nil = Repo.get(ProductDeploymentPlanStepOption, option1.id)
-  #   assert nil = Repo.get(ProductDeploymentPlanStepOption, option2.id)
-  #   assert nil = Repo.get(ProductDeploymentPlanStepOption, option3.id)
-  # end
-
-  # test "delete action, all steps for plan -- success for plan with no associated steps", context do
-  #   product = context[:product]
-  #   plan = context[:pdp2]
-
-  #   path = product_deployment_plan_steps_path(Endpoint, :destroy, product.name, plan.name)
-
-  #   conn = delete conn(), path
-
-  #   assert conn.status == 204
-
-  #   step1 = context[:pdps1]
-
-  #   # Verify the delete didn't affect steps associatied with a different plan
-  #   assert Repo.get(ProductDeploymentPlanStep, step1.id) != nil
-  # end
-
-  # test "delete action, all steps for plan -- product not found", context do
-  #   plan = context[:pdp2]
-  #   path = product_deployment_plan_steps_path(Endpoint, :destroy, "not a real product name", plan.name)
-
-  #   conn = delete conn(), path
-
-  #   assert conn.status == 404
-  # end
-
-  # test "delete action, all steps for plan -- plan not found", context do
-  #   product = context[:product]
-  #   path = product_deployment_plan_steps_path(Endpoint, :destroy, product.name, "not a real plan name")
-
-  #   conn = delete conn(), path
-
-  #   assert conn.status == 404
-  # end
-
-  # test "delete action, single step, no children, has parent -- success", context do
-  #   product = context[:product]
-  #   plan = context[:pdp1]
-  #   step1 = context[:pdps1]
-  #   step3 = context[:pdps3]
-
-  #  # path = product_deployment_plan_steps_path(Endpoint, :destroy, product.name, plan.name, step1.id)
-  #   path = "/products/#{product.name}/deployment_plans/#{plan.name}/steps/#{step1.id}"
-
-  #   conn = delete conn(), path
-
-  #   assert conn.status == 204
-
-  #   assert nil = Repo.get(ProductDeploymentPlanStep, step1.id)
-  #   assert nil = Repo.get(ProductDeploymentPlanStep, step3.id).on_success_step_id
-  # end
-
-  # test "delete action, single step, has children, no parent -- success", context do
-  #   product = context[:product]
-  #   plan = context[:pdp1]
-  #   step3 = context[:pdps3]
-  #   option3 = context[:pdpso3]
-  #   step5 = context[:pdps5]
-  #   option5 = context[:pdpso5]
-
-  #   #path = product_deployment_plan_steps_path(Endpoint, :destroy, product.name, plan.name, step5.id)
-  #   path = "/products/#{product.name}/deployment_plans/#{plan.name}/steps/#{step5.id}"
-
-  #   conn = delete conn(), path
-
-  #   assert conn.status == 204
-
-  #   assert nil = Repo.get(ProductDeploymentPlanStep, step3.id)
-  #   assert nil = Repo.get(ProductDeploymentPlanStepOption, option3.id)
-  #   assert nil = Repo.get(ProductDeploymentPlanStep, step5.id)
-  #   assert nil = Repo.get(ProductDeploymentPlanStepOption, option5.id)
-  # end
-
-  # test "delete action, single step, has children, has parent -- success", context do
-  #   product = context[:product]
-  #   plan = context[:pdp1]
-  #   step1 = context[:pdps1]
-  #   step3 = context[:pdps3]
-  #   step5 = context[:pdps5]
-
-  #   #path = product_deployment_plan_steps_path(Endpoint, :destroy, product.name, plan.name, step3.id)
-  #   path = "/products/#{product.name}/deployment_plans/#{plan.name}/steps/#{step3.id}"
-
-  #   conn = delete conn(), path
-
-  #   assert conn.status == 204
-
-  #   assert nil = Repo.get(ProductDeploymentPlanStep, step3.id)
-  #   assert nil = Repo.get(ProductDeploymentPlanStep, step1.id)
-  #   assert nil = Repo.get(ProductDeploymentPlanStep, step5.id).on_success_step_id
-  # end
-
-  # test "delete action, single step -- product not found", context do
-  #   plan = context[:pdp2]
-  #   path = product_deployment_plan_steps_path(Endpoint, :destroy, "not a real product name", plan.name)
-
-  #   conn = delete conn(), path
-
-  #   assert conn.status == 404
-  # end
-
-  # test "delete action, single step -- plan not found", context do
-  #   product = context[:product]
-  #   path = product_deployment_plan_steps_path(Endpoint, :destroy, product.name, "not a real plan name")
-
-  #   conn = delete conn(), path
-
-  #   assert conn.status == 404
-  # end
+    assert conn.status == 404
+  end
 end
