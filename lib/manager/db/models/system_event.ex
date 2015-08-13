@@ -1,11 +1,12 @@
 defmodule OpenAperture.Manager.DB.Models.SystemEvent do
   alias OpenAperture.Manager.DB.Models.User
 
-  @required_fields []
-  @optional_fields [
+  @required_fields [
     :type, 
-    :message, 
     :severity, 
+  ]
+  @optional_fields [
+    :message, 
     :data, 
     :dismissed_at,
     :dismissed_by_id,
@@ -33,6 +34,8 @@ defmodule OpenAperture.Manager.DB.Models.SystemEvent do
 
   def validate_changes(model_or_changeset, params) do
     cast(model_or_changeset,  params, @required_fields, @optional_fields)
+    |> validate_length(:type, min: 1)
+    |> validate_length(:severity, min: 1)    
   end
   
   def destroy(model) do
