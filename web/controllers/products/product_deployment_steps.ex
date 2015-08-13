@@ -102,77 +102,24 @@ defmodule OpenAperture.Manager.Controllers.ProductDeploymentSteps do
     end
   end
 
-  # # DELETE /products/:product_name/deployments/:deployment_id
-  # def destroy(conn, %{"product_name" => product_name, "deployment_id" => deployment_id}) do
-  #   product_name = URI.decode(product_name)
-
-  #   case get_product_deployment(product_name, deployment_id) do
-  #     nil ->
-  #       conn
-  #       |> put_status(:not_found)
-  #       |> json ResponseBodyFormatter.error_body(:not_found, "ProductDeployment")
-  #     pd ->
-  #       result = ProductDeployment.destroy(pd)
-
-  #       case result do
-  #         :ok ->
-  #           conn
-  #           |> resp :no_content, ""
-  #         {:error, _reason} ->
-  #           conn
-  #           |> put_status(:internal_server_error)
-  #           |> json ResponseBodyFormatter.error_body(:internal_server_error, "ProductDeployment")
-  #       end
-  #   end
-  # end
-
-  # # GET /products/:product_name/deployments/:deployment_id/steps
-  # def index_steps(conn, %{"product_name" => product_name, "deployment_id" => deployment_id}) do
-  #   product_name = URI.decode(product_name)
-
-  #   case get_product_deployment(product_name, deployment_id) do
-  #     nil ->
-  #       conn
-  #       |> put_status(:not_found)
-  #       |> json ResponseBodyFormatter.error_body(:not_found, "ProductDeployment")
-  #     pd ->
-  #       steps = ProductDeploymentStep
-  #               |> where([pdps], pdps.product_deployment_id == ^pd.id)
-  #               |> Repo.all
-  #               |> Enum.map(&(to_sendable(&1, @deployment_steps_sendable_fields)))
-  #       conn
-  #       |> json steps
-  #   end
-  # end
-
-  # def execute(conn, %{"product_name" => product_name, "id" => id} = _params) do
-  #   deployment = get_product_deployment(product_name, id)
-
-  #   cond do
-  #     deployment == nil -> resp(conn, :not_found, "")
-  #     deployment.completed == true -> resp(conn, :conflict, "Workflow has already completed")
-  #     deployment.output != "[]" -> resp(conn, :conflict, "Workflow has already been started")
-  #     true ->
-  #       request = %OrchestratorRequest{}
-  #       request = %{request | deployment: deployment}
-  #       request = %{request | completed: nil}
-  #       request = %{request | product_deployment_orchestration_exchange_id: Configuration.get_current_exchange_id}
-  #       request = %{request | product_deployment_orchestration_broker_id: Configuration.get_current_broker_id}
-  #       request = %{request | product_deployment_orchestration_queue: "product_deployment_orchestrator"}
-
-  #       case OrchestratorPublisher.execute_orchestration(request) do
-  #         :ok -> 
-  #           path = OpenAperture.Manager.Router.Helpers.workflows_path(Endpoint, :show, id)
-
-  #           # Set location header
-  #           conn
-  #           |> put_resp_header("location", path)
-  #           |> resp(:accepted, "")
-  #         {:error, reason} -> 
-  #           Logger.error("Error executing Workflow #{id}: #{inspect reason}")
-  #           resp(conn, :internal_server_error, "")            
-  #       end
-  #   end
-  # end
+  # DELETE /products/:product_name/deployments/:deployment_id/steps/:step_id
+  def destroy(conn, %{"deployment_id" => deployment_id, "step_id" => step_id}) do
+    case ProductDeploymentStepQuery.get_step_of_deployment(deployment_id, step_id) |> Repo.one do
+      nil ->
+        conn
+        |> put_status(:not_found)
+        |> json ResponseBodyFormatter.error_body(:not_found, "ProductDeploymentStep")
+      pds ->
+        case ProductDeploymentStep.destroy(pds) do   
+          {:error, _reason} ->
+            conn
+            |> put_status(:internal_server_error)
+            |> json ResponseBodyFormatter.error_body(:internal_server_error, "ProductDeploymentStep")
+          _deleted_pds ->
+            conn
+            |> resp :no_content, ""
+        end
+    end
+  end
   
 end

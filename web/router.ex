@@ -189,6 +189,7 @@ defmodule OpenAperture.Manager.Router do
           get "/steps", ProductDeploymentSteps, :index
           post "/steps", ProductDeploymentSteps, :create
           post "/steps/:step_id", ProductDeploymentSteps, :update
+          delete "/steps/:step_id", ProductDeploymentSteps, :destroy
         end 
       end
     end
