@@ -194,7 +194,7 @@ defmodule OpenAperture.Manager.Controllers.SystemEvents do
             if assignee.email != nil && String.length(assignee.email) > 0 do
               recipients = [assignee.email]
               subject = "[OpenAperture][SystemEvent]"
-              body = "System event #{event.id} has been assigned to you.  For more information, please see:  #{Configuration.get_ui_url}/index.html#/oa/system_events"
+              body = "System event #{event.id} has been assigned to you:\n  #{event.message}\n\nFor more information, please see:  #{Configuration.get_ui_url}/index.html#/oa/system_events"
               Publisher.email_notification(subject,body,recipients)            
             end
 
