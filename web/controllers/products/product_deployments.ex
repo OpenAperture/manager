@@ -4,8 +4,6 @@ defmodule OpenAperture.Manager.Controllers.ProductDeployments do
   use OpenAperture.Manager.Web, :controller
   use Timex
 
-  import OpenAperture.Manager.Controllers.FormatHelper
-  alias OpenAperture.Manager.Controllers.ResponseBodyFormatter
   import Ecto.Query
   import OpenAperture.Manager.Router.Helpers
 
@@ -15,7 +13,6 @@ defmodule OpenAperture.Manager.Controllers.ProductDeployments do
   alias OpenAperture.Manager.DB.Models.ProductDeployment
   #alias OpenAperture.Manager.DB.Queries.ProductDeployment, as: DeploymentQuery
   alias OpenAperture.Manager.DB.Models.ProductDeploymentPlan
-  alias OpenAperture.Manager.DB.Models.ProductDeploymentStep
   alias OpenAperture.Manager.DB.Queries.ProductEnvironment, as: EnvironmentQuery
 
   alias OpenAperture.ProductDeploymentOrchestratorApi.Request, as: OrchestratorRequest
@@ -51,8 +48,6 @@ defmodule OpenAperture.Manager.Controllers.ProductDeployments do
           |> preload(:product_environment)
           |> Repo.paginate(page: page_number)
 
-        IO.inspect(page)
-
         json conn, %{deployments: page.entries, total_pages: page.total_pages, total_deployments: page.total_entries}
     end
   end
@@ -76,56 +71,52 @@ defmodule OpenAperture.Manager.Controllers.ProductDeployments do
   def create(conn, %{"product_name" => product_name, "plan_name" => plan_name, "environment_name" => environment_name} = params) do
     product_name = URI.decode(product_name)
 
-    {product, plan} = case get_deployment_plan_by_name(product_name, plan_name) do
+    case get_deployment_plan_by_name(product_name, plan_name) do
       nil ->
         conn
         |> put_status(:not_found)
         |> json ResponseBodyFormatter.error_body(:not_found, "DeploymentPlan")
-      {product, plan} -> {product, plan}
-    end
+      {product, plan} ->
+        case EnvironmentQuery.get_environment(product_name, environment_name) |> Repo.one do 
+          nil -> 
+            conn
+            |> put_status(:not_found)
+            |> json ResponseBodyFormatter.error_body(:not_found, "ProductEnvironment")
+          environment -> 
+            execution_options_string = case params["execution_options"] do 
+              nil -> "{}"
+              options -> Poison.encode!(options)
+            end
 
-    environment = case EnvironmentQuery.get_environment(product_name, environment_name) |> Repo.one do 
-      nil -> 
-        conn
-        |> put_status(:not_found)
-        |> json ResponseBodyFormatter.error_body(:not_found, "ProductEnvironment")
-      environment -> environment
-    end
+            new_map = %{
+              "product_id" => product.id,
+              "product_deployment_plan_id" => plan.id,
+              "product_environment_id" => environment.id,
+              "execution_options" => execution_options_string,
+              "completed" => false
+            }
 
-    execution_options_string = case params["execution_options"] do 
-      nil -> "{}"
-      options -> Poison.encode!(options)
-    end
+            params = Map.merge(params, new_map)
 
-    Logger.debug("Environment: #{inspect environment}")
+            Logger.debug("Params #{inspect params}")
 
-    new_map = %{
-      "product_id" => product.id,
-      "product_deployment_plan_id" => plan.id,
-      "product_environment_id" => environment.id,
-      "execution_options" => execution_options_string,
-      "completed" => false
-    }
+            changeset = ProductDeployment.new(params)
 
-    params = Map.merge(params, new_map)
+            Logger.debug("Changeset: #{inspect changeset}")
+            
+            if changeset.valid? do
+              deployment = Repo.insert!(changeset)
 
-    Logger.debug("Params #{inspect params}")
-
-    changeset = ProductDeployment.new(params)
-
-    Logger.debug("Changeset: #{inspect changeset}")
-    
-    if changeset.valid? do
-      deployment = Repo.insert!(changeset)
-
-      path = product_deployments_path(Endpoint, :show, product_name, deployment.id)
-      conn
-      |> put_resp_header("location", path)
-      |> resp :created, ""
-    else
-      conn
-      |> put_status(:bad_request)
-      |> json ResponseBodyFormatter.error_body(changeset.errors, "ProductDeployment")
+              path = product_deployments_path(Endpoint, :show, product_name, deployment.id)
+              conn
+              |> put_resp_header("location", path)
+              |> resp :created, ""
+            else
+              conn
+              |> put_status(:bad_request)
+              |> json ResponseBodyFormatter.error_body(changeset.errors, "ProductDeployment")
+            end
+        end
     end
   end
 
@@ -183,25 +174,6 @@ defmodule OpenAperture.Manager.Controllers.ProductDeployments do
             |> put_status(:internal_server_error)
             |> json ResponseBodyFormatter.error_body(:internal_server_error, "ProductDeployment")
         end
-    end
-  end
-
-  # GET /products/:product_name/deployments/:deployment_id/steps
-  def index_steps(conn, %{"product_name" => product_name, "deployment_id" => deployment_id}) do
-    product_name = URI.decode(product_name)
-
-    case get_product_deployment(product_name, deployment_id) do
-      nil ->
-        conn
-        |> put_status(:not_found)
-        |> json ResponseBodyFormatter.error_body(:not_found, "ProductDeployment")
-      pd ->
-        steps = ProductDeploymentStep
-                |> where([pdps], pdps.product_deployment_id == ^pd.id)
-                |> Repo.all
-                |> Enum.map(&(to_sendable(&1, @deployment_steps_sendable_fields)))
-        conn
-        |> json steps
     end
   end
 

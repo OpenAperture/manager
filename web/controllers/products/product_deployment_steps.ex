@@ -4,22 +4,10 @@ defmodule OpenAperture.Manager.Controllers.ProductDeploymentSteps do
   use OpenAperture.Manager.Web, :controller
   use Timex
 
-  import OpenAperture.Manager.Controllers.FormatHelper
-  alias OpenAperture.Manager.Controllers.ResponseBodyFormatter
-  import Ecto.Query
-  import OpenAperture.Manager.Router.Helpers
-
-  alias OpenAperture.Manager.Endpoint
   alias OpenAperture.Manager.Repo
-  alias OpenAperture.Manager.DB.Models.Product
-  alias OpenAperture.Manager.DB.Models.ProductDeployment
-  alias OpenAperture.Manager.DB.Models.ProductDeploymentPlan
+  alias OpenAperture.Manager.DB.Queries.ProductDeployment, as: ProductDeploymentQuery
   alias OpenAperture.Manager.DB.Models.ProductDeploymentStep
   alias OpenAperture.Manager.DB.Queries.ProductDeploymentStep, as: ProductDeploymentStepQuery
-  alias OpenAperture.Manager.DB.Queries.ProductEnvironment, as: EnvironmentQuery
-
-  alias OpenAperture.ProductDeploymentOrchestratorApi.Request, as: OrchestratorRequest
-  alias OpenAperture.ProductDeploymentOrchestratorApi.ProductDeploymentOrchestrator.Publisher, as: OrchestratorPublisher
 
   @deployment_sendable_fields [:id, :product_id, :product_deployment_plan_id, :product_environment_id, :execution_options, :completed, :duration, :output, :inserted_at, :updated_at]
   @deployment_steps_sendable_fields [:id, :product_deployment_plan_step_id, :product_deployment_plan_step_type, :duration, :successful, :execution_options, :output, :sequence, :inserted_at, :updated_at]
@@ -27,7 +15,7 @@ defmodule OpenAperture.Manager.Controllers.ProductDeploymentSteps do
   plug :action
 
   # GET /products/:product_name/deployments/:deployment_id/steps
-  def index(conn, %{"deployment_id" => deployment_id} = params) do
+  def index(conn, %{"deployment_id" => deployment_id} = _params) do
     case ProductDeploymentStepQuery.get_steps_of_deployment(deployment_id) |> Repo.all do
       [] ->
         json conn, []
@@ -40,16 +28,12 @@ defmodule OpenAperture.Manager.Controllers.ProductDeploymentSteps do
   def create(conn, %{"product_name" => product_name, "deployment_id" => deployment_id} = params) do
     product_name = URI.decode(product_name)
 
-    query = from pd in ProductDeployment,
-      where: pd.id == ^deployment_id,
-      select: pd
-
-    case Repo.one(query) do
-      nil ->
+    case ProductDeploymentQuery.get_product_and_deployment(product_name, deployment_id) |> Repo.one do 
+      nil -> 
         conn
         |> put_status(:not_found)
         |> json ResponseBodyFormatter.error_body(:not_found, "ProductDeployment")
-      deployment -> 
+      {_product, deployment} ->
         params = Map.put(params, "product_deployment_id", deployment.id)
         changeset = ProductDeploymentStep.new(params)
 
