@@ -2,9 +2,8 @@ defmodule OpenAperture.Manager.Controllers.ProductDeployments do
   require Logger
 
   use OpenAperture.Manager.Web, :controller
+  use Timex
 
-  import OpenAperture.Manager.Controllers.FormatHelper
-  alias OpenAperture.Manager.Controllers.ResponseBodyFormatter
   import Ecto.Query
   import OpenAperture.Manager.Router.Helpers
 
@@ -14,7 +13,7 @@ defmodule OpenAperture.Manager.Controllers.ProductDeployments do
   alias OpenAperture.Manager.DB.Models.ProductDeployment
   #alias OpenAperture.Manager.DB.Queries.ProductDeployment, as: DeploymentQuery
   alias OpenAperture.Manager.DB.Models.ProductDeploymentPlan
-  alias OpenAperture.Manager.DB.Models.ProductDeploymentStep
+  alias OpenAperture.Manager.DB.Queries.ProductEnvironment, as: EnvironmentQuery
 
   alias OpenAperture.ProductDeploymentOrchestratorApi.Request, as: OrchestratorRequest
   alias OpenAperture.ProductDeploymentOrchestratorApi.ProductDeploymentOrchestrator.Publisher, as: OrchestratorPublisher
@@ -41,16 +40,15 @@ defmodule OpenAperture.Manager.Controllers.ProductDeployments do
           page_number = Integer.parse(params["page"])
         end
 
-       product_id = product.id
-       page = ProductDeployment
-         |> where([p], p.product_id == ^product_id)
-         |> order_by([p], desc: p.inserted_at)
-         |> Repo.paginate(page: page_number)
+        product_id = product.id
+        page = ProductDeployment
+          |> where([p], p.product_id == ^product_id)
+          |> order_by([p], desc: p.inserted_at)
+          |> preload(:product_deployment_plan)
+          |> preload(:product_environment)
+          |> Repo.paginate(page: page_number)
 
-       deployments = page.entries
-         |> Enum.map(&to_sendable(&1, @deployment_sendable_fields))
-
-       json conn, %{deployments: deployments, total_pages: page.total_pages, total_deployments: page.total_entries}
+        json conn, %{deployments: page.entries, total_pages: page.total_pages, total_deployments: page.total_entries}
     end
   end
 
@@ -65,49 +63,61 @@ defmodule OpenAperture.Manager.Controllers.ProductDeployments do
         |> json ResponseBodyFormatter.error_body(:not_found, "ProductDeployment")
       pd ->
         conn
-        |> json to_sendable(pd, @deployment_sendable_fields)
+        |> json pd
     end
   end
 
   # POST /products/:product_name/deployments
-  def create(conn, %{"product_name" => product_name, "plan_name" => plan_name} = params) do
+  def create(conn, %{"product_name" => product_name, "plan_name" => plan_name, "environment_name" => environment_name} = params) do
     product_name = URI.decode(product_name)
 
     case get_deployment_plan_by_name(product_name, plan_name) do
       nil ->
         conn
         |> put_status(:not_found)
-        |> json ResponseBodyFormatter.error_body(:not_found, "ProductDeployment")
+        |> json ResponseBodyFormatter.error_body(:not_found, "DeploymentPlan")
       {product, plan} ->
-        execution_options_string = params["execution_options"] || ""
-                                   |> Poison.encode!
+        case EnvironmentQuery.get_environment(product_name, environment_name) |> Repo.one do 
+          nil -> 
+            conn
+            |> put_status(:not_found)
+            |> json ResponseBodyFormatter.error_body(:not_found, "ProductEnvironment")
+          environment -> 
+            execution_options_string = case params["execution_options"] do 
+              nil -> "{}"
+              options -> Poison.encode!(options)
+            end
 
-        new_map = %{
-          "product_id" => product.id,
-          "product_deployment_plan_id" => plan.id,
-          "execution_options" => execution_options_string,
-          "completed" => false
-        }
+            new_map = %{
+              "product_id" => product.id,
+              "product_deployment_plan_id" => plan.id,
+              "product_environment_id" => environment.id,
+              "execution_options" => execution_options_string,
+              "completed" => false
+            }
 
-        params = Map.merge(params, new_map)
+            params = Map.merge(params, new_map)
 
-        changeset = ProductDeployment.new(params)
-        
-        if changeset.valid? do
-          deployment = Repo.insert!(changeset)
+            Logger.debug("Params #{inspect params}")
 
-          path = product_deployments_path(Endpoint, :show, product_name, deployment.id)
-          conn
-          |> put_resp_header("location", path)
-          |> resp :created, ""
-        else
-          conn
-          |> put_status(:bad_request)
-          |> json ResponseBodyFormatter.error_body(changeset.errors, "ProductDeployment")
+            changeset = ProductDeployment.new(params)
+
+            Logger.debug("Changeset: #{inspect changeset}")
+            
+            if changeset.valid? do
+              deployment = Repo.insert!(changeset)
+
+              path = product_deployments_path(Endpoint, :show, product_name, deployment.id)
+              conn
+              |> put_resp_header("location", path)
+              |> resp :created, ""
+            else
+              conn
+              |> put_status(:bad_request)
+              |> json ResponseBodyFormatter.error_body(changeset.errors, "ProductDeployment")
+            end
         end
-
     end
-
   end
 
   # This clause will only be hit if the request was missing a "plan_name" field
@@ -167,25 +177,6 @@ defmodule OpenAperture.Manager.Controllers.ProductDeployments do
     end
   end
 
-  # GET /products/:product_name/deployments/:deployment_id/steps
-  def index_steps(conn, %{"product_name" => product_name, "deployment_id" => deployment_id}) do
-    product_name = URI.decode(product_name)
-
-    case get_product_deployment(product_name, deployment_id) do
-      nil ->
-        conn
-        |> put_status(:not_found)
-        |> json ResponseBodyFormatter.error_body(:not_found, "ProductDeployment")
-      pd ->
-        steps = ProductDeploymentStep
-                |> where([pdps], pdps.product_deployment_id == ^pd.id)
-                |> Repo.all
-                |> Enum.map(&(to_sendable(&1, @deployment_steps_sendable_fields)))
-        conn
-        |> json steps
-    end
-  end
-
   def execute(conn, %{"product_name" => product_name, "id" => id} = _params) do
     deployment = get_product_deployment(product_name, id)
 
@@ -228,6 +219,8 @@ defmodule OpenAperture.Manager.Controllers.ProductDeployments do
     ProductDeployment
     |> join(:inner, [pd], p in Product, pd.product_id == p.id and fragment("lower(?) = lower(?)", p.name, ^product_name))
     |> where([pd, p], pd.id == ^deployment_id)
+    |> preload(:product_deployment_plan)
+    |> preload(:product_environment)
     |> Repo.one
   end
 

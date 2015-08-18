@@ -1,6 +1,7 @@
 defmodule OpenAperture.Manager.DB.Queries.ProductDeployment do
   alias OpenAperture.Manager.DB.Models.ProductDeploymentStep
   alias OpenAperture.Manager.DB.Models.ProductDeployment
+  alias OpenAperture.Manager.DB.Models.Product
 
   import Ecto.Query
 
@@ -39,4 +40,11 @@ defmodule OpenAperture.Manager.DB.Queries.ProductDeployment do
       where: pd.product_id == ^product_id,
       select: pd
   end  
+
+  def get_product_and_deployment(product_name, deployment_id) do 
+    ProductDeployment
+    |> join(:inner, [pd], p in Product, pd.product_id == p.id and fragment("lower(?) = lower(?)", p.name, ^product_name))
+    |> where([pd, p], pd.id == ^deployment_id)
+    |> select([pd, p], {p, pd})
+  end 
 end
