@@ -7,6 +7,7 @@ require Logger
 
 defmodule OpenAperture.Manager.Controllers.Workflows do
   use OpenAperture.Manager.Web, :controller
+  use Timex
 
   require Repo
 
@@ -41,7 +42,9 @@ defmodule OpenAperture.Manager.Controllers.Workflows do
     :workflow_completed,     
     :event_log,
     :inserted_at, 
-    :updated_at
+    :updated_at,
+    :scheduled_start_time,
+    :execute_options
   ]
 
   @doc """
@@ -159,11 +162,25 @@ defmodule OpenAperture.Manager.Controllers.Workflows do
       false
     end
 
+    scheduled_start_time = if params["scheduled_start_time"] != nil do
+      datetime = DateFormat.parse!(params["scheduled_start_time"], "{RFC1123}")
+      erl_date = Timex.DateTime.to_erlang_datetime(datetime)
+      Ecto.DateTime.from_erl(erl_date)
+    else
+      nil
+    end
+
+    execute_options = if params["execute_options"] != nil do
+      Poison.encode!(params["execute_options"])
+    else
+      nil
+    end
+
     changeset = WorkflowDB.new(%{
       :id => id,
-      :deployment_repo => trimTrailing(params["deployment_repo"]),
+      :deployment_repo => trim_trailing(params["deployment_repo"]),
       :deployment_repo_git_ref => params["deployment_repo_git_ref"],
-      :source_repo => trimTrailing(params["source_repo"]),
+      :source_repo => trim_trailing(params["source_repo"]),
       :source_repo_git_ref => params["source_repo_git_ref"],
       :source_commit_hash => params["source_commit_hash"],
       :milestones => milestones,
@@ -175,6 +192,8 @@ defmodule OpenAperture.Manager.Controllers.Workflows do
       :workflow_error => params["workflow_error"],
       :workflow_completed => workflow_completed,
       :event_log => event_log,
+      :scheduled_start_time => scheduled_start_time,
+      :execute_options => execute_options
     })
     if changeset.valid? do
       try do
@@ -197,14 +216,14 @@ defmodule OpenAperture.Manager.Controllers.Workflows do
     end
   end
 
-  defp trimTrailing(param) when is_bitstring(param) do
+  defp trim_trailing(param) when is_bitstring(param) do
     param
     |> String.strip
     |> String.rstrip(?/)
     |> String.rstrip(?\\)
   end
 
-  defp trimTrailing(param), do: param
+  defp trim_trailing(param), do: param
 
 
 
@@ -246,7 +265,11 @@ defmodule OpenAperture.Manager.Controllers.Workflows do
 
       if params["workflow_completed"] == nil do
         workflow_params = Map.put(workflow_params, "workflow_completed", false)
-      end      
+      end
+
+      if params["execute_options"] != nil do
+        workflow_params = Map.put(workflow_params, "execute_options", Poison.encode!(params["execute_options"]))
+      end
 
       changeset = WorkflowDB.update(raw_workflow, workflow_params)
       if changeset.valid? do
@@ -405,7 +428,18 @@ defmodule OpenAperture.Manager.Controllers.Workflows do
             #stored as String in the db
             if (workflow[:event_log] != nil) do
               workflow = Map.put(workflow, :event_log, Poison.decode!(workflow[:event_log]))
-            end            
+            end        
+
+            #stored as String in the db
+            if (workflow[:execute_options] != nil) do
+              workflow = Map.put(workflow, :execute_options, Poison.decode!(workflow[:execute_options]))
+            end
+
+            if workflow[:scheduled_start_time] != nil do
+              {:ok, erl_date} = Ecto.DateTime.dump(workflow[:scheduled_start_time])
+              date = Date.from(erl_date, :utc)
+              workflow = Map.put(workflow, :scheduled_start_time, DateFormat.format!(date, "{RFC1123}"))
+            end           
         
             workflows = workflows ++ [workflow]
           end
