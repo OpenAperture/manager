@@ -70,7 +70,7 @@ defmodule OpenAperture.Mixfile do
       {:openaperture_workflow_orchestrator_api, git: "https://github.com/OpenAperture/workflow_orchestrator_api.git", ref: "df4033a048145c62361e7e161c60142b7fc501e4", override: true},
       {:openaperture_product_deployment_orchestrator_api, git: "https://github.com/OpenAperture/product_deployment_orchestrator_api", ref: "3cfc61a765b0fe80581eacb1bc53e5436eb6d389", override: true},
       {:openaperture_fleet, git: "https://github.com/OpenAperture/fleet", ref: "324acdae0ceecb6a954d804d56d9d2fceaeb937c", override: true},
-      {:timex_extensions, git: "https://github.com/OpenAperture/fleet", ref: "1665c1df90397702daf492c6f940e644085016cd", override: true},
+      {:timex_extensions, git: "https://github.com/OpenAperture/timex_extensions", ref: "1665c1df90397702daf492c6f940e644085016cd", override: true},
                   
 
       {:meck, "0.8.3", override: true},        
