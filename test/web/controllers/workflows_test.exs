@@ -1,6 +1,7 @@
 defmodule OpenAperture.Manager.Controllers.WorkflowsTest do
   use ExUnit.Case, async: false
   use Phoenix.ConnTest
+  use Timex
 
   alias OpenAperture.Manager.Repo
   alias OpenAperture.Manager.Controllers.Workflows
@@ -129,8 +130,10 @@ defmodule OpenAperture.Manager.Controllers.WorkflowsTest do
   end
 
   test "create - success" do
+    now = Date.from(:calendar.universal_time, :utc)
+
     name = Ecto.UUID.generate()
-    conn = post conn(), "/workflows", %{"deployment_repo" => name}
+    conn = post conn(), "/workflows", %{"deployment_repo" => name, "scheduled_start_time" => DateFormat.format!(now, "{RFC1123}")}
     assert conn.status == 201
     location_header = Enum.reduce conn.resp_headers, nil, fn ({key, value}, location_header) ->
       if key == "location" do

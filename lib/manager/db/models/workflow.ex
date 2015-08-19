@@ -26,7 +26,7 @@ defmodule OpenAperture.Manager.DB.Models.Workflow do
     field :workflow_error,            :boolean
     field :workflow_completed,        :boolean, default: false
     field :event_log,                 :string
-    field :scheduled_start_time,      :datetime
+    field :scheduled_start_time,      Ecto.DateTime
     field :execute_options,           :string
     timestamps
   end
