@@ -164,7 +164,7 @@ defmodule OpenAperture.Manager.Controllers.Workflows do
 
     scheduled_start_time = if params["scheduled_start_time"] != nil do
       datetime = DateFormat.parse!(params["scheduled_start_time"], "{RFC1123}")
-      erl_date = Timex.DateTime.to_erlang_datetime(datetime)
+      erl_date = DateConvert.to_erlang_datetime(datetime)
       Ecto.DateTime.from_erl(erl_date)
     else
       nil
