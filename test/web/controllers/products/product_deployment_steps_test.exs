@@ -124,7 +124,6 @@ defmodule OpenAperture.Manager.Controllers.ProductDeploymentStepsTest do
 
   test "create action -- failure, invalid changeset", context do
     product = context[:product]
-    step = context[:pdps1]
     deployment = context[:pd1]
 
     path = product_deployment_steps_path(Endpoint, :create, product.name, deployment.id)
@@ -132,6 +131,33 @@ defmodule OpenAperture.Manager.Controllers.ProductDeploymentStepsTest do
     conn = post conn(), path, %{product_deployment_plan_step_id: "asdf", completed: false, output: "[]"}
 
     assert conn.status == 400
+  end
+
+  test "show action -- success", context do
+    product = context[:product]
+    step = context[:pds1]
+    deployment = context[:pd1]
+
+    path = product_deployment_steps_path(Endpoint, :show, product.name, deployment.id, step.id)
+
+    conn = get conn(), path
+
+    assert conn.status == 200
+
+    body = conn.resp_body |> Poison.decode!
+
+    assert body["id"] == step.id
+  end
+
+  test "show action -- failure, not found", context do
+    product = context[:product]
+    deployment = context[:pd1]
+
+    path = product_deployment_steps_path(Endpoint, :show, product.name, deployment.id, -1)
+
+    conn = get conn(), path
+
+    assert conn.status == 404
   end
 
   test "update action -- success", context do 
