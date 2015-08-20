@@ -353,8 +353,11 @@ defmodule OpenAperture.Manager.Controllers.Workflows do
       raw_workflow.workflow_completed == true -> resp(conn, :conflict, "Workflow has already completed")
       raw_workflow.current_step != nil -> resp(conn, :conflict, "Workflow has already been started")
       true ->
+        Logger.debug("Preparing to execute Workflow #{raw_workflow.id}...")
         payload = List.first(convert_raw_workflows([raw_workflow]))
         if raw_workflow.execute_options == nil do
+          Logger.debug("Workflow #{raw_workflow.id} does not have existing execute_options")
+
           execute_options = %{}
 
           if params["force_build"] != nil do
@@ -379,6 +382,7 @@ defmodule OpenAperture.Manager.Controllers.Workflows do
             end
           end 
           execute_options = Map.put(execute_options, "build_messaging_exchange_id", payload[:build_messaging_exchange_id])       
+          Logger.debug("Workflow #{raw_workflow.id} execute_options:  #{inspect execute_options}")
 
           payload = Map.put(execute_options, :execute_options, execute_options)
           changeset = WorkflowDB.update(raw_workflow, %{execute_options: execute_options})
@@ -386,12 +390,14 @@ defmodule OpenAperture.Manager.Controllers.Workflows do
             Repo.update!(changeset)
           end
         else
+          Logger.debug("Workflow #{raw_workflow.id} has existing execute_options")
           execute_options = Poison.decode!(raw_workflow.execute_options)
           payload = Map.put(payload, :force_build, execute_options["force_build"])
           payload = Map.put(payload, :build_messaging_exchange_id, execute_options["build_messaging_exchange_id"])
           payload = Map.put(payload, :deploy_messaging_exchange_id, execute_options["deploy_messaging_exchange_id"])
         end
 
+        Logger.debug("Generating WorkflowOrchestrator request for Workflow #{raw_workflow.id}...")
         request = OrchestratorRequest.from_payload(payload)
         request = %{request | notifications_exchange_id: Configuration.get_current_exchange_id}
         request = %{request | notifications_broker_id: Configuration.get_current_broker_id}
@@ -401,6 +407,8 @@ defmodule OpenAperture.Manager.Controllers.Workflows do
 
         case OrchestratorPublisher.execute_orchestration(request) do
           :ok -> 
+            Logger.debug("Successfully sent WorkflowOrchestrator request for Workflow #{raw_workflow.id}!")
+
             path = OpenAperture.Manager.Router.Helpers.workflows_path(Endpoint, :show, id)
 
             # Set location header
