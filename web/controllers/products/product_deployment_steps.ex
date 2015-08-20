@@ -24,6 +24,17 @@ defmodule OpenAperture.Manager.Controllers.ProductDeploymentSteps do
     end
   end
 
+  def show(conn, %{"product_name" => _product_name, "deployment_id" => deployment_id, "step_id" => step_id} = _params) do
+    case ProductDeploymentStepQuery.get_step_of_deployment(deployment_id, step_id) |> Repo.one do
+      nil ->
+        conn
+        |> put_status(:not_found)
+        |> json ResponseBodyFormatter.error_body(:not_found, "ProductDeploymentStep")
+      step ->
+        json conn, step
+    end
+  end
+
   # POST /products/:product_name/deployments/:deployment_id/steps
   def create(conn, %{"product_name" => product_name, "deployment_id" => deployment_id} = params) do
     product_name = URI.decode(product_name)
