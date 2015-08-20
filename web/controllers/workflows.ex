@@ -271,6 +271,12 @@ defmodule OpenAperture.Manager.Controllers.Workflows do
         workflow_params = Map.put(workflow_params, "execute_options", Poison.encode!(params["execute_options"]))
       end
 
+      if params["scheduled_start_time"] != nil do
+        datetime = DateFormat.parse!(params["scheduled_start_time"], "{RFC1123}")
+        erl_date = DateConvert.to_erlang_datetime(datetime)
+        workflow_params = Map.put(workflow_params, "scheduled_start_time", Ecto.DateTime.from_erl(erl_date))
+      end
+
       changeset = WorkflowDB.update(raw_workflow, workflow_params)
       if changeset.valid? do
         try do
