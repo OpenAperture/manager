@@ -381,7 +381,7 @@ defmodule OpenAperture.Manager.Controllers.Workflows do
               :error -> payload
             end
           end 
-          execute_options = Map.put(execute_options, "build_messaging_exchange_id", payload[:build_messaging_exchange_id])       
+          execute_options = Map.put(execute_options, "deploy_messaging_exchange_id", payload[:deploy_messaging_exchange_id])       
           Logger.debug("Workflow #{raw_workflow.id} execute_options:  #{inspect execute_options}")
 
           payload = Map.put(execute_options, :execute_options, execute_options)
@@ -405,6 +405,7 @@ defmodule OpenAperture.Manager.Controllers.Workflows do
         request = %{request | workflow_orchestration_broker_id: Configuration.get_current_broker_id}
         request = %{request | orchestration_queue_name: "workflow_orchestration"}
 
+        Logger.debug("WorkflowOrchestrator Request:  #{inspect request}")
         case OrchestratorPublisher.execute_orchestration(request) do
           :ok -> 
             Logger.debug("Successfully sent WorkflowOrchestrator request for Workflow #{raw_workflow.id}!")
