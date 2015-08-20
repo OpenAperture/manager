@@ -174,7 +174,7 @@ defmodule OpenAperture.Manager.Controllers.Workflows do
       Poison.encode!(params["execute_options"])
     else
       nil
-    end
+    end    
 
     changeset = WorkflowDB.new(%{
       :id => id,
@@ -354,26 +354,44 @@ defmodule OpenAperture.Manager.Controllers.Workflows do
       raw_workflow.current_step != nil -> resp(conn, :conflict, "Workflow has already been started")
       true ->
         payload = List.first(convert_raw_workflows([raw_workflow]))
-        if params["force_build"] != nil do
-          payload = Map.put(payload, :force_build, params["force_build"])
+        if raw_workflow.execute_options == nil do
+          execute_options = %{}
+
+          if params["force_build"] != nil do
+            payload = Map.put(payload, :force_build, params["force_build"])
+          end
+          execute_options = Map.put(execute_options, "force_build", payload[:force_build])
+
+          build_messaging_exchange_id = to_string(params["build_messaging_exchange_id"])
+          if String.length(build_messaging_exchange_id) > 0 do
+            payload = case Integer.parse(build_messaging_exchange_id) do
+              {messaging_exchange_id, _} -> Map.put(payload, :build_messaging_exchange_id, messaging_exchange_id)
+              :error -> payload
+            end
+          end
+          execute_options = Map.put(execute_options, "build_messaging_exchange_id", payload[:build_messaging_exchange_id])
+
+          deploy_messaging_exchange_id = to_string(params["deploy_messaging_exchange_id"])
+          if String.length(deploy_messaging_exchange_id) > 0 do
+            payload = case Integer.parse(deploy_messaging_exchange_id) do
+              {messaging_exchange_id, _} -> Map.put(payload, :deploy_messaging_exchange_id, messaging_exchange_id)
+              :error -> payload
+            end
+          end 
+          execute_options = Map.put(execute_options, "build_messaging_exchange_id", payload[:build_messaging_exchange_id])       
+
+          payload = Map.put(execute_options, :execute_options, execute_options)
+          changeset = WorkflowDB.update(raw_workflow, %{execute_options: execute_options})
+          if changeset.valid? do
+            Repo.update!(changeset)
+          end
+        else
+          execute_options = Poison.decode!(raw_workflow.execute_options)
+          payload = Map.put(payload, :force_build, execute_options["force_build"])
+          payload = Map.put(payload, :build_messaging_exchange_id, execute_options["build_messaging_exchange_id"])
+          payload = Map.put(payload, :deploy_messaging_exchange_id, execute_options["deploy_messaging_exchange_id"])
         end
 
-        build_messaging_exchange_id = to_string(params["build_messaging_exchange_id"])
-        if String.length(build_messaging_exchange_id) > 0 do
-          payload = case Integer.parse(build_messaging_exchange_id) do
-            {messaging_exchange_id, _} -> Map.put(payload, :build_messaging_exchange_id, messaging_exchange_id)
-            :error -> payload
-          end
-        end
-
-        deploy_messaging_exchange_id = to_string(params["deploy_messaging_exchange_id"])
-        if String.length(deploy_messaging_exchange_id) > 0 do
-          payload = case Integer.parse(deploy_messaging_exchange_id) do
-            {messaging_exchange_id, _} -> Map.put(payload, :deploy_messaging_exchange_id, messaging_exchange_id)
-            :error -> payload
-          end
-        end        
-                
         request = OrchestratorRequest.from_payload(payload)
         request = %{request | notifications_exchange_id: Configuration.get_current_exchange_id}
         request = %{request | notifications_broker_id: Configuration.get_current_broker_id}
