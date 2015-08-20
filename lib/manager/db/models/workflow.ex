@@ -4,7 +4,8 @@ defmodule OpenAperture.Manager.DB.Models.Workflow do
   @required_fields [:id]
   @optional_fields [:deployment_repo,:deployment_repo_git_ref,:source_repo,:source_repo_git_ref,:source_commit_hash,
                     :milestones,:current_step,:elapsed_step_time,:elapsed_workflow_time,:workflow_duration,
-                    :workflow_step_durations,:workflow_error,:workflow_completed,:event_log]
+                    :workflow_step_durations,:workflow_error,:workflow_completed,:event_log, :scheduled_start_time,
+                    :execute_options]
   use OpenAperture.Manager.DB.Models.BaseModel
   use Timex
 
@@ -25,6 +26,8 @@ defmodule OpenAperture.Manager.DB.Models.Workflow do
     field :workflow_error,            :boolean
     field :workflow_completed,        :boolean, default: false
     field :event_log,                 :string
+    field :scheduled_start_time,      Ecto.DateTime
+    field :execute_options,           :string
     timestamps
   end
 
