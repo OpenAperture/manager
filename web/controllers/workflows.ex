@@ -384,7 +384,7 @@ defmodule OpenAperture.Manager.Controllers.Workflows do
           execute_options = Map.put(execute_options, "deploy_messaging_exchange_id", payload[:deploy_messaging_exchange_id])       
           Logger.debug("Workflow #{raw_workflow.id} execute_options:  #{inspect execute_options}")
 
-          payload = Map.put(execute_options, :execute_options, execute_options)
+          payload = Map.put(payload, :execute_options, execute_options)
           changeset = WorkflowDB.update(raw_workflow, %{execute_options: execute_options})
           if changeset.valid? do
             Repo.update!(changeset)
