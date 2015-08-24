@@ -9,6 +9,10 @@ To start your new Phoenix application:
 
 Now you can visit `localhost:4000` from your browser.
 
+## Contributing
+
+To contribute to OpenAperture development, view our [contributing guide](http://openaperture.io/dev_resources/contributing.html)
+
 ## Module Configuration
 
 The following configuration values must be defined either as environment variables or as part of the environment configuration files:
