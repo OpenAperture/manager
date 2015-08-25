@@ -1,6 +1,6 @@
 defmodule OpenAperture.Manager.DB.Models.ProductEnvironmentalVariable do
   @required_fields [:product_id, :name]
-  @optional_fields [:product_environment_id, :value, :value_keyname]
+  @optional_fields [:product_environment_id, :value, :value_keyname, :private]
   use OpenAperture.Manager.DB.Models.BaseModel
 
   alias OpenAperture.Manager.DB.Models
@@ -11,6 +11,7 @@ defmodule OpenAperture.Manager.DB.Models.ProductEnvironmentalVariable do
     field :name,                      :string
     field :value,                     :string
     field :value_keyname,             :string
+    field :private,                   :boolean
     timestamps
   end
 
