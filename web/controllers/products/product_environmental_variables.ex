@@ -3,7 +3,7 @@ defmodule OpenAperture.Manager.Controllers.ProductEnvironmentalVariables do
 
   use OpenAperture.Manager.Web, :controller
 
-  import OpenAperture.Manager.Controllers.FormatHelper
+  alias OpenAperture.Manager.Controllers.FormatHelper
   alias OpenAperture.Manager.Controllers.ResponseBodyFormatter
   import Ecto.Query
   import OpenAperture.Manager.Router.Helpers
@@ -16,6 +16,7 @@ defmodule OpenAperture.Manager.Controllers.ProductEnvironmentalVariables do
   alias OpenAperture.Manager.DB.Queries.ProductEnvironmentalVariable, as: VarQuery
 
   @sendable_fields [:id, :product_id, :product_environment_id, :name, :value, :inserted_at, :updated_at]
+  @encrypted_fields [:value]
 
   plug :action
 
@@ -42,7 +43,7 @@ defmodule OpenAperture.Manager.Controllers.ProductEnvironmentalVariables do
 
         vars = query
                |> Repo.all
-               |> Enum.map(&to_sendable(&1, @sendable_fields))
+               |> Enum.map(&FormatHelper.to_sendable(&1, @sendable_fields, @encrypted_fields))
 
         conn
         |> json vars
@@ -70,7 +71,7 @@ defmodule OpenAperture.Manager.Controllers.ProductEnvironmentalVariables do
         end
 
         vars = Repo.all(query)
-               |> Enum.map(&to_sendable(&1, @sendable_fields))        
+               |> Enum.map(&FormatHelper.to_sendable(&1, @sendable_fields, @encrypted_fields))        
 
         conn
         |> json vars
@@ -91,7 +92,7 @@ defmodule OpenAperture.Manager.Controllers.ProductEnvironmentalVariables do
         |> json ResponseBodyFormatter.error_body(:not_found, "ProductEnvironmentalVariable")
       env_var ->
         conn
-        |> json to_sendable(env_var, @sendable_fields)
+        |> json FormatHelper.to_sendable(env_var, @sendable_fields, @encrypted_fields)
     end
   end
 
@@ -110,7 +111,7 @@ defmodule OpenAperture.Manager.Controllers.ProductEnvironmentalVariables do
     end
 
     vars = Repo.all(query)
-           |> Enum.map(&to_sendable(&1, @sendable_fields))        
+           |> Enum.map(&FormatHelper.to_sendable(&1, @sendable_fields, @encrypted_fields))        
 
     if vars == [] do
       conn
@@ -138,6 +139,9 @@ defmodule OpenAperture.Manager.Controllers.ProductEnvironmentalVariables do
         ids = %{"product_id" => pe.product_id, "product_environment_id" => pe.id}
 
         params = Map.merge(params, ids)
+        if Map.has_key?(params, "value") do
+          Map.put(params, "value", FormatHelper.encrypt_value(params["value"]))
+        end
         changeset = ProductEnvironmentalVariable.new(params)
         if changeset.valid? do
           # Check for conflict
@@ -175,6 +179,9 @@ defmodule OpenAperture.Manager.Controllers.ProductEnvironmentalVariables do
         |> put_status(:not_found)
         |> json ResponseBodyFormatter.error_body(:not_found, "ProductEnvironmentalVariable")
       env_var ->
+        if Map.has_key?(params, "value") do
+          Map.put(params, "value", FormatHelper.encrypt_value(params["value"]))
+        end
         changeset = ProductEnvironmentalVariable.update(env_var, params)
         if changeset.valid? do
           # Check for conflict
@@ -213,6 +220,9 @@ defmodule OpenAperture.Manager.Controllers.ProductEnvironmentalVariables do
       product ->
         ids = %{"product_id" => product.id}
         params = Map.merge(params, ids)
+        if Map.has_key?(params, "value") do
+          Map.put(params, "value", FormatHelper.encrypt_value(params["value"]))
+        end
         changeset = ProductEnvironmentalVariable.new(params)
         if changeset.valid? do
           # Check for conflict
@@ -249,6 +259,9 @@ defmodule OpenAperture.Manager.Controllers.ProductEnvironmentalVariables do
         |> put_status(:not_found)
         |> json ResponseBodyFormatter.error_body(:not_found, "ProductEnvironmentalVariable")
       env_var ->
+        if Map.has_key?(params, "value") do
+          Map.put(params, "value", FormatHelper.encrypt_value(params["value"]))
+        end
         changeset = ProductEnvironmentalVariable.update(env_var, params)
         if changeset.valid? do
           # Check for conflict

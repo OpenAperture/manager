@@ -87,7 +87,7 @@ defmodule OpenAperture.Manager.BuildLogMonitor do
     connection_options = %OpenAperture.Messaging.AMQP.ConnectionOptions{
                     id: connection_options_map.id, 
                     username: connection_options_map.username, 
-                    password: OpenAperture.Manager.Controllers.MessagingBrokers.decrypt_password(connection_options_map.password), 
+                    password: OpenAperture.Manager.Controllers.FormatHelper.decrypt_value(connection_options_map.password), 
                     host: connection_options_map.host, 
                     port: connection_options_map.port, 
                     virtual_host: connection_options_map.virtual_host}
@@ -102,7 +102,7 @@ defmodule OpenAperture.Manager.BuildLogMonitor do
       connection_options = %{connection_options |
                     failover_id: failover_connection_options.id, 
                     failover_username: failover_connection_options.username, 
-                    failover_password: OpenAperture.Manager.Controllers.MessagingBrokers.decrypt_password(failover_connection_options.password), 
+                    failover_password: OpenAperture.Manager.Controllers.FormatHelper.decrypt_value(failover_connection_options.password), 
                     failover_host: failover_connection_options.host, 
                     failover_port: failover_connection_options.port, 
                     failover_virtual_host: failover_connection_options.virtual_host}
