@@ -15,7 +15,7 @@ defmodule OpenAperture.Manager.Controllers.ProductEnvironmentalVariables do
   alias OpenAperture.Manager.DB.Queries.ProductEnvironment, as: EnvQuery
   alias OpenAperture.Manager.DB.Queries.ProductEnvironmentalVariable, as: VarQuery
 
-  @sendable_fields [:id, :product_id, :product_environment_id, :name, :value, :inserted_at, :updated_at]
+  @sendable_fields [:id, :product_id, :product_environment_id, :name, :value, :inserted_at, :updated_at, :private]
 
   plug :action
 

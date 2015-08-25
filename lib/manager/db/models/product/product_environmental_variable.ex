@@ -10,7 +10,7 @@ defmodule OpenAperture.Manager.DB.Models.ProductEnvironmentalVariable do
     belongs_to :product_environment,  Models.ProductEnvironment
     field :name,                      :string
     field :value,                     :string
-    field :private,       :boolean
+    field :private,                   :boolean
     timestamps
   end
 
