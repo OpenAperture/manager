@@ -8,7 +8,7 @@ defmodule OpenAperture.Manager.Repo.Migrations.EncryptPevValues do
 
   def change do
     alter table(:product_environmental_variables) do
-      add :value_keyname, :boolean, null: true
+      add :value_keyname, :string, null: true
     end
     
     ProductEnvironmentalVariable
@@ -19,6 +19,6 @@ defmodule OpenAperture.Manager.Repo.Migrations.EncryptPevValues do
   def updatePEV(pev) do
     pev
     |> ProductEnvironmentalVariable.update(%{value: FormatHelper.encrypt_value(pev.value)})
-    |> Repo.update
+    |> Repo.update!
   end
 end
