@@ -10,6 +10,7 @@ defmodule OpenAperture.Manager.Controllers.ProductEnvironmentalVariablesTest do
   alias OpenAperture.Manager.DB.Models.Product
   alias OpenAperture.Manager.DB.Models.ProductEnvironment
   alias OpenAperture.Manager.DB.Models.ProductEnvironmentalVariable
+  alias OpenAperture.Manager.Controllers.FormatHelper
 
   setup_all do
     :meck.new(OpenAperture.Manager.Plugs.Authentication, [:passthrough])
@@ -22,17 +23,17 @@ defmodule OpenAperture.Manager.Controllers.ProductEnvironmentalVariablesTest do
     product = Product.new(%{name: "test_environmental_variables_product"})
               |> Repo.insert!
 
-    pe1 = ProductEnvironment.new(%{name: "test_environment_1", product_id: product.id})
+    pe1 = ProductEnvironment.new(%{name: "test_environment_1", product_id: product.id, value: FormatHelper.encrypt_value("test_env_1_value")})
           |> Repo.insert!
-    pe2 = ProductEnvironment.new(%{name: "test_environment_2", product_id: product.id})
+    pe2 = ProductEnvironment.new(%{name: "test_environment_2", product_id: product.id, value: FormatHelper.encrypt_value("test_env_2_value")})
           |> Repo.insert!
-    pev1 = ProductEnvironmentalVariable.new(%{name: "test_variable_1", product_id: product.id, product_environment_id: pe1.id})
+    pev1 = ProductEnvironmentalVariable.new(%{name: "test_variable_1", product_id: product.id, product_environment_id: pe1.id, value: FormatHelper.encrypt_value("test_var_1_value")})
            |> Repo.insert!
-    pev2 = ProductEnvironmentalVariable.new(%{name: "test_variable_2", product_id: product.id, product_environment_id: pe1.id})
+    pev2 = ProductEnvironmentalVariable.new(%{name: "test_variable_2", product_id: product.id, product_environment_id: pe1.id, value: FormatHelper.encrypt_value("test_var_2_value")})
            |> Repo.insert!
-    pev3 = ProductEnvironmentalVariable.new(%{name: "test_variable_3", product_id: product.id, product_environment_id: pe2.id})
+    pev3 = ProductEnvironmentalVariable.new(%{name: "test_variable_3", product_id: product.id, product_environment_id: pe2.id, value: FormatHelper.encrypt_value("test_var_3_value")})
            |> Repo.insert!
-    pev4 = ProductEnvironmentalVariable.new(%{name: "test_variable_4", product_id: product.id})
+    pev4 = ProductEnvironmentalVariable.new(%{name: "test_variable_4", product_id: product.id, value: FormatHelper.encrypt_value("test_var_4_value")})
            |> Repo.insert!
 
     on_exit fn ->
@@ -90,9 +91,9 @@ defmodule OpenAperture.Manager.Controllers.ProductEnvironmentalVariablesTest do
     assert length(body) == 3
 
     # Check that the expected variables are present in the response
-    assert Enum.any?(body, fn v -> v["name"] == "test_variable_1" end)
-    assert Enum.any?(body, fn v -> v["name"] == "test_variable_2" end)
-    assert Enum.any?(body, fn v -> v["name"] == "test_variable_4" end)
+    assert Enum.any?(body, fn v -> v["name"] == "test_variable_1" && v["value"] == "test_var_1_value" end)
+    assert Enum.any?(body, fn v -> v["name"] == "test_variable_2" && v["value"] == "test_var_2_value" end)
+    assert Enum.any?(body, fn v -> v["name"] == "test_variable_4" && v["value"] == "test_var_4_value" end)
   end
 
   test "index action (product, environment, coalesced = true) -- environment not found", context do
