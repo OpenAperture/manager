@@ -140,7 +140,9 @@ defmodule OpenAperture.Manager.Controllers.ProductEnvironmentalVariables do
 
         params = Map.merge(params, ids)
         if Map.has_key?(params, "value") do
-          Map.put(params, "value", FormatHelper.encrypt_value(params["value"]))
+          params = params
+          |> Map.put("value", FormatHelper.encrypt_value(params["value"]))
+          |> Map.put("value_keyname", Application.get_env(:openaperture_messaging, :keyname, ""))
         end
         changeset = ProductEnvironmentalVariable.new(params)
         if changeset.valid? do
