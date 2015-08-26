@@ -182,7 +182,7 @@ defmodule OpenAperture.Manager.Controllers.ProductEnvironmentalVariables do
         |> json ResponseBodyFormatter.error_body(:not_found, "ProductEnvironmentalVariable")
       env_var ->
         if Map.has_key?(params, "value") do
-          Map.put(params, "value", FormatHelper.encrypt_value(params["value"]))
+          params = Map.put(params, "value", FormatHelper.encrypt_value(params["value"]))
         end
         changeset = ProductEnvironmentalVariable.update(env_var, params)
         if changeset.valid? do
@@ -262,7 +262,7 @@ defmodule OpenAperture.Manager.Controllers.ProductEnvironmentalVariables do
         |> json ResponseBodyFormatter.error_body(:not_found, "ProductEnvironmentalVariable")
       env_var ->
         if Map.has_key?(params, "value") do
-          Map.put(params, "value", FormatHelper.encrypt_value(params["value"]))
+          params = Map.put(params, "value", FormatHelper.encrypt_value(params["value"]))
         end
         changeset = ProductEnvironmentalVariable.update(env_var, params)
         if changeset.valid? do
