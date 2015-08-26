@@ -38,8 +38,8 @@ defmodule Mix.Tasks.Swagger do
     		description: "The REST API for the OpenAperture Manager",
     		termsOfService: "https://github.com/OpenAperture/manager/blob/master/LICENSE",
     		contact: %{
-      		name: "",
-      		email: "",
+      		name: "OpenAperture",
+      		email: "openaperture@lexmark.com",
       		url: "http://openaperture.io"
     		},
     		license: %{
