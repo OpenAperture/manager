@@ -66,19 +66,14 @@ defmodule OpenAperture.Manager.Controllers.FormatHelper do
 
   @spec decrypt_value(String.t()) :: String.t()
   def decrypt_value(encrypted_value) do
-    try do
-      keyfile =  Application.get_env(:openaperture_messaging, :private_key)
-      if File.exists?(keyfile) do     
-        private_key = RSA.decode_key(File.read!(keyfile))
-        cyphertext = :base64.decode(encrypted_value)
-        "#{RSA.decrypt cyphertext, {:private, private_key}}"
-      else
-       raise "Error retrieving private key:  File #{keyfile} does not exist!"
-      end
-    rescue
-      e ->
-        raise "Error retrieving private key:  #{inspect e}"
-    end   
+    keyfile =  Application.get_env(:openaperture_messaging, :private_key)
+    if File.exists?(keyfile) do     
+      private_key = RSA.decode_key(File.read!(keyfile))
+      cyphertext = :base64.decode(encrypted_value)
+      "#{RSA.decrypt cyphertext, {:private, private_key}}"
+    else
+     raise "Error retrieving private key:  File #{keyfile} does not exist!"
+    end  
   end
 
   @doc """

@@ -223,7 +223,7 @@ defmodule OpenAperture.Manager.Controllers.ProductEnvironmentalVariables do
         ids = %{"product_id" => product.id}
         params = Map.merge(params, ids)
         if Map.has_key?(params, "value") do
-          Map.put(params, "value", FormatHelper.encrypt_value(params["value"]))
+          params = Map.put(params, "value", FormatHelper.encrypt_value(params["value"]))
         end
         changeset = ProductEnvironmentalVariable.new(params)
         if changeset.valid? do
