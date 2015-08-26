@@ -49,6 +49,23 @@ defmodule OpenAperture.Manager.Controllers.SystemEvents do
 
   Underlying HTTP connection
   """
+  def swaggerdoc_index, do: %{
+    description: "Retrieve a set of SystemEvents" ,
+    parameters: [%{
+      "name" => "lookback",
+      "in" => "query",
+      "description" => "The number of hours (back) to retrieve SystemEvents, defaults to 24",
+      "required" => false,
+      "type" => "integer"
+    }, 
+    %{
+      "name" => "assignee_id",
+      "in" => "query",
+      "description" => "Retrieves all events (no time-range) for the User identifier",
+      "required" => false,
+      "type" => "integer"
+    }]
+  }  
   @spec index(term, [any]) :: term
   def index(conn, params) do
     query = cond do
@@ -78,6 +95,16 @@ defmodule OpenAperture.Manager.Controllers.SystemEvents do
 
   Underlying HTTP connection
   """
+  def swaggerdoc_show, do: %{
+    description: "Retrieve a set of SystemEvents" ,
+    parameters: [%{
+      "name" => "id",
+      "in" => "path",
+      "description" => "SystemEvent identifier",
+      "required" => true,
+      "type" => "integer"
+    }]
+  }  
   @spec show(Plug.Conn.t, [any]) :: Plug.Conn.t
   def show(conn, params) do
     case Repo.get(SystemEvent, params["id"]) do
@@ -98,6 +125,37 @@ defmodule OpenAperture.Manager.Controllers.SystemEvents do
 
   Underlying HTTP connection
   """
+  def swaggerdoc_create, do: %{
+    description: "Create a SystemEvents" ,
+    parameters: [%{
+      "name" => "type",
+      "in" => "body",
+      "description" => "type of SystmEvent",
+      "required" => true,
+      "type" => "string"
+    }, 
+    %{
+      "name" => "message",
+      "in" => "body",
+      "description" => "event message",
+      "required" => true,
+      "type" => "string"
+    },
+    %{
+      "name" => "severity",
+      "in" => "body",
+      "description" => "error, warning, info, debug",
+      "required" => true,
+      "type" => "string"
+    },
+    %{
+      "name" => "data",
+      "in" => "body",
+      "description" => "Map of data points",
+      "required" => false,
+      "type" => "map"
+    }]
+  }    
   @spec create(Plug.Conn.t, [any]) :: Plug.Conn.t
   def create(conn, params) do
     data = if params["data"] != nil do
@@ -163,6 +221,30 @@ defmodule OpenAperture.Manager.Controllers.SystemEvents do
 
   Underlying HTTP connection
   """
+  def swaggerdoc_assign, do: %{
+    description: "Assign a SystemEvent to a User" ,
+    parameters: [%{
+      "name" => "id",
+      "in" => "path",
+      "description" => "SystemEvent identifier",
+      "required" => true,
+      "type" => "integer"
+    },
+    %{
+      "name" => "assignee_id",
+      "in" => "body",
+      "description" => "User id to which the event will be associated",
+      "required" => false,
+      "type" => "integer"
+    }, 
+    %{
+      "name" => "assigned_by_id",
+      "in" => "body",
+      "description" => "User id who assigned the event",
+      "required" => false,
+      "type" => "integer"
+    }]
+  }    
   @spec assign(Plug.Conn.t, [any]) :: Plug.Conn.t
   def assign(conn, params) do
     event = Repo.get(SystemEvent, params["id"])
@@ -219,6 +301,23 @@ defmodule OpenAperture.Manager.Controllers.SystemEvents do
 
   Underlying HTTP connection
   """
+  def swaggerdoc_dismiss, do: %{
+    description: "Dismiss a SystemEvent to a User",
+    parameters: [%{
+      "name" => "id",
+      "in" => "path",
+      "description" => "SystemEvent identifier",
+      "required" => true,
+      "type" => "integer"
+    }, 
+    %{
+      "name" => "dismissed_by_id",
+      "in" => "body",
+      "description" => "User id who dismissed the event, defaults to the request user",
+      "required" => false,
+      "type" => "integer"
+    }]
+  }      
   @spec dismiss(Plug.Conn.t, [any]) :: Plug.Conn.t
   def dismiss(conn, params) do
     event = Repo.get(SystemEvent, params["id"])
