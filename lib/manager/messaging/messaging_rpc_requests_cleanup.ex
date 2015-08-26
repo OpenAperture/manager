@@ -18,7 +18,7 @@ defmodule OpenAperture.Manager.Messaging.RpcRequestsCleanup do
 
   ## Return Values
 
-  {:ok, pid} | {:error, reason}
+      {:ok, pid} | {:error, reason}
   """
   @spec start_link() :: {:ok, pid} | {:error, String.t()}  
   def start_link() do
@@ -40,8 +40,6 @@ defmodule OpenAperture.Manager.Messaging.RpcRequestsCleanup do
   @doc """
   GenServer callback for handling the :cleanup event.  This method
   cleanup expired MessagingRpcRequests every hour
-
-  {:noreply, state}
   """
   @spec handle_cast({:cleanup}, Map) :: {:noreply, Map}
   def handle_cast({:cleanup}, state) do
@@ -54,8 +52,6 @@ defmodule OpenAperture.Manager.Messaging.RpcRequestsCleanup do
 
   @doc """
   This method cleanup expired MessagingRpcRequests every hour
-
-  {:noreply, state}
   """
   @spec cleanup_expired_requests :: term
   def cleanup_expired_requests do

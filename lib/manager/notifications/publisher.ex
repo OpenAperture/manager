@@ -109,8 +109,7 @@ defmodule OpenAperture.Manager.Notifications.Publisher do
   
   ## Return Values
 
-  {:noreply, state}
-
+      {:noreply, state}
   """
   @spec handle_cast({term, Map}, Map) :: {:noreply, Map}
   def handle_cast({notification_type, payload}, state) do
