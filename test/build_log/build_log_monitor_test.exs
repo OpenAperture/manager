@@ -7,6 +7,7 @@ defmodule OpenAperture.Manager.BuildLogs.BuildLogMonitor do
   alias OpenAperture.Manager.DB.Models.MessagingExchange, as: MessagingExchangeModel
   alias OpenAperture.Manager.DB.Models.MessagingBroker, as: MessagingBrokerModel
   alias OpenAperture.Manager.BuildLogMonitor
+  alias OpenAperture.Manager.Controllers.FormatHelper
   alias OpenAperture.Manager.Controllers.MessagingBrokers
   alias OpenAperture.Manager.Configuration
   alias OpenAperture.Messaging.AMQP.QueueBuilder
@@ -110,7 +111,7 @@ defmodule OpenAperture.Manager.BuildLogs.BuildLogMonitor do
                                             virtual_host: "myvhost"}
                                           end)
     :meck.new(MessagingBrokers, [:passthrough])
-    :meck.expect(MessagingBrokers, :decrypt_password, fn _ -> "decrypted_password" end)
+    :meck.expect(FormatHelper, :decrypt_value, fn _ -> "decrypted_password" end)
     connection_options = BuildLogMonitor.get_connection_options
     assert connection_options.id == 1234
     assert connection_options.username == "un"

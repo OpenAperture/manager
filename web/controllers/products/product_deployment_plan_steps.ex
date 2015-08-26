@@ -304,7 +304,7 @@ defmodule OpenAperture.Manager.Controllers.ProductDeploymentPlanSteps do
     |> to_sendable(@option_sendable_fields)
   end
 
-  @spec get_product_and_plan_by_name(String.t, String.t) :: {Product.t | nil, ProductDeploymentPlan.t | nil}
+  @spec get_product_and_plan_by_name(String.t, String.t) :: Model.t | nil
   defp get_product_and_plan_by_name(product_name, plan_name) do
     product_name = URI.decode(product_name)
     plan_name = URI.decode(plan_name)
