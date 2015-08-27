@@ -153,7 +153,7 @@ defmodule OpenAperture.Manager.Controllers.SystemEvents do
       "in" => "formData",
       "description" => "Map of data points",
       "required" => false,
-      "type" => "object"
+      "type" => "string"
     }]
   }    
   @spec create(Plug.Conn.t, [any]) :: Plug.Conn.t
