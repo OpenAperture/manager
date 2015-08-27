@@ -129,34 +129,31 @@ defmodule OpenAperture.Manager.Controllers.SystemEvents do
     description: "Create a SystemEvents" ,
     parameters: [%{
       "name" => "type",
-      "in" => "body",
+      "in" => "formData",
       "description" => "type of SystmEvent",
       "required" => true,
-      "type" => "string",
-      "schema" => %{"type": "string"}
+      "type" => "string"
     }, 
     %{
       "name" => "message",
-      "in" => "body",
+      "in" => "formData",
       "description" => "event message",
       "required" => true,
       "type" => "string"
     },
     %{
       "name" => "severity",
-      "in" => "body",
+      "in" => "formData",
       "description" => "error, warning, info, debug",
       "required" => true,
-      "type" => "string",
-      "schema" => %{"type": "string"}
+      "type" => "string"
     },
     %{
       "name" => "data",
-      "in" => "body",
+      "in" => "formData",
       "description" => "Map of data points",
       "required" => false,
-      "type" => "object",
-      "schema" => %{"type": "object", "additionalProperties": %{"type": "string"}}
+      "type" => "object"
     }]
   }    
   @spec create(Plug.Conn.t, [any]) :: Plug.Conn.t
@@ -235,19 +232,17 @@ defmodule OpenAperture.Manager.Controllers.SystemEvents do
     },
     %{
       "name" => "assignee_id",
-      "in" => "body",
+      "in" => "formData",
       "description" => "User id to which the event will be associated",
       "required" => false,
       "type" => "integer",
-      "schema" => %{"type": "integer"}
     }, 
     %{
       "name" => "assigned_by_id",
-      "in" => "body",
+      "in" => "formData",
       "description" => "User id who assigned the event",
       "required" => false,
       "type" => "integer",
-      "schema" => %{"type": "integer"}
     }]
   }    
   @spec assign(Plug.Conn.t, [any]) :: Plug.Conn.t
@@ -317,11 +312,10 @@ defmodule OpenAperture.Manager.Controllers.SystemEvents do
     }, 
     %{
       "name" => "dismissed_by_id",
-      "in" => "body",
+      "in" => "formData",
       "description" => "User id who dismissed the event, defaults to the request user",
       "required" => false,
       "type" => "integer",
-      "schema" => %{"type": "integer"}
     }]
   }      
   @spec dismiss(Plug.Conn.t, [any]) :: Plug.Conn.t
