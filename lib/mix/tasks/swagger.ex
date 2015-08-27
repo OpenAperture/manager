@@ -66,7 +66,10 @@ defmodule Mix.Tasks.Swagger do
   		swagger
   	else
   		Enum.reduce routes, swagger, fn (route, swagger) ->
-        #Mix.shell.info "route:  #{inspect route}"
+        if String.contains?(route.path,"cloud_providers") do
+          Mix.shell.info "weird route:  #{inspect route}"
+        end
+
   			path = swagger[:paths][route.path]
   			if path == nil do
   				path = %{}
@@ -78,12 +81,20 @@ defmodule Mix.Tasks.Swagger do
         else
           parameters = Enum.reduce String.split(route.path, "/"), [], fn(path_segment, parameters) ->
             if String.first(path_segment) == ":" do
-              parameters ++ [%{
+              parameter = %{
                 "name" => String.slice(path_segment, 1..String.length(path_segment)),
                 "in" => "path",
                 "description" => "",
                 "required" => true,
-              }]
+                "type" => "string"
+              }
+
+              #assumes all params named "id" are integers
+              if parameter["name"] == "id" do
+                parameter = Map.put(parameter, "type", "integer")
+              end
+
+              parameters ++ [parameter]
             else
               parameters
             end
