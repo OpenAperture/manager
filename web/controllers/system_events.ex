@@ -132,7 +132,8 @@ defmodule OpenAperture.Manager.Controllers.SystemEvents do
       "in" => "body",
       "description" => "type of SystmEvent",
       "required" => true,
-      "type" => "string"
+      "type" => "string",
+      "schema" => %{"type": "string"}
     }, 
     %{
       "name" => "message",
@@ -146,14 +147,16 @@ defmodule OpenAperture.Manager.Controllers.SystemEvents do
       "in" => "body",
       "description" => "error, warning, info, debug",
       "required" => true,
-      "type" => "string"
+      "type" => "string",
+      "schema" => %{"type": "string"}
     },
     %{
       "name" => "data",
       "in" => "body",
       "description" => "Map of data points",
       "required" => false,
-      "type" => "map"
+      "type" => "object",
+      "schema" => %{"type": "object", "additionalProperties": %{"type": "string"}}
     }]
   }    
   @spec create(Plug.Conn.t, [any]) :: Plug.Conn.t
@@ -235,14 +238,16 @@ defmodule OpenAperture.Manager.Controllers.SystemEvents do
       "in" => "body",
       "description" => "User id to which the event will be associated",
       "required" => false,
-      "type" => "integer"
+      "type" => "integer",
+      "schema" => %{"type": "integer"}
     }, 
     %{
       "name" => "assigned_by_id",
       "in" => "body",
       "description" => "User id who assigned the event",
       "required" => false,
-      "type" => "integer"
+      "type" => "integer",
+      "schema" => %{"type": "integer"}
     }]
   }    
   @spec assign(Plug.Conn.t, [any]) :: Plug.Conn.t
@@ -315,7 +320,8 @@ defmodule OpenAperture.Manager.Controllers.SystemEvents do
       "in" => "body",
       "description" => "User id who dismissed the event, defaults to the request user",
       "required" => false,
-      "type" => "integer"
+      "type" => "integer",
+      "schema" => %{"type": "integer"}
     }]
   }      
   @spec dismiss(Plug.Conn.t, [any]) :: Plug.Conn.t
