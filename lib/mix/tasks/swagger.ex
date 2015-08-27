@@ -66,11 +66,16 @@ defmodule Mix.Tasks.Swagger do
   		swagger
   	else
   		Enum.reduce routes, swagger, fn (route, swagger) ->
-        if String.contains?(route.path,"cloud_providers") do
-          Mix.shell.info "weird route:  #{inspect route}"
+        #paths must enclose params with braces {var}, rather than :var (http://swagger.io/specification/#pathTemplating)
+        swagger_path = Enum.reduce String.split(route.path, "/"), nil, fn(path_segment, swagger_path) ->
+          cond do
+            swagger_path == nil -> "/#{path_segment}"
+            String.first(path_segment) == ":" -> "/{#{String.slice(path_segment, 1..String.length(path_segment))}}"
+            true -> "#{swagger_path}/#{path_segment}"
+          end
         end
 
-  			path = swagger[:paths][route.path]
+  			path = swagger[:paths][swagger_path]
   			if path == nil do
   				path = %{}
   			end
@@ -81,6 +86,8 @@ defmodule Mix.Tasks.Swagger do
         else
           parameters = Enum.reduce String.split(route.path, "/"), [], fn(path_segment, parameters) ->
             if String.first(path_segment) == ":" do
+
+              #http://swagger.io/specification/#parameterObject
               parameter = %{
                 "name" => String.slice(path_segment, 1..String.length(path_segment)),
                 "in" => "path",
@@ -135,7 +142,7 @@ defmodule Mix.Tasks.Swagger do
         end
 
   			path = Map.put(path, verb_string, verb)
-  			paths = Map.put(swagger[:paths], route.path, path)
+  			paths = Map.put(swagger[:paths], swagger_path, path)
   			Map.put(swagger, :paths, paths)
   		end
   	end
