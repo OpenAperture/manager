@@ -21,6 +21,12 @@ defmodule OpenAperture.Manager.Controllers.ProductDeploymentsTest do
   end
 
   setup do
+    Repo.delete_all(ProductDeploymentStep)
+    Repo.delete_all(ProductDeployment)
+    Repo.delete_all(ProductDeploymentPlan)
+    Repo.delete_all(ProductEnvironment)
+    Repo.delete_all(Product)
+
     product = Product.new(%{name: "product1"})
       |> Repo.insert!
 
@@ -66,6 +72,7 @@ defmodule OpenAperture.Manager.Controllers.ProductDeploymentsTest do
     body = Poison.decode!(conn.resp_body)
     assert length(body["deployments"]) == 2
   end
+
 
   test "index action -- success for multiple pages", context do
     product = context[:product]

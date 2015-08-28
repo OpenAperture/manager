@@ -19,8 +19,7 @@ defmodule DB.Models.Product.Test do
     product1 = %{name: "test"}
     Product.new(product1) |> Repo.insert!
 
-    assert_raise Postgrex.Error,
-                 "ERROR (unique_violation): duplicate key value violates unique constraint \"products_name_index\"",
+    assert_raise Ecto.ConstraintError,
                  fn -> Product.new(product1) |> Repo.insert! end
   end
 

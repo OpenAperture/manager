@@ -42,6 +42,7 @@ defmodule OpenAperture.Manager.Controllers.CloudProvidersTest do
     assert Enum.any?(body, &(&1["configuration"] == "{}"))
   end
 
+
   test "show action - found" do
     provider = CloudProvider.new(%{name: "aws", type: "aws", configuration: "{}"}) |> Repo.insert!
 

@@ -3,17 +3,15 @@ defmodule OpenAperture.Manager.Controllers.Users do
   use     OpenAperture.Manager.Web, :controller
   alias   OpenAperture.Manager.DB.Models.User
 
+  @sendable_fields [:id, :first_name, :last_name, :email, :inserted_at, :updated_at]
+
   plug :action
 
   @no_user_error "No user with such ID found"
 
   # GET /users
   def index(conn, _params) do
-    users = User
-      |> Repo.all
-      |> Enum.map &Map.from_struct/1
-
-    json conn, users
+    json conn, FormatHelper.to_sendable(Repo.all(User), @sendable_fields)
   end
 
   # POST /users
@@ -39,12 +37,12 @@ defmodule OpenAperture.Manager.Controllers.Users do
   # GET /users/:id
   def show(conn, %{"id" => id}) do
     if id == "me" do
-      json conn, conn.private[:auth_user]
+      json conn, FormatHelper.to_sendable(conn.private[:auth_user], @sendable_fields)
     else
       user = Repo.get(User, id)
 
       if user do
-        json conn, user
+        json conn, FormatHelper.to_sendable(user, @sendable_fields)
       else
         conn
         |> put_status(:not_found)

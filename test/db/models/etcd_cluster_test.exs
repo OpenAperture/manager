@@ -36,8 +36,7 @@ defmodule DB.Models.EtcdCluster.Test do
     :meck.unload
     EtcdCluster.new(etcd_cluster1_values) |> Repo.insert!
 
-    assert_raise Postgrex.Error,
-                 "ERROR (unique_violation): duplicate key value violates unique constraint \"etcd_clusters_etcd_token_index\"",
+    assert_raise Ecto.ConstraintError,
                  fn -> EtcdCluster.new(etcd_cluster1_values) |> Repo.insert! end
   end
 

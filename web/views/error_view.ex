@@ -33,63 +33,26 @@ defmodule OpenAperture.ErrorView do
       end
       Logger.error(error_msg)
     
-      if generate_event do
-        event = %{
-          unique: true,
-          type: :unhandled_exception, 
-          severity: :error, 
-          data: %{
-            component: :manager,
-            exchange_id: Configuration.get_current_exchange_id,
-            hostname: System.get_env("HOSTNAME")
-          },
-          message: error_msg
-        }       
-        SystemEvent.create_system_event!(ManagerApi.get_api, event)      
-      end
+      if generate_event, do: create_system_event(error_msg)
     catch
-      :exit, code   ->
-        error_msg = "#{prefix} Exited with code #{inspect code}"
-        Logger.error(error_msg)
-        event = %{
-        type: :unhandled_exception, 
-          severity: :error, 
-          data: %{
-            component: :manager,
-            exchange_id: Configuration.get_current_exchange_id,
-            hostname: System.get_env("HOSTNAME")
-          },
-          message: error_msg
-        }       
-        SystemEvent.create_system_event!(ManagerApi.get_api, event)        
-      :throw, value -> 
-        error_msg = "#{prefix} Throw called with #{inspect value}"
-        Logger.error(error_msg)
-        event = %{
-        type: :unhandled_exception, 
-          severity: :error, 
-          data: %{
-            component: :manager,
-            exchange_id: Configuration.get_current_exchange_id,
-            hostname: System.get_env("HOSTNAME")
-          },
-          message: error_msg
-        }       
-        SystemEvent.create_system_event!(ManagerApi.get_api, event)        
-      what, value   -> 
-        error_msg = "#{prefix} Caught #{inspect what} with #{inspect value}"
-        Logger.error(error_msg)
-        event = %{
-        type: :unhandled_exception, 
-          severity: :error, 
-          data: %{
-            component: :manager,
-            exchange_id: Configuration.get_current_exchange_id,
-            hostname: System.get_env("HOSTNAME")
-          },
-          message: error_msg
-        }       
-        SystemEvent.create_system_event!(ManagerApi.get_api, event)        
+      :exit, code -> create_system_event("#{prefix} Exited with code #{inspect code}")
+      :throw, value -> create_system_event("#{prefix} Throw called with #{inspect value}")    
+      what, value -> create_system_event("#{prefix} Caught #{inspect what} with #{inspect value}")       
     end        
+  end
+
+  defp create_system_event(error_msg) do
+    Logger.error(error_msg)
+    event = %{
+    type: :unhandled_exception, 
+      severity: :error, 
+      data: %{
+        component: :manager,
+        exchange_id: Configuration.get_current_exchange_id,
+        hostname: System.get_env("HOSTNAME")
+      },
+      message: error_msg
+    }
+    SystemEvent.create_system_event!(ManagerApi.get_api, event)       
   end
 end

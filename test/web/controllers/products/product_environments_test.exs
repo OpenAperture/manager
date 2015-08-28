@@ -19,6 +19,10 @@ defmodule OpenAperture.Manager.Controllers.ProductEnvironmentsTest do
   end
 
   setup do
+    Repo.delete_all(ProductEnvironmentalVariable)
+    Repo.delete_all(ProductEnvironment)
+    Repo.delete_all(Product)
+        
     product = Product.new(%{name: "test_environments_product"})
               |> Repo.insert!
 

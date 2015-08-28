@@ -13,7 +13,9 @@ defmodule OpenAperture.Manager.Controllers.EtcdClusters do
 
   import OpenAperture.Manager.Router.Helpers
 
-  # TODO: Add authentication
+  @sendable_fields [:id, :etcd_token, :name, :hosting_provider_id, :allow_docker_builds, :messaging_exchange_id, :inserted_at, :updated_at]
+
+  @sendable_fields_products [:id, :name, :updated_at, :inserted_at]
 
   plug :action
 
@@ -23,23 +25,12 @@ defmodule OpenAperture.Manager.Controllers.EtcdClusters do
   def index(conn, params) do
     # TODO: Pagination?
     clusters = case params["allow_docker_builds"] do
-      true ->
-        EtcdClusterQuery.get_docker_build_clusters
-        |> Repo.all
-        |> Enum.map &Map.from_struct/1      
-      "true" ->
-        EtcdClusterQuery.get_docker_build_clusters
-        |> Repo.all
-        |> Enum.map &Map.from_struct/1
-      _ ->
-        EtcdCluster
-        |> Repo.all
-        |> Enum.map &Map.from_struct/1
+      true -> Repo.all(EtcdClusterQuery.get_docker_build_clusters)
+      "true" ->  Repo.all(EtcdClusterQuery.get_docker_build_clusters)
+      _ -> Repo.all(EtcdCluster)
     end
 
-    #IO.puts("clusters:  #{inspect clusters}")
-    conn
-    |> json clusters
+    json conn, FormatHelper.to_sendable(clusters, @sendable_fields)
   end
 
   @doc """
@@ -51,10 +42,7 @@ defmodule OpenAperture.Manager.Controllers.EtcdClusters do
         conn
         |> put_status(:not_found)
         |> json ResponseBodyFormatter.error_body(:not_found, "EtcdCluster")
-      cluster ->
-        cluster = Map.from_struct(cluster)
-        conn
-        |> json cluster
+      cluster -> json conn, FormatHelper.to_sendable(cluster, @sendable_fields)
     end
   end
 
@@ -128,19 +116,8 @@ defmodule OpenAperture.Manager.Controllers.EtcdClusters do
   """
   def products(conn, %{"etcd_token" => token}) do
     case EtcdClusterQuery.get_by_etcd_token(token) do
-      nil ->
-        conn
-        |> resp :not_found, ""
-      etcd_cluster ->
-        products = etcd_cluster.id
-                   |> ProductClusterQuery.get_products_for_cluster
-                   |> Repo.all
-                   |> Enum.reduce([], fn(prod, products) ->
-                        [Map.from_struct(prod) | products]
-                      end)
-                   |> Enum.reverse
-        conn
-        |> json products
+      nil -> resp conn, :not_found, ""
+      etcd_cluster -> json conn, FormatHelper.to_sendable(Repo.all(ProductClusterQuery.get_products_for_cluster(etcd_cluster.id)), @sendable_fields_products)        
     end
   end
 

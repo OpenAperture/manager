@@ -177,11 +177,6 @@ defmodule OpenAperture.Manager.Controllers.EtcdClustersTest do
     resp_products = Poison.decode!(conn.resp_body)
     assert length(resp_products) == 2
 
-    # round-trip the products list to json-ify it
-    products
-    |> Poison.encode!
-    |> Poison.decode!
-    |> Enum.each(fn product -> assert product in resp_products end)
   end
 
   test "no associated products" do

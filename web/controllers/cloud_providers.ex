@@ -9,17 +9,15 @@ defmodule OpenAperture.Manager.Controllers.CloudProviders do
 
   @sendable_fields [:id, :name, :type, :configuration, :inserted_at, :updated_at]
 
+  @sendable_fields_cluster [:id, :etcd_token, :name, :hosting_provider_id, :allow_docker_builds, :messaging_exchange_id, :inserted_at, :updated_at]
+
   plug :action
 
   @doc """
   List all Cloud Providers the system knows about.
   """
   def index(conn, _params) do
-    providers = CloudProvider
-        |> Repo.all
-        |> Enum.map &Map.from_struct/1
-    
-    json conn, providers
+    json conn, FormatHelper.to_sendable(Repo.all(CloudProvider), @sendable_fields)
   end
 
   @doc """
@@ -101,11 +99,6 @@ defmodule OpenAperture.Manager.Controllers.CloudProviders do
   end
 
   def clusters(conn, %{"id" => id}) do
-    clusters = EtcdClusterQuery.get_by_cloud_provider(id)
-    |> Repo.all
-    |> Enum.map &Map.from_struct/1 
-
-    json conn, clusters
-  end
-  
+    json conn, FormatHelper.to_sendable(Repo.all(EtcdClusterQuery.get_by_cloud_provider(id)), @sendable_fields_cluster)
+  end  
 end

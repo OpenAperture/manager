@@ -54,10 +54,10 @@ defmodule OpenAperture.Mixfile do
 
       {:phoenix_live_reload, "~> 0.4.0"},
       {:cowboy, "~> 1.0"},
-      {:ecto, "~> 0.13.0"},
+      {:ecto, "~> 1.0.0", override: true},
       {:uuid, "~> 0.1.5" },
       {:timex, "~> 0.13.3", override: true},
-      {:postgrex, "~> 0.8.0"},
+      {:postgrex, "~> 0.9.1", override: true},
       {:rsa, "~> 0.0.1"},
       {:poison, "~> 1.4.0", override: true},
       {:scrivener, "~> 0.10.0", override: true},

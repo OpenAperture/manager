@@ -28,14 +28,7 @@ defmodule OpenAperture.Manager.Controllers.ProductDeploymentPlans do
         conn
         |> put_status(:not_found)
         |> json ResponseBodyFormatter.error_body(:not_found, "ProductDeploymentPlan")
-      product ->
-        plans = product.id
-                |> PDPQuery.get_deployment_plans_for_product
-                |> Repo.all
-                |> Enum.map(&to_sendable(&1, @sendable_fields))
-
-        conn
-        |> json plans
+      product -> json conn, FormatHelper.to_sendable(Repo.all(PDPQuery.get_deployment_plans_for_product(product.id)), @sendable_fields)
     end
   end
 

@@ -8,6 +8,9 @@ defmodule OpenAperture.Manager.Controllers.ProductDeploymentPlansTest do
   alias OpenAperture.Manager.Repo
 
   alias OpenAperture.Manager.DB.Models.Product
+  alias OpenAperture.Manager.DB.Models.ProductEnvironment
+  alias OpenAperture.Manager.DB.Models.ProductDeployment
+  alias OpenAperture.Manager.DB.Models.ProductDeploymentStep
   alias OpenAperture.Manager.DB.Models.ProductDeploymentPlan
   alias OpenAperture.Manager.DB.Models.ProductDeploymentPlanStep
   alias OpenAperture.Manager.DB.Models.ProductDeploymentPlanStepOption
@@ -22,6 +25,14 @@ defmodule OpenAperture.Manager.Controllers.ProductDeploymentPlansTest do
   @endpoint OpenAperture.Manager.Endpoint
 
   setup do
+    Repo.delete_all(ProductDeploymentPlanStepOption)
+    Repo.delete_all(ProductDeploymentPlanStep)
+    Repo.delete_all(ProductDeploymentStep)
+    Repo.delete_all(ProductDeployment)
+    Repo.delete_all(ProductDeploymentPlan)
+    Repo.delete_all(ProductEnvironment)
+    Repo.delete_all(Product)
+
     product = Product.new(%{name: "test_pdp_product"})
               |> Repo.insert!
 
@@ -41,7 +52,10 @@ defmodule OpenAperture.Manager.Controllers.ProductDeploymentPlansTest do
     on_exit fn ->
       Repo.delete_all(ProductDeploymentPlanStepOption)
       Repo.delete_all(ProductDeploymentPlanStep)
+      Repo.delete_all(ProductDeploymentStep)
+      Repo.delete_all(ProductDeployment)      
       Repo.delete_all(ProductDeploymentPlan)
+      Repo.delete_all(ProductEnvironment)
       Repo.delete_all(Product)
     end
 

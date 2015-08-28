@@ -31,8 +31,8 @@ defmodule DB.Queries.User.Test do
     changeset = User.new %{first_name: "", last_name: "", email: "jdee@mail.com"}
 
     refute changeset.valid?
-    assert changeset.errors[:first_name] == {"should be at least %{count} characters", 1}
-    assert changeset.errors[:last_name]  == {"should be at least %{count} characters", 1}
+    assert changeset.errors[:first_name] == {"should be at least %{count} characters", [count: 1]}
+    assert changeset.errors[:last_name]  == {"should be at least %{count} characters", [count: 1]}
   end
 
   test "email must be valid" do
@@ -46,8 +46,7 @@ defmodule DB.Queries.User.Test do
     changeset = User.new(@user_params)
     Repo.insert!(changeset)
 
-    assert_raise Postgrex.Error,
-    "ERROR (unique_violation): duplicate key value violates unique constraint \"users_email_index\"",
+    assert_raise Ecto.InvalidChangesetError,
     fn -> Repo.insert!(changeset) end
   end
 end

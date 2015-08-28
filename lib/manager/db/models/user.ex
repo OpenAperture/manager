@@ -24,6 +24,6 @@ defmodule OpenAperture.Manager.DB.Models.User do
     |> validate_length(:last_name, min: 1)
     |> validate_length(:email, min: 6)
     |> validate_format(:email, ~r/^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,4}$/)
-    |> validate_unique(:email, on: OpenAperture.Manager.Repo)
+    |> unique_constraint(:email, on: OpenAperture.Manager.Repo)
   end
 end

@@ -1,5 +1,6 @@
 defmodule OpenAperture.Manager.DB.Queries.MessagingBroker do
-  use Ecto.Model
+  #use Ecto.Model
+  import Ecto.Model
 
   alias OpenAperture.Manager.Repo
 

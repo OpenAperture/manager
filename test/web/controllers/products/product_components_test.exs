@@ -22,6 +22,15 @@ defmodule OpenAperture.Manager.Controllers.ProductComponentsTest do
     :ok
   end
 
+  setup do
+    Repo.delete_all(EtcdClusterPort)
+    Repo.delete_all(EtcdCluster)
+    Repo.delete_all(ProductComponentOption)
+    Repo.delete_all(ProductComponent)
+    Repo.delete_all(Product)
+    :ok
+  end  
+
   @endpoint OpenAperture.Manager.Endpoint
 
   setup do

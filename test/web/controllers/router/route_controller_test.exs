@@ -12,6 +12,9 @@ defmodule OpenAperture.Manager.Controllers.Router.RouteController.Test do
   @endpoint OpenAperture.Manager.Endpoint
 
   setup do
+    Repo.delete_all(Route)
+    Repo.delete_all(Authority)
+        
     :meck.new(OpenAperture.Manager.Plugs.Authentication, [:passthrough])
     :meck.expect(OpenAperture.Manager.Plugs.Authentication, :authenticate_user, fn conn, _opts -> conn end)
 

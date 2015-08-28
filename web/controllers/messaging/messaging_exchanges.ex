@@ -73,6 +73,8 @@ defmodule OpenAperture.Manager.Controllers.MessagingExchanges do
     :upgrade_status
   ]  
 
+  @sendable_fields_cluster [:id, :etcd_token, :name, :hosting_provider_id, :allow_docker_builds, :messaging_exchange_id, :inserted_at, :updated_at]
+
   @doc """
   GET /messaging/exchanges - Retrieve all MessagingExchanges
 
@@ -457,11 +459,7 @@ defmodule OpenAperture.Manager.Controllers.MessagingExchanges do
       case Repo.all(query) do
         nil -> json conn, []
         [] -> json conn, []
-        clusters -> 
-          sendable_clusters = Enum.reduce clusters, [], fn (cluster, sendable_clusters) ->
-            sendable_clusters ++ [Map.from_struct(cluster)]
-          end
-          json conn, sendable_clusters
+        clusters -> json conn, FormatHelper.to_sendable(clusters, @sendable_fields_cluster)
       end
     end
   end

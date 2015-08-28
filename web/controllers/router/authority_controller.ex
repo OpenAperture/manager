@@ -165,7 +165,7 @@ defmodule OpenAperture.Manager.Controllers.Router.AuthorityController do
               |> DeletedAuthority.validate_changes(%{hostname: authority.hostname, port: authority.port})
               |> Repo.insert!
 
-              Repo.update!(changeset)
+              Repo.update!(changeset, [force: true])
             end)
 
             case result do

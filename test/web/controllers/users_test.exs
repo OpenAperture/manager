@@ -11,7 +11,8 @@ defmodule OpenAperture.Manager.Controllers.UsersTest do
   @params %{first_name: "John", last_name: "Doe", email: "jdoe@mail.com"}
 
   setup_all do
-    user = User.new(@params) |> Repo.insert!
+    Repo.delete_all(User)
+    user = Repo.insert!(User.new(@params))
 
     :meck.new(Authentication, [:passthrough])
     :meck.expect(Authentication, :authenticate_user, fn conn, _opts -> conn end)

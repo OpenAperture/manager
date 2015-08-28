@@ -23,6 +23,13 @@ defmodule OpenAperture.Manager.Controllers.ProductDeploymentStepsTest do
   end
 
   setup do
+    Repo.delete_all(ProductDeploymentStep)
+    Repo.delete_all(ProductDeployment)
+    Repo.delete_all(ProductDeploymentPlanStep)
+    Repo.delete_all(ProductDeploymentPlan)
+    Repo.delete_all(ProductEnvironment)
+    Repo.delete_all(Product)
+          
     product = Product.new(%{name: "test_pds_product"})
               |> Repo.insert!
 

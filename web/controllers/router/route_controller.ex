@@ -71,7 +71,7 @@ defmodule OpenAperture.Manager.Controllers.Router.RouteController do
 
           authority
           |> Authority.validate_changes(%{updated_at: Ecto.DateTime.utc})
-          |> Repo.update!
+          |> Repo.update!([force: true])
         end)
 
         case result do
@@ -93,7 +93,7 @@ defmodule OpenAperture.Manager.Controllers.Router.RouteController do
 
           authority
           |> Authority.validate_changes(%{updated_at: Ecto.DateTime.utc})
-          |> Repo.update!
+          |> Repo.update!([force: true])
         end)
 
         case result do
@@ -127,7 +127,7 @@ defmodule OpenAperture.Manager.Controllers.Router.RouteController do
 
             authority
             |> Authority.validate_changes(%{updated_at: Ecto.DateTime.utc})
-            |> Repo.update!
+            |> Repo.update!([force: true])
 
             route
           end)
@@ -173,10 +173,10 @@ defmodule OpenAperture.Manager.Controllers.Router.RouteController do
           case Repo.one(query) do
             nil ->
               result = Repo.transaction(fn ->
-                Repo.update!(changeset)
+                Repo.update!(changeset, [force: true])
                 authority
                 |> Authority.validate_changes(%{updated_at: Ecto.DateTime.utc})
-                |> Repo.update!
+                |> Repo.update!([force: true])
               end)
 
               case result do

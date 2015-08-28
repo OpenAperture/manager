@@ -16,12 +16,7 @@ defmodule OpenAperture.Manager.Controllers.ProductDeploymentSteps do
 
   # GET /products/:product_name/deployments/:deployment_id/steps
   def index(conn, %{"deployment_id" => deployment_id} = _params) do
-    case ProductDeploymentStepQuery.get_steps_of_deployment(deployment_id) |> Repo.all do
-      [] ->
-        json conn, []
-      steps ->
-        json conn, steps
-    end
+    json conn, FormatHelper.to_sendable(Repo.all(ProductDeploymentStepQuery.get_steps_of_deployment(deployment_id)), @deployment_steps_sendable_fields)
   end
 
   def show(conn, %{"product_name" => _product_name, "deployment_id" => deployment_id, "step_id" => step_id} = _params) do
@@ -31,7 +26,7 @@ defmodule OpenAperture.Manager.Controllers.ProductDeploymentSteps do
         |> put_status(:not_found)
         |> json ResponseBodyFormatter.error_body(:not_found, "ProductDeploymentStep")
       step ->
-        json conn, step
+        json conn, FormatHelper.to_sendable(step, @deployment_steps_sendable_fields)
     end
   end
 

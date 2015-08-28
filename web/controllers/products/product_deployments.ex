@@ -48,7 +48,7 @@ defmodule OpenAperture.Manager.Controllers.ProductDeployments do
           |> preload(:product_environment)
           |> Repo.paginate(page: page_number)
 
-        json conn, %{deployments: page.entries, total_pages: page.total_pages, total_deployments: page.total_entries}
+        json conn, %{deployments: FormatHelper.to_sendable(page.entries, @deployment_sendable_fields), total_pages: page.total_pages, total_deployments: page.total_entries}
     end
   end
 
@@ -61,9 +61,7 @@ defmodule OpenAperture.Manager.Controllers.ProductDeployments do
         conn
         |> put_status(:not_found)
         |> json ResponseBodyFormatter.error_body(:not_found, "ProductDeployment")
-      pd ->
-        conn
-        |> json pd
+      pd -> json conn, FormatHelper.to_sendable(pd, @deployment_sendable_fields)
     end
   end
 

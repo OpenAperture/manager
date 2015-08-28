@@ -28,8 +28,7 @@ defmodule DB.Models.ProductEnvironmentalVariable.Test do
   end
 
   test "bad product_id fails insert" do
-    assert_raise Postgrex.Error,
-                 "ERROR (foreign_key_violation): insert or update on table \"product_environmental_variables\" violates foreign key constraint \"product_environmental_variables_product_id_fkey\"",
+    assert_raise Ecto.ConstraintError,
                  fn -> PEV.new(%{product_id: 98123784, name: "test name", value: "test value"}) |> Repo.insert! end
 
   end
@@ -37,8 +36,7 @@ defmodule DB.Models.ProductEnvironmentalVariable.Test do
   test "bad product_environment_id fails insert", context do
     var = %{product_id: context[:product].id, product_environment_id: 92378234, name: "test name", value: "test value"}
 
-    assert_raise Postgrex.Error,
-                 "ERROR (foreign_key_violation): insert or update on table \"product_environmental_variables\" violates foreign key constraint \"product_environmental_variables_product_environment_id_fkey\"",
+    assert_raise Ecto.ConstraintError,
                  fn -> PEV.new(var) |> Repo.insert! end
   end
 
@@ -47,8 +45,7 @@ defmodule DB.Models.ProductEnvironmentalVariable.Test do
 
     PEV.new(var) |> Repo.insert!
 
-    assert_raise Postgrex.Error,
-                 "ERROR (unique_violation): duplicate key value violates unique constraint \"pev_prod_id_name_prod_env_null_idx\"",
+    assert_raise Ecto.ConstraintError,
                  fn -> PEV.new(var) |> Repo.insert! end
   end
 
@@ -57,8 +54,7 @@ defmodule DB.Models.ProductEnvironmentalVariable.Test do
 
     PEV.new(var) |> Repo.insert!
 
-    assert_raise Postgrex.Error,
-                 "ERROR (unique_violation): duplicate key value violates unique constraint \"product_environmental_variables_product_id_product_environment_\"",
+    assert_raise Ecto.ConstraintError,
                  fn -> PEV.new(var) |> Repo.insert! end
   end
 

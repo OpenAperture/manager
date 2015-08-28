@@ -47,7 +47,7 @@ defmodule OpenAperture.Manager.Controllers.MessagingBrokers do
   """
   @spec index(term, [any]) :: term
   def index(conn, _params) do
-    json conn, Repo.all(MessagingBroker)
+    json conn, FormatHelper.to_sendable(Repo.all(MessagingBroker), @sendable_broker_fields)
   end
 
   @doc """

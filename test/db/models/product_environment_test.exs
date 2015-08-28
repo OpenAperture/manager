@@ -29,8 +29,7 @@ defmodule DB.Models.ProductEnvironment.Test do
 
   test "bad product_id fails insert" do
     
-    assert_raise Postgrex.Error,
-                 "ERROR (foreign_key_violation): insert or update on table \"product_environments\" violates foreign key constraint \"product_environments_product_id_fkey\"",
+    assert_raise Ecto.ConstraintError,
                  fn -> ProductEnvironment.new(%{product_id: 98237834, name: "test"}) |> Repo.insert! end
   end
 
@@ -38,8 +37,7 @@ defmodule DB.Models.ProductEnvironment.Test do
     product = context[:product]
     env_vars = %{product_id: product.id, name: "test"}
     _env = ProductEnvironment.new(env_vars) |> Repo.insert!
-    assert_raise Postgrex.Error,
-                 "ERROR (unique_violation): duplicate key value violates unique constraint \"product_environments_product_id_name_index\"",
+    assert_raise Ecto.ConstraintError,
                  fn -> ProductEnvironment.new(env_vars) |> Repo.insert! end
   end
 
