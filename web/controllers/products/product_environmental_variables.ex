@@ -16,7 +16,7 @@ defmodule OpenAperture.Manager.Controllers.ProductEnvironmentalVariables do
   alias OpenAperture.Manager.DB.Queries.ProductEnvironmentalVariable, as: VarQuery
 
   @sendable_fields [:id, :product_id, :product_environment_id, :name, :value, :inserted_at, :updated_at, :private]
-  @encrypted_fields [:value]
+  @encrypted_fields []
 
   plug :action
 
@@ -139,11 +139,6 @@ defmodule OpenAperture.Manager.Controllers.ProductEnvironmentalVariables do
         ids = %{"product_id" => pe.product_id, "product_environment_id" => pe.id}
 
         params = Map.merge(params, ids)
-        if Map.has_key?(params, "value") do
-          params = params
-          |> Map.put("value", FormatHelper.encrypt_value(params["value"]))
-          |> Map.put("value_keyname", Application.get_env(:openaperture_messaging, :keyname, ""))
-        end
         changeset = ProductEnvironmentalVariable.new(params)
         if changeset.valid? do
           # Check for conflict
@@ -181,9 +176,6 @@ defmodule OpenAperture.Manager.Controllers.ProductEnvironmentalVariables do
         |> put_status(:not_found)
         |> json ResponseBodyFormatter.error_body(:not_found, "ProductEnvironmentalVariable")
       env_var ->
-        if Map.has_key?(params, "value") do
-          params = Map.put(params, "value", FormatHelper.encrypt_value(params["value"]))
-        end
         changeset = ProductEnvironmentalVariable.update(env_var, params)
         if changeset.valid? do
           # Check for conflict
@@ -222,9 +214,6 @@ defmodule OpenAperture.Manager.Controllers.ProductEnvironmentalVariables do
       product ->
         ids = %{"product_id" => product.id}
         params = Map.merge(params, ids)
-        if Map.has_key?(params, "value") do
-          params = Map.put(params, "value", FormatHelper.encrypt_value(params["value"]))
-        end
         changeset = ProductEnvironmentalVariable.new(params)
         if changeset.valid? do
           # Check for conflict
@@ -261,9 +250,6 @@ defmodule OpenAperture.Manager.Controllers.ProductEnvironmentalVariables do
         |> put_status(:not_found)
         |> json ResponseBodyFormatter.error_body(:not_found, "ProductEnvironmentalVariable")
       env_var ->
-        if Map.has_key?(params, "value") do
-          params = Map.put(params, "value", FormatHelper.encrypt_value(params["value"]))
-        end
         changeset = ProductEnvironmentalVariable.update(env_var, params)
         if changeset.valid? do
           # Check for conflict

@@ -23,17 +23,17 @@ defmodule OpenAperture.Manager.Controllers.ProductEnvironmentalVariablesTest do
     product = Product.new(%{name: "test_environmental_variables_product"})
               |> Repo.insert!
 
-    pe1 = ProductEnvironment.new(%{name: "test_environment_1", product_id: product.id, value: FormatHelper.encrypt_value("test_env_1_value")})
+    pe1 = ProductEnvironment.new(%{name: "test_environment_1", product_id: product.id, value: "test_env_1_value"})
           |> Repo.insert!
-    pe2 = ProductEnvironment.new(%{name: "test_environment_2", product_id: product.id, value: FormatHelper.encrypt_value("test_env_2_value")})
+    pe2 = ProductEnvironment.new(%{name: "test_environment_2", product_id: product.id, value: "test_env_2_value"})
           |> Repo.insert!
-    pev1 = ProductEnvironmentalVariable.new(%{name: "test_variable_1", product_id: product.id, product_environment_id: pe1.id, value: FormatHelper.encrypt_value("test_var_1_value")})
+    pev1 = ProductEnvironmentalVariable.new(%{name: "test_variable_1", product_id: product.id, product_environment_id: pe1.id, value: "test_var_1_value"})
            |> Repo.insert!
-    pev2 = ProductEnvironmentalVariable.new(%{name: "test_variable_2", product_id: product.id, product_environment_id: pe1.id, value: FormatHelper.encrypt_value("test_var_2_value")})
+    pev2 = ProductEnvironmentalVariable.new(%{name: "test_variable_2", product_id: product.id, product_environment_id: pe1.id, value: "test_var_2_value"})
            |> Repo.insert!
-    pev3 = ProductEnvironmentalVariable.new(%{name: "test_variable_3", product_id: product.id, product_environment_id: pe2.id, value: FormatHelper.encrypt_value("test_var_3_value")})
+    pev3 = ProductEnvironmentalVariable.new(%{name: "test_variable_3", product_id: product.id, product_environment_id: pe2.id, value: "test_var_3_value"})
            |> Repo.insert!
-    pev4 = ProductEnvironmentalVariable.new(%{name: "test_variable_4", product_id: product.id, value: FormatHelper.encrypt_value("test_var_4_value")})
+    pev4 = ProductEnvironmentalVariable.new(%{name: "test_variable_4", product_id: product.id, value: "test_var_4_value"})
            |> Repo.insert!
 
     on_exit fn ->
