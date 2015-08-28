@@ -17,6 +17,7 @@ defmodule OpenAperture.Manager.Repo.Migrations.EncryptPevValues do
   end
 
   def updatePEV(pev) do
+    IO.puts("Attempting to encrypt pev:  #{inspect pev}...")
     pev
     |> ProductEnvironmentalVariable.update(%{value: FormatHelper.encrypt_value(pev.value)})
     |> Repo.update!
