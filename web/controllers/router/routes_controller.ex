@@ -11,7 +11,6 @@ defmodule OpenAperture.Manager.Controllers.Router.RoutesController do
   alias OpenAperture.Manager.DB.Models.Router.Route
 
   plug :parse_as_integer, {"updated_since", 400}
-  plug :action
 
   # Only fetch routes newer than a particular timestamp
   # GET /router/routes?updated_since=[timestamp]

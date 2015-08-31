@@ -19,9 +19,6 @@ defmodule OpenAperture.Manager.Controllers.MessagingExchangeModules do
   
   import Ecto.Query, only: [from: 2]
 
-
-  plug :action
-
   @moduledoc """
   This module contains the controllers for managing MessagingExchangeModules
   """  

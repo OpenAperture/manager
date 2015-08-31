@@ -20,9 +20,6 @@ defmodule OpenAperture.Manager.Controllers.ProductComponents do
   @component_sendable_fields [:id, :product_id, :type, :name, :options, :inserted_at, :updated_at]
   @component_option_sendable_fields [:id, :product_component_id, :name, :value, :inserted_at, :updated_at]
 
-  # TODO: authentication
-  plug :action
-
   # GET /products/:product_name/components
   def index(conn, %{"product_name" => product_name}) do
     product_name

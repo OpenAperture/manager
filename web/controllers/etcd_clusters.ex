@@ -17,8 +17,6 @@ defmodule OpenAperture.Manager.Controllers.EtcdClusters do
 
   @sendable_fields_products [:id, :name, :updated_at, :inserted_at]
 
-  plug :action
-
   @doc """
   List all Etcd Clusters the system knows about.
   """

@@ -19,8 +19,6 @@ defmodule OpenAperture.Manager.Controllers.Workflows do
   alias OpenAperture.WorkflowOrchestratorApi.Request, as: OrchestratorRequest
   alias OpenAperture.WorkflowOrchestratorApi.WorkflowOrchestrator.Publisher, as: OrchestratorPublisher
 
-  plug :action
-
   @moduledoc """
   This module contains the controller for managing Workflows
   """  

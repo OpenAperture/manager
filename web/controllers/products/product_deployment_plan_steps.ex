@@ -19,8 +19,6 @@ defmodule OpenAperture.Manager.Controllers.ProductDeploymentPlanSteps do
   @step_sendable_fields   [:id, :type, :on_success_step_id, :on_failure_step_id, :options, :inserted_at, :updated_at]
   @option_sendable_fields [:id, :product_deployment_plan_step_id, :name, :value, :inserted_at, :updated_at]
 
-  plug :action
-
   # GET /products/:product_name/deployment_plans/:plan_name/steps
   def index(conn, %{"product_name" => product_name, "plan_name" => plan_name}) do
     case get_product_and_plan_by_name(product_name, plan_name) do

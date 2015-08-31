@@ -17,7 +17,6 @@ defmodule OpenAperture.Manager.Controllers.Router.AuthorityController do
   plug :parse_as_integer, "id"
   plug :parse_as_integer, {"port", 400}
   plug :validate_param, {"hostname", &Kernel.is_binary/1}
-  plug :action
 
   @sendable_fields [:id, :hostname, :port, :inserted_at, :updated_at]
 

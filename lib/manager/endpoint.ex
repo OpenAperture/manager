@@ -7,6 +7,9 @@ defmodule OpenAperture.Manager.Endpoint do
                  "X-CSRF-Token", "X-Verbose-Error-Handling"],
                  expose_headers: ["Location", "location"]
 
+
+  socket "/ws", OpenAperture.Manager.Channels.ManagerSocket
+                  
   # Serve at "/" the given assets from "priv/static" directory
   plug Plug.Static,
     at: "/", from: OpenAperture.Manager,
@@ -30,8 +33,7 @@ defmodule OpenAperture.Manager.Endpoint do
   plug Plug.Session,
     store: :cookie,
     key: "_open_aperture_manager_key",
-    signing_salt: "9dslX4Uf",
-    encryption_salt: "gKrz9xoA"
+    signing_salt: "9dslX4Uf"
 
-  plug :router, OpenAperture.Manager.Router
+  plug OpenAperture.Manager.Router
 end

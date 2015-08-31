@@ -12,8 +12,6 @@ defmodule OpenAperture.Manager.Controllers.ProductDeploymentSteps do
   @deployment_sendable_fields [:id, :product_id, :product_deployment_plan_id, :product_environment_id, :execution_options, :completed, :duration, :output, :inserted_at, :updated_at]
   @deployment_steps_sendable_fields [:id, :product_deployment_plan_step_id, :product_deployment_plan_step_type, :duration, :successful, :execution_options, :output, :sequence, :inserted_at, :updated_at]
 
-  plug :action
-
   # GET /products/:product_name/deployments/:deployment_id/steps
   def index(conn, %{"deployment_id" => deployment_id} = _params) do
     json conn, FormatHelper.to_sendable(Repo.all(ProductDeploymentStepQuery.get_steps_of_deployment(deployment_id)), @deployment_steps_sendable_fields)

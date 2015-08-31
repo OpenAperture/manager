@@ -24,10 +24,6 @@ defmodule OpenAperture.Manager.Controllers.MessagingExchanges do
   
   import Ecto.Query
 
-  # TODO: Add authentication
-
-  plug :action
-
   @moduledoc """
   This module contains the controllers for managing MessagingExchanges
   """  

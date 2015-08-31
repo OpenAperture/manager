@@ -11,8 +11,6 @@ defmodule OpenAperture.Manager.Controllers.CloudProviders do
 
   @sendable_fields_cluster [:id, :etcd_token, :name, :hosting_provider_id, :allow_docker_builds, :messaging_exchange_id, :inserted_at, :updated_at]
 
-  plug :action
-
   @doc """
   List all Cloud Providers the system knows about.
   """

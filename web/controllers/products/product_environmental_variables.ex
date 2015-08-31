@@ -18,8 +18,6 @@ defmodule OpenAperture.Manager.Controllers.ProductEnvironmentalVariables do
   @sendable_fields [:id, :product_id, :product_environment_id, :name, :value, :inserted_at, :updated_at, :private]
   @encrypted_fields []
 
-  plug :action
-
   # GET /products/:product_name/environments/:environment_name/variables[?coalesced=true]
   def index_environment(conn, %{"product_name" => product_name, "environment_name" => environment_name} = params) do
     product_name = URI.decode(product_name)

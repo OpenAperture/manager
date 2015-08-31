@@ -43,16 +43,16 @@ defmodule OpenAperture.Mixfile do
     [
       {:ex_doc, "0.8.4", only: :test},
       {:earmark, "0.1.17", only: :test},
-      {:phoenix, "~> 0.13.1"},
+      {:phoenix, "~> 1.0.0"},
 
-      {:plug, "0.13.1"},
+      {:plug, "~> 1.0"},
       #need to lock-down plug to resolve:
       #== Compilation error on file lib/phoenix/code_reloader.ex ==
       #** (CompileError) lib/phoenix/code_reloader.ex:61: function full_path/1 undefined
       #    (stdlib) lists.erl:1337: :lists.foreach/2
       #    (stdlib) erl_eval.erl:669: :erl_eval.do_apply/6
 
-      {:phoenix_live_reload, "~> 0.4.0"},
+      {:phoenix_live_reload, "~> 1.0.0"},
       {:cowboy, "~> 1.0"},
       {:ecto, "~> 1.0.0", override: true},
       {:uuid, "~> 0.1.5" },

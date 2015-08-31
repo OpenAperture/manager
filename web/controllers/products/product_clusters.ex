@@ -18,9 +18,6 @@ defmodule OpenAperture.Manager.Controllers.ProductClusters do
   @sendable_fields [:id, :product_id, :etcd_cluster_id, :primary_ind, :inserted_at, :updated_at]
   @updatable_fields [:product_id, :etcd_cluster_id, :primary_ind]
 
-  # TODO: Add authentication
-  plug :action
-
   # GET "/products/:product_name/clusters"
   def index(conn, %{"product_name" => product_name}) do
     product_name

@@ -7,8 +7,6 @@ require Logger
 defmodule OpenAperture.Manager.Controllers.Status do
   use Phoenix.Controller
 
-  plug :action
-
   @moduledoc """
   This module contains the Phoenix controller for managing OpenAperture server statuses.
   """   

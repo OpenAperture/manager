@@ -15,10 +15,6 @@ defmodule OpenAperture.Manager.Controllers.Products do
   @sendable_fields [:id, :name, :updated_at, :inserted_at]
   @updatable_fields [:name]
 
-  plug :action
-
-  # TODO: Add authentication
-
   # GET "/"
   def index(conn, _params) do
     products = Repo.all(Product)

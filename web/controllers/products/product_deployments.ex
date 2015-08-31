@@ -21,8 +21,6 @@ defmodule OpenAperture.Manager.Controllers.ProductDeployments do
   @deployment_sendable_fields [:id, :product_id, :product_deployment_plan_id, :product_environment_id, :execution_options, :completed, :duration, :output, :inserted_at, :updated_at]
   @deployment_steps_sendable_fields [:id, :product_deployment_plan_step_id, :product_deployment_plan_step_type, :duration, :successful, :execution_options, :output, :sequence, :inserted_at, :updated_at]
 
-  plug :action
-
   # GET /products/:product_name/deployments
   def index(conn, %{"product_name" => product_name} = params) do
     product_name

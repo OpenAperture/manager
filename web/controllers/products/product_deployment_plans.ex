@@ -17,8 +17,6 @@ defmodule OpenAperture.Manager.Controllers.ProductDeploymentPlans do
 
   @sendable_fields [:id, :product_id, :name, :inserted_at, :updated_at]
 
-  plug :action
-
   # GET /products/:product_name/deployment_plans
   def index(conn, %{"product_name" => product_name}) do
     product_name

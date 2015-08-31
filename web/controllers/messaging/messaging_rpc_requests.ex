@@ -16,8 +16,6 @@ defmodule OpenAperture.Manager.Controllers.MessagingRpcRequests do
   alias OpenAperture.Manager.Controllers.FormatHelper
   alias OpenAperture.Manager.Controllers.ResponseBodyFormatter
   
-  plug :action
-
   @moduledoc """
   This module contains the controllers for managing MessagingRpcRequests
   """  

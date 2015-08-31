@@ -19,8 +19,6 @@ defmodule OpenAperture.Manager.Controllers.Router.RouteController do
   plug :parse_as_integer, {"port", 400}
   plug :validate_param, {"hostname", &Kernel.is_binary/1}
 
-  plug :action
-
   @sendable_fields [:id, :authority_id, :hostname, :port, :secure_connection, :inserted_at, :updated_at]
 
   # GET "/router/authorities/:parent_id/routes?hostspec=[:hostname]:[:port]"

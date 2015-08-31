@@ -14,8 +14,6 @@ defmodule OpenAperture.Manager.Controllers.SystemEvents do
   alias OpenAperture.Manager.Notifications.Publisher
   alias OpenAperture.Manager.Configuration
 
-  plug :action
-
   @moduledoc """
   This module contains the controller for managing SystemEvents
   """  

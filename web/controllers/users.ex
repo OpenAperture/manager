@@ -5,8 +5,6 @@ defmodule OpenAperture.Manager.Controllers.Users do
 
   @sendable_fields [:id, :first_name, :last_name, :email, :inserted_at, :updated_at]
 
-  plug :action
-
   @no_user_error "No user with such ID found"
 
   # GET /users

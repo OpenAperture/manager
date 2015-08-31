@@ -8,8 +8,6 @@ defmodule OpenAperture.Manager.Controllers.SystemComponentRefs do
 
   alias OpenAperture.Manager.DB.Models.SystemComponentRef
   
-  plug :action
-
   @moduledoc """
   This module contains the controller for managing SystemComponentRefs
   """  

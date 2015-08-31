@@ -12,8 +12,6 @@ defmodule OpenAperture.Manager.Controllers.SystemComponents do
   alias OpenAperture.OverseerApi.Publisher, as: OverseerPublisher
   alias OpenAperture.OverseerApi.Request, as: OverseerRequest
 
-  plug :action
-
   @moduledoc """
   This module contains the controller for managing SystemComponents
   """  
