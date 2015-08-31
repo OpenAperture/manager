@@ -26,7 +26,8 @@ defmodule OpenAperture.Mixfile do
         :cowboy, 
         :logger, 
         :ecto, 
-        :crypto, 
+        :crypto,
+        :con_cache,
         :openaperture_auth, 
         :openaperture_messaging,
         :openaperture_manager_api,
@@ -52,6 +53,7 @@ defmodule OpenAperture.Mixfile do
       #    (stdlib) lists.erl:1337: :lists.foreach/2
       #    (stdlib) erl_eval.erl:669: :erl_eval.do_apply/6
 
+      {:con_cache, "~> 0.8.1"},
       {:phoenix_live_reload, "~> 0.4.0"},
       {:cowboy, "~> 1.0"},
       {:ecto, "~> 0.13.0"},
@@ -61,6 +63,7 @@ defmodule OpenAperture.Mixfile do
       {:rsa, "~> 0.0.1"},
       {:poison, "~> 1.4.0", override: true},
       {:scrivener, "~> 0.10.0", override: true},
+      {:simple_agent, "~> 0.0.7"},
       
       {:plug_cors, git: "https://github.com/bryanjos/plug_cors", tag: "v0.7.0"},
       {:openaperture_auth, git: "https://github.com/OpenAperture/auth.git", ref: "5872c61ee5b6968ba6cc36fe49bdb2690d6cb331", override: true},
