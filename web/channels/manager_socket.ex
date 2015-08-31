@@ -20,6 +20,7 @@ defmodule OpenAperture.Manager.Channels.ManagerSocket do
   #
   #  To deny connection, return `:error`.
   def connect(params, socket) do
+    IO.puts("WebSocket params:  #{inspect params}")
     case authenticate_user(fetch_access_token(params["auth_header"])) do
       true -> {:ok, socket}
       false -> :error

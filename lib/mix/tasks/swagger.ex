@@ -68,7 +68,6 @@ defmodule Mix.Tasks.Swagger do
   def add_routes([], swagger), do: swagger
   def add_routes([route | remaining_routes], swagger) do
     swagger_path = path_from_route(String.split(route.path, "/"), nil)
-    IO.puts("original :  #{route.path}.  new path:  #{swagger_path}")
 
     path = swagger[:paths][swagger_path]
     if path == nil do
@@ -82,7 +81,7 @@ defmodule Mix.Tasks.Swagger do
       default_verb(route.path)
     end
 
-    verb_string = String.downcase(route.verb)
+    verb_string = String.downcase("#{route.verb}")
     if verb[:responses] == nil do
       verb = Map.put(verb, :responses, default_responses(verb_string))
     end
