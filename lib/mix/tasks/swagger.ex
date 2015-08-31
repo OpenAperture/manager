@@ -75,7 +75,7 @@ defmodule Mix.Tasks.Swagger do
       path = %{}
     end
 
-    func_name = "swaggerdoc_#{route.action}"
+    func_name = "swaggerdoc_#{route.opts}"
     verb = if Keyword.has_key?(route.controller.__info__(:functions), String.to_atom(func_name)) do
       apply(route.controller, String.to_atom(func_name), [])
     else
@@ -92,7 +92,7 @@ defmodule Mix.Tasks.Swagger do
     end
 
     if verb[:operationId] == nil do
-      verb = Map.put(verb, :operationId, "#{route.action}")
+      verb = Map.put(verb, :operationId, "#{route.opts}")
     end
 
     if verb[:description] == nil do
