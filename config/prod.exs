@@ -40,7 +40,8 @@ config OpenAperture.Manager, OpenAperture.Manager.Repo,
   hostname: System.get_env("MANAGER_DATABASE_HOST")
 
 config OpenAperture.Manager,
-  build_log_monitor_autostart: true
+  build_log_monitor_autostart: true,
+  cache_queue_monitor_autostart: true
 
 #
 config :openaperture_manager_api, 

@@ -11,6 +11,7 @@ defmodule OpenAperture.Manager.Controllers.MessagingBrokers do
   require Repo
 
   alias OpenAperture.Manager.Endpoint
+  alias OpenAperture.Manager.ResourceCache
   alias OpenAperture.Manager.DB.Models.MessagingBroker
   alias OpenAperture.Manager.DB.Models.MessagingBrokerConnection
   alias OpenAperture.Manager.DB.Models.MessagingExchangeBroker
@@ -47,7 +48,7 @@ defmodule OpenAperture.Manager.Controllers.MessagingBrokers do
   """
   @spec index(term, [any]) :: term
   def index(conn, _params) do
-    json conn, Repo.all(MessagingBroker)
+    json conn, ResourceCache.get(:broker, :all, fn -> Repo.all(MessagingBroker) end)
   end
 
   @doc """
@@ -63,7 +64,7 @@ defmodule OpenAperture.Manager.Controllers.MessagingBrokers do
   """
   @spec show(term, [any]) :: term
   def show(conn, %{"id" => id}) do
-    case Repo.get(MessagingBroker, id) do
+    case ResourceCache.get(:broker, id, fn -> Repo.get(MessagingBroker, id) end) do
       nil -> 
         conn
         |> put_status(:not_found)
@@ -98,6 +99,7 @@ defmodule OpenAperture.Manager.Controllers.MessagingBrokers do
         if changeset.valid? do
           try do
             broker = Repo.insert!(changeset)
+            ResourceCache.clear(:broker, broker.id)
             path = OpenAperture.Manager.Router.Helpers.messaging_brokers_path(Endpoint, :show, broker.id)
 
             # Set location header
@@ -164,6 +166,7 @@ defmodule OpenAperture.Manager.Controllers.MessagingBrokers do
 
           	try do
 	            Repo.update!(changeset)
+              ResourceCache.clear(:broker, id)
 	            path = OpenAperture.Manager.Router.Helpers.messaging_brokers_path(Endpoint, :show, id)
 	            conn
 	            |> put_resp_header("location", path)
@@ -218,6 +221,7 @@ defmodule OpenAperture.Manager.Controllers.MessagingBrokers do
           Repo.delete_all(from(b in MessagingExchangeBroker, where: b.messaging_broker_id  == ^id))          
           Repo.delete!(broker)
         end)
+        ResourceCache.clear(:broker, id)
         resp(conn, :no_content, "")
     end
   end

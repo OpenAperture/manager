@@ -17,6 +17,8 @@ defmodule OpenAperture.Manager do
       worker(OpenAperture.Manager.Messaging.RpcRequestsCleanup, []),
       worker(OpenAperture.Manager.Messaging.FleetManagerPublisher, []),
       worker(OpenAperture.Manager.BuildLogMonitor, []),
+      worker(OpenAperture.Manager.ResourceCacheSupervisor, []),
+      worker(OpenAperture.Manager.ResourceCacheQueueMonitor, []),
       #explicilty start just the OverseerApi publisher for publishing SystemComponent upgrades
       worker(OpenAperture.OverseerApi.Publisher, []),
       worker(OpenAperture.Manager.Notifications.Publisher, [])
