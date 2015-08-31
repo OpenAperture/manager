@@ -76,8 +76,8 @@ defmodule Mix.Tasks.Swagger do
     end
 
     func_name = "swaggerdoc_#{route.opts}"
-    verb = if Keyword.has_key?(route.controller.__info__(:functions), String.to_atom(func_name)) do
-      apply(route.controller, String.to_atom(func_name), [])
+    verb = if Keyword.has_key?(route.plug.__info__(:functions), String.to_atom(func_name)) do
+      apply(route.plug, String.to_atom(func_name), [])
     else
       default_verb(route.path)
     end

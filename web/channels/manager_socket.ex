@@ -4,7 +4,6 @@ defmodule OpenAperture.Manager.Channels.ManagerSocket do
   use Phoenix.Socket
 
   import OpenAperture.Auth.Server
-  import Ecto.Query
 
   ## Channels
   channel "build_log:*", OpenAperture.Manager.Channels.BuildLogChannel
