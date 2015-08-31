@@ -11,6 +11,7 @@ config OpenAperture.Manager, OpenAperture.Manager.Endpoint,
   url: [host: "localhost"],
   secret_key_base: "Ks/rsx+RENMwWd4jgh3crqd3EwKGY8Mdm22NTJbby6pf35CwP9RAlT+8oDJQ8+1f",
   debug_errors: false,
+  check_origin: false,
   pubsub: [name: OpenAperture.Manager.PubSub,
            adapter: Phoenix.PubSub.PG2],
   root: Path.expand("..", __DIR__)
