@@ -4,8 +4,6 @@ defmodule OpenAperture.Manager.ManagerQueueSubscriberTest do
   alias OpenAperture.Manager.RoutingKey
   alias OpenAperture.Manager.Repo
   alias OpenAperture.Manager.DB.Queries.MessagingBroker, as: MessagingBrokerQuery
-  alias OpenAperture.Manager.DB.Models.MessagingExchange, as: MessagingExchangeModel
-  alias OpenAperture.Manager.DB.Models.MessagingBroker, as: MessagingBrokerModel
   alias OpenAperture.Manager.ManagerQueueSubscriber
   alias OpenAperture.Manager.Controllers.FormatHelper
   alias OpenAperture.Manager.Controllers.MessagingBrokers
@@ -13,7 +11,6 @@ defmodule OpenAperture.Manager.ManagerQueueSubscriberTest do
   alias OpenAperture.Messaging.AMQP.QueueBuilder
   alias OpenAperture.Messaging.Queue
   alias OpenAperture.Messaging.ConnectionOptionsResolver
-  alias OpenAperture.Messaging.ConnectionOptions
   alias OpenAperture.Messaging.AMQP.ConnectionPools
   alias OpenAperture.Messaging.AMQP.ConnectionPool
 

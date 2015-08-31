@@ -13,7 +13,7 @@ defmodule OpenAperture.Manager.BuildLogMonitorTest do
   test "init" do
     call_count_pid = SimpleAgent.start! 0
     :meck.new(ManagerQueueSubscriber, [:passthrough])
-    :meck.expect(ManagerQueueSubscriber, :subscribe_manager_queue, fn queue_name, fun ->
+    :meck.expect(ManagerQueueSubscriber, :subscribe_manager_queue, fn queue_name, _fun ->
                         assert queue_name == "build_logs"
                         SimpleAgent.increment! call_count_pid
                       end)

@@ -13,6 +13,9 @@ defmodule OpenAperture.Manager.ResourceCacheQueueBroadcaster do
   alias OpenAperture.Messaging.AMQP.QueueBuilder
   alias OpenAperture.Messaging.ConnectionOptionsResolver
 
+  @type qc :: {Queue.t, ConnectionOptions.t}
+
+  @spec broadcast_cache_clear(ResourceCache.ct, any) :: :ok
   def broadcast_cache_clear(type, key) do
     ResourceCache.get(:system_component, :all, fn -> Repo.all(SystemComponent) end)
     |> Enum.filter(&(&1.type == "manager"))
@@ -21,13 +24,17 @@ defmodule OpenAperture.Manager.ResourceCacheQueueBroadcaster do
     |> Enum.map(&get_exchange_queue(&1))
     |> Enum.map(&broadcast_to_queue(&1, %{type: type, key: key}))
     Logger.debug "Broadcasted clear for #{type} #{key}"
+    :ok
   end
 
+  @spec get_exchange_queue(integer) :: qc
   defp get_exchange_queue(exchange_id), do: ResourceCache.get(:exchange_cache_queues, exchange_id, fn -> build_queue(exchange_id) end)
 
+  @spec broadcast_to_queue(qc, any) :: :ok | {:error, String.t}
   defp broadcast_to_queue({queue, options}, payload), do: __MODULE__.publish(options, queue, payload)
 
-  defp build_queue(exchange_id) do
+  @spec build_queue(integer) :: qc
+  defp build_queue(exchange_id) do 
     queue = QueueBuilder.build(ManagerApi.get_api, "cache", exchange_id)
     options = ConnectionOptionsResolver.resolve(ManagerApi.get_api,
                                                 Configuration.get_current_broker_id,
@@ -36,8 +43,10 @@ defmodule OpenAperture.Manager.ResourceCacheQueueBroadcaster do
     {queue, options}
   end
 
+  @spec remove_duplicates(list) :: list
   defp remove_duplicates(list), do: Enum.reduce(list, [], &add_to_list(&1 in &2, &2, &1))
 
+  @spec add_to_list(boolean, list, any) :: list
   defp add_to_list(false, list, item), do: [item] ++ list
   defp add_to_list(true, list, _item), do: list
 end
