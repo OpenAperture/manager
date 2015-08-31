@@ -20,7 +20,7 @@ defmodule OpenAperture.Manager.ResourceCacheQueueBroadcaster do
     |> remove_duplicates
     |> Enum.map(&get_exchange_queue(&1))
     |> Enum.map(&broadcast_to_queue(&1, %{type: type, key: key}))
-    IO.puts "Broadcasted clear for #{type} #{key}"
+    Logger.debug "Broadcasted clear for #{type} #{key}"
   end
 
   defp get_exchange_queue(exchange_id), do: ResourceCache.get(:exchange_cache_queues, exchange_id, fn -> build_queue(exchange_id) end)
