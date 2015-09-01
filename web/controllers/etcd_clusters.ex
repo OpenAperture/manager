@@ -20,6 +20,12 @@ defmodule OpenAperture.Manager.Controllers.EtcdClusters do
   @doc """
   List all Etcd Clusters the system knows about.
   """
+  def swaggerdoc_index, do: %{
+    description: "Retrieve all EtcdClusters",
+    response_schema: %{"type": "array", "items": %{"$ref": "#/definitions/OpenAperture.Manager.DB.Models.EtcdCluster"}},
+    parameters: []
+  }      
+  @spec index(Plug.Conn.t, [any]) :: Plug.Conn.t
   def index(conn, params) do
     # TODO: Pagination?
     clusters = case params["allow_docker_builds"] do
@@ -34,6 +40,18 @@ defmodule OpenAperture.Manager.Controllers.EtcdClusters do
   @doc """
   Retrieve a specific Etcd Cluster instance, specified by its etcd token.
   """
+  def swaggerdoc_show, do: %{
+    description: "Retrieve a specific EtcdCluster",
+    response_schema: %{"$ref": "#/definitions/OpenAperture.Manager.DB.Models.EtcdCluster"},
+    parameters: [%{
+      "name" => "etcd_token",
+      "in" => "path",
+      "description" => "EtcdCluster token",
+      "required" => true,
+      "type" => "string"
+    }]
+  }    
+  @spec show(Plug.Conn.t, [any]) :: Plug.Conn.t
   def show(conn, %{"etcd_token" => token}) do
     case EtcdClusterQuery.get_by_etcd_token(token) do
       nil -> 
@@ -45,8 +63,20 @@ defmodule OpenAperture.Manager.Controllers.EtcdClusters do
   end
 
   @doc """
-  Create a new Etcd Cluster instance.
+  Register an EtcdCluster (create a new db reference)
   """
+  def swaggerdoc_register, do: %{
+    description: "Register an EtcdCluster with OpenAperture",
+    response_schema: %{"$ref": "#/definitions/OpenAperture.Manager.DB.Models.EtcdCluster"},
+    parameters: [%{
+      "name" => "type",
+      "in" => "body",
+      "description" => "The new EtcdCluster",
+      "required" => true,
+      "schema": %{"$ref": "#/definitions/OpenAperture.Manager.DB.Models.EtcdCluster"}
+    }]
+  } 
+  @spec register(Plug.Conn.t, [any]) :: Plug.Conn.t
   def register(conn, params) do
     cluster = EtcdCluster.new(%{:etcd_token => params["etcd_token"], 
                                 :hosting_provider_id => params["hosting_provider_id"],
@@ -79,6 +109,17 @@ defmodule OpenAperture.Manager.Controllers.EtcdClusters do
   @doc """
   Remove an Etcd Cluster instance from the database.
   """
+  def swaggerdoc_destroy, do: %{
+    description: "Delete an EtcdCluster" ,
+    parameters: [%{
+      "name" => "id",
+      "in" => "path",
+      "description" => "EtcdCluster token",
+      "required" => true,
+      "type" => "string"
+    }]
+  }  
+  @spec destroy(Plug.Conn.t, [any]) :: Plug.Conn.t  
   def destroy(conn, %{"etcd_token" => token}) do
     case EtcdClusterQuery.get_by_etcd_token(token) do
       nil ->
@@ -112,6 +153,18 @@ defmodule OpenAperture.Manager.Controllers.EtcdClusters do
 
   Plug.Conn
   """
+  def swaggerdoc_products, do: %{
+    description: "Retrieve all products associated with the EtcdCluster",
+    response_schema: %{"type": "array", "items": %{"$ref": "#/definitions/OpenAperture.Manager.DB.Models.Product"}},
+    parameters: [%{
+      "name" => "etcd_token",
+      "in" => "path",
+      "description" => "EtcdCluster token",
+      "required" => true,
+      "type" => "string"
+    }]
+  }    
+  @spec products(Plug.Conn.t, [any]) :: Plug.Conn.t
   def products(conn, %{"etcd_token" => token}) do
     case EtcdClusterQuery.get_by_etcd_token(token) do
       nil -> resp conn, :not_found, ""
@@ -132,6 +185,29 @@ defmodule OpenAperture.Manager.Controllers.EtcdClusters do
 
   Plug.Conn
   """
+  def swaggerdoc_machines, do: %{
+    description: "Retrieve all machines associated with the EtcdCluster",
+    response_schema: %{
+      "description" => "A Fleet Machine",
+      "type" => "object",
+      "required" => ["name","options","desiredState","currentState","machineID"],
+      "properties" => %{
+        "name" => %{"type" => "string", "description" => "Hostname of the Machine"},
+        "options" => %{"type" => "array","items" => %{"type" => "string"}, "description" => "Fleet UnitOptions"},
+        "desiredState" => %{"type" => "string", "description" => "The systemd desired state"},
+        "currentState" => %{"type" => "string", "description" => "The systemd current state"},
+        "machineID" => %{"type" => "string", "description" => "The Fleet machine identifier"}
+      }
+    },
+    parameters: [%{
+      "name" => "etcd_token",
+      "in" => "path",
+      "description" => "EtcdCluster token",
+      "required" => true,
+      "type" => "string"
+    }]
+  }    
+  @spec machines(Plug.Conn.t, [any]) :: Plug.Conn.t  
   def machines(conn, %{"etcd_token" => token}) do
     case EtcdClusterQuery.get_by_etcd_token(token) do
       nil ->

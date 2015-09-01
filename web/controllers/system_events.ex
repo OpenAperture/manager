@@ -65,7 +65,7 @@ defmodule OpenAperture.Manager.Controllers.SystemEvents do
       "type" => "integer"
     }]
   }  
-  @spec index(term, [any]) :: term
+  @spec index(Plug.Conn.t, [any]) :: Plug.Conn.t
   def index(conn, params) do
     query = cond do
       #check for lookback query

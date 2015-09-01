@@ -19,6 +19,7 @@ defmodule OpenAperture.Manager.Controllers.CloudProviders do
     response_schema: %{"type": "array", "items": %{"$ref": "#/definitions/OpenAperture.Manager.DB.Models.CloudProvider"}},
     parameters: []
   }    
+  @spec index(Plug.Conn.t, [any]) :: Plug.Conn.t
   def index(conn, _params) do
     json conn, FormatHelper.to_sendable(Repo.all(CloudProvider), @sendable_fields)
   end
@@ -37,7 +38,7 @@ defmodule OpenAperture.Manager.Controllers.CloudProviders do
       "type" => "integer"
     }]
   }    
-  @spec show(term, [any]) :: term
+  @spec show(Plug.Conn.t, [any]) :: Plug.Conn.t
   def show(conn, %{"id" => id}) do
     case Repo.get(CloudProvider, id) do
       nil -> resp(conn, :not_found, "")
@@ -163,7 +164,7 @@ defmodule OpenAperture.Manager.Controllers.CloudProviders do
       "type" => "integer"
     }]
   }    
-  @spec clusters(term, [any]) :: term
+  @spec clusters(Plug.Conn.t, [any]) :: Plug.Conn.t
   def clusters(conn, %{"id" => id}) do
     json conn, FormatHelper.to_sendable(Repo.all(EtcdClusterQuery.get_by_cloud_provider(id)), @sendable_fields_cluster)
   end  
