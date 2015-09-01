@@ -78,9 +78,12 @@ defmodule Mix.Tasks.Swagger do
       default_verb(route.path)
     end
 
+    response_schema = verb[:response_schema]
+    verb = Map.delete(verb, :response_schema)
+
     verb_string = String.downcase("#{route.verb}")
     if verb[:responses] == nil do
-      verb = Map.put(verb, :responses, default_responses(verb_string))
+      verb = Map.put(verb, :responses, default_responses(verb_string, response_schema))
     end
 
     if verb[:produces] == nil do
@@ -140,14 +143,19 @@ defmodule Mix.Tasks.Swagger do
      }
   end
 
-  def default_responses(verb_string) do
+  def default_responses(verb_string, response_schema \\ nil) do
     responses = %{
       "404" => %{"description" => "Resource not found"}, 
       "401" => %{"description" => "Request is not authorized"}, 
       "500" => %{"description" => "Internal Server Error"}
     }
     case verb_string do
-      "get" -> Map.merge(responses, %{"200" => %{"description" => "Resource Content"}})
+      "get" -> 
+        response = %{"description" => "Resource Content"}
+        if response_schema != nil do
+          response = Map.put(response, "schema", response_schema)
+        end
+        Map.merge(responses, %{"200" => response})
       "delete" -> Map.merge(responses, %{"204" => %{"description" => "Resource deleted"}})
       "post" -> Map.merge(responses, %{"201" => %{"description" => "Resource created"}, "400" => %{"description" => "Request contains bad values"}})
       "put" -> Map.merge(responses, %{"204" => %{"description" => "Resource deleted"}, "400" => %{"description" => "Request contains bad values"}})

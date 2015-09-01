@@ -48,7 +48,8 @@ defmodule OpenAperture.Manager.Controllers.SystemEvents do
   Underlying HTTP connection
   """
   def swaggerdoc_index, do: %{
-    description: "Retrieve a set of SystemEvents" ,
+    description: "Retrieve a set of SystemEvents",
+    response_schema: %{"type": "array", "items": %{"$ref": "#/definitions/OpenAperture.Manager.DB.Models.SystemEvent"}},
     parameters: [%{
       "name" => "lookback",
       "in" => "query",
@@ -94,7 +95,8 @@ defmodule OpenAperture.Manager.Controllers.SystemEvents do
   Underlying HTTP connection
   """
   def swaggerdoc_show, do: %{
-    description: "Retrieve a set of SystemEvents" ,
+    description: "Retrieve a specific SystemEvent",
+    response_schema: %{"$ref": "#/definitions/OpenAperture.Manager.DB.Models.SystemEvent"},
     parameters: [%{
       "name" => "id",
       "in" => "path",
@@ -127,31 +129,10 @@ defmodule OpenAperture.Manager.Controllers.SystemEvents do
     description: "Create a SystemEvents" ,
     parameters: [%{
       "name" => "type",
-      "in" => "formData",
-      "description" => "type of SystmEvent",
+      "in" => "body",
+      "description" => "The new SystemEvent",
       "required" => true,
-      "type" => "string"
-    }, 
-    %{
-      "name" => "message",
-      "in" => "formData",
-      "description" => "event message",
-      "required" => true,
-      "type" => "string"
-    },
-    %{
-      "name" => "severity",
-      "in" => "formData",
-      "description" => "error, warning, info, debug",
-      "required" => true,
-      "type" => "string"
-    },
-    %{
-      "name" => "data",
-      "in" => "formData",
-      "description" => "Map of data points",
-      "required" => false,
-      "type" => "string"
+      "schema": %{"$ref": "#/definitions/OpenAperture.Manager.DB.Models.SystemEvent"}
     }]
   }    
   @spec create(Plug.Conn.t, [any]) :: Plug.Conn.t
