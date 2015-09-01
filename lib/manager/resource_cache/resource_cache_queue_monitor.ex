@@ -7,7 +7,7 @@ defmodule OpenAperture.Manager.ResourceCacheQueueMonitor do
 
   @spec start_link() :: GenServer.on_start
   def start_link() do
-    if Application.get_env(OpenAperture.Manager, :cache_queue_monitor_autostart, false) do
+    if Application.get_env(OpenAperture.Manager, :cache_queue_monitor_autostart, true) do
       Logger.debug("[ResourceCacheQueueMonitor] Starting...")
         case GenServer.start_link(__MODULE__, :ok, name: __MODULE__) do
         {:ok, pid} ->
