@@ -9,12 +9,44 @@ defmodule Mix.Tasks.Swagger do
 
   def run(args) do
     Mix.shell.info "Generating Swagger documentation..."
-    router = get_router(args)
-    json = build_swagger_response(router)
+
+    swagger_json = %{
+      swagger: "2.0",
+      definitions: build_definitions(:code.all_loaded, %{}),
+      info: %{
+        version: "1.0.0",
+        title: "OpenAperture Manager",
+        description: "The REST API for the OpenAperture Manager",
+        termsOfService: "https://github.com/OpenAperture/manager/blob/master/LICENSE",
+        contact: %{
+          name: "OpenAperture",
+          email: "openaperture@lexmark.com",
+          url: "http://openaperture.io"
+        },
+        license: %{
+        name: "Mozilla Public License, v. 2.0",
+        url: "https://github.com/OpenAperture/manager/blob/master/LICENSE"
+        }
+      },
+      host: "openaperture.io",
+      basePath: "/",
+      schemes: [
+        "https"
+      ],
+      consumes: [
+        "application/json"
+      ],
+      produces: [
+        "application/json"
+      ],
+      paths: %{}
+    }
+  
+    swagger_json = add_routes(get_router(args).__routes__, swagger_json)
 
     output_path = System.cwd!() <> "/swagger"
     File.mkdir_p!(output_path)
-    File.write!("#{output_path}/api.json", Poison.encode!(json))
+    File.write!("#{output_path}/api.json", Poison.encode!(swagger_json))
     Mix.shell.info "Finished generating Swagger documentation!"
   end
 
@@ -28,41 +60,6 @@ defmodule Mix.Tasks.Swagger do
         Module.concat(Mix.Phoenix.base(), "Router")
     end
   end  
-
-  defp build_swagger_response(router) do
- 	  swagger = %{
-  		swagger: "2.0",
-  		info: %{
-    		version: "1.0.0",
-    		title: "OpenAperture Manager",
-    		description: "The REST API for the OpenAperture Manager",
-    		termsOfService: "https://github.com/OpenAperture/manager/blob/master/LICENSE",
-    		contact: %{
-      		name: "OpenAperture",
-      		email: "openaperture@lexmark.com",
-      		url: "http://openaperture.io"
-    		},
-    		license: %{
-      	name: "Mozilla Public License, v. 2.0",
-      	url: "https://github.com/OpenAperture/manager/blob/master/LICENSE"
-    		}
-  		},
-  		host: "openaperture.io",
-  		basePath: "/",
-  		schemes: [
-  		  "https"
-  	  ],
-  	  consumes: [
-    		"application/json"
-  		],
-  		produces: [
-    		"application/json"
-  		],
-  		paths: %{}
-  	}
-
-    add_routes(router.__routes__, swagger)
-  end
 
   def add_routes(nil, swagger), do: swagger
   def add_routes([], swagger), do: swagger
@@ -156,5 +153,39 @@ defmodule Mix.Tasks.Swagger do
       "put" -> Map.merge(responses, %{"204" => %{"description" => "Resource deleted"}, "400" => %{"description" => "Request contains bad values"}})
       _ -> responses
     end    
+  end
+
+  def build_definitions([], def_json), do: def_json
+  def build_definitions([code_def | remaining_defs], def_json) do
+    module = elem(code_def, 0)
+    if :erlang.function_exported(module, :__info__, 1) && Keyword.has_key?(module.__info__(:functions), :__schema__) do
+      properties_json = Enum.reduce module.__schema__(:types), %{}, fn(type, properties_json) ->
+        property_name = elem(type, 0)
+
+        # Need to map Ecto types (https://github.com/elixir-lang/ecto/blob/v1.0.0/lib/ecto/schema.ex#L107-L145)
+        # to Swagger types (http://swagger.io/specification/#dataTypeType)
+        property_type = case elem(type, 1) do
+          :id -> %{"type" => "integer", "format" => "int64"}
+          :binary_id -> %{"type" => "string", "format" => "binary"}
+          :integer -> %{"type" => "integer", "format" => "int64"}
+          :float -> %{"type" => "number", "format" => "float"}
+          :boolean -> %{"type" => "boolean"}
+          :string -> %{"type" => "string"}
+          :binary -> %{"type" => "string", "format" => "binary"}
+          :Ecto.DateTime -> %{"type" => "string", "format" => "date-time"}
+          :Ecto.Date -> %{"type" => "string", "format" => "date"}
+          :Ecto.Time -> %{"type" => "string", "format" => "date-time"}
+          :uuid -> %{"type" => "string"}
+          _ -> %{"type" => "string"}
+        end
+        
+        Map.put(properties_json, "#{property_name}", property_type)
+      end
+
+      module_json = %{"properties" => properties_json}
+      def_json = Map.put(def_json, "#{inspect module}", module_json)
+    end
+
+    build_definitions(remaining_defs, def_json)
   end
 end
