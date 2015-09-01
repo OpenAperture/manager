@@ -8,7 +8,7 @@ defmodule OpenAperture.Manager.Messaging.ManagerQueue do
   alias OpenAperture.Manager.DB.Models.MessagingBroker, as: MessagingBrokerModel
   alias OpenAperture.Manager.DB.Models.MessagingExchange, as: MessagingExchangeModel
   alias OpenAperture.Manager.Repo
-  alias OpenAperture.Manager.ResourceCache
+  alias OpenAperture.Manager.ResourceCache.CachedResource
   alias OpenAperture.ManagerApi.SystemEvent
 
   @connection_options nil
@@ -108,7 +108,7 @@ defmodule OpenAperture.Manager.Messaging.ManagerQueue do
 
   @spec messaging_connection_options() :: OpenAperture.Messaging.AMQP.ConnectionOptions
   def messaging_connection_options do
-    broker = ResourceCache.get(:broker, Configuration.get_current_broker_id, fn -> Repo.get(MessagingBrokerModel, Configuration.get_current_broker_id) end)
+    broker = CachedResource.get(MessagingBrokerModel, Configuration.get_current_broker_id, fn -> Repo.get(MessagingBrokerModel, Configuration.get_current_broker_id) end)
     if broker == nil do
       raise "Broker #{Configuration.get_current_broker_id} not found"
     end
@@ -123,7 +123,7 @@ defmodule OpenAperture.Manager.Messaging.ManagerQueue do
                     virtual_host: connection_options_map.virtual_host}
 
     if broker.failover_broker_id != nil do
-      failover_broker = ResourceCache.get(:broker, broker.failover_broker_id, fn -> Repo.get(MessagingBrokerModel, broker.failover_broker_id) end)
+      failover_broker = CachedResource.get(MessagingBrokerModel, broker.failover_broker_id, fn -> Repo.get(MessagingBrokerModel, broker.failover_broker_id) end)
       if failover_broker == nil do
         raise "Failover Broker #{broker.failover_broker_id} not found"
       end

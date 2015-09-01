@@ -7,7 +7,7 @@ defmodule OpenAperture.Manager.Controllers.MessagingBrokersTest do
   alias OpenAperture.Manager.DB.Models.MessagingBroker
   alias OpenAperture.Manager.DB.Models.MessagingBrokerConnection
   alias OpenAperture.Manager.Repo
-  alias OpenAperture.Manager.ResourceCache
+  alias OpenAperture.Manager.ResourceCache.CachedResource
 
   import Ecto.Query
 
@@ -19,7 +19,7 @@ defmodule OpenAperture.Manager.Controllers.MessagingBrokersTest do
 
     on_exit fn ->
       :meck.unload
-      ResourceCache.wipe_all_caches
+      CachedResource.wipe_all_caches
       Repo.delete_all(MessagingExchangeBroker)
       Repo.delete_all(MessagingBrokerConnection)
       Repo.delete_all(MessagingBroker)

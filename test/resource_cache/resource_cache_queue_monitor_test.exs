@@ -1,9 +1,10 @@
-defmodule OpenAperture.Manager.ResourceCacheQueueMonitorTest do
+defmodule OpenAperture.Manager.ResourceCache.QueueSubscriberTest do
   use ExUnit.Case
 
   alias OpenAperture.Manager.Messaging.ManagerQueue
-  alias OpenAperture.Manager.ResourceCache
-  alias OpenAperture.Manager.ResourceCacheQueueMonitor
+  alias OpenAperture.Manager.ResourceCache.CachedResource
+  alias OpenAperture.Manager.ResourceCache.QueueSubscriber
+  alias OpenAperture.Manager.DB.Models.MessagingBroker
 
   setup do
     :ok
@@ -18,22 +19,22 @@ defmodule OpenAperture.Manager.ResourceCacheQueueMonitorTest do
                         assert queue_name == "cache"
                         SimpleAgent.increment! call_count_pid
                       end)
-    assert ResourceCacheQueueMonitor.init(:ok) == {:ok, nil}
+    assert QueueSubscriber.init(:ok) == {:ok, nil}
     assert SimpleAgent.get!(call_count_pid) == 1
   end
 
   test "clear_cache success" do
     call_count_pid = SimpleAgent.start! 0
     get = fn -> SimpleAgent.increment! call_count_pid; :my_val end
-    assert ResourceCache.get(:broker, :test3, get) == :my_val
+    assert CachedResource.get(MessagingBroker, :test3, get) == :my_val
     assert SimpleAgent.get!(call_count_pid) == 1
-    assert ResourceCache.get(:broker, :test3, get) == :my_val
+    assert CachedResource.get(MessagingBroker, :test3, get) == :my_val
     assert SimpleAgent.get!(call_count_pid) == 1
-    ResourceCacheQueueMonitor.clear_cache(%{type: :broker, key: :test3})
-    assert ResourceCache.get(:broker, :test3, get) == :my_val
+    QueueSubscriber.clear_cache(%{type: MessagingBroker, key: :test3})
+    assert CachedResource.get(MessagingBroker, :test3, get) == :my_val
     assert SimpleAgent.get!(call_count_pid) == 2
-    ResourceCacheQueueMonitor.clear_cache(%{type: :broker, key: :test999})
-    assert ResourceCache.get(:broker, :test3, get) == :my_val
+    QueueSubscriber.clear_cache(%{type: MessagingBroker, key: :test999})
+    assert CachedResource.get(MessagingBroker, :test3, get) == :my_val
     assert SimpleAgent.get!(call_count_pid) == 2
   end
 end
