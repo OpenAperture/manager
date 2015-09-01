@@ -126,7 +126,7 @@ defmodule OpenAperture.Manager.Controllers.SystemEvents do
   Underlying HTTP connection
   """
   def swaggerdoc_create, do: %{
-    description: "Create a SystemEvents" ,
+    description: "Create a SystemEvent" ,
     parameters: [%{
       "name" => "type",
       "in" => "body",

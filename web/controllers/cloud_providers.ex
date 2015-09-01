@@ -14,6 +14,11 @@ defmodule OpenAperture.Manager.Controllers.CloudProviders do
   @doc """
   List all Cloud Providers the system knows about.
   """
+  def swaggerdoc_index, do: %{
+    description: "Retrieve all CloudProviders",
+    response_schema: %{"type": "array", "items": %{"$ref": "#/definitions/OpenAperture.Manager.DB.Models.CloudProvider"}},
+    parameters: []
+  }    
   def index(conn, _params) do
     json conn, FormatHelper.to_sendable(Repo.all(CloudProvider), @sendable_fields)
   end
@@ -21,6 +26,17 @@ defmodule OpenAperture.Manager.Controllers.CloudProviders do
   @doc """
   Retrieve a specific Cloud Provider instance, specified by its id.
   """
+  def swaggerdoc_show, do: %{
+    description: "Retrieve a specific CloudProvider",
+    response_schema: %{"$ref": "#/definitions/OpenAperture.Manager.DB.Models.CloudProvider"},
+    parameters: [%{
+      "name" => "id",
+      "in" => "path",
+      "description" => "CloudProvider identifier",
+      "required" => true,
+      "type" => "integer"
+    }]
+  }    
   @spec show(term, [any]) :: term
   def show(conn, %{"id" => id}) do
     case Repo.get(CloudProvider, id) do
@@ -36,6 +52,17 @@ defmodule OpenAperture.Manager.Controllers.CloudProviders do
   end
 
   # POST "/"
+  def swaggerdoc_create, do: %{
+    description: "Create a CloudProvider" ,
+    parameters: [%{
+      "name" => "type",
+      "in" => "body",
+      "description" => "The new CloudProvider",
+      "required" => true,
+      "schema": %{"$ref": "#/definitions/OpenAperture.Manager.DB.Models.CloudProvider"}
+    }]
+  }
+  @spec create(Plug.Conn.t, [any]) :: Plug.Conn.t
   def create(conn, params) do
     params = case params["configuration"] do
       nil -> params
@@ -58,6 +85,24 @@ defmodule OpenAperture.Manager.Controllers.CloudProviders do
   end
 
   # PUT "/:id"
+  def swaggerdoc_update, do: %{
+    description: "Update a CloudProvider" ,
+    parameters: [%{
+      "name" => "id",
+      "in" => "path",
+      "description" => "CloudProvider identifier",
+      "required" => true,
+      "type" => "integer"
+    },
+    %{
+      "name" => "type",
+      "in" => "body",
+      "description" => "The updated CloudProvider",
+      "required" => true,
+      "schema": %{"$ref": "#/definitions/OpenAperture.Manager.DB.Models.CloudProvider"}
+    }]
+  }  
+  @spec update(Plug.Conn.t, [any]) :: Plug.Conn.t
   def update(conn, %{"id" => id} = params) do
     case Repo.get(CloudProvider, id) do
       nil ->
@@ -84,6 +129,17 @@ defmodule OpenAperture.Manager.Controllers.CloudProviders do
     end
   end
 
+  def swaggerdoc_destroy, do: %{
+    description: "Delete a CloudProvider" ,
+    parameters: [%{
+      "name" => "id",
+      "in" => "path",
+      "description" => "CloudProvider identifier",
+      "required" => true,
+      "type" => "integer"
+    }]
+  }  
+  @spec destroy(Plug.Conn.t, [any]) :: Plug.Conn.t
   def destroy(conn, %{"id" => id}) do
     case Repo.get(CloudProvider, id) do
       nil ->
@@ -96,6 +152,18 @@ defmodule OpenAperture.Manager.Controllers.CloudProviders do
     end
   end
 
+  def swaggerdoc_clusters, do: %{
+    description: "Retrieve any associated EtcdClusters",
+    response_schema: %{"type": "array", "items": %{"$ref": "#/definitions/OpenAperture.Manager.DB.Models.EtcdCluster"}},
+    parameters: [%{
+      "name" => "id",
+      "in" => "path",
+      "description" => "CloudProvider identifier",
+      "required" => true,
+      "type" => "integer"
+    }]
+  }    
+  @spec clusters(term, [any]) :: term
   def clusters(conn, %{"id" => id}) do
     json conn, FormatHelper.to_sendable(Repo.all(EtcdClusterQuery.get_by_cloud_provider(id)), @sendable_fields_cluster)
   end  
