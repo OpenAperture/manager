@@ -291,7 +291,7 @@ defmodule OpenAperture.Manager.Controllers.MessagingBrokers do
   """
   @spec get_connections(term, [any]) :: term
   def get_connections(conn, %{"id" => id} = _params) do
-    case Repo.get(MessagingBroker, id) do
+    case ResourceCache.get(:broker, id, fn -> Repo.get(MessagingBroker, id) end) do
       nil -> 
         conn
         |> put_status(:not_found)

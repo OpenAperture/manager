@@ -21,7 +21,7 @@ defmodule OpenAperture.Manager.BuildLogMonitor do
 
   @spec init(:ok) :: {:ok, nil}
   def init(:ok) do
-    OpenAperture.Manager.ManagerQueueSubscriber.subscribe_manager_queue("build_logs", &handle_logs/1)
+    OpenAperture.Manager.Messaging.ManagerQueue.build_and_subscribe("build_logs", &handle_logs/1)
     {:ok, nil}
   end
 

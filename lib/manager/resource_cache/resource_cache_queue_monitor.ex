@@ -23,7 +23,7 @@ defmodule OpenAperture.Manager.ResourceCacheQueueMonitor do
 
   @spec init(:ok) :: {:ok, nil}
   def init(:ok) do
-    OpenAperture.Manager.ManagerQueueSubscriber.subscribe_manager_queue("cache", &clear_cache/1)
+    OpenAperture.Manager.Messaging.ManagerQueue.build_and_subscribe("cache", &clear_cache/1)
     {:ok, nil}
   end
 

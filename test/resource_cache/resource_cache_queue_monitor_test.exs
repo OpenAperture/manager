@@ -1,7 +1,7 @@
 defmodule OpenAperture.Manager.ResourceCacheQueueMonitorTest do
   use ExUnit.Case
 
-  alias OpenAperture.Manager.ManagerQueueSubscriber
+  alias OpenAperture.Manager.Messaging.ManagerQueue
   alias OpenAperture.Manager.ResourceCache
   alias OpenAperture.Manager.ResourceCacheQueueMonitor
 
@@ -13,8 +13,8 @@ defmodule OpenAperture.Manager.ResourceCacheQueueMonitorTest do
 
   test "init" do
     call_count_pid = SimpleAgent.start! 0
-    :meck.new(ManagerQueueSubscriber, [:passthrough])
-    :meck.expect(ManagerQueueSubscriber, :subscribe_manager_queue, fn queue_name, _fun ->
+    :meck.new(ManagerQueue, [:passthrough])
+    :meck.expect(ManagerQueue, :build_and_subscribe, fn queue_name, _fun ->
                         assert queue_name == "cache"
                         SimpleAgent.increment! call_count_pid
                       end)
