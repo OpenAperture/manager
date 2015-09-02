@@ -54,6 +54,17 @@ defmodule OpenAperture.Manager.Controllers.SystemComponents do
 
   Underlying HTTP connection
   """
+  def swaggerdoc_index, do: %{
+    description: "Retrieve all SystemComponents",
+    response_schema: %{"title" => "SystemComponents", "type": "array", "items": %{"$ref": "#/definitions/OpenAperture.Manager.DB.Models.SystemComponent"}},
+    parameters: [%{
+      "name" => "type",
+      "in" => "query",
+      "description" => "Only return components that match the specified type",
+      "required" => false,
+      "type" => "string"
+    }]
+  }    
   @spec index(Plug.Conn.t, [any]) :: Plug.Conn.t
   def index(conn, params) do
     components = if params["type"] == nil do
@@ -75,6 +86,17 @@ defmodule OpenAperture.Manager.Controllers.SystemComponents do
 
   Underlying HTTP connection
   """
+  def swaggerdoc_show, do: %{
+    description: "Retrieve a specific SystemComponent",
+    response_schema: %{"$ref": "#/definitions/OpenAperture.Manager.DB.Models.SystemComponent"},
+    parameters: [%{
+      "name" => "id",
+      "in" => "path",
+      "description" => "SystemComponent identifier",
+      "required" => true,
+      "type" => "integer"
+    }]
+  }    
   @spec show(Plug.Conn.t, [any]) :: Plug.Conn.t
   def show(conn, params) do
     case Repo.get(SystemComponent, params["id"]) do
@@ -95,6 +117,16 @@ defmodule OpenAperture.Manager.Controllers.SystemComponents do
 
   Underlying HTTP connection
   """
+  def swaggerdoc_create, do: %{
+    description: "Create a SystemComponent" ,
+    parameters: [%{
+      "name" => "type",
+      "in" => "body",
+      "description" => "The new SystemComponent",
+      "required" => true,
+      "schema": %{"$ref": "#/definitions/OpenAperture.Manager.DB.Models.SystemComponent"}
+    }]
+  }
   @spec create(Plug.Conn.t, [any]) :: Plug.Conn.t
   def create(conn, params) do
     upgrade_status = if params["upgrade_status"] != nil do
@@ -147,6 +179,23 @@ defmodule OpenAperture.Manager.Controllers.SystemComponents do
 
   Underlying HTTP connection
   """
+  def swaggerdoc_update, do: %{
+    description: "Update a SystemComponent" ,
+    parameters: [%{
+      "name" => "id",
+      "in" => "path",
+      "description" => "SystemComponent identifier",
+      "required" => true,
+      "type" => "integer"
+    },
+    %{
+      "name" => "type",
+      "in" => "body",
+      "description" => "The updated SystemComponent",
+      "required" => true,
+      "schema": %{"$ref": "#/definitions/OpenAperture.Manager.DB.Models.SystemComponent"}
+    }]
+  }  
   @spec update(Plug.Conn.t, [any]) :: Plug.Conn.t
   def update(conn, params) do
     case Repo.get(SystemComponent, params["id"]) do
@@ -220,6 +269,16 @@ defmodule OpenAperture.Manager.Controllers.SystemComponents do
 
   Underlying HTTP connection
   """
+  def swaggerdoc_destroy, do: %{
+    description: "Delete a SystemComponent" ,
+    parameters: [%{
+      "name" => "id",
+      "in" => "path",
+      "description" => "SystemComponent identifier",
+      "required" => true,
+      "type" => "integer"
+    }]
+  }  
   @spec destroy(Plug.Conn.t, [any]) :: Plug.Conn.t
   def destroy(conn, params) do
     case Repo.get(SystemComponent, params["id"]) do
@@ -243,6 +302,16 @@ defmodule OpenAperture.Manager.Controllers.SystemComponents do
 
   Underlying HTTP connection
   """
+  def swaggerdoc_upgrade, do: %{
+    description: "Request an upgrade to a SystemComponent" ,
+    parameters: [%{
+      "name" => "id",
+      "in" => "path",
+      "description" => "SystemComponent identifier",
+      "required" => true,
+      "type" => "integer"
+    }]
+  }  
   @spec upgrade(Plug.Conn.t, [any]) :: Plug.Conn.t
   def upgrade(conn, params) do
     case Repo.get(SystemComponent, params["id"]) do

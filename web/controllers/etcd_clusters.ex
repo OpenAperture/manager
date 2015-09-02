@@ -23,7 +23,13 @@ defmodule OpenAperture.Manager.Controllers.EtcdClusters do
   def swaggerdoc_index, do: %{
     description: "Retrieve all EtcdClusters",
     response_schema: %{"title" => "EtcdClusters", "type": "array", "items": %{"$ref": "#/definitions/OpenAperture.Manager.DB.Models.EtcdCluster"}},
-    parameters: []
+    parameters: [%{
+      "name" => "allow_docker_builds",
+      "in" => "query",
+      "description" => "Only return clusters that are defined as docker build clusters",
+      "required" => false,
+      "type" => "boolean"
+    }]
   }      
   @spec index(Plug.Conn.t, [any]) :: Plug.Conn.t
   def index(conn, params) do
