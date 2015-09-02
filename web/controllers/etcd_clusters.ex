@@ -187,7 +187,7 @@ defmodule OpenAperture.Manager.Controllers.EtcdClusters do
   """
   def swaggerdoc_machines, do: %{
     description: "Retrieve all machines associated with the EtcdCluster",
-    response_schema: %{"type": "array", "items": %{
+    response_schema: %{"title" => "FleetApi.Machines", "type": "array", "items": %{
       "description" => "A Fleet Machine",
       "type" => "object",
       "required" => ["id","primaryIP","metadata"],
