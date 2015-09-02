@@ -35,18 +35,6 @@ defmodule OpenAperture.Manager.ResourceCache.CachedResource do
     ConCache.delete(type, :all)
   end
 
-  @spec wipe_all_caches :: [:ok]
-  def wipe_all_caches, do: Enum.map(cachable_types, &wipe_all_cache/1)
-
-  @spec wipe_all_cache(any) :: :ok
-  def wipe_all_cache(type) do
-    type
-    |> ConCache.ets
-    |> :ets.tab2list
-    |> Enum.each(fn({key, _}) -> ConCache.delete(type, key) end)
-    :ok
-  end
-
   @spec validate_type(ct) :: ct
   defp validate_type(type) do
     cond do
