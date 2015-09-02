@@ -187,18 +187,16 @@ defmodule OpenAperture.Manager.Controllers.EtcdClusters do
   """
   def swaggerdoc_machines, do: %{
     description: "Retrieve all machines associated with the EtcdCluster",
-    response_schema: %{
+    response_schema: %{"type": "array", "items": %{
       "description" => "A Fleet Machine",
       "type" => "object",
-      "required" => ["name","options","desiredState","currentState","machineID"],
+      "required" => ["id","primaryIP","metadata"],
       "properties" => %{
-        "name" => %{"type" => "string", "description" => "Hostname of the Machine"},
-        "options" => %{"type" => "array","items" => %{"type" => "string"}, "description" => "Fleet UnitOptions"},
-        "desiredState" => %{"type" => "string", "description" => "The systemd desired state"},
-        "currentState" => %{"type" => "string", "description" => "The systemd current state"},
-        "machineID" => %{"type" => "string", "description" => "The Fleet machine identifier"}
+        "id" => %{"type" => "string", "description" => "Fleet Machine identifier"},
+        "primaryIP" => %{"type" => "string", "description" => "The IP address of the Machine"},
+        "metadata" => %{"type" => "array","items" => %{"type" => "string"}, "description" => "Metadata associated with the Machine"},
       }
-    },
+    }},
     parameters: [%{
       "name" => "etcd_token",
       "in" => "path",
@@ -206,7 +204,7 @@ defmodule OpenAperture.Manager.Controllers.EtcdClusters do
       "required" => true,
       "type" => "string"
     }]
-  }    
+  }
   @spec machines(Plug.Conn.t, [any]) :: Plug.Conn.t  
   def machines(conn, %{"etcd_token" => token}) do
     case EtcdClusterQuery.get_by_etcd_token(token) do
@@ -248,6 +246,29 @@ defmodule OpenAperture.Manager.Controllers.EtcdClusters do
 
   Plug.Conn
   """
+  def swaggerdoc_units, do: %{
+    description: "Retrieve all Fleet units associated with the EtcdCluster",
+    response_schema: %{"type": "array", "items": %{
+      "description" => "A Fleet Unit",
+      "type" => "object",
+      "required" => ["name","options","desiredState","currentState","machineID"],
+      "properties" => %{
+        "name" => %{"type" => "string", "description" => "Name of the Unit"},
+        "options" => %{"type" => "array","items" => %{"type" => "string"}, "description" => "Fleet UnitOptions"},
+        "desiredState" => %{"type" => "string", "description" => "The systemd desired state"},
+        "currentState" => %{"type" => "string", "description" => "The systemd current state"},
+        "machineID" => %{"type" => "string", "description" => "The Fleet machine identifier hosting the unit"}
+      }
+    }},
+    parameters: [%{
+      "name" => "etcd_token",
+      "in" => "path",
+      "description" => "EtcdCluster token",
+      "required" => true,
+      "type" => "string"
+    }]
+  }
+  @spec units(Plug.Conn.t, [any]) :: Plug.Conn.t   
   def units(conn, %{"etcd_token" => token}) do
     case EtcdClusterQuery.get_by_etcd_token(token) do
       nil ->
@@ -288,6 +309,30 @@ defmodule OpenAperture.Manager.Controllers.EtcdClusters do
 
   Plug.Conn
   """
+  def swaggerdoc_units_state, do: %{
+    description: "Retrieve all states of all Fleet Units",
+    response_schema: %{"type": "array", "items": %{
+      "description" => "A Fleet Machine",
+      "type" => "object",
+      "required" => ["name","hash","machineID", "systemdLoadState", "systemdActiveState", "systemdSubState"],
+      "properties" => %{
+        "name" => %{"type" => "string", "description" => "Name of the Fleet Unit"},
+        "hash" => %{"type" => "string", "description" => "SHA1 hash of underlying unit file"},
+        "machineID" => %{"type" => "string", "description" => "The Fleet machine identifier hosting the unit"},
+        "systemdLoadState" => %{"type" => "string", "description" => "Systemd load state"},
+        "systemdActiveState" => %{"type" => "string", "description" => "Systemd active state"},
+        "systemdSubState" => %{"type" => "string", "description" => "Systemd sub state"},
+      }
+    }},
+    parameters: [%{
+      "name" => "etcd_token",
+      "in" => "path",
+      "description" => "EtcdCluster token",
+      "required" => true,
+      "type" => "string"
+    }]
+  }
+  @spec units_state(Plug.Conn.t, [any]) :: Plug.Conn.t    
   def units_state(conn, %{"etcd_token" => token}) do
     case EtcdClusterQuery.get_by_etcd_token(token) do
       nil ->
@@ -328,6 +373,32 @@ defmodule OpenAperture.Manager.Controllers.EtcdClusters do
 
   Plug.Conn
   """
+  def swaggerdoc_unit_logs, do: %{
+    description: "Retrieve the log files for a specific Fleet Unit",
+    response_schema: %{"name" => %{"type" => "string", "description" => "Log file output"}},
+    parameters: [%{
+      "name" => "etcd_token",
+      "in" => "path",
+      "description" => "EtcdCluster token",
+      "required" => true,
+      "type" => "string"
+    },
+    %{
+      "name" => "machine_id",
+      "in" => "path",
+      "description" => "Fleet Machine identifier",
+      "required" => true,
+      "type" => "string"
+    },
+    %{
+      "name" => "unit_name",
+      "in" => "path",
+      "description" => "URL-encoded Fleet Unit name",
+      "required" => true,
+      "type" => "string"
+    }]
+  }
+  @spec unit_logs(Plug.Conn.t, [any]) :: Plug.Conn.t    
   def unit_logs(conn, %{"etcd_token" => token, "machine_id" => _machine_id, "unit_name" => unit_name}) do
     case EtcdClusterQuery.get_by_etcd_token(token) do
       nil ->
@@ -368,6 +439,27 @@ defmodule OpenAperture.Manager.Controllers.EtcdClusters do
 
   Plug.Conn
   """
+  def swaggerdoc_node_info, do: %{
+    description: "Retrieve information about the Fleet Machines (nodes)",
+    response_schema: %{"type": "array", "items": %{
+      "description" => "A Fleet Machine",
+      "type" => "object",
+      "required" => ["docker_disk_space_percent", "coreos_version", "docker_version"],
+      "properties" => %{
+        "docker_disk_space_percent" => %{"type" => "integer", "description" => "The percentage of free disk space for the /var/lib/docker directory"},
+        "coreos_version" => %{"type" => "string", "description" => "A dump of the CoreOS version information"},
+        "docker_version" => %{"type" => "string", "description" => "A dump of the docker version information"},
+      }
+    }},
+    parameters: [%{
+      "name" => "etcd_token",
+      "in" => "path",
+      "description" => "EtcdCluster token",
+      "required" => true,
+      "type" => "string"
+    }]
+  }
+  @spec node_info(Plug.Conn.t, [any]) :: Plug.Conn.t  
   def node_info(conn, %{"etcd_token" => token}) do
     case EtcdClusterQuery.get_by_etcd_token(token) do
       nil ->
@@ -432,6 +524,32 @@ defmodule OpenAperture.Manager.Controllers.EtcdClusters do
 
   Plug.Conn
   """
+  def swaggerdoc_restart_unit, do: %{
+    description: "Restart a Fleet Unit",
+    response_schema: %{"name" => %{"type" => "string", "description" => "Restart output"}},
+    parameters: [%{
+      "name" => "etcd_token",
+      "in" => "path",
+      "description" => "EtcdCluster token",
+      "required" => true,
+      "type" => "string"
+    },
+    %{
+      "name" => "machine_id",
+      "in" => "path",
+      "description" => "Fleet Machine identifier",
+      "required" => true,
+      "type" => "string"
+    },
+    %{
+      "name" => "unit_name",
+      "in" => "path",
+      "description" => "URL-encoded Fleet Unit name",
+      "required" => true,
+      "type" => "string"
+    }]
+  }
+  @spec restart_unit(Plug.Conn.t, [any]) :: Plug.Conn.t   
   def restart_unit(conn, %{"etcd_token" => token, "machine_id" => _machine_id, "unit_name" => unit_name}) do
     case EtcdClusterQuery.get_by_etcd_token(token) do
       nil ->
