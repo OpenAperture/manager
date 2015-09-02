@@ -530,7 +530,7 @@ defmodule OpenAperture.Manager.Controllers.EtcdClusters do
   """
   def swaggerdoc_restart_unit, do: %{
     description: "Restart a Fleet Unit",
-    response_schema: %{"title" => "Restart Output", "type" => "string", "description" => "Restart output"},
+    response_schema: %{"name" => "Restart Output", "title" => "Restart Output", "type" => "string", "description" => "Restart output"},
     parameters: [%{
       "name" => "etcd_token",
       "in" => "path",

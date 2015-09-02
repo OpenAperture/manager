@@ -40,6 +40,11 @@ defmodule OpenAperture.Manager.Controllers.SystemComponentRefs do
 
   Underlying HTTP connection
   """
+  def swaggerdoc_index, do: %{
+    description: "Retrieve all SystemComponentRefs",
+    response_schema: %{"title" => "SystemComponentRefs", "type": "array", "items": %{"$ref": "#/definitions/OpenAperture.Manager.DB.Models.SystemComponentRef"}},
+    parameters: []
+  }    
   @spec index(Plug.Conn.t, [any]) :: Plug.Conn.t
   def index(conn, _params) do
     ok(conn, Repo.all(SystemComponentRef), @sendable_fields)
@@ -56,6 +61,17 @@ defmodule OpenAperture.Manager.Controllers.SystemComponentRefs do
 
   Underlying HTTP connection
   """
+  def swaggerdoc_show, do: %{
+    description: "Retrieve a specific SystemComponentRef",
+    response_schema: %{"$ref": "#/definitions/OpenAperture.Manager.DB.Models.SystemComponentRef"},
+    parameters: [%{
+      "name" => "id",
+      "in" => "path",
+      "description" => "SystemComponentRef identifier",
+      "required" => true,
+      "type" => "integer"
+    }]
+  }    
   @spec show(Plug.Conn.t, [any]) :: Plug.Conn.t
   def show(conn, %{"type" => type}) do
     query = from scr in SystemComponentRef,
@@ -78,6 +94,16 @@ defmodule OpenAperture.Manager.Controllers.SystemComponentRefs do
 
   Underlying HTTP connection
   """
+  def swaggerdoc_create, do: %{
+    description: "Create a SystemComponentRef" ,
+    parameters: [%{
+      "name" => "type",
+      "in" => "body",
+      "description" => "The new SystemComponentRef",
+      "required" => true,
+      "schema": %{"$ref": "#/definitions/OpenAperture.Manager.DB.Models.SystemComponentRef"}
+    }]
+  }
   @spec create(Plug.Conn.t, [any]) :: Plug.Conn.t
   def create(conn, params) do
   	type = params["type"]
@@ -124,6 +150,23 @@ defmodule OpenAperture.Manager.Controllers.SystemComponentRefs do
 
   Underlying HTTP connection
   """
+  def swaggerdoc_update, do: %{
+    description: "Update a SystemComponentRef" ,
+    parameters: [%{
+      "name" => "id",
+      "in" => "path",
+      "description" => "SystemComponentRef identifier",
+      "required" => true,
+      "type" => "integer"
+    },
+    %{
+      "name" => "type",
+      "in" => "body",
+      "description" => "The updated SystemComponentRef",
+      "required" => true,
+      "schema": %{"$ref": "#/definitions/OpenAperture.Manager.DB.Models.SystemComponentRef"}
+    }]
+  }  
   @spec update(Plug.Conn.t, [any]) :: Plug.Conn.t
   def update(conn, params) do
   	type = params["type"]
@@ -172,6 +215,16 @@ defmodule OpenAperture.Manager.Controllers.SystemComponentRefs do
 
   Underlying HTTP connection
   """
+  def swaggerdoc_destroy, do: %{
+    description: "Delete a SystemComponentRef" ,
+    parameters: [%{
+      "name" => "id",
+      "in" => "path",
+      "description" => "SystemComponentRef identifier",
+      "required" => true,
+      "type" => "integer"
+    }]
+  }  
   @spec destroy(Plug.Conn.t, [any]) :: Plug.Conn.t
   def destroy(conn, %{"type" => type} = _params) do
     query = from scr in SystemComponentRef,
