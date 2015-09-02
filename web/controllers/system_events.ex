@@ -49,7 +49,7 @@ defmodule OpenAperture.Manager.Controllers.SystemEvents do
   """
   def swaggerdoc_index, do: %{
     description: "Retrieve a set of SystemEvents",
-    response_schema: %{"type": "array", "items": %{"$ref": "#/definitions/OpenAperture.Manager.DB.Models.SystemEvent"}},
+    response_schema: %{"title" => "SystemEvents", "type": "array", "items": %{"$ref": "#/definitions/OpenAperture.Manager.DB.Models.SystemEvent"}},
     parameters: [%{
       "name" => "lookback",
       "in" => "query",

@@ -22,7 +22,7 @@ defmodule OpenAperture.Manager.Controllers.EtcdClusters do
   """
   def swaggerdoc_index, do: %{
     description: "Retrieve all EtcdClusters",
-    response_schema: %{"type": "array", "items": %{"$ref": "#/definitions/OpenAperture.Manager.DB.Models.EtcdCluster"}},
+    response_schema: %{"title" => "EtcdClusters", "type": "array", "items": %{"$ref": "#/definitions/OpenAperture.Manager.DB.Models.EtcdCluster"}},
     parameters: []
   }      
   @spec index(Plug.Conn.t, [any]) :: Plug.Conn.t
@@ -155,7 +155,7 @@ defmodule OpenAperture.Manager.Controllers.EtcdClusters do
   """
   def swaggerdoc_products, do: %{
     description: "Retrieve all products associated with the EtcdCluster",
-    response_schema: %{"type": "array", "items": %{"$ref": "#/definitions/OpenAperture.Manager.DB.Models.Product"}},
+    response_schema: %{"title" => "Products", "type": "array", "items": %{"$ref": "#/definitions/OpenAperture.Manager.DB.Models.Product"}},
     parameters: [%{
       "name" => "etcd_token",
       "in" => "path",
@@ -188,6 +188,7 @@ defmodule OpenAperture.Manager.Controllers.EtcdClusters do
   def swaggerdoc_machines, do: %{
     description: "Retrieve all machines associated with the EtcdCluster",
     response_schema: %{"title" => "FleetApi.Machines", "type": "array", "items": %{
+      "title" => "FleetApi.Machine", 
       "description" => "A Fleet Machine",
       "type" => "object",
       "required" => ["id","primaryIP","metadata"],
@@ -248,7 +249,8 @@ defmodule OpenAperture.Manager.Controllers.EtcdClusters do
   """
   def swaggerdoc_units, do: %{
     description: "Retrieve all Fleet units associated with the EtcdCluster",
-    response_schema: %{"type": "array", "items": %{
+    response_schema: %{"title" => "FleetApi.Units", "type": "array", "items": %{
+      "title" => "FleetApi.Unit", 
       "description" => "A Fleet Unit",
       "type" => "object",
       "required" => ["name","options","desiredState","currentState","machineID"],
@@ -311,7 +313,8 @@ defmodule OpenAperture.Manager.Controllers.EtcdClusters do
   """
   def swaggerdoc_units_state, do: %{
     description: "Retrieve all states of all Fleet Units",
-    response_schema: %{"type": "array", "items": %{
+    response_schema: %{"title" => "FleetApi.UnitStates", "type": "array", "items": %{
+      "title" => "FleetApi.UnitState", 
       "description" => "A Fleet Machine",
       "type" => "object",
       "required" => ["name","hash","machineID", "systemdLoadState", "systemdActiveState", "systemdSubState"],
@@ -368,14 +371,14 @@ defmodule OpenAperture.Manager.Controllers.EtcdClusters do
   The `conn` option defines the underlying HTTP connection.
 
   The `params` option defines an array of arguments.
-
+      
   ## Return Values
 
   Plug.Conn
   """
   def swaggerdoc_unit_logs, do: %{
     description: "Retrieve the log files for a specific Fleet Unit",
-    response_schema: %{"name" => %{"type" => "string", "description" => "Log file output"}},
+    response_schema: %{"title" => "Logs", "type" => "string", "description" => "Log file output"},
     parameters: [%{
       "name" => "etcd_token",
       "in" => "path",
@@ -441,8 +444,9 @@ defmodule OpenAperture.Manager.Controllers.EtcdClusters do
   """
   def swaggerdoc_node_info, do: %{
     description: "Retrieve information about the Fleet Machines (nodes)",
-    response_schema: %{"type": "array", "items": %{
-      "description" => "A Fleet Machine",
+    response_schema: %{"title" => "NodeInfo", "type": "array", "items": %{
+      "title" => "Node", 
+      "description" => "Information about a Node",
       "type" => "object",
       "required" => ["docker_disk_space_percent", "coreos_version", "docker_version"],
       "properties" => %{
@@ -526,7 +530,7 @@ defmodule OpenAperture.Manager.Controllers.EtcdClusters do
   """
   def swaggerdoc_restart_unit, do: %{
     description: "Restart a Fleet Unit",
-    response_schema: %{"name" => %{"type" => "string", "description" => "Restart output"}},
+    response_schema: %{"title" => "Restart Output", "type" => "string", "description" => "Restart output"},
     parameters: [%{
       "name" => "etcd_token",
       "in" => "path",

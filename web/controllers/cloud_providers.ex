@@ -16,7 +16,7 @@ defmodule OpenAperture.Manager.Controllers.CloudProviders do
   """
   def swaggerdoc_index, do: %{
     description: "Retrieve all CloudProviders",
-    response_schema: %{"type": "array", "items": %{"$ref": "#/definitions/OpenAperture.Manager.DB.Models.CloudProvider"}},
+    response_schema: %{"title" => "CloudProviders", "type": "array", "items": %{"$ref": "#/definitions/OpenAperture.Manager.DB.Models.CloudProvider"}},
     parameters: []
   }    
   @spec index(Plug.Conn.t, [any]) :: Plug.Conn.t
@@ -155,7 +155,7 @@ defmodule OpenAperture.Manager.Controllers.CloudProviders do
 
   def swaggerdoc_clusters, do: %{
     description: "Retrieve any associated EtcdClusters",
-    response_schema: %{"type": "array", "items": %{"$ref": "#/definitions/OpenAperture.Manager.DB.Models.EtcdCluster"}},
+    response_schema: %{"title" => "EtcdClusters", "type": "array", "items": %{"$ref": "#/definitions/OpenAperture.Manager.DB.Models.EtcdCluster"}},
     parameters: [%{
       "name" => "id",
       "in" => "path",

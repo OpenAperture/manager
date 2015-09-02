@@ -24,6 +24,11 @@ defmodule OpenAperture.Manager.Controllers.Status do
 
   Underlying HTTP connection.
   """
+  def swaggerdoc_index, do: %{
+    description: "Return the status of the manager",
+    parameters: []
+  }    
+  @spec index(Plug.Conn.t, [any]) :: Plug.Conn.t  
   def index(conn, _params) do
     json conn, ""
   end
