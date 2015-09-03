@@ -191,7 +191,7 @@ defmodule OpenAperture.Manager.Controllers.ProductDeploymentSteps do
   end
 
   # DELETE /products/:product_name/deployments/:deployment_id/steps/:step_id
-  def swaggerdoc_update, do: %{
+  def swaggerdoc_destroy, do: %{
     description: "Delete a ProductDeploymentStep" ,
     parameters: [%{
       "name" => "product_name",
