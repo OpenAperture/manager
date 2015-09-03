@@ -22,6 +22,18 @@ defmodule OpenAperture.Manager.Controllers.ProductDeployments do
   @deployment_steps_sendable_fields [:id, :product_deployment_plan_step_id, :product_deployment_plan_step_type, :duration, :successful, :execution_options, :output, :sequence, :inserted_at, :updated_at]
 
   # GET /products/:product_name/deployments
+  def swaggerdoc_index, do: %{
+    description: "Retrieve all ProductDeployments for a Product",
+    response_schema: %{"title" => "ProductDeployments", "type": "array", "items": %{"$ref": "#/definitions/OpenAperture.Manager.DB.Models.ProductDeployment"}},
+    parameters: [%{
+      "name" => "product_name",
+      "in" => "path",
+      "description" => "Name of the Product",
+      "required" => true,
+      "type" => "string"
+    }]
+  }    
+  @spec index(Plug.Conn.t, [any]) :: Plug.Conn.t    
   def index(conn, %{"product_name" => product_name} = params) do
     product_name
     |> URI.decode
@@ -51,6 +63,25 @@ defmodule OpenAperture.Manager.Controllers.ProductDeployments do
   end
 
   # GET /products/:product_name/deployments/:deployment_id
+  def swaggerdoc_show, do: %{
+    description: "Retrieve a specific ProductDeployment",
+    response_schema: %{"$ref": "#/definitions/OpenAperture.Manager.DB.Models.ProductDeployment"},
+    parameters: [%{
+      "name" => "product_name",
+      "in" => "path",
+      "description" => "Name of the Product",
+      "required" => true,
+      "type" => "string"
+    },
+    %{
+      "name" => "deployment_id",
+      "in" => "path",
+      "description" => "Identifier of the ProductDeployment",
+      "required" => true,
+      "type" => "integer"
+    }]
+  }    
+  @spec show(Plug.Conn.t, [any]) :: Plug.Conn.t   
   def show(conn, %{"product_name" => product_name, "deployment_id" => deployment_id}) do
     product_name = URI.decode(product_name)
 
@@ -64,6 +95,24 @@ defmodule OpenAperture.Manager.Controllers.ProductDeployments do
   end
 
   # POST /products/:product_name/deployments
+  def swaggerdoc_create, do: %{
+    description: "Create a ProductDeployment" ,
+    parameters: [%{
+      "name" => "product_name",
+      "in" => "path",
+      "description" => "Name of the Product",
+      "required" => true,
+      "type" => "string"
+    },
+    %{
+      "name" => "type",
+      "in" => "body",
+      "description" => "The new ProductDeployment",
+      "required" => true,
+      "schema": %{"$ref": "#/definitions/OpenAperture.Manager.DB.Models.ProductDeployment"}
+    }]
+  }
+  @spec create(Plug.Conn.t, [any]) :: Plug.Conn.t  
   def create(conn, %{"product_name" => product_name, "plan_name" => plan_name, "environment_name" => environment_name} = params) do
     product_name = URI.decode(product_name)
 
@@ -124,6 +173,31 @@ defmodule OpenAperture.Manager.Controllers.ProductDeployments do
     |> json ResponseBodyFormatter.error_body(:bad_request, "ProductDeployment")
   end
 
+  def swaggerdoc_update, do: %{
+    description: "Update a ProductDeployment" ,
+    parameters: [%{
+      "name" => "product_name",
+      "in" => "path",
+      "description" => "Name of the Product",
+      "required" => true,
+      "type" => "string"
+    },
+    %{
+      "name" => "deployment_id",
+      "in" => "path",
+      "description" => "Identifier of the ProductDeployment",
+      "required" => true,
+      "type" => "integer"
+    },
+    %{
+      "name" => "type",
+      "in" => "body",
+      "description" => "The updated ProductDeployment",
+      "required" => true,
+      "schema": %{"$ref": "#/definitions/OpenAperture.Manager.DB.Models.ProductDeployment"}
+    }]
+  }
+  @spec update(Plug.Conn.t, [any]) :: Plug.Conn.t
   def update(conn, %{"product_name" => product_name, "deployment_id" => deployment_id} = params) do 
     product_name = URI.decode(product_name)
 
@@ -149,7 +223,25 @@ defmodule OpenAperture.Manager.Controllers.ProductDeployments do
     end
   end
 
-  # DELETE /products/:product_name/deployments/:deploymen_id
+  # DELETE /products/:product_name/deployments/:deployment_id
+  def swaggerdoc_destroy, do: %{
+    description: "Delete a ProductDeployment" ,
+    parameters: [%{
+      "name" => "product_name",
+      "in" => "path",
+      "description" => "Name of the Product",
+      "required" => true,
+      "type" => "string"
+    },
+    %{
+      "name" => "deployment_id",
+      "in" => "path",
+      "description" => "Identifier of the ProductDeployment",
+      "required" => true,
+      "type" => "integer"
+    }]
+  }
+  @spec destroy(Plug.Conn.t, [any]) :: Plug.Conn.t  
   def destroy(conn, %{"product_name" => product_name, "deployment_id" => deployment_id}) do
     product_name = URI.decode(product_name)
 
@@ -173,6 +265,24 @@ defmodule OpenAperture.Manager.Controllers.ProductDeployments do
     end
   end
 
+  def swaggerdoc_execute, do: %{
+    description: "Execute a ProductDeployment" ,
+    parameters: [%{
+      "name" => "product_name",
+      "in" => "path",
+      "description" => "Name of the Product",
+      "required" => true,
+      "type" => "string"
+    },
+    %{
+      "name" => "id",
+      "in" => "path",
+      "description" => "Identifier of the ProductDeployment",
+      "required" => true,
+      "type" => "integer"
+    }]
+  }
+  @spec execute(Plug.Conn.t, [any]) :: Plug.Conn.t
   def execute(conn, %{"product_name" => product_name, "id" => id} = _params) do
     deployment = get_product_deployment(product_name, id)
 

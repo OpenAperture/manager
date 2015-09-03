@@ -16,6 +16,12 @@ defmodule OpenAperture.Manager.Controllers.Products do
   @updatable_fields [:name]
 
   # GET "/"
+  def swaggerdoc_index, do: %{
+    description: "Retrieve all Products",
+    response_schema: %{"title" => "Products", "type": "array", "items": %{"$ref": "#/definitions/OpenAperture.Manager.DB.Models.Product"}},
+    parameters: []
+  }    
+  @spec index(Plug.Conn.t, [any]) :: Plug.Conn.t  
   def index(conn, _params) do
     products = Repo.all(Product)
                |> Enum.map(&(to_sendable(&1, @sendable_fields)))
@@ -24,7 +30,52 @@ defmodule OpenAperture.Manager.Controllers.Products do
     |> json products
   end
 
+  # GET "/:product_name"
+  def swaggerdoc_show, do: %{
+    description: "Retrieve a specific Product",
+    response_schema: %{"$ref": "#/definitions/OpenAperture.Manager.DB.Models.Product"},
+    parameters: [%{
+      "name" => "product_name",
+      "in" => "path",
+      "description" => "Product name",
+      "required" => true,
+      "type" => "string"
+    }]
+  }    
+  @spec show(Plug.Conn.t, [any]) :: Plug.Conn.t  
+  def show(conn, %{"product_name" => product_name}) do
+    product_name
+    |> get_product_by_name
+    |> case do
+      nil ->
+        conn
+        |> put_status(:not_found)
+        |> json ResponseBodyFormatter.error_body(:not_found, "Product")
+      product ->
+        conn
+        |> json to_sendable(product, @sendable_fields)
+    end
+  end  
+
   # POST "/"
+  def swaggerdoc_create, do: %{
+    description: "Create a Product" ,
+    parameters: [%{
+      "name" => "product_name",
+      "in" => "path",
+      "description" => "Product name",
+      "required" => true,
+      "type" => "string"
+    },
+    %{
+      "name" => "type",
+      "in" => "body",
+      "description" => "The new Product",
+      "required" => true,
+      "schema": %{"$ref": "#/definitions/OpenAperture.Manager.DB.Models.Product"}
+    }]
+  }
+  @spec create(Plug.Conn.t, [any]) :: Plug.Conn.t  
   def create(conn, %{"name" => product_name} = params) do
     product_name
     |> get_product_by_name
@@ -51,22 +102,18 @@ defmodule OpenAperture.Manager.Controllers.Products do
     end
   end
 
-  # GET "/:product_name"
-  def show(conn, %{"product_name" => product_name}) do
-    product_name
-    |> get_product_by_name
-    |> case do
-      nil ->
-        conn
-        |> put_status(:not_found)
-        |> json ResponseBodyFormatter.error_body(:not_found, "Product")
-      product ->
-        conn
-        |> json to_sendable(product, @sendable_fields)
-    end
-  end
-
   # DELETE "/:product_name"
+  def swaggerdoc_destroy, do: %{
+    description: "Delete a Product" ,
+    parameters: [%{
+      "name" => "product_name",
+      "in" => "path",
+      "description" => "Product name",
+      "required" => true,
+      "type" => "string"
+    }]
+  }  
+  @spec destroy(Plug.Conn.t, [any]) :: Plug.Conn.t  
   def destroy(conn, %{"product_name" => product_name}) do
     product_name
     |> get_product_by_name
@@ -83,6 +130,31 @@ defmodule OpenAperture.Manager.Controllers.Products do
   end
 
   # PUT "/:product_name"
+  def swaggerdoc_update, do: %{
+    description: "Update a Product" ,
+    parameters: [%{
+      "name" => "product_name",
+      "in" => "path",
+      "description" => "Product name",
+      "required" => true,
+      "type" => "string"
+    },
+    %{
+      "name" => "product_name",
+      "in" => "path",
+      "description" => "Product name",
+      "required" => true,
+      "type" => "string"
+    },
+    %{
+      "name" => "type",
+      "in" => "body",
+      "description" => "The updated Product",
+      "required" => true,
+      "schema": %{"$ref": "#/definitions/OpenAperture.Manager.DB.Models.Product"}
+    }]
+  }
+  @spec update(Plug.Conn.t, [any]) :: Plug.Conn.t   
   def update(conn, %{"product_name" => product_name} = params) do
     product_name
     |> get_product_by_name

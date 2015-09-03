@@ -19,6 +19,32 @@ defmodule OpenAperture.Manager.Controllers.ProductEnvironmentalVariables do
   @encrypted_fields []
 
   # GET /products/:product_name/environments/:environment_name/variables[?coalesced=true]
+  def swaggerdoc_index_environment, do: %{
+    description: "Retrieve all environment variables for a product",
+    response_schema: %{"title" => "ProductEnvironmentVariables", "type": "array", "items": %{"$ref": "#/definitions/OpenAperture.Manager.DB.Models.ProductEnvironmentVariables"}},
+    parameters: [%{
+      "name" => "product_name",
+      "in" => "path",
+      "description" => "Name of the Product",
+      "required" => true,
+      "type" => "string"
+    },
+    %{
+      "name" => "environment_name",
+      "in" => "path",
+      "description" => "Name of the ProductEnvironment",
+      "required" => true,
+      "type" => "string"
+    },
+    %{
+      "name" => "coalesced",
+      "in" => "query",
+      "description" => "Set to true if you want to coalesce environment and product variables",
+      "required" => false,
+      "type" => "string"
+    }]
+  }    
+  @spec index_environment(Plug.Conn.t, [any]) :: Plug.Conn.t   
   def index_environment(conn, %{"product_name" => product_name, "environment_name" => environment_name} = params) do
     product_name = URI.decode(product_name)
     environment_name = URI.decode(environment_name)
@@ -49,6 +75,25 @@ defmodule OpenAperture.Manager.Controllers.ProductEnvironmentalVariables do
   end
 
   # GET /products/:product_name/environmental_variables[?coalesced=true]
+  def swaggerdoc_index_default, do: %{
+    description: "Retrieve all product variables for a product",
+    response_schema: %{"title" => "ProductEnvironmentalVariables", "type": "array", "items": %{"$ref": "#/definitions/OpenAperture.Manager.DB.Models.ProductEnvironmentalVariable"}},
+    parameters: [%{
+      "name" => "product_name",
+      "in" => "path",
+      "description" => "Name of the Product",
+      "required" => true,
+      "type" => "string"
+    },
+    %{
+      "name" => "coalesced",
+      "in" => "query",
+      "description" => "Set to true if you want to coalesce environment and product variables",
+      "required" => false,
+      "type" => "string"
+    }]
+  }    
+  @spec index_default(Plug.Conn.t, [any]) :: Plug.Conn.t  
   def index_default(conn, %{"product_name" => product_name} = params) do
     product_name
     |> URI.decode
@@ -77,6 +122,32 @@ defmodule OpenAperture.Manager.Controllers.ProductEnvironmentalVariables do
   end
 
   # GET /products/:product_name/environments/:environment_name/variables/:variable_name
+  def swaggerdoc_show_environment, do: %{
+    description: "Retrieve a (list) product environment variable for a name",
+    response_schema: %{"title" => "ProductEnvironmentVariables", "type": "array", "items": %{"$ref": "#/definitions/OpenAperture.Manager.DB.Models.ProductEnvironmentVariable"}},
+    parameters: [%{
+      "name" => "product_name",
+      "in" => "path",
+      "description" => "Name of the Product",
+      "required" => true,
+      "type" => "string"
+    },
+    %{
+      "name" => "environment_name",
+      "in" => "path",
+      "description" => "Name of the ProductEnvironment",
+      "required" => true,
+      "type" => "string"
+    },
+    %{
+      "name" => "variable_name",
+      "in" => "path",
+      "description" => "Name of the variable",
+      "required" => true,
+      "type" => "string"
+    }]
+  }    
+  @spec show_environment(Plug.Conn.t, [any]) :: Plug.Conn.t   
   def show_environment(conn, %{"product_name" => product_name, "environment_name" => environment_name, "variable_name" => variable_name}) do
     product_name = URI.decode(product_name)
     environment_name = URI.decode(environment_name)
@@ -97,6 +168,32 @@ defmodule OpenAperture.Manager.Controllers.ProductEnvironmentalVariables do
   # Because, when coalesced=true, this endpoint may return multiple variables,
   # the response body will always be a list, and not a single variable entity.
   # GET /products/:product_name/environmental_variables/:variable_name[?coalesced=true]
+  def swaggerdoc_show_default, do: %{
+    description: "Retrieve a (list) product variables for a product",
+    response_schema: %{"title" => "ProductEnvironmentalVariables", "type": "array", "items": %{"$ref": "#/definitions/OpenAperture.Manager.DB.Models.ProductEnvironmentalVariable"}},
+    parameters: [%{
+      "name" => "product_name",
+      "in" => "path",
+      "description" => "Name of the Product",
+      "required" => true,
+      "type" => "string"
+    },
+    %{
+      "name" => "variable_name",
+      "in" => "path",
+      "description" => "Name of the variable",
+      "required" => true,
+      "type" => "string"
+    },
+    %{
+      "name" => "coalesced",
+      "in" => "query",
+      "description" => "Set to true if you want to coalesce environment and product variables",
+      "required" => false,
+      "type" => "string"
+    }]
+  }    
+  @spec show_default(Plug.Conn.t, [any]) :: Plug.Conn.t    
   def show_default(conn, %{"product_name" => product_name, "variable_name" => variable_name} = params) do
     product_name = URI.decode(product_name)
     variable_name = URI.decode(variable_name)
@@ -122,6 +219,31 @@ defmodule OpenAperture.Manager.Controllers.ProductEnvironmentalVariables do
   end
 
   # POST /products/:product_name/environments/:environment_name/variables
+  def swaggerdoc_create_environment, do: %{
+    description: "Create a Product environment variable" ,
+    parameters: [%{
+      "name" => "product_name",
+      "in" => "path",
+      "description" => "Name of the Product",
+      "required" => true,
+      "type" => "string"
+    },
+    %{
+      "name" => "environment_name",
+      "in" => "path",
+      "description" => "Name of the ProductEnvironment",
+      "required" => true,
+      "type" => "string"
+    },
+    %{
+      "name" => "type",
+      "in" => "body",
+      "description" => "The new ProductEnvironmentalVariable",
+      "required" => true,
+      "schema": %{"$ref": "#/definitions/OpenAperture.Manager.DB.Models.ProductEnvironmentalVariable"}
+    }]
+  }
+  @spec create_environment(Plug.Conn.t, [any]) :: Plug.Conn.t  
   def create_environment(conn, %{"product_name" => product_name, "environment_name" => environment_name} = params) do
     product_name = URI.decode(product_name)
     environment_name = URI.decode(environment_name)
@@ -162,6 +284,38 @@ defmodule OpenAperture.Manager.Controllers.ProductEnvironmentalVariables do
   end
 
   # PUT /products/:product_name/environments/:environment_name/variables/:variable_name
+  def swaggerdoc_update_environment, do: %{
+    description: "Update a Product environment variable" ,
+    parameters: [%{
+      "name" => "product_name",
+      "in" => "path",
+      "description" => "Name of the Product",
+      "required" => true,
+      "type" => "string"
+    },
+    %{
+      "name" => "environment_name",
+      "in" => "path",
+      "description" => "Name of the ProductEnvironment",
+      "required" => true,
+      "type" => "string"
+    },
+    %{
+      "name" => "variable_name",
+      "in" => "path",
+      "description" => "Name of the ProductEnvironmentalVariable",
+      "required" => true,
+      "type" => "string"
+    },
+    %{
+      "name" => "type",
+      "in" => "body",
+      "description" => "The updated ProductEnvironmentalVariable",
+      "required" => true,
+      "schema": %{"$ref": "#/definitions/OpenAperture.Manager.DB.Models.ProductEnvironmentalVariable"}
+    }]
+  }
+  @spec update_environment(Plug.Conn.t, [any]) :: Plug.Conn.t  
   def update_environment(conn, %{"product_name" => product_name, "environment_name" => environment_name, "variable_name" => variable_name} = params) do
     product_name = URI.decode(product_name)
     environment_name = URI.decode(environment_name)
@@ -199,6 +353,24 @@ defmodule OpenAperture.Manager.Controllers.ProductEnvironmentalVariables do
   end
 
   # POST /products/:product_name/environmental_variables
+  def swaggerdoc_create_default, do: %{
+    description: "Create a Product environment variable" ,
+    parameters: [%{
+      "name" => "product_name",
+      "in" => "path",
+      "description" => "Name of the Product",
+      "required" => true,
+      "type" => "string"
+    },
+    %{
+      "name" => "type",
+      "in" => "body",
+      "description" => "The new ProductEnvironmentalVariable",
+      "required" => true,
+      "schema": %{"$ref": "#/definitions/OpenAperture.Manager.DB.Models.ProductEnvironmentalVariable"}
+    }]
+  }
+  @spec create_default(Plug.Conn.t, [any]) :: Plug.Conn.t  
   def create_default(conn, %{"product_name" => product_name} = params) do
     product_name
     |> URI.decode
@@ -237,6 +409,31 @@ defmodule OpenAperture.Manager.Controllers.ProductEnvironmentalVariables do
   end
 
   # PUT /products/:product_name/environmental_variables/:variable_name
+  def swaggerdoc_update_default, do: %{
+    description: "Update a Product environment variable" ,
+    parameters: [%{
+      "name" => "product_name",
+      "in" => "path",
+      "description" => "Name of the Product",
+      "required" => true,
+      "type" => "string"
+    },
+    %{
+      "name" => "variable_name",
+      "in" => "path",
+      "description" => "Name of the ProductEnvironmentalVariable",
+      "required" => true,
+      "type" => "string"
+    },
+    %{
+      "name" => "type",
+      "in" => "body",
+      "description" => "The updated ProductEnvironmentalVariable",
+      "required" => true,
+      "schema": %{"$ref": "#/definitions/OpenAperture.Manager.DB.Models.ProductEnvironmentalVariable"}
+    }]
+  }
+  @spec update_default(Plug.Conn.t, [any]) :: Plug.Conn.t    
   def update_default(conn, %{"product_name" => product_name, "variable_name" => variable_name} = params) do
     product_name = URI.decode(product_name)
     variable_name = URI.decode(variable_name)
@@ -273,6 +470,31 @@ defmodule OpenAperture.Manager.Controllers.ProductEnvironmentalVariables do
   end
 
   # DELETE /produts/:product_name/environments/:environment_name/variables/:variable_name
+  def swaggerdoc_destroy_environment, do: %{
+    description: "Delete a product environment variable",
+    parameters: [%{
+      "name" => "product_name",
+      "in" => "path",
+      "description" => "Name of the Product",
+      "required" => true,
+      "type" => "string"
+    },
+    %{
+      "name" => "environment_name",
+      "in" => "path",
+      "description" => "Name of the ProductEnvironment",
+      "required" => true,
+      "type" => "string"
+    },
+    %{
+      "name" => "variable_name",
+      "in" => "path",
+      "description" => "Name of the variable",
+      "required" => true,
+      "type" => "string"
+    }]
+  }    
+  @spec destroy_environment(Plug.Conn.t, [any]) :: Plug.Conn.t  
   def destroy_environment(conn, %{"product_name" => product_name, "environment_name" => environment_name, "variable_name" => variable_name}) do
     product_name = URI.decode(product_name)
     environment_name = URI.decode(environment_name)
@@ -292,6 +514,24 @@ defmodule OpenAperture.Manager.Controllers.ProductEnvironmentalVariables do
   end
 
   # DELETE /products/:product_name/environmental_variables/:variable_name
+  def swaggerdoc_destroy_default, do: %{
+    description: "Delete a product environmental variable",
+    parameters: [%{
+      "name" => "product_name",
+      "in" => "path",
+      "description" => "Name of the Product",
+      "required" => true,
+      "type" => "string"
+    },
+    %{
+      "name" => "variable_name",
+      "in" => "path",
+      "description" => "Name of the variable",
+      "required" => true,
+      "type" => "string"
+    }]
+  }    
+  @spec destroy_default(Plug.Conn.t, [any]) :: Plug.Conn.t  
   def destroy_default(conn, %{"product_name" => product_name, "variable_name" => variable_name}) do
     product_name = URI.decode(product_name)
     variable_name = URI.decode(variable_name)

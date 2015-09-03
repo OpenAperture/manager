@@ -17,6 +17,18 @@ defmodule OpenAperture.Manager.Controllers.ProductEnvironments do
   @sendable_fields [:id, :name, :product_id, :inserted_at, :updated_at]
 
   # GET /products/:product_name/environments
+  def swaggerdoc_index, do: %{
+    description: "Retrieve all ProductEnvironments",
+    response_schema: %{"title" => "ProductEnvironments", "type": "array", "items": %{"$ref": "#/definitions/OpenAperture.Manager.DB.Models.ProductEnvironment"}},
+    parameters: [%{
+      "name" => "product_name",
+      "in" => "path",
+      "description" => "Name of the Product",
+      "required" => true,
+      "type" => "string"
+    }]
+  }    
+  @spec index(Plug.Conn.t, [any]) :: Plug.Conn.t  
   def index(conn, %{"product_name" => product_name}) do
     product_name
     |> URI.decode
@@ -35,6 +47,25 @@ defmodule OpenAperture.Manager.Controllers.ProductEnvironments do
   end
 
   # GET /products/:product_name/environments/:environment_name
+  def swaggerdoc_show, do: %{
+    description: "Retrieve a specific ProductEnvironment",
+    response_schema: %{"$ref": "#/definitions/OpenAperture.Manager.DB.Models.ProductEnvironment"},
+    parameters: [%{
+      "name" => "product_name",
+      "in" => "path",
+      "description" => "Name of the Product",
+      "required" => true,
+      "type" => "string"
+    },
+    %{
+      "name" => "component_name",
+      "in" => "path",
+      "description" => "Name of the ProductEnvironment",
+      "required" => true,
+      "type" => "string"
+    }]
+  }    
+  @spec show(Plug.Conn.t, [any]) :: Plug.Conn.t    
   def show(conn, %{"product_name" => product_name, "environment_name" => environment_name}) do
     product_name = URI.decode(product_name)
     environment_name = URI.decode(environment_name)
@@ -53,6 +84,24 @@ defmodule OpenAperture.Manager.Controllers.ProductEnvironments do
   end
 
   # POST /products/:product_name/environments
+  def swaggerdoc_create, do: %{
+    description: "Create a ProductEnvironment" ,
+    parameters: [%{
+      "name" => "product_name",
+      "in" => "path",
+      "description" => "Name of the Product",
+      "required" => true,
+      "type" => "string"
+    },
+    %{
+      "name" => "type",
+      "in" => "body",
+      "description" => "The new ProductEnvironment",
+      "required" => true,
+      "schema": %{"$ref": "#/definitions/OpenAperture.Manager.DB.Models.ProductEnvironment"}
+    }]
+  }
+  @spec create(Plug.Conn.t, [any]) :: Plug.Conn.t   
   def create(conn, %{"product_name" => product_name, "name" => environment_name} = _params) do
     product_name = URI.decode(product_name)
 
@@ -104,6 +153,31 @@ defmodule OpenAperture.Manager.Controllers.ProductEnvironments do
   end
 
   # PUT /products/:product_name/environments/:environment_name
+  def swaggerdoc_update, do: %{
+    description: "Update a ProductEnvironment" ,
+    parameters: [%{
+      "name" => "product_name",
+      "in" => "path",
+      "description" => "Name of the Product",
+      "required" => true,
+      "type" => "string"
+    },
+    %{
+      "name" => "environment_name",
+      "in" => "path",
+      "description" => "Name of the Environment",
+      "required" => true,
+      "type" => "string"
+    },
+    %{
+      "name" => "type",
+      "in" => "body",
+      "description" => "The updated ProductEnvironment",
+      "required" => true,
+      "schema": %{"$ref": "#/definitions/OpenAperture.Manager.DB.Models.ProductEnvironment"}
+    }]
+  }  
+  @spec update(Plug.Conn.t, [any]) :: Plug.Conn.t    
   def update(conn, %{"product_name" => product_name, "environment_name" => environment_name} = params) do
     product_name = URI.decode(product_name)
     environment_name = URI.decode(environment_name)
@@ -141,6 +215,24 @@ defmodule OpenAperture.Manager.Controllers.ProductEnvironments do
   end
 
   # DELETE /products/:product_name/environments/:environment_name
+   def swaggerdoc_destroy, do: %{
+    description: "Delete a ProductEnvironment for a Product" ,
+    parameters: [%{
+      "name" => "product_name",
+      "in" => "path",
+      "description" => "Name of the Product",
+      "required" => true,
+      "type" => "string"
+    },
+    %{
+      "name" => "environment_name",
+      "in" => "path",
+      "description" => "Name of the Environment",
+      "required" => true,
+      "type" => "string"
+    }]
+  }
+  @spec destroy(Plug.Conn.t, [any]) :: Plug.Conn.t 
   def destroy(conn, %{"product_name" => product_name, "environment_name" => environment_name}) do
     product_name = URI.decode(product_name)
     environment_name = URI.decode(environment_name)

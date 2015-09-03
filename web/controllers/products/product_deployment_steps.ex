@@ -13,10 +13,55 @@ defmodule OpenAperture.Manager.Controllers.ProductDeploymentSteps do
   @deployment_steps_sendable_fields [:id, :product_deployment_plan_step_id, :product_deployment_plan_step_type, :duration, :successful, :execution_options, :output, :sequence, :inserted_at, :updated_at]
 
   # GET /products/:product_name/deployments/:deployment_id/steps
+  def swaggerdoc_index, do: %{
+    description: "Retrieve all ProductDeploymentSteps for a ProductDeployment",
+    response_schema: %{"title" => "ProductDeploymentSteps", "type": "array", "items": %{"$ref": "#/definitions/OpenAperture.Manager.DB.Models.ProductDeploymentStep"}},
+    parameters: [%{
+      "name" => "product_name",
+      "in" => "path",
+      "description" => "Name of the Product",
+      "required" => true,
+      "type" => "string"
+    },
+    %{
+      "name" => "deployment_id",
+      "in" => "path",
+      "description" => "ProductDeployment identifier",
+      "required" => true,
+      "type" => "integer"
+    }]
+  }    
+  @spec index(Plug.Conn.t, [any]) :: Plug.Conn.t   
   def index(conn, %{"deployment_id" => deployment_id} = _params) do
     json conn, FormatHelper.to_sendable(Repo.all(ProductDeploymentStepQuery.get_steps_of_deployment(deployment_id)), @deployment_steps_sendable_fields)
   end
 
+  def swaggerdoc_show, do: %{
+    description: "Retrieve a ProductDeploymentStep for a ProductDeployment",
+    response_schema: %{"title" => "ProductDeploymentSteps", "type": "array", "items": %{"$ref": "#/definitions/OpenAperture.Manager.DB.Models.ProductDeploymentStep"}},
+    parameters: [%{
+      "name" => "product_name",
+      "in" => "path",
+      "description" => "Name of the Product",
+      "required" => true,
+      "type" => "string"
+    },
+    %{
+      "name" => "deployment_id",
+      "in" => "path",
+      "description" => "ProductDeployment identifier",
+      "required" => true,
+      "type" => "integer"
+    },
+    %{
+      "name" => "step_id",
+      "in" => "path",
+      "description" => "ProductDeploymentStep identifier",
+      "required" => true,
+      "type" => "integer"
+    }]
+  }    
+  @spec show(Plug.Conn.t, [any]) :: Plug.Conn.t 
   def show(conn, %{"product_name" => _product_name, "deployment_id" => deployment_id, "step_id" => step_id} = _params) do
     case ProductDeploymentStepQuery.get_step_of_deployment(deployment_id, step_id) |> Repo.one do
       nil ->
@@ -29,6 +74,31 @@ defmodule OpenAperture.Manager.Controllers.ProductDeploymentSteps do
   end
 
   # POST /products/:product_name/deployments/:deployment_id/steps
+  def swaggerdoc_create, do: %{
+    description: "Create a ProductDeploymentStep" ,
+    parameters: [%{
+      "name" => "product_name",
+      "in" => "path",
+      "description" => "Name of the Product",
+      "required" => true,
+      "type" => "string"
+    },
+    %{
+      "name" => "deployment_id",
+      "in" => "path",
+      "description" => "ProductDeployment identifier",
+      "required" => true,
+      "type" => "integer"
+    },
+    %{
+      "name" => "type",
+      "in" => "body",
+      "description" => "The new ProductDeploymentStep",
+      "required" => true,
+      "schema": %{"$ref": "#/definitions/OpenAperture.Manager.DB.Models.ProductDeploymentStep"}
+    }]
+  }
+  @spec create(Plug.Conn.t, [any]) :: Plug.Conn.t   
   def create(conn, %{"product_name" => product_name, "deployment_id" => deployment_id} = params) do
     product_name = URI.decode(product_name)
 
@@ -65,6 +135,38 @@ defmodule OpenAperture.Manager.Controllers.ProductDeploymentSteps do
   end
 
   #PUT /products/:product_name/deployments/:deployment_id/steps/:step_id
+  def swaggerdoc_update, do: %{
+    description: "Update a ProductDeploymentStep" ,
+    parameters: [%{
+      "name" => "product_name",
+      "in" => "path",
+      "description" => "Name of the Product",
+      "required" => true,
+      "type" => "string"
+    },
+    %{
+      "name" => "deployment_id",
+      "in" => "path",
+      "description" => "ProductDeployment identifier",
+      "required" => true,
+      "type" => "integer"
+    },
+    %{
+      "name" => "step_id",
+      "in" => "path",
+      "description" => "ProductDeploymentStep identifier",
+      "required" => true,
+      "type" => "integer"
+    },
+    %{
+      "name" => "type",
+      "in" => "body",
+      "description" => "The updated ProductDeploymentStep",
+      "required" => true,
+      "schema": %{"$ref": "#/definitions/OpenAperture.Manager.DB.Models.ProductDeploymentStep"}
+    }]
+  }
+  @spec update(Plug.Conn.t, [any]) :: Plug.Conn.t     
   def update(conn, %{"deployment_id" => deployment_id, "step_id" => step_id} = params) do 
     case ProductDeploymentStepQuery.get_step_of_deployment(deployment_id, step_id) |> Repo.one do
       nil ->
@@ -89,6 +191,31 @@ defmodule OpenAperture.Manager.Controllers.ProductDeploymentSteps do
   end
 
   # DELETE /products/:product_name/deployments/:deployment_id/steps/:step_id
+  def swaggerdoc_update, do: %{
+    description: "Delete a ProductDeploymentStep" ,
+    parameters: [%{
+      "name" => "product_name",
+      "in" => "path",
+      "description" => "Name of the Product",
+      "required" => true,
+      "type" => "string"
+    },
+    %{
+      "name" => "deployment_id",
+      "in" => "path",
+      "description" => "ProductDeployment identifier",
+      "required" => true,
+      "type" => "integer"
+    },
+    %{
+      "name" => "step_id",
+      "in" => "path",
+      "description" => "ProductDeploymentStep identifier",
+      "required" => true,
+      "type" => "integer"
+    }]
+  }
+  @spec destroy(Plug.Conn.t, [any]) :: Plug.Conn.t       
   def destroy(conn, %{"deployment_id" => deployment_id, "step_id" => step_id}) do
     case ProductDeploymentStepQuery.get_step_of_deployment(deployment_id, step_id) |> Repo.one do
       nil ->

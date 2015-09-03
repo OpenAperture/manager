@@ -18,6 +18,18 @@ defmodule OpenAperture.Manager.Controllers.ProductDeploymentPlans do
   @sendable_fields [:id, :product_id, :name, :inserted_at, :updated_at]
 
   # GET /products/:product_name/deployment_plans
+  def swaggerdoc_index, do: %{
+    description: "Retrieve all ProductDeploymentPlans for a Product",
+    response_schema: %{"title" => "ProductDeploymentPlans", "type": "array", "items": %{"$ref": "#/definitions/OpenAperture.Manager.DB.Models.ProductDeploymentPlan"}},
+    parameters: [%{
+      "name" => "product_name",
+      "in" => "path",
+      "description" => "Name of the Product",
+      "required" => true,
+      "type" => "string"
+    }]
+  }    
+  @spec index(Plug.Conn.t, [any]) :: Plug.Conn.t   
   def index(conn, %{"product_name" => product_name}) do
     product_name
     |> get_product_by_name
@@ -31,6 +43,25 @@ defmodule OpenAperture.Manager.Controllers.ProductDeploymentPlans do
   end
 
   # GET /products/:product_name/deployment_plans/:plan_name
+  def swaggerdoc_show, do: %{
+    description: "Retrieve a specific ProductDeploymentPlan",
+    response_schema: %{"$ref": "#/definitions/OpenAperture.Manager.DB.Models.ProductDeploymentPlan"},
+    parameters: [%{
+      "name" => "product_name",
+      "in" => "path",
+      "description" => "Name of the Product",
+      "required" => true,
+      "type" => "string"
+    },
+    %{
+      "name" => "plan_name",
+      "in" => "path",
+      "description" => "Name of the ProductDeploymentPlan",
+      "required" => true,
+      "type" => "string"
+    }]
+  }    
+  @spec show(Plug.Conn.t, [any]) :: Plug.Conn.t  
   def show(conn, %{"product_name" => product_name, "plan_name" => plan_name}) do
     case get_product_and_plan_by_name(product_name, plan_name) do
       nil ->
@@ -44,6 +75,24 @@ defmodule OpenAperture.Manager.Controllers.ProductDeploymentPlans do
   end
 
   # POST /products/:product_name/deployment_plans
+  def swaggerdoc_create, do: %{
+    description: "Create a ProductDeploymentPlan" ,
+    parameters: [%{
+      "name" => "product_name",
+      "in" => "path",
+      "description" => "Name of the Product",
+      "required" => true,
+      "type" => "string"
+    },
+    %{
+      "name" => "type",
+      "in" => "body",
+      "description" => "The new ProductDeploymentPlan",
+      "required" => true,
+      "schema": %{"$ref": "#/definitions/OpenAperture.Manager.DB.Models.ProductDeploymentPlan"}
+    }]
+  }
+  @spec create(Plug.Conn.t, [any]) :: Plug.Conn.t  
   def create(conn, %{"product_name" => product_name} = params) do
     plan_name = params["name"] || ""
     case get_product_and_plan_by_name(product_name, plan_name, :left) do
@@ -81,6 +130,31 @@ defmodule OpenAperture.Manager.Controllers.ProductDeploymentPlans do
   end
 
   # PUT /products/:product_name/deployment_plans/:plan_name
+  def swaggerdoc_update, do: %{
+    description: "Update a ProductDeploymentPlan" ,
+    parameters: [%{
+      "name" => "product_name",
+      "in" => "path",
+      "description" => "Name of the Product",
+      "required" => true,
+      "type" => "string"
+    },
+    %{
+      "name" => "plan_name",
+      "in" => "path",
+      "description" => "Name of the ProductDeploymentPlan",
+      "required" => true,
+      "type" => "string"
+    },
+    %{
+      "name" => "type",
+      "in" => "body",
+      "description" => "The updated ProductDeploymentPlan",
+      "required" => true,
+      "schema": %{"$ref": "#/definitions/OpenAperture.Manager.DB.Models.ProductDeploymentPlan"}
+    }]
+  }  
+  @spec update(Plug.Conn.t, [any]) :: Plug.Conn.t    
   def update(conn, %{"product_name" => product_name, "plan_name" => plan_name} = params) do
     case get_product_and_plan_by_name(product_name, plan_name, :inner) do
       nil ->
@@ -121,6 +195,17 @@ defmodule OpenAperture.Manager.Controllers.ProductDeploymentPlans do
   end
 
   # DELETE /products/:product_name/deployment_plans
+  def swaggerdoc_destroy_all_plans, do: %{
+    description: "Delete all ProductDeploymentPlans for a Product" ,
+    parameters: [%{
+      "name" => "product_name",
+      "in" => "path",
+      "description" => "Name of the Product",
+      "required" => true,
+      "type" => "string"
+    }]
+  }  
+  @spec destroy_all_plans(Plug.Conn.t, [any]) :: Plug.Conn.t    
   def destroy_all_plans(conn, %{"product_name" => product_name}) do
     product_name
     |> get_product_by_name
@@ -143,6 +228,24 @@ defmodule OpenAperture.Manager.Controllers.ProductDeploymentPlans do
   end
 
   # DELETE /products/:product_name/deployment_plans/:plan_name
+  def swaggerdoc_destroy_plan, do: %{
+    description: "Delete a ProductDeploymentPlan" ,
+    parameters: [%{
+      "name" => "product_name",
+      "in" => "path",
+      "description" => "Name of the Product",
+      "required" => true,
+      "type" => "string"
+    },
+    %{
+      "name" => "plan_name",
+      "in" => "path",
+      "description" => "Name of the ProductDeploymentPlan",
+      "required" => true,
+      "type" => "string"
+    }]
+  }  
+  @spec destroy_plan(Plug.Conn.t, [any]) :: Plug.Conn.t      
   def destroy_plan(conn, %{"product_name" => product_name, "plan_name" => plan_name}) do
     case get_product_and_plan_by_name(product_name, plan_name, :inner) do
       nil ->

@@ -20,6 +20,25 @@ defmodule OpenAperture.Manager.Controllers.ProductDeploymentPlanSteps do
   @option_sendable_fields [:id, :product_deployment_plan_step_id, :name, :value, :inserted_at, :updated_at]
 
   # GET /products/:product_name/deployment_plans/:plan_name/steps
+  def swaggerdoc_index, do: %{
+    description: "Retrieve all ProductDeploymentPlanSteps",
+    response_schema: %{"title" => "ProductDeploymentPlanSteps", "type": "array", "items": %{"$ref": "#/definitions/OpenAperture.Manager.DB.Models.ProductDeploymentPlanStep"}},
+    parameters: [%{
+      "name" => "product_name",
+      "in" => "path",
+      "description" => "Name of the Product",
+      "required" => true,
+      "type" => "string"
+    },
+    %{
+      "name" => "plan_name",
+      "in" => "path",
+      "description" => "Name of the ProductDeploymentPlan",
+      "required" => true,
+      "type" => "string"
+    }]
+  }    
+  @spec index(Plug.Conn.t, [any]) :: Plug.Conn.t    
   def index(conn, %{"product_name" => product_name, "plan_name" => plan_name}) do
     case get_product_and_plan_by_name(product_name, plan_name) do
       {_, plan} when plan != nil ->
@@ -46,6 +65,31 @@ defmodule OpenAperture.Manager.Controllers.ProductDeploymentPlanSteps do
   end
 
   # POST /products/:product_name/deployment_plans/:plan_name/steps
+  def swaggerdoc_create, do: %{
+    description: "Create a ProductDeploymentPlanStep" ,
+    parameters: [%{
+      "name" => "product_name",
+      "in" => "path",
+      "description" => "Name of the Product",
+      "required" => true,
+      "type" => "string"
+    },
+    %{
+      "name" => "plan_name",
+      "in" => "path",
+      "description" => "Name of the ProductDeploymentPlan",
+      "required" => true,
+      "type" => "string"
+    },
+    %{
+      "name" => "type",
+      "in" => "body",
+      "description" => "The new ProductDeploymentPlanStep",
+      "required" => true,
+      "schema": %{"$ref": "#/definitions/OpenAperture.Manager.DB.Models.ProductDeploymentPlanStep"}
+    }]
+  }
+  @spec create(Plug.Conn.t, [any]) :: Plug.Conn.t   
   def create(conn, %{"product_name" => product_name, "plan_name" => plan_name} = params) do
     case get_product_and_plan_by_name(product_name, plan_name) do
       {_, plan} when plan != nil ->
@@ -104,6 +148,38 @@ defmodule OpenAperture.Manager.Controllers.ProductDeploymentPlanSteps do
   end
 
   # PUT "/products/:product_name/deployment_plans/:plan_name/steps/:step_id"
+  def swaggerdoc_update, do: %{
+    description: "Update a ProductDeploymentPlanStep" ,
+    parameters: [%{
+      "name" => "product_name",
+      "in" => "path",
+      "description" => "Name of the Product",
+      "required" => true,
+      "type" => "string"
+    },
+    %{
+      "name" => "plan_name",
+      "in" => "path",
+      "description" => "Name of the ProductDeploymentPlan",
+      "required" => true,
+      "type" => "string"
+    },
+    %{
+      "name" => "step_id",
+      "in" => "path",
+      "description" => "ProductDeploymentPlanStep identifier",
+      "required" => true,
+      "type" => "integer"
+    },    
+    %{
+      "name" => "type",
+      "in" => "body",
+      "description" => "The updated ProductDeploymentPlanStep",
+      "required" => true,
+      "schema": %{"$ref": "#/definitions/OpenAperture.Manager.DB.Models.ProductDeploymentPlanStep"}
+    }]
+  }
+  @spec update(Plug.Conn.t, [any]) :: Plug.Conn.t     
   def update(conn, %{"product_name" => product_name, "plan_name" => plan_name, "step_id" => step_id} = params) do
     case Repo.get(ProductDeploymentPlanStep, step_id) do
       nil ->
@@ -154,8 +230,33 @@ defmodule OpenAperture.Manager.Controllers.ProductDeploymentPlanSteps do
     end
   end
 
-  # DELETE /products/:product_name/deployment_plans/:plan_name/steps/:plan_id
+  # DELETE /products/:product_name/deployment_plans/:plan_name/steps/:step_id
   # Deletes SINGLE deployment plan step and all descending children instead of all steps in a plan.
+  def swaggerdoc_destroy, do: %{
+    description: "Delete a ProductDeploymentPlanStep and all child steps, or delete all steps",
+    parameters: [%{
+      "name" => "product_name",
+      "in" => "path",
+      "description" => "Name of the Product",
+      "required" => true,
+      "type" => "string"
+    },
+    %{
+      "name" => "plan_name",
+      "in" => "path",
+      "description" => "Name of the ProductDeploymentPlan",
+      "required" => true,
+      "type" => "string"
+    },
+    %{
+      "name" => "step_id",
+      "in" => "path",
+      "description" => "ProductDeploymentPlanStep identifier",
+      "required" => false,
+      "type" => "integer"
+    }]
+  }  
+  @spec destroy(Plug.Conn.t, [any]) :: Plug.Conn.t  
   def destroy(conn, %{"product_name" => product_name, "plan_name" => plan_name, "step_id" => step_id}) do
     case Repo.get(ProductDeploymentPlanStep, step_id) do
       step when step != nil ->
@@ -199,7 +300,7 @@ defmodule OpenAperture.Manager.Controllers.ProductDeploymentPlanSteps do
     end
   end
 
-  # DELETE /products/:product_name/deployment_plans/:plan_name/steps
+  # DELETE /products/:product_name/deployment_plans/:plan_name/steps  
   def destroy(conn, %{"product_name" => product_name, "plan_name" => plan_name}) do
     case get_product_and_plan_by_name(product_name, plan_name) do
       {_, plan} when plan != nil ->

@@ -19,6 +19,18 @@ defmodule OpenAperture.Manager.Controllers.ProductClusters do
   @updatable_fields [:product_id, :etcd_cluster_id, :primary_ind]
 
   # GET "/products/:product_name/clusters"
+  def swaggerdoc_index, do: %{
+    description: "Retrieve all ProductClusters",
+    response_schema: %{"title" => "ProductClusters", "type": "array", "items": %{"$ref": "#/definitions/OpenAperture.Manager.DB.Models.ProductCluster"}},
+    parameters: [%{
+      "name" => "product_name",
+      "in" => "path",
+      "description" => "Name of the Product",
+      "required" => true,
+      "type" => "string"
+    }]
+  }    
+  @spec index(Plug.Conn.t, [any]) :: Plug.Conn.t  
   def index(conn, %{"product_name" => product_name}) do
     product_name
     |> get_product_by_name
@@ -39,6 +51,24 @@ defmodule OpenAperture.Manager.Controllers.ProductClusters do
   end
 
   # POST "/products/:product_name/clusters"
+  def swaggerdoc_create, do: %{
+    description: "Create a ProductCluster" ,
+    parameters: [%{
+      "name" => "product_name",
+      "in" => "path",
+      "description" => "Name of the Product",
+      "required" => true,
+      "type" => "string"
+    },
+    %{
+      "name" => "type",
+      "in" => "body",
+      "description" => "The new ProductCluster",
+      "required" => true,
+      "schema": %{"$ref": "#/definitions/OpenAperture.Manager.DB.Models.ProductCluster"}
+    }]
+  }
+  @spec create(Plug.Conn.t, [any]) :: Plug.Conn.t  
   def create(conn, %{"product_name" => product_name, "clusters" => request_clusters}) do
     product_name
     |> get_product_by_name
@@ -87,6 +117,17 @@ defmodule OpenAperture.Manager.Controllers.ProductClusters do
   end
 
   # DELETE "/products/:product_name/clusters"
+  def swaggerdoc_destroy, do: %{
+    description: "Delete all ProductClusters for a Product" ,
+    parameters: [%{
+      "name" => "product_name",
+      "in" => "path",
+      "description" => "Name of the Product",
+      "required" => true,
+      "type" => "string"
+    }]
+  }  
+  @spec destroy(Plug.Conn.t, [any]) :: Plug.Conn.t  
   def destroy(conn, %{"product_name" => product_name}) do
     product_name
     |> get_product_by_name
