@@ -22,6 +22,18 @@ defmodule OpenAperture.Manager.Controllers.Router.RouteController do
   @sendable_fields [:id, :authority_id, :hostname, :port, :secure_connection, :inserted_at, :updated_at]
 
   # GET "/router/authorities/:parent_id/routes?hostspec=[:hostname]:[:port]"
+  def swaggerdoc_index, do: %{
+    description: "Retrieve all Routes for an Authority",
+    response_schema: %{"title" => "Authorities", "type": "array", "items": %{"$ref": "#/definitions/OpenAperture.Manager.DB.Models.Router.Route"}},
+    parameters: [%{
+      "name" => "parent_id",
+      "in" => "path",
+      "description" => "Authority identifier",
+      "required" => true,
+      "type" => "integer"
+    }]
+  }    
+  @spec index(Plug.Conn.t, [any]) :: Plug.Conn.t  
   def index(conn, %{"parent_id" => authority_id, "hostspec" => hostspec}) do
     case parse_hostspec(hostspec) do
       {:ok, hostname, port} ->
@@ -57,6 +69,17 @@ defmodule OpenAperture.Manager.Controllers.Router.RouteController do
   end
 
   # DELETE "/router/authorities/:parent_id/routes/clear"
+  def swaggerdoc_clear, do: %{
+    description: "Delete all Routes for an authority" ,
+    parameters: [%{
+      "name" => "parent_id",
+      "in" => "path",
+      "description" => "Authority identifier",
+      "required" => true,
+      "type" => "integer"
+    }]
+  }  
+  @spec clear(Plug.Conn.t, [any]) :: Plug.Conn.t  
   def clear(conn, %{"parent_id" => authority_id}) do
     case Repo.get(Authority, authority_id) do
       nil ->
@@ -83,6 +106,24 @@ defmodule OpenAperture.Manager.Controllers.Router.RouteController do
   end
 
   # DELETE "/router/authorities/:parent_id/routes/:id"
+  def swaggerdoc_delete, do: %{
+    description: "Delete a Route" ,
+    parameters: [%{
+      "name" => "parent_id",
+      "in" => "path",
+      "description" => "Authority identifier",
+      "required" => true,
+      "type" => "integer"
+    },
+    %{
+      "name" => "id",
+      "in" => "path",
+      "description" => "Route identifier",
+      "required" => false,
+      "type" => "integer"
+    }]
+  }  
+  @spec delete(Plug.Conn.t, [any]) :: Plug.Conn.t   
   def delete(conn, %{"parent_id" => authority_id, "id" => id}) do
     case get_authority_and_route(authority_id, id) do
       {authority, route} when authority != nil and route != nil ->
@@ -107,6 +148,24 @@ defmodule OpenAperture.Manager.Controllers.Router.RouteController do
   end
 
   # POST "/router/authorities/:parent_id/routes"
+  def swaggerdoc_create, do: %{
+    description: "Create a Route" ,
+    parameters: [%{
+      "name" => "parent_id",
+      "in" => "path",
+      "description" => "Authority identifier",
+      "required" => true,
+      "type" => "integer"
+    },
+    %{
+      "name" => "type",
+      "in" => "body",
+      "description" => "The new Route",
+      "required" => true,
+      "schema": %{"$ref": "#/definitions/OpenAperture.Manager.DB.Models.Router.Route"}
+    }]
+  }
+  @spec create(Plug.Conn.t, [any]) :: Plug.Conn.t  
   def create(conn, %{"parent_id" => authority_id, "hostname" => hostname, "port" => port} = params) do
     query = Authority
             |> join(:left, [a], r in Route, r.authority_id == a.id and fragment("lower(?) = lower(?)", r.hostname, ^hostname) and r.port == ^port)
@@ -154,6 +213,31 @@ defmodule OpenAperture.Manager.Controllers.Router.RouteController do
   end
 
   # PUT/PATCH "/router/authorities/:authority_id/routes/:id"
+   def swaggerdoc_update, do: %{
+    description: "Update a Route" ,
+    parameters: [%{
+      "name" => "parent_id",
+      "in" => "path",
+      "description" => "Authority identifier",
+      "required" => true,
+      "type" => "integer"
+    },
+    %{
+      "name" => "id",
+      "in" => "path",
+      "description" => "Route identifier",
+      "required" => false,
+      "type" => "integer"
+    },
+    %{
+      "name" => "type",
+      "in" => "body",
+      "description" => "The updated Route",
+      "required" => true,
+      "schema": %{"$ref": "#/definitions/OpenAperture.Manager.DB.Models.Router.Route"}
+    }]
+  }
+  @spec update(Plug.Conn.t, [any]) :: Plug.Conn.t   
   def update(conn, %{"parent_id" => authority_id, "id" => id} = params) do
     case get_authority_and_route(authority_id, id) do
       {authority, route} when authority != nil and route != nil ->

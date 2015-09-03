@@ -14,6 +14,18 @@ defmodule OpenAperture.Manager.Controllers.Router.RoutesController do
 
   # Only fetch routes newer than a particular timestamp
   # GET /router/routes?updated_since=[timestamp]
+  def swaggerdoc_index, do: %{
+    description: "Retrieve all Routes",
+    response_schema: %{"title" => "Authorities", "type": "array", "items": %{"$ref": "#/definitions/OpenAperture.Manager.DB.Models.Router.Authority"}},
+    parameters: [%{
+      "name" => "updated_since",
+      "in" => "query",
+      "description" => "Unix timestamp, retrieve all Routes (for a time-range)",
+      "required" => false,
+      "type" => "integer"
+    }]
+  }    
+  @spec index(Plug.Conn.t, [any]) :: Plug.Conn.t  
   def index(conn, %{"updated_since" => updated_since}) do
     ecto_datetime = unix_timestamp_to_ecto_datetime(updated_since)
 
@@ -38,6 +50,18 @@ defmodule OpenAperture.Manager.Controllers.Router.RoutesController do
   end
 
   # GET /router/routes/deleted?updated_since=[timestamp]
+  def swaggerdoc_index_deleted, do: %{
+    description: "Delete all Routes",
+    response_schema: %{"title" => "Authorities", "type": "array", "items": %{"$ref": "#/definitions/OpenAperture.Manager.DB.Models.Router.Authority"}},
+    parameters: [%{
+      "name" => "updated_since",
+      "in" => "query",
+      "description" => "Unix timestamp, delete all Routes (for a time-range)",
+      "required" => false,
+      "type" => "integer"
+    }]
+  }    
+  @spec index_deleted(Plug.Conn.t, [any]) :: Plug.Conn.t   
   def index_deleted(conn, %{"updated_since" => updated_since}) do
     ecto_datetime = unix_timestamp_to_ecto_datetime(updated_since)
 

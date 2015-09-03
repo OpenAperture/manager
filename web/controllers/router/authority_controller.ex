@@ -21,6 +21,12 @@ defmodule OpenAperture.Manager.Controllers.Router.AuthorityController do
   @sendable_fields [:id, :hostname, :port, :inserted_at, :updated_at]
 
   # GET /router/authorities?hostspec=somehost%4Asomeport
+  def swaggerdoc_index, do: %{
+    description: "Retrieve all Authorities",
+    response_schema: %{"title" => "Authorities", "type": "array", "items": %{"$ref": "#/definitions/OpenAperture.Manager.DB.Models.Router.Authority"}},
+    parameters: []
+  }    
+  @spec index(Plug.Conn.t, [any]) :: Plug.Conn.t  
   def index(conn, %{"hostspec" => hostspec}) do
     case parse_hostspec(hostspec) do
       {:ok, hostname, port} ->
@@ -47,6 +53,12 @@ defmodule OpenAperture.Manager.Controllers.Router.AuthorityController do
   # This endpoint is used by the UI to retrieve all the authorities & route
   # info at once, so we don't have to make multiple calls.
   # GET /router/authorities/full
+  def swaggerdoc_index_detailed, do: %{
+    description: "Retrieve all Authorities and route info",
+    response_schema: %{"title" => "Authorities", "type": "array", "items": %{"$ref": "#/definitions/OpenAperture.Manager.DB.Models.Router.Authority"}},
+    parameters: []
+  }    
+  @spec index_detailed(Plug.Conn.t, [any]) :: Plug.Conn.t  
   def index_detailed(conn, _params) do
     authorities = Authority
                   |> preload(:routes)
@@ -65,6 +77,18 @@ defmodule OpenAperture.Manager.Controllers.Router.AuthorityController do
   end
 
   # GET /router/authorities/:id
+  def swaggerdoc_show, do: %{
+    description: "Retrieve a specific Authority",
+    response_schema: %{"$ref": "#/definitions/OpenAperture.Manager.DB.Models.Router.Authority"},
+    parameters: [%{
+      "name" => "id",
+      "in" => "path",
+      "description" => "Authority identifier",
+      "required" => true,
+      "type" => "integer"
+    }]
+  }    
+  @spec show(Plug.Conn.t, [any]) :: Plug.Conn.t  
   def show(conn, %{"id" => id}) do
     case Repo.get(Authority, id) do
       nil -> resp conn, :not_found, ""
@@ -73,6 +97,18 @@ defmodule OpenAperture.Manager.Controllers.Router.AuthorityController do
   end
 
   # GET /router/authorities/:id/detailed
+  def swaggerdoc_show_detailed, do: %{
+    description: "Retrieve a specific Authority with details",
+    response_schema: %{"$ref": "#/definitions/OpenAperture.Manager.DB.Models.Router.Authority"},
+    parameters: [%{
+      "name" => "id",
+      "in" => "path",
+      "description" => "Authority identifier",
+      "required" => true,
+      "type" => "integer"
+    }]
+  }    
+  @spec show_detailed(Plug.Conn.t, [any]) :: Plug.Conn.t   
   def show_detailed(conn, %{"id" => id}) do
     Authority
     |> preload(:routes)
@@ -90,6 +126,17 @@ defmodule OpenAperture.Manager.Controllers.Router.AuthorityController do
   end
 
   # DELETE /router/authorities/:id
+  def swaggerdoc_delete, do: %{
+    description: "Delete an Authority" ,
+    parameters: [%{
+      "name" => "id",
+      "in" => "path",
+      "description" => "Authority identifier",
+      "required" => true,
+      "type" => "integer"
+    }]
+  }  
+  @spec delete(Plug.Conn.t, [any]) :: Plug.Conn.t
   def delete(conn, %{"id" => id}) do
     case Repo.get(Authority, id) do
       nil -> resp conn, :not_found, ""
@@ -117,6 +164,17 @@ defmodule OpenAperture.Manager.Controllers.Router.AuthorityController do
   end
 
   # POST /router/authorities
+  def swaggerdoc_create, do: %{
+    description: "Create an Authority" ,
+    parameters: [%{
+      "name" => "type",
+      "in" => "body",
+      "description" => "The new Authority",
+      "required" => true,
+      "schema": %{"$ref": "#/definitions/OpenAperture.Manager.DB.Models.Router.Authority"}
+    }]
+  }
+  @spec create(Plug.Conn.t, [any]) :: Plug.Conn.t  
   def create(conn, %{"hostname" => hostname, "port" => port} = _params) when hostname != nil and port != nil do
     case get_authority_by_hostname_and_port(hostname, port) do
       nil ->
@@ -144,6 +202,24 @@ defmodule OpenAperture.Manager.Controllers.Router.AuthorityController do
   end
 
   # PUT/PATCH /router/authorities/:id
+  def swaggerdoc_update, do: %{
+    description: "Update an Authority" ,
+    parameters: [%{
+      "name" => "id",
+      "in" => "path",
+      "description" => "Authority identifier",
+      "required" => true,
+      "type" => "integer"
+    },
+    %{
+      "name" => "type",
+      "in" => "body",
+      "description" => "The updated Authority",
+      "required" => true,
+      "schema": %{"$ref": "#/definitions/OpenAperture.Manager.DB.Models.Router.Authority"}
+    }]
+  }  
+  @spec update(Plug.Conn.t, [any]) :: Plug.Conn.t  
   def update(conn, %{"id" => id} = params) do
     case Repo.get(Authority, id) do
       nil -> resp conn, :not_found, ""
