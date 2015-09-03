@@ -60,7 +60,32 @@ defmodule OpenAperture.Manager.Controllers.Workflows do
 
   Underlying HTTP connection
   """
-  @spec index(term, [any]) :: term
+  def swaggerdoc_index, do: %{
+    description: "Retrieve all Workflows",
+    response_schema: %{"title" => "Workflows", "type": "array", "items": %{"$ref": "#/definitions/OpenAperture.Manager.DB.Models.Workflow"}},
+    parameters: [%{
+      "name" => "lookback",
+      "in" => "query",
+      "description" => "The number of hours (back) to retrieve Workflows, defaults to 24",
+      "required" => false,
+      "type" => "integer"
+     },
+    %{
+      "name" => "deployment_repo",
+      "in" => "query",
+      "description" => "Only return Workflows that meet the lookback param as well as have the specified deployment repository",
+      "required" => false,
+      "type" => "string"
+     },
+    %{
+      "name" => "source_repo",
+      "in" => "query",
+      "description" => "Only return Workflows that meet the lookback param as well as have the specified source repository",
+      "required" => false,
+      "type" => "string"
+     }]
+  }    
+  @spec index(Plug.Conn.t, [any]) :: Plug.Conn.t
   def index(conn, params) do
     lookback = if params["lookback"] != nil do
       {int, _} = Integer.parse(params["lookback"])
@@ -100,7 +125,18 @@ defmodule OpenAperture.Manager.Controllers.Workflows do
 
   Underlying HTTP connection.
   """
-  @spec show(term, Map) :: term
+  def swaggerdoc_show, do: %{
+    description: "Retrieve a specific Workflow",
+    response_schema: %{"$ref": "#/definitions/OpenAperture.Manager.DB.Models.Workflow"},
+    parameters: [%{
+      "name" => "id",
+      "in" => "path",
+      "description" => "Workflow identifier",
+      "required" => true,
+      "type" => "string"
+    }]
+  }    
+  @spec show(Plug.Conn.t, [any]) :: Plug.Conn.t
   def show(conn, %{"id" => id} = _params) do
     case get_workflow(id) do
       nil -> resp(conn, :not_found, "")
@@ -136,7 +172,17 @@ defmodule OpenAperture.Manager.Controllers.Workflows do
 
   Underlying HTTP connection
   """
-  @spec create(term, [any]) :: term
+  def swaggerdoc_create, do: %{
+    description: "Create a Workflow" ,
+    parameters: [%{
+      "name" => "type",
+      "in" => "body",
+      "description" => "The new Workflow",
+      "required" => true,
+      "schema": %{"$ref": "#/definitions/OpenAperture.Manager.DB.Models.Workflow"}
+    }]
+  }
+  @spec create(Plug.Conn.t, [any]) :: Plug.Conn.t
   def create(conn, params) do
     id = Ecto.UUID.generate()
 
@@ -236,7 +282,24 @@ defmodule OpenAperture.Manager.Controllers.Workflows do
 
   Underlying HTTP connection
   """
-  @spec update(term, [any]) :: term
+  def swaggerdoc_update, do: %{
+    description: "Update a Workflow" ,
+    parameters: [%{
+      "name" => "id",
+      "in" => "path",
+      "description" => "Workflow identifier",
+      "required" => true,
+      "type" => "integer"
+    },
+    %{
+      "name" => "type",
+      "in" => "body",
+      "description" => "The updated Workflow",
+      "required" => true,
+      "schema": %{"$ref": "#/definitions/OpenAperture.Manager.DB.Models.Workflow"}
+    }]
+  }  
+  @spec update(Plug.Conn.t, [any]) :: Plug.Conn.t
   def update(conn, %{"id" => id} = params) do
     raw_workflow_id = case Ecto.UUID.cast(id) do
       {:ok, id} -> id
@@ -307,7 +370,17 @@ defmodule OpenAperture.Manager.Controllers.Workflows do
 
   Underlying HTTP connection
   """
-  @spec destroy(term, [any]) :: term
+  def swaggerdoc_destroy, do: %{
+    description: "Delete a Workflow" ,
+    parameters: [%{
+      "name" => "id",
+      "in" => "path",
+      "description" => "Workflow identifier",
+      "required" => true,
+      "type" => "integer"
+    }]
+  }  
+  @spec destroy(Plug.Conn.t, [any]) :: Plug.Conn.t
   def destroy(conn, %{"id" => id} = _params) do
     raw_workflow_id = case Ecto.UUID.cast(id) do
       {:ok, id} -> id
@@ -337,7 +410,50 @@ defmodule OpenAperture.Manager.Controllers.Workflows do
 
   Underlying HTTP connection
   """
-  @spec execute(term, [any]) :: term
+  def swaggerdoc_execute, do: %{
+    description: "Execute a Workflow" ,
+    parameters: [%{
+      "name" => "id",
+      "in" => "path",
+      "description" => "Workflow identifier",
+      "required" => true,
+      "type" => "integer"
+    },
+    %{
+      "name" => "force_build",
+      "in" => "body",
+      "description" => "Require that a docker build execute",
+      "required" => true,
+      "schema": %{
+        "title" => "force_build", 
+        "description" => "Require that a docker build execute",
+        "type" => "string"
+      }
+    },
+    %{
+      "name" => "build_messaging_exchange_id",
+      "in" => "body",
+      "description" => "Force the build milestone to occur in a Builder in a specific exchange",
+      "required" => true,
+      "schema": %{
+        "title" => "build_messaging_exchange_id", 
+        "description" => "Force the build milestone to occur in a Builder in a specific exchange",
+        "type" => "string"
+      }
+    },
+    %{
+      "name" => "deploy_messaging_exchange_id",
+      "in" => "body",
+      "description" => "Force the deploy milestone to occur in a Deployer in a specific exchange",
+      "required" => true,
+      "schema": %{
+        "title" => "deploy_messaging_exchange_id", 
+        "description" => "Force the deploy milestone to occur in a Deployer in a specific exchange",
+        "type" => "string"
+      }
+    }]
+  }  
+  @spec execute(Plug.Conn.t, [any]) :: Plug.Conn.t
   def execute(conn, %{"id" => id} = params) do
     raw_workflow_id = case Ecto.UUID.cast(id) do
       {:ok, id} -> id
