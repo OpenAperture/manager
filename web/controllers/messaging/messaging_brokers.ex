@@ -41,7 +41,12 @@ defmodule OpenAperture.Manager.Controllers.MessagingBrokers do
 
   Underlying HTTP connection
   """
-  @spec index(term, [any]) :: term
+  def swaggerdoc_index, do: %{
+    description: "Retrieve all MessagingBrokers",
+    response_schema: %{"title" => "MessagingBrokers", "type": "array", "items": %{"$ref": "#/definitions/OpenAperture.Manager.DB.Models.MessagingBroker"}},
+    parameters: []
+  }    
+  @spec index(Plug.Conn.t, [any]) :: Plug.Conn.t
   def index(conn, _params) do
     json conn, FormatHelper.to_sendable(Repo.all(MessagingBroker), @sendable_broker_fields)
   end
@@ -57,7 +62,18 @@ defmodule OpenAperture.Manager.Controllers.MessagingBrokers do
 
   Underlying HTTP connection
   """
-  @spec show(term, [any]) :: term
+  def swaggerdoc_show, do: %{
+    description: "Retrieve a specific MessagingBroker",
+    response_schema: %{"$ref": "#/definitions/OpenAperture.Manager.DB.Models.MessagingBroker"},
+    parameters: [%{
+      "name" => "id",
+      "in" => "path",
+      "description" => "MessagingBroker identifier",
+      "required" => true,
+      "type" => "integer"
+    }]
+  }    
+  @spec show(Plug.Conn.t, [any]) :: Plug.Conn.t
   def show(conn, %{"id" => id}) do
     case Repo.get(MessagingBroker, id) do
       nil -> 
@@ -80,7 +96,17 @@ defmodule OpenAperture.Manager.Controllers.MessagingBrokers do
 
   Underlying HTTP connection
   """
-  @spec create(term, [any]) :: term
+  def swaggerdoc_create, do: %{
+    description: "Create a MessagingBroker" ,
+    parameters: [%{
+      "name" => "type",
+      "in" => "body",
+      "description" => "The new MessagingBroker",
+      "required" => true,
+      "schema": %{"$ref": "#/definitions/OpenAperture.Manager.DB.Models.MessagingBroker"}
+    }]
+  }
+  @spec create(Plug.Conn.t, [any]) :: Plug.Conn.t
   def create(conn, %{"name" => name} = params) when name != "" do
     query = from b in MessagingBroker,
       where: b.name == ^name,
@@ -135,7 +161,24 @@ defmodule OpenAperture.Manager.Controllers.MessagingBrokers do
 
   Underlying HTTP connection
   """
-  @spec update(term, [any]) :: term
+  def swaggerdoc_update, do: %{
+    description: "Update a MessagingBroker" ,
+    parameters: [%{
+      "name" => "id",
+      "in" => "path",
+      "description" => "MessagingBroker identifier",
+      "required" => true,
+      "type" => "integer"
+    },
+    %{
+      "name" => "type",
+      "in" => "body",
+      "description" => "The updated MessagingBroker",
+      "required" => true,
+      "schema": %{"$ref": "#/definitions/OpenAperture.Manager.DB.Models.MessagingBroker"}
+    }]
+  }  
+  @spec update(Plug.Conn.t, [any]) :: Plug.Conn.t
   def update(conn, %{"id" => id} = params) do
     broker = Repo.get(MessagingBroker, id)
 
@@ -200,7 +243,17 @@ defmodule OpenAperture.Manager.Controllers.MessagingBrokers do
 
   Underlying HTTP connection
   """
-  @spec destroy(term, [any]) :: term
+  def swaggerdoc_destroy, do: %{
+    description: "Delete a MessagingBroker" ,
+    parameters: [%{
+      "name" => "id",
+      "in" => "path",
+      "description" => "MessagingBroker identifier",
+      "required" => true,
+      "type" => "integer"
+    }]
+  }  
+  @spec destroy(Plug.Conn.t, [any]) :: Plug.Conn.t
   def destroy(conn, %{"id" => id} = _params) do
     case Repo.get(MessagingBroker, id) do
       nil -> 
@@ -229,7 +282,24 @@ defmodule OpenAperture.Manager.Controllers.MessagingBrokers do
 
   Underlying HTTP connection
   """
-  @spec create_connection(term, [any]) :: term
+  def swaggerdoc_create_connection, do: %{
+    description: "Create a MessagingBrokerConnection" ,
+    parameters: [%{
+      "name" => "id",
+      "in" => "path",
+      "description" => "MessagingBroker identifier",
+      "required" => true,
+      "type" => "integer"
+    },
+    %{
+      "name" => "type",
+      "in" => "body",
+      "description" => "The new MessagingBrokerConnection",
+      "required" => true,
+      "schema": %{"$ref": "#/definitions/OpenAperture.Manager.DB.Models.MessagingBrokerConnection"}
+    }]
+  }
+  @spec create_connection(Plug.Conn.t, [any]) :: Plug.Conn.t
   def create_connection(conn, %{"id" => id} = params) do
     try do
       case Repo.get(MessagingBroker, id) do
@@ -271,7 +341,7 @@ defmodule OpenAperture.Manager.Controllers.MessagingBrokers do
   end
 
   @doc """
-  GET /messaging/brokers/:id/connections - Add a MessagingBrokerConnection
+  GET /messaging/brokers/:id/connections - Retrieve all MessagingBrokerConnections for a broker
 
   ## Options
   The `conn` option defines the underlying HTTP connection.
@@ -281,7 +351,18 @@ defmodule OpenAperture.Manager.Controllers.MessagingBrokers do
 
   Underlying HTTP connection
   """
-  @spec get_connections(term, [any]) :: term
+  def swaggerdoc_get_connections, do: %{
+    description: "Retrieve all MessagingBrokerConnections for a broker",
+    response_schema: %{"title" => "MessagingBrokerConnections", "type": "array", "items": %{"$ref": "#/definitions/OpenAperture.Manager.DB.Models.MessagingBrokerConnection"}},
+    parameters: [%{
+      "name" => "id",
+      "in" => "path",
+      "description" => "MessagingBroker identifier",
+      "required" => true,
+      "type" => "integer"
+    }]
+  }    
+  @spec get_connections(Plug.Conn.t, [any]) :: Plug.Conn.t
   def get_connections(conn, %{"id" => id} = _params) do
     case Repo.get(MessagingBroker, id) do
       nil -> 
@@ -318,7 +399,17 @@ defmodule OpenAperture.Manager.Controllers.MessagingBrokers do
 
   Underlying HTTP connection
   """
-  @spec destroy_connections(term, [any]) :: term
+  def swaggerdoc_destroy_connections, do: %{
+    description: "Delete all MessagingBrokerConnection" ,
+    parameters: [%{
+      "name" => "id",
+      "in" => "path",
+      "description" => "MessagingBroker identifier",
+      "required" => true,
+      "type" => "integer"
+    }]
+  }  
+  @spec destroy_connections(Plug.Conn.t, [any]) :: Plug.Conn.t
   def destroy_connections(conn, %{"id" => id} = _params) do
     case Repo.get(MessagingBroker, id) do
       nil -> 

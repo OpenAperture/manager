@@ -423,7 +423,7 @@ defmodule OpenAperture.Manager.Controllers.Workflows do
       "name" => "force_build",
       "in" => "body",
       "description" => "Require that a docker build execute",
-      "required" => true,
+      "required" => false,
       "schema": %{
         "title" => "force_build", 
         "description" => "Require that a docker build execute",
@@ -434,7 +434,7 @@ defmodule OpenAperture.Manager.Controllers.Workflows do
       "name" => "build_messaging_exchange_id",
       "in" => "body",
       "description" => "Force the build milestone to occur in a Builder in a specific exchange",
-      "required" => true,
+      "required" => false,
       "schema": %{
         "title" => "build_messaging_exchange_id", 
         "description" => "Force the build milestone to occur in a Builder in a specific exchange",
@@ -445,7 +445,7 @@ defmodule OpenAperture.Manager.Controllers.Workflows do
       "name" => "deploy_messaging_exchange_id",
       "in" => "body",
       "description" => "Force the deploy milestone to occur in a Deployer in a specific exchange",
-      "required" => true,
+      "required" => false,
       "schema": %{
         "title" => "deploy_messaging_exchange_id", 
         "description" => "Force the deploy milestone to occur in a Deployer in a specific exchange",

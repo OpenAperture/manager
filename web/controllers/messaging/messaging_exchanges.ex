@@ -82,7 +82,12 @@ defmodule OpenAperture.Manager.Controllers.MessagingExchanges do
 
   Underlying HTTP connection
   """
-  @spec index(term, [any]) :: term
+  def swaggerdoc_index, do: %{
+    description: "Retrieve all MessagingExchanges",
+    response_schema: %{"title" => "MessagingExchanges", "type": "array", "items": %{"$ref": "#/definitions/OpenAperture.Manager.DB.Models.MessagingExchange"}},
+    parameters: []
+  }    
+  @spec index(Plug.Conn.t, [any]) :: Plug.Conn.t
   def index(conn, _params) do
     exchanges = 
       Repo.all(MessagingExchange)
@@ -102,7 +107,18 @@ defmodule OpenAperture.Manager.Controllers.MessagingExchanges do
 
   Underlying HTTP connection
   """
-  @spec show(term, [any]) :: term
+  def swaggerdoc_show, do: %{
+    description: "Retrieve a specific MessagingExchange",
+    response_schema: %{"$ref": "#/definitions/OpenAperture.Manager.DB.Models.MessagingExchange"},
+    parameters: [%{
+      "name" => "id",
+      "in" => "path",
+      "description" => "MessagingExchange identifier",
+      "required" => true,
+      "type" => "integer"
+    }]
+  }    
+  @spec show(Plug.Conn.t, [any]) :: Plug.Conn.t
   def show(conn, %{"id" => id}) do
     case Repo.get(MessagingExchange, id) do
       nil -> 
@@ -141,7 +157,17 @@ defmodule OpenAperture.Manager.Controllers.MessagingExchanges do
 
   Underlying HTTP connection
   """
-  @spec create(term, [any]) :: term
+  def swaggerdoc_create, do: %{
+    description: "Create a MessagingExchange" ,
+    parameters: [%{
+      "name" => "type",
+      "in" => "body",
+      "description" => "The new MessagingExchange",
+      "required" => true,
+      "schema": %{"$ref": "#/definitions/OpenAperture.Manager.DB.Models.MessagingExchange"}
+    }]
+  }
+  @spec create(Plug.Conn.t, [any]) :: Plug.Conn.t
   def create(conn, %{"name" => name} = params) when name != "" do
     query = from b in MessagingExchange,
       where: b.name == ^name,
@@ -200,7 +226,24 @@ defmodule OpenAperture.Manager.Controllers.MessagingExchanges do
 
   Underlying HTTP connection
   """
-  @spec update(term, [any]) :: term
+  def swaggerdoc_update, do: %{
+    description: "Update a MessagingExchange" ,
+    parameters: [%{
+      "name" => "id",
+      "in" => "path",
+      "description" => "MessagingExchange identifier",
+      "required" => true,
+      "type" => "integer"
+    },
+    %{
+      "name" => "type",
+      "in" => "body",
+      "description" => "The updated MessagingExchange",
+      "required" => true,
+      "schema": %{"$ref": "#/definitions/OpenAperture.Manager.DB.Models.MessagingExchange"}
+    }]
+  }  
+  @spec update(Plug.Conn.t, [any]) :: Plug.Conn.t
   def update(conn, %{"id" => id} = params) do
     exchange = Repo.get(MessagingExchange, id)
 
@@ -275,7 +318,17 @@ defmodule OpenAperture.Manager.Controllers.MessagingExchanges do
 
   Underlying HTTP connection
   """
-  @spec destroy(term, [any]) :: term
+  def swaggerdoc_destroy, do: %{
+    description: "Delete a MessagingExchange" ,
+    parameters: [%{
+      "name" => "id",
+      "in" => "path",
+      "description" => "MessagingExchange identifier",
+      "required" => true,
+      "type" => "integer"
+    }]
+  }  
+  @spec destroy(Plug.Conn.t, [any]) :: Plug.Conn.t
   def destroy(conn, %{"id" => id} = _params) do
     case Repo.get(MessagingExchange, id) do
       nil -> 
@@ -307,7 +360,24 @@ defmodule OpenAperture.Manager.Controllers.MessagingExchanges do
 
   Underlying HTTP connection
   """
-  @spec create_broker_restriction(term, [any]) :: term
+  def swaggerdoc_create_broker_restriction, do: %{
+    description: "Create a MessagingExchangeBroker" ,
+    parameters: [%{
+      "name" => "id",
+      "in" => "path",
+      "description" => "MessagingExchange identifier",
+      "required" => true,
+      "type" => "integer"
+    },
+    %{
+      "name" => "type",
+      "in" => "body",
+      "description" => "The new MessagingExchangeBroker",
+      "required" => true,
+      "schema": %{"$ref": "#/definitions/OpenAperture.Manager.DB.Models.MessagingExchangeBroker"}
+    }]
+  }
+  @spec create_broker_restriction(Plug.Conn.t, [any]) :: Plug.Conn.t
   def create_broker_restriction(conn, %{"id" => id, "messaging_broker_id" => messaging_broker_id} = _params) when messaging_broker_id != "" do
     exchange = Repo.get(MessagingExchange, id)
     broker = Repo.get(MessagingBroker, messaging_broker_id)
@@ -373,7 +443,18 @@ defmodule OpenAperture.Manager.Controllers.MessagingExchanges do
 
   Underlying HTTP connection
   """
-  @spec get_broker_restrictions(term, [any]) :: term
+  def swaggerdoc_get_broker_restrictions, do: %{
+    description: "Retrieve all MessagingExchangeBrokers for an Exchange" ,
+    response_schema: %{"title" => "MessagingExchangeBrokers", "type": "array", "items": %{"$ref": "#/definitions/OpenAperture.Manager.DB.Models.MessagingExchangeBroker"}},
+    parameters: [%{
+      "name" => "id",
+      "in" => "path",
+      "description" => "MessagingExchange identifier",
+      "required" => true,
+      "type" => "integer"
+    }]
+  }
+  @spec get_broker_restrictions(Plug.Conn.t, [any]) :: Plug.Conn.t
   def get_broker_restrictions(conn, %{"id" => id} = _params) do
     case Repo.get(MessagingExchange, id) do
       nil -> 
@@ -408,7 +489,17 @@ defmodule OpenAperture.Manager.Controllers.MessagingExchanges do
 
   Underlying HTTP connection
   """
-  @spec destroy_broker_restrictions(term, [any]) :: term
+  def swaggerdoc_destroy_broker_restrictions, do: %{
+    description: "Delete all MessagingExchangeBrokers associated with an Exchange" ,
+    parameters: [%{
+      "name" => "id",
+      "in" => "path",
+      "description" => "MessagingBroker identifier",
+      "required" => true,
+      "type" => "integer"
+    }]
+  }  
+  @spec destroy_broker_restrictions(Plug.Conn.t, [any]) :: Plug.Conn.t
   def destroy_broker_restrictions(conn, %{"id" => id} = _params) do
     case Repo.get(MessagingExchange, id) do
       nil -> 
@@ -434,7 +525,25 @@ defmodule OpenAperture.Manager.Controllers.MessagingExchanges do
 
   Underlying HTTP connection
   """
-  @spec show_clusters(term, [any]) :: term
+  def swaggerdoc_show_clusters, do: %{
+    description: "Retrieve all EtcdClusters for an Exchange" ,
+    response_schema: %{"title" => "EtcdClusters", "type": "array", "items": %{"$ref": "#/definitions/OpenAperture.Manager.DB.Models.EtcdCluster"}},
+    parameters: [%{
+      "name" => "id",
+      "in" => "path",
+      "description" => "MessagingExchange identifier",
+      "required" => true,
+      "type" => "integer"
+    },
+    %{
+      "name" => "allow_docker_builds",
+      "in" => "query",
+      "description" => "Only return clusters that are defined as docker build clusters",
+      "required" => false,
+      "type" => "boolean"
+    }]
+  }
+  @spec show_clusters(Plug.Conn.t, [any]) :: Plug.Conn.t
   def show_clusters(conn, %{"id" => id} = params) do
     case Repo.get(MessagingExchange, id) do
       nil -> 
@@ -471,7 +580,18 @@ defmodule OpenAperture.Manager.Controllers.MessagingExchanges do
 
   Underlying HTTP connection
   """
-  @spec show_components(term, [any]) :: term
+  def swaggerdoc_show_components, do: %{
+    description: "Retrieve all SystemComponents for an Exchange" ,
+    response_schema: %{"title" => "SystemComponents", "type": "array", "items": %{"$ref": "#/definitions/OpenAperture.Manager.DB.Models.SystemComponent"}},
+    parameters: [%{
+      "name" => "id",
+      "in" => "path",
+      "description" => "MessagingExchange identifier",
+      "required" => true,
+      "type" => "integer"
+    }]
+  }
+  @spec show_components(Plug.Conn.t, [any]) :: Plug.Conn.t
   def show_components(conn, %{"id" => id}) do
     case Repo.get(MessagingExchange, id) do
       nil -> not_found(conn, "MessagingExchange #{id}")

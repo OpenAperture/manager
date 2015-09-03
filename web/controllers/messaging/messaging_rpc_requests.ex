@@ -33,7 +33,12 @@ defmodule OpenAperture.Manager.Controllers.MessagingRpcRequests do
 
   Underlying HTTP connection
   """
-  @spec index(term, [any]) :: term
+  def swaggerdoc_index, do: %{
+    description: "Retrieve all MessagingRpcRequests",
+    response_schema: %{"title" => "MessagingRpcRequests", "type": "array", "items": %{"$ref": "#/definitions/OpenAperture.Manager.DB.Models.MessagingRpcRequest"}},
+    parameters: []
+  }    
+  @spec index(Plug.Conn.t, [any]) :: Plug.Conn.t
   def index(conn, _params) do
     updated_requests = case Repo.all(MessagingRpcRequest) do
       [] -> []
@@ -67,7 +72,18 @@ defmodule OpenAperture.Manager.Controllers.MessagingRpcRequests do
 
   Underlying HTTP connection
   """
-  @spec show(term, [any]) :: term
+  def swaggerdoc_show, do: %{
+    description: "Retrieve a specific MessagingRpcRequest",
+    response_schema: %{"$ref": "#/definitions/OpenAperture.Manager.DB.Models.MessagingRpcRequest"},
+    parameters: [%{
+      "name" => "id",
+      "in" => "path",
+      "description" => "MessagingRpcRequest identifier",
+      "required" => true,
+      "type" => "integer"
+    }]
+  }    
+  @spec show(Plug.Conn.t, [any]) :: Plug.Conn.t
   def show(conn, %{"id" => id}) do
     case Repo.get(MessagingRpcRequest, id) do
       nil -> 
@@ -102,7 +118,17 @@ defmodule OpenAperture.Manager.Controllers.MessagingRpcRequests do
 
   Underlying HTTP connection
   """
-  @spec create(term, [any]) :: term
+  def swaggerdoc_create, do: %{
+    description: "Create a MessagingRpcRequest" ,
+    parameters: [%{
+      "name" => "type",
+      "in" => "body",
+      "description" => "The new MessagingRpcRequest",
+      "required" => true,
+      "schema": %{"$ref": "#/definitions/OpenAperture.Manager.DB.Models.MessagingRpcRequest"}
+    }]
+  }
+  @spec create(Plug.Conn.t, [any]) :: Plug.Conn.t
   def create(conn, params) do
     request_body = if params["request_body"] != nil do
       Poison.encode!(params["request_body"])
@@ -155,7 +181,24 @@ defmodule OpenAperture.Manager.Controllers.MessagingRpcRequests do
 
   Underlying HTTP connection
   """
-  @spec update(term, [any]) :: term
+  def swaggerdoc_update, do: %{
+    description: "Update a MessagingRpcRequest" ,
+    parameters: [%{
+      "name" => "id",
+      "in" => "path",
+      "description" => "MessagingRpcRequest identifier",
+      "required" => true,
+      "type" => "integer"
+    },
+    %{
+      "name" => "type",
+      "in" => "body",
+      "description" => "The updated MessagingRpcRequest",
+      "required" => true,
+      "schema": %{"$ref": "#/definitions/OpenAperture.Manager.DB.Models.MessagingRpcRequest"}
+    }]
+  }  
+  @spec update(Plug.Conn.t, [any]) :: Plug.Conn.t
   def update(conn, %{"id" => id} = params) do
     request = Repo.get(MessagingRpcRequest, id)
 
@@ -212,7 +255,17 @@ defmodule OpenAperture.Manager.Controllers.MessagingRpcRequests do
 
   Underlying HTTP connection
   """
-  @spec destroy(term, [any]) :: term
+  def swaggerdoc_destroy, do: %{
+    description: "Delete a MessagingRpcRequest" ,
+    parameters: [%{
+      "name" => "id",
+      "in" => "path",
+      "description" => "MessagingRpcRequest identifier",
+      "required" => true,
+      "type" => "integer"
+    }]
+  }  
+  @spec destroy(Plug.Conn.t, [any]) :: Plug.Conn.t
   def destroy(conn, %{"id" => id} = _params) do
     case Repo.get(MessagingRpcRequest, id) do
       nil -> 

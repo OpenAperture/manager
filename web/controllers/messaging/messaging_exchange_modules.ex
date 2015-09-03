@@ -50,7 +50,18 @@ defmodule OpenAperture.Manager.Controllers.MessagingExchangeModules do
 
   Underlying HTTP connection
   """
-  @spec index(term, [any]) :: term
+  def swaggerdoc_index, do: %{
+    description: "Retrieve all MessagingExchangeModules",
+    response_schema: %{"title" => "MessagingExchangeModules", "type": "array", "items": %{"$ref": "#/definitions/OpenAperture.Manager.DB.Models.MessagingExchangeModule"}},
+    parameters: [%{
+      "name" => "id",
+      "in" => "path",
+      "description" => "MessagingExchange identifier",
+      "required" => true,
+      "type" => "integer"
+    }]
+  }    
+  @spec index(Plug.Conn.t, [any]) :: Plug.Conn.t
   def index(conn, %{"id" => id}) do
     case Repo.get(MessagingExchange, id) do
       nil -> 
@@ -96,7 +107,25 @@ defmodule OpenAperture.Manager.Controllers.MessagingExchangeModules do
 
   Underlying HTTP connection
   """
-  @spec show(term, [any]) :: term
+  def swaggerdoc_show, do: %{
+    description: "Retrieve a specific MessagingExchangeModule",
+    response_schema: %{"$ref": "#/definitions/OpenAperture.Manager.DB.Models.MessagingExchangeModule"},
+    parameters: [%{
+      "name" => "id",
+      "in" => "path",
+      "description" => "MessagingExchange identifier",
+      "required" => true,
+      "type" => "integer"
+    },
+    %{
+      "name" => "hostname",
+      "in" => "path",
+      "description" => "MessagingExchangeModule hostname",
+      "required" => true,
+      "type" => "string"
+    }]
+  }    
+  @spec show(Plug.Conn.t, [any]) :: Plug.Conn.t
   def show(conn, %{"id" => id, "hostname" => hostname}) do
     case Repo.get(MessagingExchange, id) do
       nil -> 
@@ -126,7 +155,7 @@ defmodule OpenAperture.Manager.Controllers.MessagingExchangeModules do
   end  
 
   @doc """
-  POST /messaging/exchanges - Create a MessagingExchangeModule
+  POST /messaging/exchanges/:id/modules - Create a MessagingExchangeModule
 
   ## Options
   The `conn` option defines the underlying HTTP connection.
@@ -136,7 +165,24 @@ defmodule OpenAperture.Manager.Controllers.MessagingExchangeModules do
 
   Underlying HTTP connection
   """
-  @spec create(term, [any]) :: term
+  def swaggerdoc_create, do: %{
+    description: "Create a MessagingExchangeModule" ,
+    parameters: [%{
+      "name" => "id",
+      "in" => "path",
+      "description" => "MessagingExchange identifier",
+      "required" => true,
+      "type" => "integer"
+    },
+    %{
+      "name" => "type",
+      "in" => "body",
+      "description" => "The new MessagingExchangeModule",
+      "required" => true,
+      "schema": %{"$ref": "#/definitions/OpenAperture.Manager.DB.Models.MessagingExchangeModule"}
+    }]
+  }
+  @spec create(Plug.Conn.t, [any]) :: Plug.Conn.t
   def create(conn, %{"id" => id} = params) do
     case Repo.get(MessagingExchange, id) do
       nil -> 
@@ -212,7 +258,24 @@ defmodule OpenAperture.Manager.Controllers.MessagingExchangeModules do
 
   Underlying HTTP connection
   """
-  @spec destroy(term, [any]) :: term
+  def swaggerdoc_destroy, do: %{
+    description: "Delete a MessagingExchangeModule" ,
+    parameters: [%{
+      "name" => "id",
+      "in" => "path",
+      "description" => "MessagingExchange identifier",
+      "required" => true,
+      "type" => "integer"
+    },
+    %{
+      "name" => "hostname",
+      "in" => "path",
+      "description" => "MessagingExchangeModule hostname",
+      "required" => true,
+      "type" => "string"
+    }]
+  }  
+  @spec destroy(Plug.Conn.t, [any]) :: Plug.Conn.t
   def destroy(conn, %{"id" => id, "hostname" => hostname} = _params) do
     case Repo.get(MessagingExchange, id) do
       nil -> resp(conn, :not_found, "")    
