@@ -18,7 +18,7 @@ use Mix.Config
   
 
 # Do not pring debug messages in production
-config :logger, level: :info
+config :logger, level: :warn
 
 # ## Using releases
 #

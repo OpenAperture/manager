@@ -73,7 +73,8 @@ defmodule OpenAperture.Mixfile do
       {:timex_extensions, git: "https://github.com/OpenAperture/timex_extensions", ref: "bf6fe4b5a6bd7615fc39877f64b31e285b7cc3de", override: true},
                   
 
-      {:meck, "0.8.3", override: true},        
+      {:meck, "0.8.3", override: true},  
+      {:swaggerdoc, "0.0.1", override: true, only: :test},
    ]
   end
 

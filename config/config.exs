@@ -45,6 +45,23 @@ config :openaperture_manager_api,
 
 config :openaperture_manager_overseer_api,
   autostart: false
+
+config :swaggerdoc,
+  swagger_version: "2.0",
+  project_version: "1.0.0",
+  project_name: "OpenAperture Manager",
+  project_desc: "The REST API for the OpenAperture Manager",
+  project_terms: "https://github.com/OpenAperture/manager/blob/master/LICENSE",
+  project_contact_name: "OpenAperture",
+  project_contact_email: "openaperture@lexmark.com",
+  project_contact_url: "http://openaperture.io",
+  project_license_name: "Mozilla Public License, v. 2.0",
+  project_license_url: "https://github.com/OpenAperture/manager/blob/master/LICENSE",
+  host: "openaperture.io",
+  base_path: "/",
+  schemes: ["https"],
+  consumes: ["application/json"],
+  produces: ["application/json"]
   
 # Import environment specific config. This must remain at the bottom
 # of this file so it overrides the configuration defined above.
