@@ -21,4 +21,4 @@ config OpenAperture.Manager,
   exchange_id: "1",
   broker_id: "1",
   build_log_monitor_autostart: false,
-  cache_queue_monitor_autostart: false
+  disable_cache: true

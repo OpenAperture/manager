@@ -15,8 +15,8 @@ config OpenAperture.Manager, OpenAperture.Manager.Endpoint,
 # Do not include metadata nor timestamps in development logs
 config :logger, :console, format: "[$level] $message\n"
 
-config :logger, level: :debug
+config :logger, level: :info
 
 config OpenAperture.Manager,
   build_log_monitor_autostart: false,
-  cache_queue_monitor_autostart: false
+  disable_cache: false

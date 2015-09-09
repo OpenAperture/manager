@@ -9,7 +9,6 @@ defmodule OpenAperture.Manager.Messaging.ManagerQueue do
   alias OpenAperture.Manager.DB.Models.MessagingExchange, as: MessagingExchangeModel
   alias OpenAperture.Manager.Repo
   alias OpenAperture.Manager.ResourceCache.CachedResource
-  alias OpenAperture.ManagerApi.SystemEvent
 
   @connection_options nil
   use OpenAperture.Messaging
@@ -27,55 +26,7 @@ defmodule OpenAperture.Manager.Messaging.ManagerQueue do
     connection_options = __MODULE__.messaging_connection_options
     
     subscribe(connection_options, queue, fn(payload, _meta, %{subscription_handler: subscription_handler, delivery_tag: delivery_tag}) -> 
-      try do
-        fun.(payload)
-            catch
-        :exit, code   ->
-          error_msg = "Message #{delivery_tag} (for queue #{queue_name}) Exited with code #{inspect code}.  Payload:  #{inspect payload}"
-          Logger.error(error_msg)
-          event = %{
-            unique: true,
-            type: :unhandled_exception,
-            severity: :error,
-            data: %{
-              component: :overseer,
-              exchange_id: Configuration.get_current_exchange_id,
-              hostname: System.get_env("HOSTNAME")
-            },
-            message: error_msg
-          }
-          SystemEvent.create_system_event!(ManagerApi.get_api, event)
-        :throw, value ->
-          error_msg = "Message #{delivery_tag} (for queue #{queue_name}) Throw called with #{inspect value}.  Payload:  #{inspect payload}"
-          Logger.error(error_msg)
-          event = %{
-            unique: true,
-            type: :unhandled_exception,
-            severity: :error,
-            data: %{
-              component: :overseer,
-              exchange_id: Configuration.get_current_exchange_id,
-              hostname: System.get_env("HOSTNAME")
-            },
-            message: error_msg
-          }
-          SystemEvent.create_system_event!(ManagerApi.get_api, event)
-        what, value   ->
-          error_msg = "Message #{delivery_tag} (for queue #{queue_name}) Caught #{inspect what} with #{inspect value}.  Payload:  #{inspect payload}"
-          Logger.error(error_msg)
-          event = %{
-            unique: true,
-            type: :unhandled_exception,
-            severity: :error,
-            data: %{
-              component: :overseer,
-              exchange_id: Configuration.get_current_exchange_id,
-              hostname: System.get_env("HOSTNAME")
-            },
-            message: error_msg
-          }
-          SystemEvent.create_system_event!(ManagerApi.get_api, event)\
-      end
+      fun.(payload)
       SubscriptionHandler.acknowledge(subscription_handler, delivery_tag)
     end)
     :ok
@@ -108,7 +59,8 @@ defmodule OpenAperture.Manager.Messaging.ManagerQueue do
 
   @spec messaging_connection_options() :: OpenAperture.Messaging.AMQP.ConnectionOptions
   def messaging_connection_options do
-    broker = CachedResource.get(MessagingBrokerModel, Configuration.get_current_broker_id, fn -> Repo.get(MessagingBrokerModel, Configuration.get_current_broker_id) end)
+    #No cache or deadlock will occur during cache registry startup
+    broker = Repo.get(MessagingBrokerModel, Configuration.get_current_broker_id)
     if broker == nil do
       raise "Broker #{Configuration.get_current_broker_id} not found"
     end

@@ -1,7 +1,9 @@
 defmodule OpenAperture.Manager.DB.Models.MessagingBroker do
+  use OpenAperture.Manager.DB.Models.BaseModel
   @required_fields [:name]
   @optional_fields [:failover_broker_id]
-  use OpenAperture.Manager.DB.Models.BaseModel
+  
+  def cachable_type, do: true
 
   alias OpenAperture.Manager.DB.Models.MessagingBrokerConnection
 
