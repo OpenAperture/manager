@@ -17,5 +17,6 @@ config :logger, :console, format: "[$level] $message\n"
 
 config :logger, level: :debug
 
-#config OpenAperture.Manager,
-#  build_log_monitor_autostart: true
+config OpenAperture.Manager,
+  build_log_monitor_autostart: false,
+  disable_cache: true

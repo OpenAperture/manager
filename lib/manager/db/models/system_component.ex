@@ -6,6 +6,8 @@ defmodule OpenAperture.Manager.DB.Models.SystemComponent do
 
   alias OpenAperture.Manager.DB.Models.MessagingExchange
 
+  def cachable_type, do: true
+
   schema "system_components" do
     belongs_to :messaging_exchange, MessagingExchange
     field :type

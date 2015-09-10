@@ -3,6 +3,8 @@ defmodule OpenAperture.Manager.DB.Models.MessagingBroker do
   @optional_fields [:failover_broker_id]
   use OpenAperture.Manager.DB.Models.BaseModel
 
+  def cachable_type, do: true
+  
   alias OpenAperture.Manager.DB.Models.MessagingBrokerConnection
 
   schema "messaging_brokers" do

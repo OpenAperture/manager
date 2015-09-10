@@ -19,4 +19,6 @@ config :openaperture_messaging,
 
 config OpenAperture.Manager, 
   exchange_id: "1",
-  broker_id: "1"
+  broker_id: "1",
+  build_log_monitor_autostart: false,
+  disable_cache: true

@@ -8,6 +8,7 @@ defmodule OpenAperture.Manager.Controllers.SystemComponents do
 
   alias OpenAperture.Manager.DB.Models.SystemComponent
   alias OpenAperture.Manager.DB.Models.MessagingExchange
+  alias OpenAperture.Manager.ResourceCache.CachedResource
 
   alias OpenAperture.OverseerApi.Publisher, as: OverseerPublisher
   alias OpenAperture.OverseerApi.Request, as: OverseerRequest
@@ -154,6 +155,7 @@ defmodule OpenAperture.Manager.Controllers.SystemComponents do
         case Repo.all(query) do
           [] -> 
             component = Repo.insert!(changeset)
+            CachedResource.clear(SystemComponent, component.id)
             path = OpenAperture.Manager.Router.Helpers.system_components_path(Endpoint, :show, component.id)
 
             # Set location header
@@ -244,6 +246,7 @@ defmodule OpenAperture.Manager.Controllers.SystemComponents do
               new_fields = Map.put(new_fields, "upgrade_status", upgrade_status)
             	changeset = SystemComponent.update(component, new_fields)
               Repo.update!(changeset)
+              CachedResource.clear(SystemComponent, component.id)
               path = OpenAperture.Manager.Router.Helpers.system_components_path(Endpoint, :show, component.id)
 
               # Set location header
@@ -287,6 +290,7 @@ defmodule OpenAperture.Manager.Controllers.SystemComponents do
         Repo.transaction(fn ->
           Repo.delete!(component)
         end)
+        CachedResource.clear(SystemComponent, component.id)
         no_content(conn)
     end
   end  

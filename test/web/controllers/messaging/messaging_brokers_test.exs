@@ -18,6 +18,7 @@ defmodule OpenAperture.Manager.Controllers.MessagingBrokersTest do
 
     on_exit fn ->
       :meck.unload
+      CacheWipe.wipe_all_caches
       Repo.delete_all(MessagingExchangeBroker)
       Repo.delete_all(MessagingBrokerConnection)
       Repo.delete_all(MessagingBroker)

@@ -27,6 +27,7 @@ defmodule OpenAperture.Mixfile do
         :logger, 
         :ecto, 
         :crypto, 
+        :con_cache,
         :openaperture_auth, 
         :openaperture_messaging,
         :openaperture_manager_api,
@@ -51,7 +52,7 @@ defmodule OpenAperture.Mixfile do
       #** (CompileError) lib/phoenix/code_reloader.ex:61: function full_path/1 undefined
       #    (stdlib) lists.erl:1337: :lists.foreach/2
       #    (stdlib) erl_eval.erl:669: :erl_eval.do_apply/6
-
+      {:con_cache, "~> 0.8.1"},
       {:phoenix_live_reload, "~> 1.0.0"},
       {:cowboy, "~> 1.0"},
       {:ecto, "~> 1.0.0", override: true},
@@ -61,7 +62,8 @@ defmodule OpenAperture.Mixfile do
       {:rsa, "~> 0.0.1"},
       {:poison, "~> 1.4.0", override: true},
       {:scrivener, "~> 0.10.0", override: true},
-      
+      {:con_cache, "~> 0.8.1"},
+      {:simple_agent, "~> 0.0.7"},
       {:plug_cors, git: "https://github.com/bryanjos/plug_cors", tag: "v0.7.0"},
       {:openaperture_auth, git: "https://github.com/OpenAperture/auth.git", ref: "b8afe858fc875b80ef7ed879b34b7d8a1576819d", override: true},
       {:openaperture_messaging, git: "https://github.com/OpenAperture/messaging.git", ref: "380ce611a038dd8f7afb4fa7f660aeac06475af0", override: true},

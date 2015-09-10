@@ -17,6 +17,7 @@
                        "${project}/_build/dev/lib/plug/ebin",
                        "${project}/_build/dev/lib/Elixir.OpenAperture.Manager/ebin",
                        "${project}/_build/dev/lib/openaperture_messaging/ebin",
+                       "${project}/_build/dev/lib/openaperture_overseer_api/ebin",
                        "${project}/_build/dev/lib/amqp/ebin"]
             }
         }

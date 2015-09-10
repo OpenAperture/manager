@@ -12,6 +12,8 @@ defmodule OpenAperture.Manager do
       # Here you could define other workers and supervisors as children
       # worker(OpenAperture.Manager.Worker, [arg1, arg2, arg3]),
       worker(OpenAperture.Manager.Repo, []),
+      worker(ConCache, [[], [name: :exchange_models_for_publisher]]),
+      worker(OpenAperture.Manager.ResourceCache.Registry, []),
       worker(OpenAperture.Manager.OverseerApi.ModuleRegistration, []),
       worker(OpenAperture.Manager.OverseerApi.Heartbeat, []),
       worker(OpenAperture.Manager.Messaging.RpcRequestsCleanup, []),
