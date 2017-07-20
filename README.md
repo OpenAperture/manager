@@ -1,7 +1,7 @@
 # Manager
 
 [![Build Status](https://semaphoreci.com/api/v1/projects/57ae4ce0-e5f1-4a08-ab29-715b56d03480/398198/badge.svg)](https://semaphoreci.com/perceptive/manager)
- 
+
 To start your new Phoenix application:
 
 1. Install dependencies with `mix deps.get`
@@ -61,10 +61,11 @@ The following configuration values must be defined either as environment variabl
   * Type:  atom or string
   * Description:  An atom or string describing what kind of system module is running (i.e. builder, deployer, etc...)
   * Environment Configuration (.exs): :openaperture_overseer_api, :module_type
-  
+
 The MessagingBrokers (Controller) tests require a keyfile to be present in order for the tests to pass and functionality to work.  A quick way to generate the required PEMs is as follows:
 
 ```
 ssh-keygen -t rsa -b 1024 -C "Test Key"
 openssl rsa -in testing.pem -pubout
 ```
+ 
