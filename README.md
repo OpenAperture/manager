@@ -68,4 +68,3 @@ The MessagingBrokers (Controller) tests require a keyfile to be present in order
 ssh-keygen -t rsa -b 1024 -C "Test Key"
 openssl rsa -in testing.pem -pubout
 ```
- 
